@@ -12,7 +12,7 @@ jobs:
       
       # Publish
       - name: publish Pipaslot.Mediator
-        id: publish_nuget
+        id: publish_nuget_core
         uses: rohith/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator/Pipaslot.Mediator.csproj          
@@ -20,7 +20,7 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: publish Pipaslot.Mediator.Client
-        id: publish_nuget
+        id: publish_nuget_client
         uses: rohith/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator.Client/Pipaslot.Mediator.Client.csproj          
@@ -28,7 +28,7 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}      
       
       - name: publish Pipaslot.Mediator.Server
-        id: publish_nuget
+        id: publish_nuget_server
         uses: rohith/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator.Server/Pipaslot.Mediator.Server.csproj          
