@@ -12,6 +12,10 @@
 		<Description>Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares). 
 		It is alternative for REST API. Designed for applications like Blazor, which shares their data contracts.</Description>
 		<NoWarn>1591</NoWarn>
+		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>

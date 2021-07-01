@@ -11,6 +11,10 @@
 		<Authors>Petr Stipek</Authors>
 		<Description>Expose Pipaslot.Mediator as separeted endpoint on HTTP protocol for ASP.NET Core applications</Description>
 		<NoWarn>1591</NoWarn>
+		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>
