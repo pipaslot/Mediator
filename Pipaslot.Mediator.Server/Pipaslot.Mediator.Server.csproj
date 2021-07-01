@@ -13,7 +13,6 @@
 		<NoWarn>1591</NoWarn>
 		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
