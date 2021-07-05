@@ -40,7 +40,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Mediator.Send(new WeatherForecast.Request());
+        var result = await Mediator.Execute(new WeatherForecast.Request());
         if (result.Success)
         {
             forecasts = result.Result;

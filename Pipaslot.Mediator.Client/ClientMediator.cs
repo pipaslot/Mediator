@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator.Client
             }
         }
 
-        public async Task<IMediatorResponse<TResponse>> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             var contract = CreateContract(request);
             var requestType = request.GetType();

@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Abstractions
         /// <summary>
         /// Execute action and wait for response data
         /// </summary>
-        Task<IMediatorResponse<TResponse>> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
+        Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
         
         /// <summary>
         /// Send message without feedback expectation

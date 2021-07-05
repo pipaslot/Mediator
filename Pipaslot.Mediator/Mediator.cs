@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<IMediatorResponse<TResponse>> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(request.GetType());
             static Task Seed() => Task.CompletedTask;
