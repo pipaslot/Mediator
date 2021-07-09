@@ -53,9 +53,9 @@ namespace Pipaslot.Mediator.Client
                 }
                 catch (Exception e)
                 {
-                    return await ProcessParsingError<TResponse>(e, contract, requestType);
+                    return await ProcessParsingError<TResponse>(contract, requestType, response, e);
                 }
-                return await ProcessSuccessfullResult<TResponse>(contract, result, response);
+                return await ProcessSuccessfullResult<TResponse>(contract, requestType, response, result);
             }
             else
             {
@@ -75,13 +75,13 @@ namespace Pipaslot.Mediator.Client
             };
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessSuccessfullResult<TResponse>(MediatorRequestSerializable contract, IMediatorResponse<TResponse> result, HttpResponseMessage response)
+        protected virtual Task<IMediatorResponse<TResponse>> ProcessSuccessfullResult<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, IMediatorResponse<TResponse> result)
         {
             IMediatorResponse<TResponse> normalized = result ?? throw new InvalidOperationException("No data received");
             return Task.FromResult(normalized);
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessParsingError<TResponse>(Exception e, MediatorRequestSerializable contract, Type requestType)
+        protected virtual Task<IMediatorResponse<TResponse>> ProcessParsingError<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, Exception e)
         {
             IMediatorResponse<TResponse> result = new MediatorResponse<TResponse>("Can not deserialize response object");
             return Task.FromResult(result);
