@@ -41,6 +41,6 @@ namespace Pipaslot.Mediator.Abstractions
         /// <typeparam name="TActionMarker">Action interface</typeparam>
         IPipelineConfigurator Use<TMiddleware, TActionMarker>()
             where TMiddleware : IMediatorMiddleware
-            where TActionMarker : IActionMarker;
+            where TActionMarker : IMediatorAction;
     }
 }

@@ -10,7 +10,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         /// <typeparam name="TActionMarker">Action interface</typeparam>
         public static IPipelineConfigurator UseConcurrentMultiHandler<TActionMarker>(this IPipelineConfigurator config)
-            where TActionMarker : IActionMarker
+            where TActionMarker : IMediatorAction
         {
             return config.Use<MultiHandlerConcurrentExecutionMiddleware, TActionMarker>();
         }
@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         /// <typeparam name="TActionMarker">Action interface</typeparam>
         public static IPipelineConfigurator UseSequenceMultiHandler<TActionMarker>(this IPipelineConfigurator config)
-            where TActionMarker : IActionMarker
+            where TActionMarker : IMediatorAction
         {
             return config.Use<MultiHandlerSequenceExecutionMiddleware, TActionMarker>();
         }

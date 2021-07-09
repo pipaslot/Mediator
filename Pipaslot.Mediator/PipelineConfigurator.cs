@@ -67,7 +67,7 @@ namespace Pipaslot.Mediator
         }
         public IPipelineConfigurator Use<TPipeline, TActionMarker>()
             where TPipeline : IMediatorMiddleware
-            where TActionMarker : IActionMarker
+            where TActionMarker : IMediatorAction
         {
             return RegisterMidlewares(typeof(TPipeline), typeof(TActionMarker));
         }

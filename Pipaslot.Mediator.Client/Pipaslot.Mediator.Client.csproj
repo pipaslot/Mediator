@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>1.0.0-beta05</Version>
+		<Version>1.0.0-beta06</Version>
 		<PackageId>Pipaslot.Mediator.Client</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Client</AssemblyName>
 		<Authors>Petr Stipek</Authors>
