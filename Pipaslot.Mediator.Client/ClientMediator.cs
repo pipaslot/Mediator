@@ -87,7 +87,7 @@ namespace Pipaslot.Mediator.Client
             return Task.FromResult(result);
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessUnsuccessfullStatusCode<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage reponse)
+        protected virtual Task<IMediatorResponse<TResponse>> ProcessUnsuccessfullStatusCode<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response)
         {
             IMediatorResponse<TResponse> result = new MediatorResponse<TResponse>("Request failed");
             return Task.FromResult(result);
