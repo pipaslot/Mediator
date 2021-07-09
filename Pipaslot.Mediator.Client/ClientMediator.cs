@@ -15,12 +15,10 @@ namespace Pipaslot.Mediator.Client
     public class ClientMediator : IMediator
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger<ClientMediator> _logger;
 
-        public ClientMediator(HttpClient httpClient, ILogger<ClientMediator> logger)
+        public ClientMediator(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _logger = logger;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMessage request, CancellationToken cancellationToken = default)
@@ -85,8 +83,6 @@ namespace Pipaslot.Mediator.Client
 
         protected virtual Task OnRequestFailed(Exception e, MediatorRequestSerializable contract, Type requestType)
         {
-
-            _logger.LogError(e, "Mediator request failed for " + requestType);
             return Task.CompletedTask;
         }
     }
