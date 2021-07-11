@@ -21,16 +21,16 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse> Dispatch(IMessage message, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(message.GetType());
-            static Task Seed() => Task.CompletedTask;
+            static Task Seed(MediatorResponse response) => Task.CompletedTask;
             var response = new MediatorResponse();
             try
             {
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => () => middleware.Invoke(message, response, next, cancellationToken))();
+                        (next, middleware) => (MediatorResponse res) => middleware.Invoke(message, res, next, cancellationToken))(response);
 
-                return new MediatorResponse();
+                return response;
             }
             catch (Exception e)
             {
@@ -41,14 +41,14 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(request.GetType());
-            static Task Seed() => Task.CompletedTask;
+            static Task Seed(MediatorResponse res) => Task.CompletedTask;
             var response = new MediatorResponse<TResponse>();
             try
             {
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => () => middleware.Invoke(request, response, next, cancellationToken))();
+                        (next, middleware) => (MediatorResponse res) => middleware.Invoke(request, res, next, cancellationToken))(response);
 
                 return response;
             }
