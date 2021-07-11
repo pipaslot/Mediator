@@ -20,7 +20,9 @@ namespace Sample.Client
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+            //////// Mediator implementation
             builder.Services.AddMediatorClient();
+            ////////
 
             await builder.Build().RunAsync();
         }

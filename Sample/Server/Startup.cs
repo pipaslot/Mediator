@@ -29,6 +29,7 @@ namespace Sample.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            //////// Mediator implementation
             services.AddMediator()
                 .AddMarkersFromAssemblyOf<WeatherForecast.Request>()
                 .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>();
@@ -36,6 +37,7 @@ namespace Sample.Server
                 //.Use<CommandSpecificMiddleware, ICommand>()
                 //.Use<QuerySpecificMiddleware, IQuery>()
                 //.UseSequenceMultiHandler<ICommand>();
+            ////////
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,8 +55,9 @@ namespace Sample.Server
 
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
-
+            //////// Mediator implementation
             app.UseMediator(env.IsDevelopment());
+            ////////
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
