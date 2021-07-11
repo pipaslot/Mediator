@@ -33,7 +33,7 @@ namespace Pipaslot.Mediator.Middlewares
                 .ToArray();
             await Task.WhenAll(tasks);
         }
-        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorResponse response, CancellationToken cancellationToken)
+        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
             var resultType = GenericHelpers.GetRequestResultType(request?.GetType());
             var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Middlewares
             var tasks = handlers
                 .Select(async handler =>
                 {
-                    var resp = new MediatorResponse();
+                    var resp = new MediatorContext();
                     await ExecuteRequest(handler, request, resp, cancellationToken);
                     return resp;
                 })
@@ -55,7 +55,8 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 if (taskResult != null)
                 {
-                    response.Results.AddRange(taskResult.Results);
+                    context.ErrorMessages.AddRange(taskResult.ErrorMessages);
+                    context.Results.AddRange(taskResult.Results);
                 }
             }
 

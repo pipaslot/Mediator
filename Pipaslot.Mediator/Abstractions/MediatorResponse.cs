@@ -15,6 +15,11 @@ namespace Pipaslot.Mediator.Abstractions
         public MediatorResponse(string errorMessage) : base(errorMessage)
         {
         }
+        public MediatorResponse(IEnumerable<object> results, IEnumerable<string> errorMessages)
+        {
+            Results.AddRange(results);
+            ErrorMessages.AddRange(errorMessages);
+        }
 
 #pragma warning disable CS8603 // Possible null reference return.
         TResult IMediatorResponse<TResult>.Result => (TResult)Result;
@@ -36,6 +41,12 @@ namespace Pipaslot.Mediator.Abstractions
         public MediatorResponse(string errorMessage)
         {
             ErrorMessages.Add(errorMessage);
+        }
+
+        public MediatorResponse(IEnumerable<object> results, IEnumerable<string> errorMessages)
+        {
+            Results.AddRange(results);
+            ErrorMessages.AddRange(errorMessages);
         }
 
         public bool Success => ErrorMessages.Count == 0;

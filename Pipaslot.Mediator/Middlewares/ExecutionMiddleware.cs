@@ -11,9 +11,9 @@ namespace Pipaslot.Mediator.Middlewares
     {
         public abstract bool ExecuteMultipleHandlers { get; }
         protected abstract Task HandleMessage<TMessage>(TMessage message, CancellationToken cancellationToken);
-        protected abstract Task HandleRequest<TRequest>(TRequest request, MediatorResponse response, CancellationToken cancellationToken);
+        protected abstract Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken);
 
-        public async Task Invoke<TAction>(TAction action, MediatorResponse response, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
             if (action is null)
             {
@@ -26,7 +26,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
             else
             {
-                await HandleRequest(action, response, cancellationToken);
+                await HandleRequest(action, context, cancellationToken);
             }
         }
 
@@ -68,7 +68,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Execute handler
         /// </summary>
-        protected async Task ExecuteRequest<TRequest>(object handler, TRequest request, MediatorResponse response, CancellationToken cancellationToken)
+        protected async Task ExecuteRequest<TRequest>(object handler, TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             var method = handler.GetType().GetMethod(nameof(IRequestHandler<IRequest<object>, object>.Handle));
@@ -85,7 +85,7 @@ namespace Pipaslot.Mediator.Middlewares
                     if (result != null)
                     {
                         await OnSuccessExecution(handler, request);
-                        response.Results.Add(result);
+                        context.Results.Add(result);
                     }
                 }
             }

@@ -21,16 +21,16 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse> Dispatch(IMessage message, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(message.GetType());
-            static Task Seed(MediatorResponse response) => Task.CompletedTask;
-            var response = new MediatorResponse();
+            static Task Seed(MediatorContext response) => Task.CompletedTask;
+            var context = new MediatorContext();
             try
             {
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (MediatorResponse res) => middleware.Invoke(message, res, next, cancellationToken))(response);
+                        (next, middleware) => (MediatorContext res) => middleware.Invoke(message, res, next, cancellationToken))(context);
 
-                return response;
+                return new MediatorResponse(context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {
@@ -41,16 +41,16 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(request.GetType());
-            static Task Seed(MediatorResponse res) => Task.CompletedTask;
-            var response = new MediatorResponse<TResponse>();
+            static Task Seed(MediatorContext res) => Task.CompletedTask;
+            var context = new MediatorContext();
             try
             {
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (MediatorResponse res) => middleware.Invoke(request, res, next, cancellationToken))(response);
+                        (next, middleware) => (MediatorContext res) => middleware.Invoke(request, res, next, cancellationToken))(context);
 
-                return response;
+                return new MediatorResponse<TResponse>(context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {

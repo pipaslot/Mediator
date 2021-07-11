@@ -36,7 +36,7 @@ namespace Pipaslot.Mediator.Middlewares
             await ExecuteMessage(handler, message, cancellationToken);
         }
 
-        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorResponse response, CancellationToken cancellationToken)
+        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
             var resultType = GenericHelpers.GetRequestResultType(request?.GetType());
             var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 throw new Exception("No handler was found for " + request?.GetType());
             }
-            await ExecuteRequest(handler, request, response, cancellationToken);
+            await ExecuteRequest(handler, request, context, cancellationToken);
         }
     }
 }

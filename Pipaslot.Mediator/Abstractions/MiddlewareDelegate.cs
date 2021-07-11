@@ -7,5 +7,5 @@ namespace Pipaslot.Mediator.Abstractions
     /// Represents an async continuation for the next task to execute in the pipeline
     /// </summary>
     /// <returns>Awaitable task</returns>
-    public delegate Task MiddlewareDelegate(MediatorResponse response);
+    public delegate Task MiddlewareDelegate(MediatorContext context);
 }
