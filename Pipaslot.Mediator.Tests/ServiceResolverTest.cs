@@ -14,20 +14,20 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void RequestDefinitionWithFixedResponse_ShouldResolve()
         {
-            var sut = CreateResolver();
+            var services = CreateServiceProvider();
+            var sut = services.GetRequiredService<ServiceResolver>();
             var handlers = sut.GetRequestHandlers<FakeFixedResponse>(typeof(FakeFixedRequest));
 
             Assert.Equal(1, handlers.Count());
             Assert.Equal(typeof(FakeFixedRequestHandler), handlers.First().GetType());
         }
 
-        private ServiceResolver CreateResolver()
+        private IServiceProvider CreateServiceProvider()
         {
             var collection = new ServiceCollection();
             collection.AddMediator()
                 .AddHandlersFromAssembly(this.GetType().Assembly);
-            IServiceProvider services = collection.BuildServiceProvider();
-            return new ServiceResolver(services);
+            return collection.BuildServiceProvider();
         }
 
         public class FakeFixedResponse { }
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Tests
         {
 
         }
-        public interface IFakeFixedRequestHandler<TRequest> : IRequestHandler<TRequest, FakeFixedResponse> where TRequest : IRequest<FakeFixedResponse>
+        public interface IFakeFixedRequestHandler<TRequest> : IRequestHandler<TRequest, FakeFixedResponse> where TRequest : IFakeFixedRequest
         {
 
         }
