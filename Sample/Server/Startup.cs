@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +7,6 @@ using Pipaslot.Mediator;
 using Pipaslot.Mediator.Server;
 using Sample.Server.RequestHandlers;
 using Sample.Shared.Requests;
-using System.Linq;
 
 namespace Sample.Server
 {
@@ -32,8 +30,8 @@ namespace Sample.Server
             //////// Mediator implementation
             services.AddMediator()
                 .AddActionsFromAssemblyOf<WeatherForecast.Request>()
-                .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>();
-                //.Use<LoggingMiddleware>()
+                .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
+                .Use<CustomMediatorMiddleware>();
                 //.Use<CommandSpecificMiddleware, ICommand>()
                 //.Use<QuerySpecificMiddleware, IQuery>()
                 //.UseSequenceMultiHandler<ICommand>();
