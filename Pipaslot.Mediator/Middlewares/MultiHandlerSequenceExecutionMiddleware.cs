@@ -36,7 +36,7 @@ namespace Pipaslot.Mediator.Middlewares
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = GenericHelpers.GetRequestResultType(request?.GetType());
+            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
             var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
             if (handlers.Length == 0)
             {

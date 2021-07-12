@@ -36,7 +36,7 @@ namespace Pipaslot.Mediator
         private void VerifyMessages(IEnumerable<Type> types)
         {
             var subjectName = typeof(IMessage).Name;
-            var queryTypes = GenericHelpers.FilterAssignableToMessage(types);
+            var queryTypes = FilterAssignableToMessage(types);
             foreach (var subject in queryTypes)
             {
                 if (_alreadyVerified.Contains(subject))
@@ -54,14 +54,14 @@ namespace Pipaslot.Mediator
         private void VerifyRequests(IEnumerable<Type> types)
         {
             var subjectName = typeof(IRequest<>).Name;
-            var queryTypes = GenericHelpers.FilterAssignableToRequest(types);
+            var queryTypes = FilterAssignableToRequest(types);
             foreach (var subject in queryTypes)
             {
                 if (_alreadyVerified.Contains(subject))
                 {
                     continue;
                 }
-                var resultType = GenericHelpers.GetRequestResultType(subject);
+                var resultType = RequestGenericHelpers.GetRequestResultType(subject);
                 var handlers = _handlerResolver.GetRequestHandlers(subject, resultType);
                 var middleware = _handlerResolver.GetExecutiveMiddleware(subject);
                 VerifyHandlerCount(middleware, handlers, subject, subjectName);
@@ -78,6 +78,32 @@ namespace Pipaslot.Mediator
             {
                 throw new Exception($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
             }
+        }
+
+
+        private static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
+        {
+            var genericRequestType = typeof(IRequest<>);
+            return types
+                .Where(t => t.IsClass
+                        && !t.IsAbstract
+                        && !t.IsInterface
+                        && t.GetInterfaces()
+                            .Any(i => i.IsGenericType
+                                    && i.GetGenericTypeDefinition() == genericRequestType)
+                )
+                .ToArray();
+        }
+
+        private static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
+        {
+            var type = typeof(IMessage);
+            return types
+                .Where(p => p.IsClass
+                            && !p.IsAbstract
+                            && !p.IsInterface
+                            && p.GetInterfaces().Any(i => i == type))
+                .ToArray();
         }
     }
 }
