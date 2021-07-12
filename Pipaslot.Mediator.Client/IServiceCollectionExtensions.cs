@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator.Client
 {

@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿using Pipaslot.Mediator.Abstractions;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Abstractions
+namespace Pipaslot.Mediator
 {
     /// <summary>
     ///     Request / Message dispatched
@@ -12,7 +13,7 @@ namespace Pipaslot.Mediator.Abstractions
         /// Execute action and wait for response data
         /// </summary>
         Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
-        
+
         /// <summary>
         /// Send message without feedback expectation
         /// </summary>

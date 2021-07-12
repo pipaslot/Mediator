@@ -1,11 +1,11 @@
 using System;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator;
 using Pipaslot.Mediator.Abstractions;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Tests
 {

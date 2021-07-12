@@ -5,7 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Pipaslot.Mediator.Middlewares;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Services
 {
     public class ServiceResolver
     {

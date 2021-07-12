@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Middlewares
 {

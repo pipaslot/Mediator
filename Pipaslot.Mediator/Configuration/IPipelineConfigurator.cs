@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
+using System.Reflection;
 
-namespace Pipaslot.Mediator.Abstractions
+namespace Pipaslot.Mediator.Configuration
 {
     /// <summary>
     /// Configure pipeline for handler processing. Scans assemblies for action markers and their handlers. Pipeline is specified by registered middlewares by their order

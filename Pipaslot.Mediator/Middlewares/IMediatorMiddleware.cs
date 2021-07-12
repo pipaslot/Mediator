@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Abstractions
+namespace Pipaslot.Mediator.Middlewares
 {
     /// <summary>
     /// Surround handler execution

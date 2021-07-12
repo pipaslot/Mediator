@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Pipaslot.Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator
 {

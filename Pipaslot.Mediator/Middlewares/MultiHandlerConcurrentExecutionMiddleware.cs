@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Services;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
 
 namespace Pipaslot.Mediator.Middlewares
 {

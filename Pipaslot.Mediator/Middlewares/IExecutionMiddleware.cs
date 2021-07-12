@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Abstractions
+﻿namespace Pipaslot.Mediator
 {
     /// <summary>
     /// Marks middleare as final/last wchich executes handlers. Pipeline ends with this milleware evenf it some next middlewares are registered.

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Services
 {
     public class HandlerExistenceChecker
     {
@@ -24,7 +23,7 @@ namespace Pipaslot.Mediator
         public void Verify()
         {
             var assemblies = _configurator.ActionMarkerAssemblies;
-            if(assemblies.Count == 0)
+            if (assemblies.Count == 0)
             {
                 throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddMarkersFromAssemblyOf)} during pipeline setup");
             }
