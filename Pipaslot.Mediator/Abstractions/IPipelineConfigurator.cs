@@ -21,13 +21,13 @@ namespace Pipaslot.Mediator.Abstractions
         /// <summary>
         /// Will scan for action markers from the passed assemblies and register them.
         /// </summary>
-        IPipelineConfigurator AddMarkersFromAssemblyOf(params Assembly[] assemblies);
+        IPipelineConfigurator AddActionsFromAssembly(params Assembly[] assemblies);
 
         /// <summary>
         /// Will scan for action markers from the assembly of type <typeparamref name="T"/> and register them.
         /// </summary>
         /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
-        IPipelineConfigurator AddMarkersFromAssemblyOf<T>();
+        IPipelineConfigurator AddActionsFromAssemblyOf<T>();
 
         /// <summary>
         /// Register middleware in pipeline for all actions

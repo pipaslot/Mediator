@@ -17,12 +17,12 @@ namespace Pipaslot.Mediator
             _services = services;
         }
 
-        public IPipelineConfigurator AddMarkersFromAssemblyOf<T>()
+        public IPipelineConfigurator AddActionsFromAssemblyOf<T>()
         {
-            return AddMarkersFromAssemblyOf(typeof(T).Assembly);
+            return AddActionsFromAssembly(typeof(T).Assembly);
         }
 
-        public IPipelineConfigurator AddMarkersFromAssemblyOf(params Assembly[] assemblies)
+        public IPipelineConfigurator AddActionsFromAssembly(params Assembly[] assemblies)
         {
             ActionMarkerAssemblies.AddRange(assemblies);
             return this;
@@ -65,6 +65,7 @@ namespace Pipaslot.Mediator
         {
             return RegisterMidlewares(typeof(TPipeline));
         }
+
         public IPipelineConfigurator Use<TPipeline, TActionMarker>()
             where TPipeline : IMediatorMiddleware
             where TActionMarker : IMediatorAction
