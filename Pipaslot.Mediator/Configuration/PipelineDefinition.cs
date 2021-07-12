@@ -13,10 +13,10 @@ namespace Pipaslot.Mediator
             MarkerType = markerType;
         }
 
-        public Type PipelineType { get;  }
+        public Type PipelineType { get; }
         /// <summary>
         /// Class or interface which needs to be implemented by Request object to be apply the pipeline for. Will be applied always if is null.
         /// </summary>
-        public Type? MarkerType { get;  }
+        public Type? MarkerType { get; }
     }
 }

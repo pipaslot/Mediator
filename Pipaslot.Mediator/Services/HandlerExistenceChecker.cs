@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 
 namespace Pipaslot.Mediator
 {
