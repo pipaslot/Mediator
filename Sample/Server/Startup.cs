@@ -31,7 +31,7 @@ namespace Sample.Server
 
             //////// Mediator implementation
             services.AddMediator()
-                .AddMarkersFromAssemblyOf<WeatherForecast.Request>()
+                .AddActionsFromAssemblyOf<WeatherForecast.Request>()
                 .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>();
                 //.Use<LoggingMiddleware>()
                 //.Use<CommandSpecificMiddleware, ICommand>()

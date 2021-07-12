@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Services
             var assemblies = _configurator.ActionMarkerAssemblies;
             if (assemblies.Count == 0)
             {
-                throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddMarkersFromAssemblyOf)} during pipeline setup");
+                throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
             }
             var types = assemblies.SelectMany(s => s.GetTypes());
             VerifyMessages(types);

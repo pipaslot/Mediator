@@ -1,9 +1,9 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Pipaslot.Mediator.Contracts;
 
 namespace Pipaslot.Mediator.Server
 {
