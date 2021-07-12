@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipaslot.Mediator.Abstractions
+namespace Pipaslot.Mediator
 {
     public class MediatorResponse<TResult> : MediatorResponse, IMediatorResponse<TResult>
     {

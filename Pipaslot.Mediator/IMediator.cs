@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator

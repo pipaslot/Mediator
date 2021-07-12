@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Abstractions
+﻿namespace Pipaslot.Mediator
 {
     /// <summary>
     /// Provide handler prioritization in case of sequence execution.

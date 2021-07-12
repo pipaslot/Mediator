@@ -1,8 +1,7 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using System;
+﻿using System;
 using System.Linq;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Abstractions
 {
     internal static class RequestGenericHelpers
     {

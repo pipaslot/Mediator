@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
 
 namespace Pipaslot.Mediator.Middlewares
 {

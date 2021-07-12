@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Abstractions
+﻿namespace Pipaslot.Mediator
 {
     public interface IMediatorResponse<TResult> : IMediatorResponse
     {

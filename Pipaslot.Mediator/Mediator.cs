@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Services;
 
@@ -30,7 +29,7 @@ namespace Pipaslot.Mediator
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (MediatorContext res) => middleware.Invoke(message, res, next, cancellationToken))(context);
+                        (next, middleware) => (res) => middleware.Invoke(message, res, next, cancellationToken))(context);
 
                 return new MediatorResponse(context.Results, context.ErrorMessages);
             }
@@ -50,7 +49,7 @@ namespace Pipaslot.Mediator
                 await pipeline
                     .Reverse()
                     .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (MediatorContext res) => middleware.Invoke(request, res, next, cancellationToken))(context);
+                        (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
 
                 return new MediatorResponse<TResponse>(context.Results, context.ErrorMessages);
             }

@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Pipaslot.Mediator.Client
 {

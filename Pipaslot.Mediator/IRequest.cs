@@ -1,4 +1,6 @@
-﻿namespace Pipaslot.Mediator.Abstractions
+﻿using Pipaslot.Mediator.Abstractions;
+
+namespace Pipaslot.Mediator
 {
     /// <summary>
     /// Action which returns data. All derived types can have own specific pipelines and handlers.
@@ -6,7 +8,7 @@
     /// <typeparam name="TResponse">Result data returned from handler execution</typeparam>
     public interface IRequest<out TResponse> : IRequest
     {
-        
+
     }
     /// <summary>
     /// Marker interface for IRequest action type. 

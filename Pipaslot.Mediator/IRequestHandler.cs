@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Abstractions
+namespace Pipaslot.Mediator
 {
     /// <summary>Defines a default request handler</summary>
     /// <typeparam name="TRequest">The type of request being handled</typeparam>

@@ -14,8 +14,8 @@ namespace Pipaslot.Mediator
         /// <returns></returns>
         public static IPipelineConfigurator AddMediator(this IServiceCollection services)
         {
-            services.AddTransient<ServiceResolver>();
-            services.AddTransient<IMediator, Mediator>();
+            services.AddScoped<ServiceResolver>();
+            services.AddScoped<IMediator, Mediator>();
             services.AddTransient<HandlerExistenceChecker>();
             var configurator = new PipelineConfigurator(services);
             services.AddSingleton(configurator);

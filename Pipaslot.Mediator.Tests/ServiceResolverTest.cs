@@ -1,7 +1,6 @@
 using System;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Abstractions;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;

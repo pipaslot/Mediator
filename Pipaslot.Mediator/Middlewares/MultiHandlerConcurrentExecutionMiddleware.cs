@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Services;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Services;
 using System;
 using System.Linq;
 using System.Threading;

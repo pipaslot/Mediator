@@ -1,7 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Pipaslot.Mediator;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sample.Shared.Requests
 {

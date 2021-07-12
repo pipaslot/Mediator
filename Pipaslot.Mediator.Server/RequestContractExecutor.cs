@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Contracts;
 
 namespace Pipaslot.Mediator
