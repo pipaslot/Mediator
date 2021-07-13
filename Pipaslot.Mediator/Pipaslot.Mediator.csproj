@@ -5,12 +5,14 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<PackageId>Pipaslot.Mediator</PackageId>
 		<AssemblyName>Pipaslot.Mediator</AssemblyName>
 		<Authors>Petr Stipek</Authors>
-		<Description>Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares). 
-		It is alternative for REST API. Designed for applications like Blazor, which shares their data contracts.</Description>
+		<Description>
+			Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares).
+			It is alternative for REST API. Designed for applications like Blazor, which shares their data contracts.
+		</Description>
 		<NoWarn>1591</NoWarn>
 		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>

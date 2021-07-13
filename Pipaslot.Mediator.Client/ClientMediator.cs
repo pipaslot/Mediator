@@ -45,10 +45,10 @@ namespace Pipaslot.Mediator.Client
 
             if (response.IsSuccessStatusCode)
             {
-                MediatorResponseDeserialized<TResponse> result = null;
+                IMediatorResponse<TResponse> result;
                 try
                 {
-                    result = await response.Content.ReadFromJsonAsync<MediatorResponseDeserialized<TResponse>>(cancellationToken: cancellationToken);
+                    result = await response.ParseResponse<TResponse>(cancellationToken);
                 }
                 catch (Exception e)
                 {

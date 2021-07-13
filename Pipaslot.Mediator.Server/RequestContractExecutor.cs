@@ -47,6 +47,7 @@ namespace Pipaslot.Mediator
             }
             catch (Exception e)
             {
+                // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
                 return SerializeError(e.Message);
             }
         }
@@ -78,6 +79,7 @@ namespace Pipaslot.Mediator
             }
             catch (Exception e)
             {
+                // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
                 return SerializeError(e.Message);
             }
         }
