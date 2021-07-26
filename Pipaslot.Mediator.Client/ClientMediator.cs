@@ -14,6 +14,10 @@ namespace Pipaslot.Mediator.Client
     /// </summary>
     public class ClientMediator : IMediator
     {
+        private static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = null
+        };
         private readonly HttpClient _httpClient;
 
         public ClientMediator(HttpClient httpClient)
@@ -42,7 +46,7 @@ namespace Pipaslot.Mediator.Client
         private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
         {
             var url = MediatorRequestSerializable.Endpoint + $"?type={requestType}";
-            var response = await _httpClient.PostAsJsonAsync(url, contract, cancellationToken);
+            var response = await _httpClient.PostAsJsonAsync(url, contract, _serializationOptions, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
@@ -83,7 +87,7 @@ namespace Pipaslot.Mediator.Client
             {
                 throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response");
             }
-            var result = JsonSerializer.Deserialize(serializedResult.Json, queryType, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var result = JsonSerializer.Deserialize(serializedResult.Json, queryType);
             if (result == null)
             {
                 throw new Exception($"Can not deserialize contract as type {serializedResult.ObjectName} received from server");
@@ -95,10 +99,7 @@ namespace Pipaslot.Mediator.Client
         {
             return new MediatorRequestSerializable
             {
-                Json = JsonSerializer.Serialize(request, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }),
+                Json = JsonSerializer.Serialize(request, _serializationOptions),
                 ObjectName = request.GetType().AssemblyQualifiedName
             };
         }

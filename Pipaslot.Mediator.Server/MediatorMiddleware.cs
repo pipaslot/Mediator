@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Server
                 {
                     throw new System.Exception("Request body has empty body. JSON was expected.");
                 }
-                return JsonSerializer.Deserialize<MediatorRequestSerializable>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return JsonSerializer.Deserialize<MediatorRequestSerializable>(body);
             }
         }
     }

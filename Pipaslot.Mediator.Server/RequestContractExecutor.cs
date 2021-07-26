@@ -12,6 +12,10 @@ namespace Pipaslot.Mediator
     /// </summary>
     public class RequestContractExecutor
     {
+        private static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = null
+        };
         private readonly IMediator _mediator;
 
         public RequestContractExecutor(IMediator mediator)
@@ -26,7 +30,7 @@ namespace Pipaslot.Mediator
             {
                 throw new Exception($"Can not recognize type {request.ObjectName}");
             }
-            var query = JsonSerializer.Deserialize(request.Json, queryType, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var query = JsonSerializer.Deserialize(request.Json, queryType);
             if (query == null)
             {
                 throw new Exception($"Can not deserialize contract as type {request.ObjectName}");
@@ -108,17 +112,14 @@ namespace Pipaslot.Mediator
                     .ToArray(),
                 Success = response.Success
             };
-            return JsonSerializer.Serialize(obj);
+            return JsonSerializer.Serialize(obj, _serializationOptions);
         }
 
         private MediatorResponseSerializable.SerializedResult SerializerResult(object request)
         {
             return new MediatorResponseSerializable.SerializedResult
             {
-                Json = JsonSerializer.Serialize(request, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }),
+                Json = JsonSerializer.Serialize(request, _serializationOptions),
                 ObjectName = request.GetType().AssemblyQualifiedName
             };
         }
