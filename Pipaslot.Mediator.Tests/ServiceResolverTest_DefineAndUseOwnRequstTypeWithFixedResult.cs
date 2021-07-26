@@ -8,16 +8,16 @@ using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class ServiceResolverTest
+    public class ServiceResolverTest_DefineAndUseOwnRequstTypeWithFixedResult
     {
         [Fact]
-        public void RequestDefinitionWithFixedResponse_ShouldResolve()
+        public void ShouldResolve()
         {
             var services = CreateServiceProvider();
             var sut = services.GetRequiredService<ServiceResolver>();
             var handlers = sut.GetRequestHandlers<FakeFixedResponse>(typeof(FakeFixedRequest));
 
-            Assert.Equal(1, handlers.Count());
+            Assert.Single(handlers);
             Assert.Equal(typeof(FakeFixedRequestHandler), handlers.First().GetType());
         }
 
