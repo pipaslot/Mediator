@@ -62,25 +62,45 @@ namespace Pipaslot.Mediator
             return this;
         }
 
+        [Obsolete("Pipeline definition was replaced by .AddDefaultPipeline(...).Use<TMiddleware>()")]
         public IPipelineConfigurator Use<TPipeline>()
             where TPipeline : IMediatorMiddleware
         {
             return RegisterMidlewares(typeof(TPipeline));
         }
 
+        [Obsolete("Pipeline definition was replaced by .AddPipeline<TActionMarker>(...).Use<TMiddleware>()")]
         public IPipelineConfigurator Use<TPipeline, TActionMarker>()
             where TPipeline : IMediatorMiddleware
             where TActionMarker : IMediatorAction
         {
             return RegisterMidlewares(typeof(TPipeline), typeof(TActionMarker));
         }
-
+        [Obsolete]
         private IPipelineConfigurator RegisterMidlewares(Type pipeline, Type? markerType = null)
         {
             _services.AddSingleton(new PipelineDefinition(pipeline, markerType));
             _services.AddScoped(pipeline);
 
             return this;
+        }
+
+        public IConditionalPipelineConfigurator AddPipeline<TActionMarker>() where TActionMarker : IMediatorAction
+        {
+            var markerType = typeof(TActionMarker);
+            return AddPipeline(markerType);
+        }
+
+        public IConditionalPipelineConfigurator AddDefaultPipeline()
+        {
+            return AddPipeline(null);
+        }
+
+        private IConditionalPipelineConfigurator AddPipeline(Type? markerType)
+        {
+            var pipeline = new ActionSpecificPipelineDefinition(this, _services, markerType);
+            _services.AddSingleton(pipeline);
+            return pipeline;
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
+using System;
 using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
 {
     /// <summary>
-    /// Configure pipeline for handler processing. Scans assemblies for action markers and their handlers. Pipeline is specified by registered middlewares by their order
+    /// Commont configuration for all pipelines and for handler processing. Scans assemblies for action markers and their handlers. Pipeline is specified by registered middlewares by their order
     /// </summary>
-    public interface IPipelineConfigurator
+    public interface IPipelineConfigurator : IPipelineRegistrator
     {
         /// <summary>
         /// Scan assemblies for action handler types
@@ -34,6 +35,7 @@ namespace Pipaslot.Mediator.Configuration
         /// <summary>
         /// Register middleware in pipeline for all actions
         /// </summary>
+        [Obsolete("Pipeline definition was replaced by .AddDefaultPipeline(...).Use<TMiddleware>()")]
         IPipelineConfigurator Use<TMiddleware>() where TMiddleware : IMediatorMiddleware;
 
         /// <summary>
@@ -41,8 +43,11 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         /// <typeparam name="TMiddleware">Middleware to apply</typeparam>
         /// <typeparam name="TActionMarker">Action interface</typeparam>
+        [Obsolete("Pipeline definition was replaced by .AddPipeline<TActionMarker>(...).Use<TMiddleware>()")]
         IPipelineConfigurator Use<TMiddleware, TActionMarker>()
             where TMiddleware : IMediatorMiddleware
             where TActionMarker : IMediatorAction;
+
+        
     }
 }

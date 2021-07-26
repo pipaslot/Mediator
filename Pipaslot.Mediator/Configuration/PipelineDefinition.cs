@@ -5,6 +5,7 @@ namespace Pipaslot.Mediator
     /// <summary>
     /// Specify Pipeline and marker type for which should be applied
     /// </summary>
+    [Obsolete]
     internal class PipelineDefinition
     {
         public PipelineDefinition(Type pipelineType, Type? markerType = null)

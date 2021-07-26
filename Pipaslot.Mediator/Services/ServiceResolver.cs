@@ -69,15 +69,38 @@ namespace Pipaslot.Mediator.Services
 
         public IEnumerable<IMediatorMiddleware> GetPipeline(Type requestType)
         {
-            var pipelines = _serviceProvider.GetServices<PipelineDefinition>()
+            var actionSpecificPipeline = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>()
+                .Where(p => p.MarkerType != null && p.MarkerType.IsAssignableFrom(requestType))
+                .FirstOrDefault();
+            if (actionSpecificPipeline != null)
+            {
+                var actionSpecificPipelineMiddlewares = actionSpecificPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)_serviceProvider.GetRequiredService(m));
+                return GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
+            }
+
+            var defaultPipeline = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>()
+                .Where(p => p.MarkerType == null)
+                .FirstOrDefault();
+            if (defaultPipeline != null)
+            {
+                var defaultPipelineMiddlewares = defaultPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)_serviceProvider.GetRequiredService(m));
+                return GetMiddlewaresWithLastExecutive(defaultPipelineMiddlewares);
+            }
+
+            var defaultMiddlewares = _serviceProvider.GetServices<PipelineDefinition>()
                 .ToArray()
                 .Where(d => d.MarkerType == null || d.MarkerType.IsAssignableFrom(requestType))
                 .Select(d => (IMediatorMiddleware)_serviceProvider.GetRequiredService(d.PipelineType));
 
-            foreach (var pipeline in pipelines)
+            return GetMiddlewaresWithLastExecutive(defaultMiddlewares);
+        }
+
+        private IEnumerable<IMediatorMiddleware> GetMiddlewaresWithLastExecutive(IEnumerable<IMediatorMiddleware> pipeline)
+        {
+            foreach (var middleware in pipeline)
             {
-                yield return pipeline;
-                if (pipeline is IExecutionMiddleware)
+                yield return middleware;
+                if (middleware is IExecutionMiddleware)
                 {
                     yield break;
                 }
