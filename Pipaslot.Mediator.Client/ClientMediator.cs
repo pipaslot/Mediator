@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -29,37 +30,65 @@ namespace Pipaslot.Mediator.Client
             return await task;
         }
 
-        public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
         {
             var contract = CreateContract(request);
             var requestType = request.GetType();
 
-            var task = SendRequest<TResponse>(contract, requestType, cancellationToken);
+            var task = SendRequest<TResult>(contract, requestType, cancellationToken);
             return await task;
         }
 
-        private async Task<IMediatorResponse<TResponse>> SendRequest<TResponse>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
+        private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
         {
             var url = MediatorRequestSerializable.Endpoint + $"?type={requestType}";
             var response = await _httpClient.PostAsJsonAsync(url, contract, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
-                IMediatorResponse<TResponse> result;
+                IMediatorResponse<TResult> result;
                 try
                 {
-                    result = await response.ParseResponse<TResponse>(cancellationToken);
+                    var serializedResult = await response.Content.ReadFromJsonAsync<MediatorResponseSerializable>(cancellationToken: cancellationToken);
+                    result = DeserializeResults<TResult>(serializedResult);
                 }
                 catch (Exception e)
                 {
-                    return await ProcessParsingError<TResponse>(contract, requestType, response, e);
+                    return await ProcessParsingError<TResult>(contract, requestType, response, e);
                 }
-                return await ProcessSuccessfullResult<TResponse>(contract, requestType, response, result);
+                return await ProcessSuccessfullResult<TResult>(contract, requestType, response, result);
             }
             else
             {
-                return await ProcessUnsuccessfullStatusCode<TResponse>(contract, requestType, response);
+                return await ProcessUnsuccessfullStatusCode<TResult>(contract, requestType, response);
             }
+        }
+
+        private IMediatorResponse<TResult> DeserializeResults<TResult>(MediatorResponseSerializable serializedResult)
+        {
+            var results = serializedResult.Results
+                .Select(r => DeserializeResult(r))
+                .ToArray();
+            return new MediatorResponseDeserialized<TResult>
+            {
+                Success = serializedResult.Success,
+                ErrorMessages = serializedResult.ErrorMessages,
+                Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
+            };
+        }
+        private object DeserializeResult(MediatorResponseSerializable.SerializedResult serializedResult)
+        {
+            var queryType = Type.GetType(serializedResult.ObjectName);
+            if (queryType == null)
+            {
+                throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response");
+            }
+            var result = JsonSerializer.Deserialize(serializedResult.Json, queryType, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (result == null)
+            {
+                throw new Exception($"Can not deserialize contract as type {serializedResult.ObjectName} received from server");
+            }
+            return result;
         }
 
         private MediatorRequestSerializable CreateContract(object request)
@@ -74,21 +103,21 @@ namespace Pipaslot.Mediator.Client
             };
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessSuccessfullResult<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, IMediatorResponse<TResponse> result)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, IMediatorResponse<TResult> result)
         {
-            IMediatorResponse<TResponse> normalized = result ?? throw new InvalidOperationException("No data received");
+            IMediatorResponse<TResult> normalized = result ?? throw new InvalidOperationException("No data received");
             return Task.FromResult(normalized);
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessParsingError<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, Exception e)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, Exception e)
         {
-            IMediatorResponse<TResponse> result = new MediatorResponse<TResponse>("Can not deserialize response object");
+            IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Can not deserialize response object");
             return Task.FromResult(result);
         }
 
-        protected virtual Task<IMediatorResponse<TResponse>> ProcessUnsuccessfullStatusCode<TResponse>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessUnsuccessfullStatusCode<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response)
         {
-            IMediatorResponse<TResponse> result = new MediatorResponse<TResponse>("Request failed");
+            IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Request failed");
             return Task.FromResult(result);
         }
     }

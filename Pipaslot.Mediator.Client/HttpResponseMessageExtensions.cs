@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace Pipaslot.Mediator.Client
         /// <param name="response"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        [Obsolete()]
         public static async Task<IMediatorResponse<TResult>> ParseResponse<TResult>(this HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             return await response.Content.ReadFromJsonAsync<MediatorResponseDeserialized<TResult>>(cancellationToken: cancellationToken);
@@ -27,6 +29,7 @@ namespace Pipaslot.Mediator.Client
         /// <param name="response"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>Response is returned only if Success == true, otherwise will be null</returns>
+        [Obsolete()]
         public static async Task<(bool Success, IMediatorResponse<TResult> Response)> TryParseResponse<TResult>(this HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             try

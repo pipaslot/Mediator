@@ -83,27 +83,45 @@ namespace Pipaslot.Mediator
                 return SerializeError(e.Message);
             }
         }
+
         private string SerializeObject(object? result)
         {
             if (result is MediatorResponse mediatorResponse)
             {
-                return Serialize(mediatorResponse);
+                return SerializeResponse(mediatorResponse);
             }
             return SerializeError($"Unexpected result type from mediator pipeline. Was expected {typeof(MediatorResponse)} but {result?.GetType()} was returned instead.");
         }
+
         private string SerializeError(string errorMessage)
         {
-            return Serialize(new MediatorResponse(errorMessage));
+            return SerializeResponse(new MediatorResponse(errorMessage));
         }
-        private string Serialize(MediatorResponse response)
+
+        private string SerializeResponse(MediatorResponse response)
         {
             var obj = new MediatorResponseSerializable
             {
                 ErrorMessages = response.ErrorMessages.ToArray(),
-                Results = response.Results.ToArray(),
+                Results = response.Results
+                    .Select(r => SerializerResult(r))
+                    .ToArray(),
                 Success = response.Success
             };
             return JsonSerializer.Serialize(obj);
         }
+
+        private MediatorResponseSerializable.SerializedResult SerializerResult(object request)
+        {
+            return new MediatorResponseSerializable.SerializedResult
+            {
+                Json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                }),
+                ObjectName = request.GetType().AssemblyQualifiedName
+            };
+        }
+
     }
 }

@@ -21,13 +21,9 @@ namespace Pipaslot.Mediator
             ErrorMessages.AddRange(errorMessages);
         }
 
-#pragma warning disable CS8603 // Possible null reference return.
-        TResult IMediatorResponse<TResult>.Result => (TResult)Result;
-#pragma warning restore CS8603 // Possible null reference return.
+        TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r =>r is TResult);
 
-        TResult[] IMediatorResponse<TResult>.Results => Results
-            .Select(r => (TResult)r)
-            .ToArray();
+        object[] IMediatorResponse<TResult>.Results => Results.ToArray();
 
         string[] IMediatorResponse<TResult>.ErrorMessages => ErrorMessages.ToArray();
     }

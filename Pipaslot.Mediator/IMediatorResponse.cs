@@ -3,7 +3,10 @@
     public interface IMediatorResponse<TResult> : IMediatorResponse
     {
         TResult Result { get; }
-        TResult[] Results { get; }
+        /// <summary>
+        /// Results provided by middlewares and handlers
+        /// </summary>
+        object[] Results { get; }
         string[] ErrorMessages { get; }
     }
 
