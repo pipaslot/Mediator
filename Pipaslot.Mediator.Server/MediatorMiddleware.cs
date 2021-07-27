@@ -25,12 +25,16 @@ namespace Pipaslot.Mediator.Server
                 {
                     throw new System.Exception($"Interface {typeof(IMediator).FullName} was not registered in service collection");
                 }
-                var contract = await GetContract(context);
+                if(!context.Request.Headers.TryGetValue(MediatorRequestSerializable.VersionHeader, out var version)){
+                    version = string.Empty;
+                }
+
+                var contract = await GetContract(context, version);
                 if (contract == null)
                 {
                     throw new System.Exception($"Can not parse contract object from request body");
                 }
-                var executor = new RequestContractExecutor(mediator);
+                var executor = new RequestContractExecutor(mediator, version);
                 var result = await executor.ExecuteQuery(contract, context.RequestAborted);
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(result);
@@ -40,8 +44,23 @@ namespace Pipaslot.Mediator.Server
                 await _next(context);
             }
         }
+        private async Task<MediatorRequestSerializable?> GetContract(HttpContext context, string version)
+        {
+            var body = await GetBody(context);
+            if (version == MediatorRequestSerializable.VersionHeaderValueV2)
+            {
+                return JsonSerializer.Deserialize<MediatorRequestSerializable>(body);
+            }
+            else
+            {
+                return JsonSerializer.Deserialize<MediatorRequestSerializable>(body, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+        }
 
-        private async Task<MediatorRequestSerializable?> GetContract(HttpContext context)
+        private async Task<string> GetBody(HttpContext context)
         {
             using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
             {
@@ -50,16 +69,7 @@ namespace Pipaslot.Mediator.Server
                 {
                     throw new System.Exception("Request body has empty body. JSON was expected.");
                 }
-                var deserialized = JsonSerializer.Deserialize<MediatorRequestSerializable>(body);
-                if (!string.IsNullOrWhiteSpace(deserialized?.ObjectName))
-                {
-                    return deserialized;
-                }
-                //Fix for backward compatibility with version 1.0.1
-                return JsonSerializer.Deserialize<MediatorRequestSerializable>(body, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                return body;
             }
         }
     }

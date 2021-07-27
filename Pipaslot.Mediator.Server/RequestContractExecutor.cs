@@ -17,10 +17,12 @@ namespace Pipaslot.Mediator
             PropertyNamingPolicy = null
         };
         private readonly IMediator _mediator;
+        private readonly string _version;
 
-        public RequestContractExecutor(IMediator mediator)
+        public RequestContractExecutor(IMediator mediator, string version = "")
         {
             _mediator = mediator;
+            _version = version;
         }
 
         public async Task<string> ExecuteQuery(MediatorRequestSerializable request, CancellationToken cancellationToken)
@@ -104,20 +106,33 @@ namespace Pipaslot.Mediator
 
         private string SerializeResponse(MediatorResponse response)
         {
-            var obj = new MediatorResponseSerializable
+            if(_version == MediatorRequestSerializable.VersionHeaderValueV2)
             {
-                ErrorMessages = response.ErrorMessages.ToArray(),
-                Results = response.Results
+                var obj = new MediatorResponseSerializableV2
+                {
+                    ErrorMessages = response.ErrorMessages.ToArray(),
+                    Results = response.Results
                     .Select(r => SerializerResult(r))
                     .ToArray(),
-                Success = response.Success
-            };
-            return JsonSerializer.Serialize(obj, _serializationOptions);
+                    Success = response.Success
+                };
+                return JsonSerializer.Serialize(obj, _serializationOptions);
+            }
+            else
+            {
+                var obj = new MediatorResponseSerializable
+                {
+                    ErrorMessages = response.ErrorMessages.ToArray(),
+                    Results = response.Results.ToArray(),
+                    Success = response.Success
+                };
+                return JsonSerializer.Serialize(obj, _serializationOptions);
+            }
         }
 
-        private MediatorResponseSerializable.SerializedResult SerializerResult(object request)
+        private MediatorResponseSerializableV2.SerializedResult SerializerResult(object request)
         {
-            return new MediatorResponseSerializable.SerializedResult
+            return new MediatorResponseSerializableV2.SerializedResult
             {
                 Json = JsonSerializer.Serialize(request, _serializationOptions),
                 ObjectName = request.GetType().AssemblyQualifiedName

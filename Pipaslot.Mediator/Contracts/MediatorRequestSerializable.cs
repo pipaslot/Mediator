@@ -6,6 +6,8 @@
     public class MediatorRequestSerializable
     {
         public const string Endpoint = "/_mediator/request";
+        public const string VersionHeader = "MediatorAPIVersion";
+        public const string VersionHeaderValueV2 = "v2";
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         public string Json { get; set; } = string.Empty;
 

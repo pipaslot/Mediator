@@ -46,14 +46,17 @@ namespace Pipaslot.Mediator.Client
         private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
         {
             var url = MediatorRequestSerializable.Endpoint + $"?type={requestType}";
-            var response = await _httpClient.PostAsJsonAsync(url, contract, _serializationOptions, cancellationToken);
+
+            var content = JsonContent.Create(contract, null, _serializationOptions);
+            content.Headers.Add(MediatorRequestSerializable.VersionHeader, MediatorRequestSerializable.VersionHeaderValueV2);
+            var response = await _httpClient.PostAsync(url, content, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
                 IMediatorResponse<TResult> result;
                 try
                 {
-                    var serializedResult = await response.Content.ReadFromJsonAsync<MediatorResponseSerializable>(cancellationToken: cancellationToken);
+                    var serializedResult = await response.Content.ReadFromJsonAsync<MediatorResponseSerializableV2>(cancellationToken: cancellationToken);
                     result = DeserializeResults<TResult>(serializedResult);
                 }
                 catch (Exception e)
@@ -68,7 +71,7 @@ namespace Pipaslot.Mediator.Client
             }
         }
 
-        private IMediatorResponse<TResult> DeserializeResults<TResult>(MediatorResponseSerializable serializedResult)
+        private IMediatorResponse<TResult> DeserializeResults<TResult>(MediatorResponseSerializableV2 serializedResult)
         {
             var results = serializedResult.Results
                 .Select(r => DeserializeResult(r))
@@ -80,7 +83,7 @@ namespace Pipaslot.Mediator.Client
                 Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
             };
         }
-        private object DeserializeResult(MediatorResponseSerializable.SerializedResult serializedResult)
+        private object DeserializeResult(MediatorResponseSerializableV2.SerializedResult serializedResult)
         {
             var queryType = Type.GetType(serializedResult.ObjectName);
             if (queryType == null)
