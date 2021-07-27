@@ -69,7 +69,8 @@ namespace Pipaslot.Mediator.Services
 
         public IEnumerable<IMediatorMiddleware> GetPipeline(Type requestType)
         {
-            var actionSpecificPipeline = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>()
+            var actionSpecificPipelineDefinitions = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
+            var actionSpecificPipeline = actionSpecificPipelineDefinitions
                 .Where(p => p.MarkerType != null && p.MarkerType.IsAssignableFrom(requestType))
                 .FirstOrDefault();
             if (actionSpecificPipeline != null)
@@ -78,7 +79,7 @@ namespace Pipaslot.Mediator.Services
                 return GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
             }
 
-            var defaultPipeline = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>()
+            var defaultPipeline = actionSpecificPipelineDefinitions
                 .Where(p => p.MarkerType == null)
                 .FirstOrDefault();
             if (defaultPipeline != null)
@@ -107,6 +108,34 @@ namespace Pipaslot.Mediator.Services
             }
 
             yield return new SingleHandlerExecutionMiddleware(this);
+        }
+
+        public bool HasMultipleDefaultPipelines()
+        {
+            var definitionCount = _serviceProvider
+                .GetServices<ActionSpecificPipelineDefinition>()
+                .Where(d=>d.MarkerType == null)
+                .Count();
+            return definitionCount > 1;
+        }
+
+        internal bool IsDefaultPipelineLastOrMissing()
+        {
+            var definitions = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
+            var defaultCount = definitions
+                .Where(d => d.MarkerType == null)
+                .Count();
+            if(defaultCount == 0)
+            {
+                return true;
+            }
+            var last = definitions.LastOrDefault();
+            if(last == null)
+            {
+                return true;
+            }
+            var isLastDefault = last.MarkerType == null;
+            return isLastDefault;
         }
     }
 }
