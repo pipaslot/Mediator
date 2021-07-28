@@ -10,15 +10,17 @@ namespace Pipaslot.Mediator.Server
     public class MediatorMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ServerMediatorOptions _option;
 
-        public MediatorMiddleware(RequestDelegate next)
+        public MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option)
         {
             _next = next;
+            _option = option;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path == MediatorRequestSerializable.Endpoint && context.Request.Method.ToUpper() == "POST")
+            if (context.Request.Path == _option.Endpoint && context.Request.Method.ToUpper() == "POST")
             {
                 var mediator = context.RequestServices.GetService(typeof(IMediator)) as IMediator;
                 if (mediator == null)

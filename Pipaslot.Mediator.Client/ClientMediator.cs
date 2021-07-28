@@ -19,10 +19,12 @@ namespace Pipaslot.Mediator.Client
             PropertyNamingPolicy = null
         };
         private readonly HttpClient _httpClient;
+        private readonly ClientMediatorOptions _options;
 
-        public ClientMediator(HttpClient httpClient)
+        public ClientMediator(HttpClient httpClient, ClientMediatorOptions options)
         {
             _httpClient = httpClient;
+            _options = options;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMessage request, CancellationToken cancellationToken = default)
@@ -45,7 +47,7 @@ namespace Pipaslot.Mediator.Client
 
         private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
         {
-            var url = MediatorRequestSerializable.Endpoint + $"?type={requestType}";
+            var url = _options.Endpoint + $"?type={requestType}";
 
             var content = JsonContent.Create(contract, null, _serializationOptions);
             content.Headers.Add(MediatorRequestSerializable.VersionHeader, MediatorRequestSerializable.VersionHeaderValueV2);

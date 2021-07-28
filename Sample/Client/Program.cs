@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Client;
+using Sample.Shared;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sample.Client
@@ -21,7 +18,9 @@ namespace Sample.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             //////// Mediator implementation
-            builder.Services.AddMediatorClient();
+            builder.Services.AddMediatorClient(o => {
+                o.Endpoint = Constants.CustomMediatorUrl;
+            });
             ////////
 
             await builder.Build().RunAsync();
