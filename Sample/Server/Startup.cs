@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Server;
 using Sample.Server.RequestHandlers;
+using Sample.Shared;
 using Sample.Shared.Requests;
 
 namespace Sample.Server
@@ -28,7 +29,9 @@ namespace Sample.Server
             services.AddRazorPages();
 
             //////// Mediator implementation
-            services.AddMediator()
+            services.AddMediator(o=> {
+                o.Endpoint = Constants.CustomMediatorUrl;
+            })
                 .AddActionsFromAssemblyOf<WeatherForecast.Request>()
                 .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
                 .Use<CustomMediatorMiddleware>();
