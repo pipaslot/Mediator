@@ -1,5 +1,4 @@
 ﻿@page "/fetchdata"
-@using Sample.Shared.Requests
 @inject IMediator Mediator
 
 <h1>Weather forecast</h1>
@@ -34,17 +33,21 @@ else
         </tbody>
     </table>
 }
+ <p>@(commonResult?.Description ?? "Status message will be provided from server as well")</p>
 
 @code {
     private WeatherForecast.Result[] forecasts;
+    private CommonResult commonResult;
 
     protected override async Task OnInitializedAsync()
     {
         var result = await Mediator.Execute(new WeatherForecast.Request());
+        
         if (result.Success)
         {
             forecasts = result.Result;
         }
+        commonResult = (CommonResult)result.Results.FirstOrDefault(r => r is CommonResult);
     }
 
 }
