@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator.Client
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <param name="configure">Mediator configuration</param>
-        private static IServiceCollection AddMediatorClient<TClientMediator>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where TClientMediator : ClientMediator
+        public static IServiceCollection AddMediatorClient<TClientMediator>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where TClientMediator : ClientMediator
         {
             var options = new ClientMediatorOptions();
             configure(options);
