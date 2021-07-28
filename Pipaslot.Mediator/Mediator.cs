@@ -31,7 +31,8 @@ namespace Pipaslot.Mediator
                     .Aggregate((MiddlewareDelegate)Seed,
                         (next, middleware) => (res) => middleware.Invoke(message, res, next, cancellationToken))(context);
 
-                return new MediatorResponse(context.Results, context.ErrorMessages);
+                var success = context.ErrorMessages.Count() == 0;
+                return new MediatorResponse(success, context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {
@@ -39,7 +40,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<IMediatorResponse<TResponse>> Execute<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _handlerResolver.GetPipeline(request.GetType());
             static Task Seed(MediatorContext res) => Task.CompletedTask;
@@ -51,11 +52,12 @@ namespace Pipaslot.Mediator
                     .Aggregate((MiddlewareDelegate)Seed,
                         (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
 
-                return new MediatorResponse<TResponse>(context.Results, context.ErrorMessages);
+                var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+                return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {
-                return new MediatorResponse<TResponse>(e.Message);
+                return new MediatorResponse<TResult>(e.Message);
             }
         }
     }

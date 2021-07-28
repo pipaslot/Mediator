@@ -106,7 +106,7 @@ namespace Pipaslot.Mediator
 
         private string SerializeResponse(MediatorResponse response)
         {
-            if(_version == MediatorRequestSerializable.VersionHeaderValueV2)
+            if (_version == MediatorRequestSerializable.VersionHeaderValueV2)
             {
                 var obj = new MediatorResponseSerializableV2
                 {
