@@ -5,15 +5,15 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>1.2.1</Version>
+		<Version>2.0.0</Version>
 		<PackageId>Pipaslot.Mediator</PackageId>
 		<AssemblyName>Pipaslot.Mediator</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares).
 			It is alternative for REST API. Designed for applications like Blazor, which shares their data contracts.
-			1.2.1 - Fix: IMediator.Execute returns Success as false if Result is null
-			1.2.0 - Support for building independent pipelines via API .AddPipeline() and .AddDefaultPipeline()
+			2.0.0 - Fix: IMediator.Execute returns Success as false if Result is null
+			      - Support for building independent pipelines via API .AddPipeline() and .AddDefaultPipeline()
 				  - Automatic mediator response deserialization into the exact type
 		</Description>
 		<NoWarn>1591</NoWarn>
