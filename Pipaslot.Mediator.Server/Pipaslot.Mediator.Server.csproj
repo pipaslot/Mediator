@@ -5,12 +5,13 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<PackageId>Pipaslot.Mediator.Server</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Server</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Expose Pipaslot.Mediator as separeted endpoint on HTTP protocol for ASP.NET Core applications
+			1.0.3 - Fix dependency resolving for ServerMediatorOptions
 			1.0.2 - Customization for endpoint URL
 		</Description>
 		<NoWarn>1591</NoWarn>

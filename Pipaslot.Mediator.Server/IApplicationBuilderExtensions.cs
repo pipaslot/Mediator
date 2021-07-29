@@ -13,7 +13,8 @@ namespace Pipaslot.Mediator.Server
         /// <param name="checkMatchingHandlers">Scans for all action markers and make sure that all of them have the appropriate amount of handlers registered during application startup</param>
         public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers = false)
         {
-            app.UseMiddleware<MediatorMiddleware>();
+            var options = app.ApplicationServices.GetService<ServerMediatorOptions>() ?? new ServerMediatorOptions();
+            app.UseMiddleware<MediatorMiddleware>(options);
             if (checkMatchingHandlers)
             {
                 using (var scope = app.ApplicationServices.CreateScope())
