@@ -27,10 +27,7 @@ namespace Pipaslot.Mediator.Server
                 {
                     throw new System.Exception($"Interface {typeof(IMediator).FullName} was not registered in service collection");
                 }
-                if(!context.Request.Headers.TryGetValue(MediatorRequestSerializable.VersionHeader, out var version)){
-                    version = string.Empty;
-                }
-
+                var version = GetClientVersion(context);
                 var contract = await GetContract(context, version);
                 if (contract == null)
                 {
@@ -45,6 +42,18 @@ namespace Pipaslot.Mediator.Server
             {
                 await _next(context);
             }
+        }
+        private string GetClientVersion(HttpContext context)
+        {
+            if (_option.KeepCompatibilityWithVersion1)
+            {
+                if (context.Request.Headers.TryGetValue(MediatorRequestSerializable.VersionHeader, out var version))
+                {
+                    return version;
+                }
+                return MediatorRequestSerializable.VersionHeaderValueV1;
+            }
+            return MediatorRequestSerializable.VersionHeaderValueV2;
         }
         private async Task<MediatorRequestSerializable?> GetContract(HttpContext context, string version)
         {
