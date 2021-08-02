@@ -90,7 +90,11 @@ namespace Pipaslot.Mediator.Client
             var queryType = Type.GetType(serializedResult.ObjectName);
             if (queryType == null)
             {
-                throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response");
+                queryType = Type.GetType(GetTypeWithoutAssembly(serializedResult.ObjectName));
+                if (queryType == null)
+                {
+                    throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response");
+                }
             }
             var result = JsonSerializer.Deserialize(serializedResult.Json, queryType);
             if (result == null)
@@ -98,6 +102,53 @@ namespace Pipaslot.Mediator.Client
                 throw new Exception($"Can not deserialize contract as type {serializedResult.ObjectName} received from server");
             }
             return result;
+        }
+        /// <summary>
+        /// This method converst type Definition like "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=none"
+        /// to "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        /// This is fix providing backward compatibility for .NET Core 3.1 and older where was issue with parsing types belonging to assembly System.Private.CoreLib, because this assembly is not available or the version might be different
+        /// </summary>
+        /// <param name="fullTypeAsString"></param>
+        /// <returns></returns>
+        internal static string GetTypeWithoutAssembly(string fullTypeAsString)
+        {
+            var isGeneric = fullTypeAsString.Contains("]]");
+            if (isGeneric)
+            {
+                var startIndex = fullTypeAsString.IndexOf("[[")+2;
+                var endIndex = fullTypeAsString.LastIndexOf("]]");
+                var before = fullTypeAsString.Substring(0, startIndex);
+                var between = fullTypeAsString.Substring(startIndex, endIndex-startIndex);
+                var after = fullTypeAsString.Substring(endIndex);
+                return before + GetTypeWithoutAssembly(between) + RemoveAssemblySuffix(after);
+            }
+            else
+            {
+                return RemoveAssemblySuffix(fullTypeAsString);
+            }
+            var genericIndex = fullTypeAsString.LastIndexOf("]], System.Private.CoreLib");
+            var result = genericIndex >= 0
+                ? fullTypeAsString.Substring(0, genericIndex + "]]".Length)
+                : fullTypeAsString;
+
+
+            if (genericIndex >= 0)
+            {
+                const int genericBracketEndLength = 2;
+                return fullTypeAsString.Substring(0, genericIndex + genericBracketEndLength);
+            }
+            else
+            {
+                return RemoveAssemblySuffix(fullTypeAsString);
+            }
+        }
+        private static string RemoveAssemblySuffix(string typeAsString)
+        {
+            var assemblyIndex = typeAsString.LastIndexOf(", System.Private.CoreLib");
+
+            return assemblyIndex >=0 
+                ? typeAsString.Substring(0, assemblyIndex)
+                : typeAsString;
         }
 
         private MediatorRequestSerializable CreateContract(object request)
