@@ -116,37 +116,12 @@ Execution of any action is made through `IMediator` interface (does not matter i
 ## Pipelines
 TODO
 
-### Miltiple handlers per action contract
+### Multiple handlers per action contract
 TODO
 
 ### Create custom action types
 TODO
 
 ### Error Handling
-Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging, please write your own logger like example below and put it to begining of your all mediator pipelines
-```
-public abstract class ExecutionMiddleware : IMediatorMiddleware
-{
-    public ILogger<ExecutionMiddleware> _logger;
-
-    public ExecutionMiddleware(ILogger<ExecutionMiddleware> logger)
-    {
-        _logger = logger;
-    }
-
-    public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await next(context);
-        }
-        catch(Exception e)
-        {
-            _logger.LogError(e);
-        }
-    }    
-}
-```
-
-#### !!! Important note !!!
+Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging via ILogger interface, you can create own logging middleware or register already prepared middleware in your pipelines by `.UseExceptionLogging()`
 Keep in mind that mediator handles all unhandled exceptions internally. That means that your ASP.NET Core middleware handling exceptions for example from ASP.NET Core MVC wont receive these exceptions.

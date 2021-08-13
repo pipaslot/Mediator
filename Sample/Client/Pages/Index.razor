@@ -1,5 +1,44 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h1>Mediator Demo</h1>
 
-Welcome to your new app.
+<button class="btn btn-primary" @onclick="RunPassing">Run Passing query</button>
+<button class="btn btn-primary" @onclick="RunFailing">Run Failing query</button>
+@if (!string.IsNullOrWhiteSpace(_serializedReponse) || !string.IsNullOrWhiteSpace(_serializedData))
+{
+    <h4>Response</h4>
+    <div>@_serializedReponse</div>
+    <h4>Data transfered from server</h4>
+    <div>@_serializedData</div>
+}
+
+@code{
+    private string _serializedReponse;
+    private string _serializedData;
+    private async Task RunPassing()
+    {
+        var response = await Mediator.Execute(new WeatherForecast.Request());
+        ProcessResponse(response);
+    }
+
+    private async Task RunFailing()
+    {
+        var response = await Mediator.Execute(new Failing.Request());
+        ProcessResponse(response);
+    }
+
+    private void ProcessResponse<TResult>(IMediatorResponse<TResult> response)
+    {
+        _serializedReponse = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Success = response.Success,
+            Result = response.Result,
+            ErrorMessage = response.ErrorMessage
+        });
+        _serializedData = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Results = response.Results,
+            ErrorMessages = response.ErrorMessages
+        });
+    }
+}
