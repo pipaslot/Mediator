@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Middlewares
     public abstract class ExecutionMiddleware : IMediatorMiddleware, IExecutionMiddleware
     {
         public abstract bool ExecuteMultipleHandlers { get; }
-        protected abstract Task HandleMessage<TMessage>(TMessage message, CancellationToken cancellationToken);
+        protected abstract Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken);
         protected abstract Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken);
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
             if (action is IMessage e)
             {
-                await HandleMessage(e, cancellationToken);
+                await HandleMessage(e, context, cancellationToken);
             }
             else
             {
@@ -31,7 +31,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Execute handler
         /// </summary>
-        protected async Task ExecuteMessage<TMessage>(object handler, TMessage message, CancellationToken cancellationToken)
+        protected async Task ExecuteMessage<TMessage>(object handler, TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
             var method = handler.GetType().GetMethod(nameof(IRequestHandler<IRequest<object>, object>.Handle));
@@ -52,9 +52,15 @@ namespace Pipaslot.Mediator.Middlewares
                 if (e.InnerException != null)
                 {
                     // Unwrap exception
+                    context.ErrorMessages.Add(e.InnerException.Message);
                     throw e.InnerException;
                 }
 
+                throw;
+            }
+            catch(Exception e)
+            {
+                context.ErrorMessages.Add(e.Message);
                 throw;
             }
             finally
@@ -92,10 +98,16 @@ namespace Pipaslot.Mediator.Middlewares
                 await OnFailedExecution(handler, request, e.InnerException ?? e);
                 if (e.InnerException != null)
                 {
+                    context.ErrorMessages.Add(e.InnerException.Message);
                     // Unwrap exception
                     throw e.InnerException;
                 }
 
+                throw;
+            }
+            catch (Exception e)
+            {
+                context.ErrorMessages.Add(e.Message);
                 throw;
             }
             finally

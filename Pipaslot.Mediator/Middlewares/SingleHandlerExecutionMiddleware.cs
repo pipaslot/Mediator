@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => false;
 
-        protected override async Task HandleMessage<TMessage>(TMessage message, CancellationToken cancellationToken)
+        protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
             if (handlers.Length > 1)
@@ -34,7 +34,7 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 throw new Exception("No handler was found for " + message?.GetType());
             }
-            await ExecuteMessage(handler, message, cancellationToken);
+            await ExecuteMessage(handler, message, context, cancellationToken);
         }
 
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)

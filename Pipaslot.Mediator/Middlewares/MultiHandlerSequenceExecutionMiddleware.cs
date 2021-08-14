@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => true;
 
-        protected override async Task HandleMessage<TMessage>(TMessage message, CancellationToken cancellationToken)
+        protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Middlewares
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
             {
-                await ExecuteMessage(handler, message, cancellationToken);
+                await ExecuteMessage(handler, message, context, cancellationToken);
             }
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)

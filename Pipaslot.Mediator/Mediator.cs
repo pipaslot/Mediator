@@ -63,7 +63,6 @@ namespace Pipaslot.Mediator
             }
             catch (Exception e)
             {
-                //TODO Move error message handling to Handler executor to be sure that ErrorHandling middlewares will let mediator know about failures
                 context.ErrorMessages.Add(e.Message);
                 return new MediatorResponse<TResult>(false, context.Results, context.ErrorMessagesDistincted);
             }

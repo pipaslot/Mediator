@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => true;
 
-        protected override async Task HandleMessage<TMessage>(TMessage message, CancellationToken cancellationToken)
+        protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
 
             var tasks = handlers
-                .Select(handler => ExecuteMessage(handler, message, cancellationToken))
+                .Select(handler => ExecuteMessage(handler, message, context, cancellationToken))
                 .ToArray();
             await Task.WhenAll(tasks);
         }
