@@ -1,6 +1,4 @@
-using System;
 using Xunit;
-using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
@@ -9,13 +7,12 @@ using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class ServiceResolverTest_ResolvePipelines
+    public class ServiceResolver_ResolvePipelinesTests
     {
         [Fact]
         public void DirectUse_ResolveActionSpecificPipeline()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeQuery));
 
             Assert.Equal(3, middlewares.Count());
@@ -26,8 +23,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void DirectUse_ResolveActionSpecificPipelineWithMiltiHandler()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeCommand));
 
             Assert.Equal(3, middlewares.Count());
@@ -38,8 +34,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void DirectUse_ResolveDefaultPipeline()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeNotification));
 
             Assert.Equal(2, middlewares.Count());
@@ -50,8 +45,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void AddPipeline_ResolveActionSpecificPipeline()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeQuery));
 
             Assert.Equal(3, middlewares.Count());
@@ -62,8 +56,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void AddPipeline_ResolveActionSpecificPipelineWithMiltiHandlerAndRegisteredViaFluentInterface()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeCommand));
 
             Assert.Equal(3, middlewares.Count());
@@ -75,8 +68,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void AddPipeline_ResolveDefaultPipeline()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(typeof(FakeNotification));
 
             Assert.Equal(2, middlewares.Count());
@@ -87,12 +79,9 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void HasMultipleDefaultPipeline_MultipleDefaultPipelines_ReturnsTrue()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddDefaultPipeline()
-                .AddDefaultPipeline();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c => c
+            .AddDefaultPipeline()
+                .AddDefaultPipeline());
             var has = sut.HasMultipleDefaultPipelines();
 
             Assert.True(has);
@@ -101,12 +90,9 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void HasMultipleDefaultPipelines_SingleDefaultPipelines_ReturnsFalse()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
+            var sut = Factory.CreateServiceResolver(c => c
                 .AddPipeline<IQuery>()
-                .AddDefaultPipeline();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+                .AddDefaultPipeline());
             var has = sut.HasMultipleDefaultPipelines();
 
             Assert.False(has);
@@ -115,11 +101,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void HasMultipleDefaultPipelines_NoDefaultPipelines_ReturnsFalse()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddPipeline<IQuery>();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>());
             var has = sut.HasMultipleDefaultPipelines();
 
             Assert.False(has);
@@ -129,11 +111,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void IsDefaultPipelineLastOrMissing_NotDefaultPipeline_ReturnsTrue()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddPipeline<IQuery>();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>());
             var has = sut.IsDefaultPipelineLastOrMissing();
 
             Assert.True(has);
@@ -141,12 +119,9 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void IsDefaultPipelineLastOrMissing_NotLast_ReturnsFalse()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddDefaultPipeline()
-                .AddPipeline<IQuery>();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c =>
+                c.AddDefaultPipeline()
+                .AddPipeline<IQuery>());
             var has = sut.IsDefaultPipelineLastOrMissing();
 
             Assert.False(has);
@@ -154,22 +129,17 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void IsDefaultPipelineLastOrMissing_Last_ReturnsTrue()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddPipeline<IQuery>()
-                .AddDefaultPipeline();
-            var services = collection.BuildServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>()
+                .AddDefaultPipeline());
             var has = sut.IsDefaultPipelineLastOrMissing();
 
             Assert.True(has);
         }
 
-        private IServiceProvider CreateServiceProvider()
+        private ServiceResolver CreateServiceResolver()
         {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .Use<SharedMiddleware>()
+            return Factory.CreateServiceResolver(c => c
+            .Use<SharedMiddleware>()
                 .Use<QueryMiddleware, IQuery>()
                 .Use<CommandMiddleware, ICommand>()
                 .UseConcurrentMultiHandler<ICommand>()
@@ -182,8 +152,7 @@ namespace Pipaslot.Mediator.Tests
                     .Use<CommandMiddleware>()
                     .UseConcurrentMultiHandler()
                 .AddDefaultPipeline()
-                    .Use<SharedMiddleware>();
-            return collection.BuildServiceProvider();
+                    .Use<SharedMiddleware>());
         }
 
         public interface IQuery : IRequest { }

@@ -1,32 +1,20 @@
-using System;
 using Xunit;
-using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
-using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class ServiceResolverTest_DefineAndUseOwnRequstTypeWithFixedResult
+    public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
     {
         [Fact]
         public void ShouldResolve()
         {
-            var services = CreateServiceProvider();
-            var sut = services.GetRequiredService<ServiceResolver>();
+            var sut = Factory.CreateServiceResolver(c => c.AddHandlersFromAssembly(this.GetType().Assembly));
             var handlers = sut.GetRequestHandlers<FakeFixedResponse>(typeof(FakeFixedRequest));
 
             Assert.Single(handlers);
             Assert.Equal(typeof(FakeFixedRequestHandler), handlers.First().GetType());
-        }
-
-        private IServiceProvider CreateServiceProvider()
-        {
-            var collection = new ServiceCollection();
-            collection.AddMediator()
-                .AddHandlersFromAssembly(this.GetType().Assembly);
-            return collection.BuildServiceProvider();
         }
 
         public class FakeFixedResponse { }

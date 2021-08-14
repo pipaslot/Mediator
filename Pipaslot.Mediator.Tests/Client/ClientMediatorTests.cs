@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Client
 {
-    public class ClientMediatorTest
+    public class ClientMediatorTests
     {
 
         [Theory]
