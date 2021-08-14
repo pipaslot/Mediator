@@ -25,8 +25,8 @@ namespace Pipaslot.Mediator.Server
             {
                 _logger.LogError(e, "Exception occured during Mediator execution: " + e.Message);
 
-                // We need to write the error in context or re-throw the exception to let mediator know that processing failed
-                context.ErrorMessages.Add(e.Message);
+                // Re-throw the exception to let mediator know about failure
+                throw;
             }
         }
     }

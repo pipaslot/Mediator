@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,53 +13,88 @@ namespace Pipaslot.Mediator
     /// </summary>
     public class Mediator : IMediator
     {
-        private readonly ServiceResolver _handlerResolver;
+        private readonly ServiceResolver _serviceResolver;
 
         public Mediator(ServiceResolver handlerResolver)
         {
-            _handlerResolver = handlerResolver;
+            _serviceResolver = handlerResolver;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMessage message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _handlerResolver.GetPipeline(message.GetType());
-            static Task Seed(MediatorContext response) => Task.CompletedTask;
+            var pipeline = _serviceResolver.GetPipeline(message.GetType());
             var context = new MediatorContext();
             try
             {
-                await pipeline
-                    .Reverse()
-                    .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (res) => middleware.Invoke(message, res, next, cancellationToken))(context);
+                await ProcessPipeline(pipeline, message, context, cancellationToken);
 
                 var success = context.ErrorMessages.Count() == 0;
-                return new MediatorResponse(success, context.Results, context.ErrorMessages);
+                return new MediatorResponse(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
             {
-                return new MediatorResponse(e.Message);
+                context.ErrorMessages.Add(e.Message);
+                return new MediatorResponse(false, context.Results, context.ErrorMessagesDistincted);
+            }
+        }
+
+        public async Task DispatchUnhandled(IMessage message, CancellationToken cancellationToken = default)
+        {
+            var pipeline = _serviceResolver.GetPipeline(message.GetType());
+            var context = new MediatorContext();
+            await ProcessPipeline(pipeline, message, context, cancellationToken);
+
+            if (context.ErrorMessages.Any())
+            {
+                throw new MediatorExecutionException(context.ErrorMessagesDistincted);
             }
         }
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _handlerResolver.GetPipeline(request.GetType());
-            static Task Seed(MediatorContext res) => Task.CompletedTask;
+            var pipeline = _serviceResolver.GetPipeline(request.GetType());
             var context = new MediatorContext();
             try
             {
-                await pipeline
-                    .Reverse()
-                    .Aggregate((MiddlewareDelegate)Seed,
-                        (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
+                await ProcessPipeline(pipeline, request, context, cancellationToken);
 
                 var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
-                return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessages);
+                return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
             {
-                return new MediatorResponse<TResult>(e.Message);
+                //TODO Move error message handling to Handler executor to be sure that ErrorHandling middlewares will let mediator know about failures
+                context.ErrorMessages.Add(e.Message);
+                return new MediatorResponse<TResult>(false, context.Results, context.ErrorMessagesDistincted);
             }
+        }
+
+        public async Task<TResult> ExecuteUnhandled<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        {
+            var pipeline = _serviceResolver.GetPipeline(request.GetType());
+            var context = new MediatorContext();
+            await ProcessPipeline(pipeline, request, context, cancellationToken);
+
+            var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+            if (context.ErrorMessages.Any())
+            {
+                throw new MediatorExecutionException(context.ErrorMessagesDistincted);
+            }
+            var result = context.Results
+                .Where(r => r is TResult)
+                .Cast<TResult>()
+                .FirstOrDefault();
+            return result;
+        }
+
+        private async Task ProcessPipeline<TAction>(IEnumerable<IMediatorMiddleware> pipeline, TAction request, MediatorContext context, CancellationToken cancellationToken)
+        {
+            static Task Seed(MediatorContext res) => Task.CompletedTask;
+
+            await pipeline
+                .Reverse()
+                .Aggregate((MiddlewareDelegate)Seed,
+                    (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
         }
     }
 }

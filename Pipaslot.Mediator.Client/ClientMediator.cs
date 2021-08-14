@@ -45,6 +45,29 @@ namespace Pipaslot.Mediator.Client
             return await task;
         }
 
+        public async Task<TResult> ExecuteUnhandled<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        {
+            var result = await Execute(request, cancellationToken);
+            if (!result.Success)
+            {
+                throw new MediatorExecutionException(result.ErrorMessages);
+            }
+            if(result.Result == null)
+            {
+                throw new MediatorExecutionException($"Null was returned from mediator. Use method {nameof(Execute)} if you expect null as valid result.");
+            }
+            return result.Result;
+        }
+
+        public async Task DispatchUnhandled(IMessage message, CancellationToken cancellationToken = default)
+        {
+            var result = await Dispatch(message, cancellationToken);
+            if (!result.Success)
+            {
+                throw new MediatorExecutionException(result.ErrorMessage);
+            }
+        }
+
         private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
         {
             var url = _options.Endpoint + $"?type={requestType}";
