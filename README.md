@@ -54,14 +54,28 @@ and execute on your client:
 @inject IMediator Mediator
 
 @code {
+    private WeatherForecast.Result[] _forecasts;
     protected override async Task OnInitializedAsync()
     {
         var result = await Mediator.Execute(new WeatherForecast.Request());
         if (result.Success)
         {
-            var forecasts = result.Result;
+            _forecasts = result.Result;
             ...
         }
+    }
+
+}
+```
+Or if you prefer direct access to result and exception are thrown in case of error:
+```
+@inject IMediator Mediator
+
+@code {
+    private WeatherForecast.Result[] _forecasts;
+    protected override async Task OnInitializedAsync()
+    {
+        _forecasts = await Mediator.ExecuteUnhandled(new WeatherForecast.Request());
     }
 
 }
@@ -105,13 +119,18 @@ public class Startup
         app.UseMediator(env.IsDevelopment()); //Does also automatic check if all contracts has matching handlers during startup in development mode
         ...
     }
-}
-        
+}        
 ```
 ## Mediator
 Execution of any action is made through `IMediator` interface (does not matter if it is from the client-side or server-side). This interface provides basic two methods `Dispatch` and `Execute`
 `IMediator.Dispatch` - Executes messages without expected response. It is like fire and forget. But still you can await this action because server can for example refuse this request for many reasons (like validation or auth). Once action is processed, boolean status with colection of error messages will be returned.
 `IMediator.Execute` - Executes Request from which you expects response with data. Response is wrapped to provide execution final status, error messages and all results from handler.
+
+These two methods do not return data directly, but they wrapps the data into `MediatorResponse`. This wrapper holds the handler result (or more objects if you have multiple handlers configured), status flag if the operation failed or succeeded and error messages from exceptions caught during processing.
+
+You can also use alternative methods `IMediator.DispatchUnhandled` and `IMediator.ExecuteUnhandled` which returns result object directly. In case of error, exception will be thrown.
+
+### Passing data types 
 
 ## Pipelines
 TODO
@@ -122,6 +141,6 @@ TODO
 ### Create custom action types
 TODO
 
-### Error Handling
+## Error Handling
 Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging via ILogger interface, you can create own logging middleware or register already prepared middleware in your pipelines by `.UseExceptionLogging()`
 Keep in mind that mediator handles all unhandled exceptions internally. That means that your ASP.NET Core middleware handling exceptions for example from ASP.NET Core MVC wont receive these exceptions.
