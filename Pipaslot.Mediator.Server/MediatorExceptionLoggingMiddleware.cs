@@ -24,6 +24,7 @@ namespace Pipaslot.Mediator.Server
             catch(Exception e)
             {
                 _logger.LogError(e, "Exception occured during Mediator execution: " + e.Message);
+                throw;
             }
         }
     }

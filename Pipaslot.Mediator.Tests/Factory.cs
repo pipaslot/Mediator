@@ -32,6 +32,7 @@ namespace Pipaslot.Mediator.Tests
         public static ServiceProvider CreateServiceProvider(Action<IPipelineConfigurator> setup)
         {
             var collection = new ServiceCollection();
+            collection.AddLogging();
             setup(collection.AddMediator());
             return collection.BuildServiceProvider();
         }
