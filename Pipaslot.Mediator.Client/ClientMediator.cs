@@ -116,7 +116,7 @@ namespace Pipaslot.Mediator.Client
                 queryType = Type.GetType(GetTypeWithoutAssembly(serializedResult.ObjectName));
                 if (queryType == null)
                 {
-                    throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response");
+                    throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response. Ensure that type returned and serialized on server is available/referenced on client as well.");
                 }
             }
             var result = JsonSerializer.Deserialize(serializedResult.Json, queryType);
