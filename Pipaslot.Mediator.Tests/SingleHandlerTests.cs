@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class Mediator_SingleHandlerTests
+    public class SingleHandlerTests
     {
         #region Execute single handler
 
