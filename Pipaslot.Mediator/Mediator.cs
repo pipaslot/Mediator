@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Services;
 
@@ -20,7 +21,7 @@ namespace Pipaslot.Mediator
             _serviceResolver = handlerResolver;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMessage message, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
             var context = new MediatorContext();
@@ -38,7 +39,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task DispatchUnhandled(IMessage message, CancellationToken cancellationToken = default)
+        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
             var context = new MediatorContext();
@@ -50,7 +51,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
             var context = new MediatorContext();
@@ -68,7 +69,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<TResult> ExecuteUnhandled<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
             var context = new MediatorContext();

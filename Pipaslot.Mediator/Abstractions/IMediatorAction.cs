@@ -14,7 +14,14 @@ namespace Pipaslot.Mediator.Abstractions
     /// Top level action marker for action which returns data. All derived types can have own specific pipelines and handlers.
     /// </summary>
     /// <typeparam name="TResult">Result data returned from handler execution</typeparam>
-    public interface IMediatorAction<out TResult> : IMediatorAction
+    public interface IMediatorAction<out TResult> : IMediatorAction, IMediatorActionProvidingData
+    {
+
+    }
+    /// <summary>
+    /// FOR INTERNAL PURPOSE ONLY
+    /// </summary>
+    public interface IMediatorActionProvidingData
     {
 
     }

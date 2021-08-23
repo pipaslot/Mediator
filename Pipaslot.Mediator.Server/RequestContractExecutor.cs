@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Contracts;
 
 namespace Pipaslot.Mediator
@@ -37,14 +38,14 @@ namespace Pipaslot.Mediator
             {
                 throw new Exception($"Can not deserialize contract as type {request.ObjectName}");
             }
-            if (query is IMessage message)
+            if (query is IMediatorActionProvidingData req)
             {
-                return await ExecuteMessage(message, cancellationToken).ConfigureAwait(false);
+                return await ExecuteRequest(req, cancellationToken).ConfigureAwait(false);
             }
-            return await ExecuteRequest(query, cancellationToken).ConfigureAwait(false);
+            return await ExecuteMessage((IMediatorAction)query, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<string> ExecuteMessage(IMessage message, CancellationToken cancellationToken)
+        private async Task<string> ExecuteMessage(IMediatorAction message, CancellationToken cancellationToken)
         {
             try
             {
@@ -60,7 +61,7 @@ namespace Pipaslot.Mediator
 
         private async Task<string> ExecuteRequest(object query, CancellationToken cancellationToken)
         {
-            var queryInterfaceType = typeof(IRequest<>);
+            var queryInterfaceType = typeof(IMediatorAction<>);
             var resultType = query.GetType()
                 .GetInterfaces()
                 .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == queryInterfaceType)

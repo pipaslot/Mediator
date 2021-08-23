@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Abstractions
             {
                 throw new ArgumentNullException(nameof(requestType));
             }
-            var genericRequestType = typeof(IRequest<>);
+            var genericRequestType = typeof(IMediatorAction<>);
             var genericInterface = requestType
                 .GetInterfaces()
                 .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericRequestType);

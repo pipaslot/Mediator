@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Abstractions;
 
 namespace Pipaslot.Mediator.Services
 {
@@ -23,7 +24,7 @@ namespace Pipaslot.Mediator.Services
             {
                 return new object[0];
             }
-            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+            var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
             return _serviceProvider.GetServices(handlerType)
                 .Where(h => h != null)
                 // ReSharper disable once RedundantEnumerableCastCall
@@ -49,7 +50,7 @@ namespace Pipaslot.Mediator.Services
             {
                 return new object[0];
             }
-            var handlerType = typeof(IRequestHandler<,>).MakeGenericType(requestType, responseType);
+            var handlerType = typeof(IMediatorHandler<,>).MakeGenericType(requestType, responseType);
             return _serviceProvider.GetServices(handlerType)
                 .Where(h => h != null)
                 // ReSharper disable once RedundantEnumerableCastCall

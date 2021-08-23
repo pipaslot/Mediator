@@ -36,7 +36,7 @@ namespace Pipaslot.Mediator.Services
 
         private void VerifyMessages(IEnumerable<Type> types)
         {
-            var subjectName = typeof(IMessage).Name;
+            var subjectName = typeof(IMediatorAction).Name;
             var queryTypes = FilterAssignableToMessage(types);
             foreach (var subject in queryTypes)
             {
@@ -54,7 +54,7 @@ namespace Pipaslot.Mediator.Services
 
         private void VerifyRequests(IEnumerable<Type> types)
         {
-            var subjectName = typeof(IRequest<>).Name;
+            var subjectName = typeof(IMediatorAction<>).Name;
             var queryTypes = FilterAssignableToRequest(types);
             foreach (var subject in queryTypes)
             {
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Services
 
         private static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
         {
-            var genericRequestType = typeof(IRequest<>);
+            var genericRequestType = typeof(IMediatorAction<>);
             return types
                 .Where(t => t.IsClass
                         && !t.IsAbstract
@@ -98,7 +98,7 @@ namespace Pipaslot.Mediator.Services
 
         private static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
         {
-            var type = typeof(IMessage);
+            var type = typeof(IMediatorAction);
             return types
                 .Where(p => p.IsClass
                             && !p.IsAbstract

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using Pipaslot.Mediator.Abstractions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator
@@ -15,7 +16,7 @@ namespace Pipaslot.Mediator
         /// <param name="request">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Returns wrapper managing response state and data</returns>
-        Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default);
+        Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send message without feedback expectation
@@ -23,7 +24,7 @@ namespace Pipaslot.Mediator
         /// <param name="message">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Returns wrapper managing response state</returns>
-        Task<IMediatorResponse> Dispatch(IMessage message, CancellationToken cancellationToken = default);
+        Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Execute action and wait for response data. Exception will be thrown if processing was unsuccessfull.
@@ -32,7 +33,7 @@ namespace Pipaslot.Mediator
         /// <param name="request">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Returns data from handler</returns>
-        Task<TResult> ExecuteUnhandled<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default);
+        Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send message without feedback expectation. Exception will be thrown if processing was unsuccessfull.
@@ -40,6 +41,6 @@ namespace Pipaslot.Mediator
         /// <param name="message">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Does not returns either data nor state</returns>
-        Task DispatchUnhandled(IMessage message, CancellationToken cancellationToken = default);
+        Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default);
     }
 }

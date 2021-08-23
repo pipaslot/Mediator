@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,13 +19,13 @@ namespace Pipaslot.Mediator.Middlewares
                 throw new ArgumentNullException(nameof(action));
 
             }
-            if (action is IMessage e)
+            if (action is IMediatorActionProvidingData e)
             {
-                await HandleMessage(e, context, cancellationToken);
+                await HandleRequest(e, context, cancellationToken);
             }
             else
             {
-                await HandleRequest(action, context, cancellationToken);
+                await HandleMessage((IMediatorAction)action, context, cancellationToken);
             }
         }
 
@@ -34,7 +35,7 @@ namespace Pipaslot.Mediator.Middlewares
         protected async Task ExecuteMessage<TMessage>(object handler, TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
-            var method = handler.GetType().GetMethod(nameof(IRequestHandler<IRequest<object>, object>.Handle));
+            var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction>.Handle));
             try
             {
                 await OnBeforeHandlerExecution(handler, message);
@@ -58,7 +59,7 @@ namespace Pipaslot.Mediator.Middlewares
 
                 throw;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 context.ErrorMessages.Add(e.Message);
                 throw;
@@ -75,7 +76,7 @@ namespace Pipaslot.Mediator.Middlewares
         protected async Task ExecuteRequest<TRequest>(object handler, TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
-            var method = handler.GetType().GetMethod(nameof(IRequestHandler<IRequest<object>, object>.Handle));
+            var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
             try
             {
                 await OnBeforeHandlerExecution(handler, request);

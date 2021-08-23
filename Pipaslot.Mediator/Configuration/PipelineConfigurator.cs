@@ -39,8 +39,8 @@ namespace Pipaslot.Mediator
         {
             var handlerTypes = new[]
             {
-                typeof(IRequestHandler<,>),
-                typeof(IMessageHandler<>)
+                typeof(IMediatorHandler<,>),
+                typeof(IMediatorHandler<>)
             };
             var types = assemblies
                 .SelectMany(a => a.GetTypes())

@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Contracts;
 
 namespace Pipaslot.Mediator.Client
@@ -27,7 +28,7 @@ namespace Pipaslot.Mediator.Client
             _options = options;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMessage request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse> Dispatch(IMediatorAction request, CancellationToken cancellationToken = default)
         {
             var contract = CreateContract(request);
             var requestType = request.GetType();
@@ -36,7 +37,7 @@ namespace Pipaslot.Mediator.Client
             return await task;
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var contract = CreateContract(request);
             var requestType = request.GetType();
@@ -45,7 +46,7 @@ namespace Pipaslot.Mediator.Client
             return await task;
         }
 
-        public async Task<TResult> ExecuteUnhandled<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var result = await Execute(request, cancellationToken);
             if (!result.Success)
@@ -59,7 +60,7 @@ namespace Pipaslot.Mediator.Client
             return result.Result;
         }
 
-        public async Task DispatchUnhandled(IMessage message, CancellationToken cancellationToken = default)
+        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var result = await Dispatch(message, cancellationToken);
             if (!result.Success)
