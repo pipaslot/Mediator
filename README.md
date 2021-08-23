@@ -130,16 +130,104 @@ These two methods do not return data directly, but they wrapps the data into `Me
 
 You can also use alternative methods `IMediator.DispatchUnhandled` and `IMediator.ExecuteUnhandled` which returns result object directly. In case of error, exception will be thrown.
 
-### Passing data types 
+### Passing data types across network
+TODO
 
 ## Pipelines
-TODO
+Pipelines are optional. The purpose is to provide different processing for different action types. For example you want to apply caching for Request reponses which should not affect messages. 
+From oposite site you want to audit all messages sent throug mediator but do not want to audit Requests. To gain the expected result we will define two pipelines.
+``` .AddMediator()
+    ... //Action and handler registrations
+    .AddPipeline<IMessage>()
+        .Use<AuditMessageMediatorMiddleware()
+        .Use<AnotherMessageSpecificMediatorMiddleware>()
+    .AddPipeline<IRequest>()
+        .Use<CacheRequestResponseMediatorMiddleware()
+```
+For more complex sample we may decide to audit only some specific Messages which has interface `IAuditableMessage` inheriting from`IMessage`. In this case we would update the mediator configuration to:
+``` .AddMediator()
+    ... //Action and handler registrations
+    .AddPipeline<IAuditableMessage>()
+        .Use<AuditMessageMediatorMiddleware()
+        .Use<AnotherMessageSpecificMediatorMiddleware>()
+    .AddPipeline<IMessage>()
+        .Use<AnotherMessageSpecificMediatorMiddleware>()
+    .AddPipeline<IRequest>()
+        .Use<CacheRequestResponseMediatorMiddleware()
+```
+Pay attention on the ordering in pipeline definitions! `IAuditableMessage` is more specific type. If we would register `AddPipeline<IMessage>()` before `AddPipeline<IAuditableMessage>()`, pipeline for `IAuditableMessage` would never been used!
 
 ### Multiple handlers per action contract
 TODO
 
 ### Create custom action types
-TODO
+Don't you like naming as Request and Message? Or do you want to provide more action types to cover your specific pipeline behaviour? Just defino own Action and message types.
+Here is example of naming for CQRS (Command and Query Responsibility Segregation)
+
+ICommand.cs
+```
+using Pipaslot.Mediator;
+
+namespace CustomMediator.Cqrs
+{
+    /// <summary>
+    /// Marker type for actions and pipelines
+    /// </summary>
+    public interface ICommand : IMessage
+    {
+    }
+}
+```
+
+ICommandHandler.cs
+```
+using Pipaslot.Mediator;
+
+namespace CustomMediator.Cqrs
+{
+    public interface ICommandHandler<TCommand> : IMessageHandler<TCommand> where TCommand : ICommand
+    {
+
+    }
+}
+```
+
+IQuery.cs
+```
+using Pipaslot.Mediator;
+
+namespace CustomMediator.Cqrs
+{
+    /// <summary>
+    /// Marker type for actions
+    /// </summary>
+    public interface IQuery<TResult> : IQuery, IRequest<TResult>
+    {
+    }
+    /// <summary>
+    /// Marker type for pipelines
+    /// </summary>
+    public interface IQuery : IRequest
+    {
+    }
+}
+```
+
+IQueryHandler.cs
+```
+using Pipaslot.Mediator;
+
+namespace CustomMediator.Cqrs
+{
+    public interface IQueryHandler<TQuery, TResult> : IRequestHandler<TQuery,TResult>  where TQuery: IQuery<TResult>
+    {
+
+    }
+}
+
+```
+
+And that is it. Easy!
 
 ## Error Handling
 Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging via ILogger interface, you can create own logging middleware or register already prepared middleware in your pipelines by `.UseExceptionLogging()`
