@@ -28,15 +28,7 @@ namespace Pipaslot.Mediator.Services
             {
                 throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
             }
-
-            if (_handlerResolver.HasMultipleDefaultPipelines())
-            {
-                throw new Exception($"Too many default pipelines were registered. Check your startup.cs and ensure that method {nameof(IPipelineRegistrator.AddDefaultPipeline)} is used only once");
-            }
-            if (!_handlerResolver.IsDefaultPipelineLastOrMissing())
-            {
-                throw new Exception($"Default pipeline is not registered as last pipeline. All other pipelines registered after default pipeline wont be applied. Check your startup.cs and ensure that method {nameof(IPipelineRegistrator.AddDefaultPipeline)} is used after {nameof(IPipelineRegistrator.AddPipeline)}");
-            }
+            
             var types = assemblies.SelectMany(s => s.GetTypes());
             VerifyMessages(types);
             VerifyRequests(types);

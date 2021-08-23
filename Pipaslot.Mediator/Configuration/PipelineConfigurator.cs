@@ -87,20 +87,39 @@ namespace Pipaslot.Mediator
 
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>() where TActionMarker : IMediatorAction
         {
+            if (IsDefaultPipelineRegistered())
+            {
+                throw new MediatorConfigurationException($"Can not use {nameof(IPipelineRegistrator.AddPipeline)} after {nameof(IPipelineRegistrator.AddDefaultPipeline)}. Check your startup.cs and move all {nameof(IPipelineRegistrator.AddPipeline)} calls before {nameof(IPipelineRegistrator.AddDefaultPipeline)}.");
+            }
             var markerType = typeof(TActionMarker);
-            return AddPipeline(markerType);
+            var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
+            _services.AddSingleton(pipeline);
+            return pipeline;
         }
 
         public IConditionalPipelineConfigurator AddDefaultPipeline()
         {
-            return AddPipeline(null);
+            var pipeline = new ActionSpecificPipelineDefinition(this, null);
+
+            if (IsDefaultPipelineRegistered())
+            {
+                throw new MediatorConfigurationException($"Default pipeline is already registered. Check your startup.cs and ensure that method {nameof(IPipelineRegistrator.AddDefaultPipeline)} is used only once.");
+            }
+            _services.AddSingleton(pipeline);
+
+            return pipeline;
         }
 
-        private IConditionalPipelineConfigurator AddPipeline(Type? markerType)
+        internal void RegisterMiddleware(Type middlewareType)
         {
-            var pipeline = new ActionSpecificPipelineDefinition(this, _services, markerType);
-            _services.AddSingleton(pipeline);
-            return pipeline;
+            _services.AddScoped(middlewareType);
+        }
+
+        internal bool IsDefaultPipelineRegistered()
+        {
+            return _services.Any((ServiceDescriptor d) =>
+                d.ServiceType == typeof(ActionSpecificPipelineDefinition)
+            && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == null);
         }
     }
 }

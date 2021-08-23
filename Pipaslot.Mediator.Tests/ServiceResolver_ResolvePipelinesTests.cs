@@ -76,66 +76,6 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
         }
 
-        [Fact]
-        public void HasMultipleDefaultPipeline_MultipleDefaultPipelines_ReturnsTrue()
-        {
-            var sut = Factory.CreateServiceResolver(c => c
-            .AddDefaultPipeline()
-                .AddDefaultPipeline());
-            var has = sut.HasMultipleDefaultPipelines();
-
-            Assert.True(has);
-        }
-
-        [Fact]
-        public void HasMultipleDefaultPipelines_SingleDefaultPipelines_ReturnsFalse()
-        {
-            var sut = Factory.CreateServiceResolver(c => c
-                .AddPipeline<IQuery>()
-                .AddDefaultPipeline());
-            var has = sut.HasMultipleDefaultPipelines();
-
-            Assert.False(has);
-        }
-
-        [Fact]
-        public void HasMultipleDefaultPipelines_NoDefaultPipelines_ReturnsFalse()
-        {
-            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>());
-            var has = sut.HasMultipleDefaultPipelines();
-
-            Assert.False(has);
-        }
-
-
-        [Fact]
-        public void IsDefaultPipelineLastOrMissing_NotDefaultPipeline_ReturnsTrue()
-        {
-            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>());
-            var has = sut.IsDefaultPipelineLastOrMissing();
-
-            Assert.True(has);
-        }
-        [Fact]
-        public void IsDefaultPipelineLastOrMissing_NotLast_ReturnsFalse()
-        {
-            var sut = Factory.CreateServiceResolver(c =>
-                c.AddDefaultPipeline()
-                .AddPipeline<IQuery>());
-            var has = sut.IsDefaultPipelineLastOrMissing();
-
-            Assert.False(has);
-        }
-        [Fact]
-        public void IsDefaultPipelineLastOrMissing_Last_ReturnsTrue()
-        {
-            var sut = Factory.CreateServiceResolver(c => c.AddPipeline<IQuery>()
-                .AddDefaultPipeline());
-            var has = sut.IsDefaultPipelineLastOrMissing();
-
-            Assert.True(has);
-        }
-
         private ServiceResolver CreateServiceResolver()
         {
             return Factory.CreateServiceResolver(c => c

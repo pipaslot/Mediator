@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Abstractions;
+﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ namespace Pipaslot.Mediator
     internal class ActionSpecificPipelineDefinition : IConditionalPipelineConfigurator
     {
         private readonly PipelineConfigurator _configurator;
-        private readonly IServiceCollection _services;
         private List<Type> _middlewares = new List<Type>();
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
@@ -18,10 +16,9 @@ namespace Pipaslot.Mediator
         /// </summary>
         public Type? MarkerType { get; }
 
-        public ActionSpecificPipelineDefinition(PipelineConfigurator configurator, IServiceCollection services, Type? markerType = null)
+        public ActionSpecificPipelineDefinition(PipelineConfigurator configurator, Type? markerType = null)
         {
             _configurator = configurator;
-            _services = services;
             MarkerType = markerType;
         }
 
@@ -29,7 +26,7 @@ namespace Pipaslot.Mediator
         {
             var type = typeof(TMiddleware);
             _middlewares.Add(type);
-            _services.AddScoped(type);
+            _configurator.RegisterMiddleware(type);
             return this;
         }
 

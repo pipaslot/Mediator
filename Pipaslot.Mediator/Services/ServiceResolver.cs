@@ -109,33 +109,5 @@ namespace Pipaslot.Mediator.Services
 
             yield return new SingleHandlerExecutionMiddleware(this);
         }
-
-        public bool HasMultipleDefaultPipelines()
-        {
-            var definitionCount = _serviceProvider
-                .GetServices<ActionSpecificPipelineDefinition>()
-                .Where(d=>d.MarkerType == null)
-                .Count();
-            return definitionCount > 1;
-        }
-
-        internal bool IsDefaultPipelineLastOrMissing()
-        {
-            var definitions = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
-            var defaultCount = definitions
-                .Where(d => d.MarkerType == null)
-                .Count();
-            if(defaultCount == 0)
-            {
-                return true;
-            }
-            var last = definitions.LastOrDefault();
-            if(last == null)
-            {
-                return true;
-            }
-            var isLastDefault = last.MarkerType == null;
-            return isLastDefault;
-        }
     }
 }
