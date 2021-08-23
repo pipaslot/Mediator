@@ -173,7 +173,7 @@ namespace CustomMediator.Cqrs
     /// <summary>
     /// Marker type for actions and pipelines
     /// </summary>
-    public interface ICommand : IMessage
+    public interface ICommand :  : IMediatorAction
     {
     }
 }
@@ -181,11 +181,11 @@ namespace CustomMediator.Cqrs
 
 ICommandHandler.cs
 ```
-using Pipaslot.Mediator;
+using Pipaslot.Mediator.Abstraction;
 
 namespace CustomMediator.Cqrs
 {
-    public interface ICommandHandler<TCommand> : IMessageHandler<TCommand> where TCommand : ICommand
+    public interface ICommandHandler<TCommand> : IMediatorHandler<TCommand> where TCommand : ICommand
     {
 
     }
@@ -201,13 +201,13 @@ namespace CustomMediator.Cqrs
     /// <summary>
     /// Marker type for actions
     /// </summary>
-    public interface IQuery<TResult> : IQuery, IRequest<TResult>
+    public interface IQuery<TResult> : IQuery, IMediatorAction<TResult>
     {
     }
     /// <summary>
     /// Marker type for pipelines
     /// </summary>
-    public interface IQuery : IRequest
+    public interface IQuery : IMediatorAction
     {
     }
 }
@@ -215,11 +215,11 @@ namespace CustomMediator.Cqrs
 
 IQueryHandler.cs
 ```
-using Pipaslot.Mediator;
+using Pipaslot.Mediator.Abstraction;
 
 namespace CustomMediator.Cqrs
 {
-    public interface IQueryHandler<TQuery, TResult> : IRequestHandler<TQuery,TResult>  where TQuery: IQuery<TResult>
+    public interface IQueryHandler<TQuery, TResult> : IMediatorHandler<TQuery, TResult> where TQuery: IQuery<TResult>
     {
 
     }

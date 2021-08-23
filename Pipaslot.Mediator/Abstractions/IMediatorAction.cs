@@ -1,10 +1,21 @@
-﻿namespace Pipaslot.Mediator.Abstractions
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace Pipaslot.Mediator.Abstractions
 {
     /// <summary>
-    /// FOR INTERNAL PURPOSE ONLY!
-    /// Top level abstraction for actions. Connects Messages and Requests together.
+    /// Top level action marker for action without returning data. Connects actions returning result with those not not returning data to be processed by Mediator.
     /// </summary>
     public interface IMediatorAction
     {
+    }
+
+    /// <summary>
+    /// Top level action marker for action which returns data. All derived types can have own specific pipelines and handlers.
+    /// </summary>
+    /// <typeparam name="TResult">Result data returned from handler execution</typeparam>
+    public interface IMediatorAction<out TResult> : IMediatorAction
+    {
+
     }
 }
