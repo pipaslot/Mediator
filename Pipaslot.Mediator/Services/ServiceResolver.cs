@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator.Services
         {
             var actionSpecificPipelineDefinitions = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
             var actionSpecificPipeline = actionSpecificPipelineDefinitions
-                .Where(p => p.MarkerType != null && p.MarkerType.IsAssignableFrom(requestType))
+                .Where(p => p.MarkerType.IsAssignableFrom(requestType))
                 .FirstOrDefault();
             if (actionSpecificPipeline != null)
             {
@@ -80,8 +80,7 @@ namespace Pipaslot.Mediator.Services
                 return GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
             }
 
-            var defaultPipeline = actionSpecificPipelineDefinitions
-                .Where(p => p.MarkerType == null)
+            var defaultPipeline = _serviceProvider.GetServices<DefaultPipelineDefinition>()
                 .FirstOrDefault();
             if (defaultPipeline != null)
             {

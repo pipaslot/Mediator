@@ -104,7 +104,7 @@ namespace Pipaslot.Mediator
 
         public IConditionalPipelineConfigurator AddDefaultPipeline()
         {
-            var pipeline = new ActionSpecificPipelineDefinition(this, null);
+            var pipeline = new DefaultPipelineDefinition(this);
 
             if (IsDefaultPipelineRegistered())
             {
@@ -123,8 +123,7 @@ namespace Pipaslot.Mediator
         internal bool IsDefaultPipelineRegistered()
         {
             return _services.Any((ServiceDescriptor d) =>
-                d.ServiceType == typeof(ActionSpecificPipelineDefinition)
-            && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == null);
+                d.ServiceType == typeof(DefaultPipelineDefinition));
         }
     }
 }
