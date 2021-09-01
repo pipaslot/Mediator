@@ -2,8 +2,10 @@
 
 <h1>Mediator Demo</h1>
 
-<button class="btn btn-primary" @onclick="RunPassing">Run Passing query</button>
-<button class="btn btn-primary" @onclick="RunFailing">Run Failing query</button>
+<button class="btn btn-primary" @onclick="RunPassing">Run Passing request</button>
+<button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
+<button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
+<button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
 @if (!string.IsNullOrWhiteSpace(_serializedReponse) || !string.IsNullOrWhiteSpace(_serializedData))
 {
     <h4>Response</h4>
@@ -26,6 +28,22 @@
         var response = await Mediator.Execute(new Failing.Request());
         ProcessResponse(response);
     }
+    private async Task RunMessage(bool pass)
+    {
+        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
+        _serializedReponse = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Success = response.Success,
+            //Result = response.Result,
+            ErrorMessage = response.ErrorMessage
+        });
+        _serializedData = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Results = "NOT AVAILABLE",//response.Results,
+            ErrorMessages = "NOT AVAILABLE",//response.ErrorMessages
+        });
+    }
+
 
     private void ProcessResponse<TResult>(IMediatorResponse<TResult> response)
     {

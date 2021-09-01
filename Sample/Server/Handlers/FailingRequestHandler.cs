@@ -11,7 +11,7 @@ namespace Sample.Server.Handlers
     {
         public Task<Failing.Result> Handle(Failing.Request request, CancellationToken cancellationToken)
         {
-            throw new Exception("Handler was not able to process request sucessfully");
+            throw new Exception("Handler was not able to process REQUEST sucessfully");
         }
     }
 }

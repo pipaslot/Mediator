@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Server;
-using Sample.Server.RequestHandlers;
+using Sample.Server.Handlers;
 using Sample.Shared;
 using Sample.Shared.Requests;
 
