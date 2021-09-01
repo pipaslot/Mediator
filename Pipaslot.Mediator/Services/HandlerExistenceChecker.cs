@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator.Services
         }
 
 
-        private static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
+        internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
         {
             var genericRequestType = typeof(IMediatorAction<>);
             return types
@@ -96,14 +96,19 @@ namespace Pipaslot.Mediator.Services
                 .ToArray();
         }
 
-        private static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
+        internal static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
         {
+            var genericRequestType = typeof(IMediatorAction<>);
             var type = typeof(IMediatorAction);
             return types
                 .Where(p => p.IsClass
                             && !p.IsAbstract
                             && !p.IsInterface
-                            && p.GetInterfaces().Any(i => i == type))
+                            && p.GetInterfaces().Any(i => i == type)
+                            && !p.GetInterfaces()
+                            .Any(i => i.IsGenericType
+                                    && i.GetGenericTypeDefinition() == genericRequestType)
+                 )
                 .ToArray();
         }
     }

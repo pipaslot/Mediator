@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Abstractions
 {
-    internal static class RequestGenericHelpers
+    public static class RequestGenericHelpers
     {
         public static Type GetRequestResultType(Type? requestType)
         {
