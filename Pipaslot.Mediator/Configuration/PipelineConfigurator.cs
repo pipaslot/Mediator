@@ -93,6 +93,11 @@ namespace Pipaslot.Mediator
             }
             var markerType = typeof(TActionMarker);
             var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
+            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(ActionSpecificPipelineDefinition) && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == markerType);
+            if(existingPipelineDescriptor != null)
+            {
+                _services.Remove(existingPipelineDescriptor);
+            }
             _services.AddSingleton(pipeline);
             return pipeline;
         }
