@@ -1,3 +1,5 @@
+using Pipaslot.Mediator.Middlewares;
+using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests
@@ -15,6 +17,20 @@ namespace Pipaslot.Mediator.Tests
         {
             Factory.CreateServiceResolver(c => c
                 .AddPipeline<IRequest>());
+        }
+
+        [Fact]
+        public void AddPipeline_MultipleStandardPipelines_OnlyTheLastOneIsUsed()
+        {
+            var sr = Factory.CreateServiceResolver(c => c
+                .AddPipeline<IRequest>()
+                    .UseConcurrentMultiHandler()
+                .AddPipeline<IRequest>()
+                    .Use<MultiHandlerSequenceExecutionMiddleware>()
+                    );
+            var pipeline = sr.GetPipeline(typeof(IRequest));
+            var middleware = pipeline.FirstOrDefault();
+            Assert.Equal(typeof(MultiHandlerSequenceExecutionMiddleware), middleware.GetType());
         }
 
         [Fact]
@@ -67,5 +83,6 @@ namespace Pipaslot.Mediator.Tests
                 .AddDefaultPipeline());
             });
         }
+
     }
 }
