@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sample.Server.RequestHandlers
+namespace Sample.Server.Handlers
 {
     public class FailingRequestHandler : IRequestHandler<Failing.Request, Failing.Result>
     {
