@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Register pipeline only for actions implementing TActionMarker
         /// </summary>
-        IConditionalPipelineConfigurator AddPipeline<TActionMarker>() where TActionMarker : IMediatorAction;
+        IConditionalPipelineConfigurator AddPipeline<TActionMarker>();
 
         /// <summary>
         /// Allways use this pipeline if not previous pipeline is applied.

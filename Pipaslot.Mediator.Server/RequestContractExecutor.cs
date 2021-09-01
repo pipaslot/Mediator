@@ -61,17 +61,11 @@ namespace Pipaslot.Mediator
 
         private async Task<string> ExecuteRequest(object query, CancellationToken cancellationToken)
         {
-            var queryInterfaceType = typeof(IMediatorAction<>);
-            var resultType = query.GetType()
-                .GetInterfaces()
-                .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == queryInterfaceType)
-                ?.GetGenericArguments()
-                .FirstOrDefault();
+            var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType());
             if (resultType == null)
             {
-                throw new Exception($"Object {query.GetType()} is not assignable to type {queryInterfaceType }");
+                throw new Exception($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
             }
-
             var method = _mediator.GetType()
                     .GetMethod(nameof(IMediator.Execute))!
                 .MakeGenericMethod(resultType);

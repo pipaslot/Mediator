@@ -85,7 +85,7 @@ namespace Pipaslot.Mediator
             return this;
         }
 
-        public IConditionalPipelineConfigurator AddPipeline<TActionMarker>() where TActionMarker : IMediatorAction
+        public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
         {
             if (IsDefaultPipelineRegistered())
             {
