@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Middlewares
                 .Select(h => new
                 {
                     Handler = h,
-                    Order = (h is ISequenceHandler s) ? s.Order : int.MaxValue
+                    Order = (h is ISequenceHandler s) ? s.Order : int.MaxValue / 2
                 })
                 .OrderBy(i=>i.Order)
                 .Select(i=>i.Handler)
