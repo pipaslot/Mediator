@@ -33,10 +33,21 @@
         var response = await Mediator.Execute(new Failing.Request());
         ProcessResponse(response);
     }
+
     private async Task RunMessage(bool pass)
     {
-        var response = (IMediatorResponse<object>)await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
-        ProcessResponse(response);
+        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
+        var converted = (IMediatorResponse<object>)response;
+        _serializedReponse = Serialize(new
+        {
+            Success = response.Success,
+            ErrorMessage = response.ErrorMessage
+        });
+        _serializedData = Serialize(new
+        {
+            Results = converted.Results,
+            ErrorMessages = converted.ErrorMessages
+        });
     }
 
     private void ProcessResponse<TResult>(IMediatorResponse<TResult> response)
