@@ -5,7 +5,6 @@ using System.Reflection;
 using Pipaslot.Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator
 {
@@ -59,29 +58,6 @@ namespace Pipaslot.Mediator
                     _services.AddTransient(iface, pair.Type);
                 }
             }
-            return this;
-        }
-
-        [Obsolete("Pipeline definition was replaced by .AddDefaultPipeline(...).Use<TMiddleware>()")]
-        public IPipelineConfigurator Use<TPipeline>()
-            where TPipeline : IMediatorMiddleware
-        {
-            return RegisterMidlewares(typeof(TPipeline));
-        }
-
-        [Obsolete("Pipeline definition was replaced by .AddPipeline<TActionMarker>(...).Use<TMiddleware>()")]
-        public IPipelineConfigurator Use<TPipeline, TActionMarker>()
-            where TPipeline : IMediatorMiddleware
-            where TActionMarker : IMediatorAction
-        {
-            return RegisterMidlewares(typeof(TPipeline), typeof(TActionMarker));
-        }
-        [Obsolete]
-        private IPipelineConfigurator RegisterMidlewares(Type pipeline, Type? markerType = null)
-        {
-            _services.AddSingleton(new PipelineDefinition(pipeline, markerType));
-            _services.AddScoped(pipeline);
-
             return this;
         }
 

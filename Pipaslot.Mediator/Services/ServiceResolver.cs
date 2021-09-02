@@ -88,12 +88,7 @@ namespace Pipaslot.Mediator.Services
                 return GetMiddlewaresWithLastExecutive(defaultPipelineMiddlewares);
             }
 
-            var defaultMiddlewares = _serviceProvider.GetServices<PipelineDefinition>()
-                .ToArray()
-                .Where(d => d.MarkerType == null || d.MarkerType.IsAssignableFrom(requestType))
-                .Select(d => (IMediatorMiddleware)_serviceProvider.GetRequiredService(d.PipelineType));
-
-            return GetMiddlewaresWithLastExecutive(defaultMiddlewares);
+            return GetMiddlewaresWithLastExecutive(new IMediatorMiddleware[0]);
         }
 
         private IEnumerable<IMediatorMiddleware> GetMiddlewaresWithLastExecutive(IEnumerable<IMediatorMiddleware> pipeline)

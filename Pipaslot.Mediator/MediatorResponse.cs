@@ -1,26 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator
 {
     public class MediatorResponse<TResult> : MediatorResponse, IMediatorResponse<TResult>
     {
-        [Obsolete()]
-        /// <summary>
-        /// Constructor for deserialization only
-        /// </summary>
-        public MediatorResponse()
-        {
-        }
-
         public MediatorResponse(string errorMessage) : base(errorMessage)
-        {
-        }
-
-
-        [Obsolete()]
-        public MediatorResponse(IEnumerable<object> results, IEnumerable<string> errorMessages) : base(errorMessages.Count() == 0 && results.Any(r => r is TResult), results, errorMessages)
         {
         }
 
@@ -35,11 +20,6 @@ namespace Pipaslot.Mediator
 
     public class MediatorResponse : IMediatorResponse
     {
-        [Obsolete()]
-        public MediatorResponse()
-        {
-        }
-
         public MediatorResponse(string errorMessage)
         {
             ErrorMessages.Add(errorMessage);
@@ -50,14 +30,6 @@ namespace Pipaslot.Mediator
             Results.AddRange(results);
             ErrorMessages.AddRange(errorMessages);
             Success = success;
-        }
-
-        [Obsolete()]
-        public MediatorResponse(IEnumerable<object> results, IEnumerable<string> errorMessages)
-        {
-            Results.AddRange(results);
-            ErrorMessages.AddRange(errorMessages);
-            Success = errorMessages.Count() == 0;
         }
 
         public bool Success { get; }

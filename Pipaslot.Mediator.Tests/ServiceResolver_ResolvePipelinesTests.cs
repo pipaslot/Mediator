@@ -79,11 +79,6 @@ namespace Pipaslot.Mediator.Tests
         private ServiceResolver CreateServiceResolver()
         {
             return Factory.CreateServiceResolver(c => c
-            .Use<SharedMiddleware>()
-                .Use<QueryMiddleware, IQuery>()
-                .Use<CommandMiddleware, ICommand>()
-                .UseConcurrentMultiHandler<ICommand>()
-
                 .AddPipeline<IQuery>()
                     .Use<SharedMiddleware>()
                     .Use<QueryMiddleware>()
