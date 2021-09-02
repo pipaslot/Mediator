@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Text.Json;
 
 <h1>Mediator Demo</h1>
 
@@ -6,7 +7,7 @@
 <button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
-@if (!string.IsNullOrWhiteSpace(_serializedReponse) || !string.IsNullOrWhiteSpace(_serializedData))
+@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value) || !string.IsNullOrWhiteSpace(_serializedData.Value))
 {
     <h4>Response</h4>
     <div>@_serializedReponse</div>
@@ -15,8 +16,12 @@
 }
 
 @code{
-    private string _serializedReponse;
-    private string _serializedData;
+    private MarkupString _serializedReponse;
+    private MarkupString _serializedData;
+    private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
+    {
+        WriteIndented = true
+    };
     private async Task RunPassing()
     {
         var response = await Mediator.Execute(new WeatherForecast.Request());
@@ -30,33 +35,30 @@
     }
     private async Task RunMessage(bool pass)
     {
-        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
-        _serializedReponse = System.Text.Json.JsonSerializer.Serialize(new
-        {
-            Success = response.Success,
-            //Result = response.Result,
-            ErrorMessage = response.ErrorMessage
-        });
-        _serializedData = System.Text.Json.JsonSerializer.Serialize(new
-        {
-            Results = "NOT AVAILABLE",//response.Results,
-            ErrorMessages = "NOT AVAILABLE",//response.ErrorMessages
-        });
+        var response = (IMediatorResponse<object>)await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
+        ProcessResponse(response);
     }
-
 
     private void ProcessResponse<TResult>(IMediatorResponse<TResult> response)
     {
-        _serializedReponse = System.Text.Json.JsonSerializer.Serialize(new
+        _serializedReponse = Serialize(new
         {
             Success = response.Success,
             Result = response.Result,
             ErrorMessage = response.ErrorMessage
         });
-        _serializedData = System.Text.Json.JsonSerializer.Serialize(new
+        _serializedData = Serialize(new
         {
             Results = response.Results,
             ErrorMessages = response.ErrorMessages
         });
+    }
+
+    private MarkupString Serialize(object value)
+    {
+        var serialized =        JsonSerializer.Serialize(value, _serializerOptions)
+        .Replace(" \"","&nbsp; &nbsp;\"")
+        .Replace("\n","<br />");
+        return new MarkupString(serialized);
     }
 }
