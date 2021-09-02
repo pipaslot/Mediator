@@ -13,6 +13,10 @@
     public interface IMediatorResponse
     {
         bool Success { get; }
+        /// <summary>
+        /// Negated value of Success 
+        /// </summary>
+        bool Failure { get; }
         string ErrorMessage { get; }
     }
 }

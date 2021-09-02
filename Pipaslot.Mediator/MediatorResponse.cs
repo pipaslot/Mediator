@@ -63,6 +63,7 @@ namespace Pipaslot.Mediator
         }
 
         public bool Success { get; }
+        public bool Failure => !Success;
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string ErrorMessage => string.Join(";", ErrorMessages);
@@ -70,5 +71,6 @@ namespace Pipaslot.Mediator
 
         public object? Result => Results.FirstOrDefault();
         public List<object> Results { get; } = new List<object>(1);
+
     }
 }
