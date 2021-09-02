@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Client
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var result = await Execute(request, cancellationToken);
-            if (!result.Success)
+            if (result.Failure)
             {
                 throw new MediatorExecutionException(result.ErrorMessages);
             }
@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Client
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var result = await Dispatch(message, cancellationToken);
-            if (!result.Success)
+            if (result.Failure)
             {
                 throw new MediatorExecutionException(result.ErrorMessage);
             }
@@ -89,7 +89,7 @@ namespace Pipaslot.Mediator.Client
                 {
                     return await ProcessParsingError<TResult>(contract, requestType, response, e);
                 }
-                return await ProcessSuccessfullResult<TResult>(contract, requestType, response, result);
+                return await ProcessSuccessfullResult(contract, requestType, response, result);
             }
             else
             {

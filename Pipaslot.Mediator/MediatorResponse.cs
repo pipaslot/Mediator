@@ -30,9 +30,7 @@ namespace Pipaslot.Mediator
 
         TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult);
 
-        object[] IMediatorResponse<TResult>.Results => Results.ToArray();
-
-        string[] IMediatorResponse<TResult>.ErrorMessages => ErrorMessages.ToArray();
+        object[] IMediatorResponse<TResult>.Results => Results.ToArray();        
     }
 
     public class MediatorResponse : IMediatorResponse
@@ -68,6 +66,7 @@ namespace Pipaslot.Mediator
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string ErrorMessage => string.Join(";", ErrorMessages);
         public List<string> ErrorMessages { get; } = new List<string>();
+        string[] IMediatorResponse.ErrorMessages => ErrorMessages.ToArray();
 
         public object? Result => Results.FirstOrDefault();
         public List<object> Results { get; } = new List<object>(1);
