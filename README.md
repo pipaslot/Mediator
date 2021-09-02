@@ -131,7 +131,10 @@ These two methods do not return data directly, but they wrapps the data into `Me
 You can also use alternative methods `IMediator.DispatchUnhandled` and `IMediator.ExecuteUnhandled` which returns result object directly. In case of error, exception will be thrown.
 
 ### Passing data types across network
-TODO
+Data sent through the network are serialized and deserialized into the same object type. This keeps you a possibility to use type checking `mediatorResponse.Result is MyCustomHandlerResult` or to use property attributes for a custom purposes like shared validation rules on client and server.
+
+The dark side of this fact is, that **types that are unknown or unavailable on client won't be deserialized** and exceptions will be thrown. 
+
 
 ## Pipelines
 Pipelines are optional. The purpose is to provide different processing for different action types. For example you want to apply caching for Request reponses which should not affect messages. 
@@ -158,7 +161,20 @@ For more complex sample we may decide to audit only some specific Messages which
 Pay attention on the ordering in pipeline definitions! `IAuditableMessage` is more specific type. If we would register `AddPipeline<IMessage>()` before `AddPipeline<IAuditableMessage>()`, pipeline for `IAuditableMessage` would never been used!
 
 ### Multiple handlers per action contract
-TODO
+Sometimes multiple actions are expected to be executed. For example, you would like to forward the message to another audit server meanwhile the message is processed on your server. 
+Or you would like to chain another action-handler once the first was finished.
+
+For this purpose you can register middlewarer in mediator with `UseConcurrentMultiHandler()` and `UseSequenceMultiHandler()`
+``` .AddMediator()
+    ... //Action and handler registrations
+    .AddPipeline<...>()
+        .UseConcurrentMultiHandler()
+    .AddPipeline<...>() 
+        .UseSequenceMultiHandler()
+```
+
+If you need to define the order of how the sequence handlers will be executed, then implement interface `ISequenceHandler` in your handlers and define ordering.
+
 
 ### Create custom action types
 Don't you like naming as Request and Message? Or do you want to provide more action types to cover your specific pipeline behaviour? Just defino own Action and message types.
