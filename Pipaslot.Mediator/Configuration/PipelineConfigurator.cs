@@ -87,10 +87,6 @@ namespace Pipaslot.Mediator
 
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
         {
-            if (IsDefaultPipelineRegistered())
-            {
-                throw new MediatorConfigurationException($"Can not use {nameof(IPipelineRegistrator.AddPipeline)} after {nameof(IPipelineRegistrator.AddDefaultPipeline)}. Check your startup.cs and move all {nameof(IPipelineRegistrator.AddPipeline)} calls before {nameof(IPipelineRegistrator.AddDefaultPipeline)}.");
-            }
             var markerType = typeof(TActionMarker);
             var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
             var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(ActionSpecificPipelineDefinition) && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == markerType);
@@ -105,11 +101,12 @@ namespace Pipaslot.Mediator
         public IConditionalPipelineConfigurator AddDefaultPipeline()
         {
             var pipeline = new DefaultPipelineDefinition(this);
-
-            if (IsDefaultPipelineRegistered())
+            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(DefaultPipelineDefinition));
+            if (existingPipelineDescriptor != null)
             {
-                throw new MediatorConfigurationException($"Default pipeline is already registered. Check your startup.cs and ensure that method {nameof(IPipelineRegistrator.AddDefaultPipeline)} is used only once.");
+                _services.Remove(existingPipelineDescriptor);
             }
+
             _services.AddSingleton(pipeline);
 
             return pipeline;
@@ -118,12 +115,6 @@ namespace Pipaslot.Mediator
         internal void RegisterMiddleware(Type middlewareType)
         {
             _services.AddScoped(middlewareType);
-        }
-
-        internal bool IsDefaultPipelineRegistered()
-        {
-            return _services.Any((ServiceDescriptor d) =>
-                d.ServiceType == typeof(DefaultPipelineDefinition));
         }
     }
 }

@@ -49,39 +49,17 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Fact]
-        public void AddDefaultPipeline_StandardPipelineAfterDefault_ThrowException()
-        {
-            Assert.Throws<MediatorConfigurationException>(() =>
-            {
-                Factory.CreateServiceResolver(c => c
-                .AddDefaultPipeline()
-                .AddPipeline<IRequest>());
-            });
-
-        }
-
-        [Fact]
         public void AddDefaultPipeline_MultipleDefaultPipelines_ThrowException()
         {
-            Assert.Throws<MediatorConfigurationException>(() =>
-            {
-                Factory.CreateServiceResolver(c => c
+            var sr = Factory.CreateServiceResolver(c => c
                 .AddDefaultPipeline()
-                .AddDefaultPipeline());
-            });
-        }
-
-
-        [Fact]
-        public void AddDefaultPipeline_MultipleDefaultPipelinesCombinedWithStandard_ThrowException()
-        {
-            Assert.Throws<MediatorConfigurationException>(() =>
-            {
-                Factory.CreateServiceResolver(c => c
+                    .UseConcurrentMultiHandler()
                 .AddDefaultPipeline()
-                .AddPipeline<IRequest>()
-                .AddDefaultPipeline());
-            });
+                    .Use<MultiHandlerSequenceExecutionMiddleware>()
+                    );
+            var pipeline = sr.GetPipeline(typeof(IRequest));
+            var middleware = pipeline.FirstOrDefault();
+            Assert.Equal(typeof(MultiHandlerSequenceExecutionMiddleware), middleware.GetType());
         }
 
     }
