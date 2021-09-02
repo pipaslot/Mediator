@@ -5,12 +5,13 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2.1.0</Version>
+		<Version>3.0.0</Version>
 		<PackageId>Pipaslot.Mediator.Server</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Server</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Expose Pipaslot.Mediator as separeted endpoint on HTTP protocol for ASP.NET Core applications
+			3.0.0 - IMessage and IRequest were abstracted to IMediatorAction
 			2.1.0 - Provide default ExceptionLoggingMiddleware
 			2.0.3 - Ignore response type from version 1 and use the newest only by defaut. For backward compatibility was added option KeepCompatibilityWithVersion1
 			2.0.2 - Fix dependency resolving for ServerMediatorOptions
