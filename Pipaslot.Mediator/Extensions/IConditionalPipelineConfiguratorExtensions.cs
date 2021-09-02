@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator
 {
