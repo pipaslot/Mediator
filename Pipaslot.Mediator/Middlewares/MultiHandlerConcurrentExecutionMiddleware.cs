@@ -56,11 +56,9 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 if (taskResult != null)
                 {
-                    context.ErrorMessages.AddRange(taskResult.ErrorMessages);
-                    context.Results.AddRange(taskResult.Results);
+                    context.Append(taskResult);
                 }
             }
-
         }
     }
 }

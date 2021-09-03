@@ -10,5 +10,15 @@ namespace Pipaslot.Mediator.Middlewares
         public List<object> Results { get; } = new List<object>(1);
 
         internal string[] ErrorMessagesDistincted => ErrorMessages.Distinct().ToArray();
+
+        /// <summary>
+        /// Append properties from context
+        /// </summary>
+        /// <param name="context"></param>
+        public void Append(MediatorContext context)
+        {
+            ErrorMessages.AddRange(context.ErrorMessages);
+            Results.AddRange(context.Results);
+        }
     }
 }
