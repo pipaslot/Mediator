@@ -16,6 +16,11 @@ namespace Pipaslot.Mediator
     {
         private readonly ServiceResolver _serviceResolver;
 
+        /// <summary>
+        /// Variables added to every mediator context to be available during middleware processing
+        /// </summary>
+        public Dictionary<string, string> DefaultVariables { get; } = new Dictionary<string, string>();
+
         public Mediator(ServiceResolver handlerResolver)
         {
             _serviceResolver = handlerResolver;
@@ -24,7 +29,7 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             try
             {
                 await ProcessPipeline(pipeline, message, context, cancellationToken);
@@ -42,7 +47,7 @@ namespace Pipaslot.Mediator
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             await ProcessPipeline(pipeline, message, context, cancellationToken);
 
             if (context.ErrorMessages.Any())
@@ -54,7 +59,7 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             try
             {
                 await ProcessPipeline(pipeline, request, context, cancellationToken);
@@ -72,7 +77,7 @@ namespace Pipaslot.Mediator
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             await ProcessPipeline(pipeline, request, context, cancellationToken);
 
             var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
@@ -95,6 +100,11 @@ namespace Pipaslot.Mediator
                 .Reverse()
                 .Aggregate((MiddlewareDelegate)Seed,
                     (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
+        }
+
+        private MediatorContext CreateContext()
+        {
+            return new MediatorContext(DefaultVariables);
         }
     }
 }
