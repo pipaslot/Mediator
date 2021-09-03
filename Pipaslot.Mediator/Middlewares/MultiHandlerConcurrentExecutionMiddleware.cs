@@ -46,7 +46,7 @@ namespace Pipaslot.Mediator.Middlewares
             var tasks = handlers
                 .Select(async handler =>
                 {
-                    var resp = new MediatorContext();
+                    var resp = context.CopyEmpty();
                     await ExecuteRequest(handler, request, resp, cancellationToken);
                     return resp;
                 })
