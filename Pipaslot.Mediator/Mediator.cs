@@ -16,11 +16,6 @@ namespace Pipaslot.Mediator
     {
         private readonly ServiceResolver _serviceResolver;
 
-        /// <summary>
-        /// Variables added to every mediator context to be available during middleware processing
-        /// </summary>
-        public Dictionary<string, string> DefaultVariables { get; } = new Dictionary<string, string>();
-
         public Mediator(ServiceResolver handlerResolver)
         {
             _serviceResolver = handlerResolver;
@@ -104,7 +99,7 @@ namespace Pipaslot.Mediator
 
         private MediatorContext CreateContext()
         {
-            return new MediatorContext(DefaultVariables);
+            return new MediatorContext(this);
         }
     }
 }

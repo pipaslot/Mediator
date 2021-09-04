@@ -6,19 +6,12 @@ namespace Pipaslot.Mediator.Middlewares
 {
     public class MediatorContext
     {
-        public MediatorContext()
-        {
-        }
+        public IMediator Mediator { get; }
 
-        public MediatorContext(Dictionary<string, string> variables)
+        public MediatorContext(IMediator mediator)
         {
-            Variables = new Dictionary<string, string>(variables, StringComparer.OrdinalIgnoreCase); ;
+            Mediator = mediator;
         }
-
-        /// <summary>
-        /// Custom variables provided by Mediator or Middlewares for transfering status data. Keys are case insensitive.
-        /// </summary>
-        public Dictionary<string, string> Variables { get; private set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
@@ -34,8 +27,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext();
-            copy.Variables = Variables;// Share the variables as the flow continues
+            var copy = new MediatorContext(Mediator);
             return copy;
         }
 
