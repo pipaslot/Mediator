@@ -44,8 +44,7 @@ namespace Pipaslot.Mediator.Server
 
         private IMediator CreateMediator(HttpContext context, string httpMethod)
         {
-            var resolver = context.RequestServices.GetService(typeof(ServiceResolver)) as ServiceResolver;
-            if (resolver == null)
+            if (!(context.RequestServices.GetService(typeof(ServiceResolver)) is ServiceResolver resolver))
             {
                 throw new System.Exception($"Interface {typeof(ServiceResolver).FullName} was not registered in service collection");
             }
