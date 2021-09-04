@@ -150,21 +150,6 @@ namespace Pipaslot.Mediator.Client
             {
                 return RemoveAssemblySuffix(fullTypeAsString);
             }
-            var genericIndex = fullTypeAsString.LastIndexOf("]], System.Private.CoreLib");
-            var result = genericIndex >= 0
-                ? fullTypeAsString.Substring(0, genericIndex + "]]".Length)
-                : fullTypeAsString;
-
-
-            if (genericIndex >= 0)
-            {
-                const int genericBracketEndLength = 2;
-                return fullTypeAsString.Substring(0, genericIndex + genericBracketEndLength);
-            }
-            else
-            {
-                return RemoveAssemblySuffix(fullTypeAsString);
-            }
         }
         private static string RemoveAssemblySuffix(string typeAsString)
         {
