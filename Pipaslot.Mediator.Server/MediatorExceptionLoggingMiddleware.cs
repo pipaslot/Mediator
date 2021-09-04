@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Server
 {
     public class MediatorExceptionLoggingMiddleware : IMediatorMiddleware
     {
-        private ILogger<MediatorExceptionLoggingMiddleware> _logger;
+        private readonly ILogger<MediatorExceptionLoggingMiddleware> _logger;
 
         public MediatorExceptionLoggingMiddleware(ILogger<MediatorExceptionLoggingMiddleware> logger)
         {

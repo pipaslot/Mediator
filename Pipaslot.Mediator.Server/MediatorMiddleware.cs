@@ -83,15 +83,13 @@ namespace Pipaslot.Mediator.Server
 
         private async Task<string> GetBody(HttpContext context)
         {
-            using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+            using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
+            var body = await reader.ReadToEndAsync();
+            if (string.IsNullOrWhiteSpace(body))
             {
-                var body = await reader.ReadToEndAsync();
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    throw new System.Exception("Request body has empty body. JSON was expected.");
-                }
-                return body;
+                throw new System.Exception("Request body has empty body. JSON was expected.");
             }
+            return body;
         }
     }
 }

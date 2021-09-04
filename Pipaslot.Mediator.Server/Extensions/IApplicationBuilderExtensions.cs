@@ -17,11 +17,9 @@ namespace Pipaslot.Mediator.Server
             app.UseMiddleware<MediatorMiddleware>(options);
             if (checkMatchingHandlers)
             {
-                using (var scope = app.ApplicationServices.CreateScope())
-                {
-                    var checker = scope.ServiceProvider.GetRequiredService<HandlerExistenceChecker>();
-                    checker.Verify();
-                }
+                using var scope = app.ApplicationServices.CreateScope();
+                var checker = scope.ServiceProvider.GetRequiredService<HandlerExistenceChecker>();
+                checker.Verify();
             }
             return app;
         }

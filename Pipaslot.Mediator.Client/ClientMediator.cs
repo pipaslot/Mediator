@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Client
     /// </summary>
     public class ClientMediator : IMediator
     {
-        private static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        private readonly static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = null
         };

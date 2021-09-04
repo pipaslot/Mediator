@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator
             {
                 await ProcessPipeline(pipeline, message, context, cancellationToken);
 
-                var success = context.ErrorMessages.Count() == 0;
+                var success = context.ErrorMessages.Count == 0;
                 return new MediatorResponse(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
@@ -59,7 +59,7 @@ namespace Pipaslot.Mediator
             {
                 await ProcessPipeline(pipeline, request, context, cancellationToken);
 
-                var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+                var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
                 return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
@@ -75,7 +75,7 @@ namespace Pipaslot.Mediator
             var context = CreateContext();
             await ProcessPipeline(pipeline, request, context, cancellationToken);
 
-            var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+            var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
             if (context.ErrorMessages.Any())
             {
                 throw new MediatorExecutionException(context.ErrorMessagesDistincted);
