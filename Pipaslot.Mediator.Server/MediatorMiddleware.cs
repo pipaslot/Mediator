@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Server
                 throw new System.Exception($"Interface {typeof(ServiceResolver).FullName} was not registered in service collection");
             }
             var mediator = new Mediator(resolver);
-            mediator.DefaultVariables.Add("HTTPMethod", httpMethod);
+            mediator.DefaultVariables.Add("HTTP-Method", httpMethod);
             return mediator;
         }
 

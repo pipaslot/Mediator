@@ -107,7 +107,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         ...
-        services.AddMediator()
+        services.AddMediatorServer()
             .AddActionsFromAssemblyOf<WeatherForecast.Request>()            //Scan for all action contracts from the same assembly as WeatherForecast
             .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>();   //Scan for all action handlers from the same assembly as WeatherForecast
         ...
@@ -139,7 +139,7 @@ The dark side of this fact is, that **types that are unknown or unavailable on c
 ## Pipelines
 Pipelines are optional. The purpose is to provide different processing for different action types. For example you want to apply caching for Request reponses which should not affect messages. 
 From oposite site you want to audit all messages sent throug mediator but do not want to audit Requests. To gain the expected result we will define two pipelines.
-``` .AddMediator()
+``` .AddMediatorServer()
     ... //Action and handler registrations
     .AddPipeline<IMessage>()
         .Use<AuditMessageMediatorMiddleware()
@@ -148,7 +148,7 @@ From oposite site you want to audit all messages sent throug mediator but do not
         .Use<CacheRequestResponseMediatorMiddleware()
 ```
 For more complex sample we may decide to audit only some specific Messages which has interface `IAuditableMessage` inheriting from`IMessage`. In this case we would update the mediator configuration to:
-``` .AddMediator()
+``` .AddMediatorServer()
     ... //Action and handler registrations
     .AddPipeline<IAuditableMessage>()
         .Use<AuditMessageMediatorMiddleware()
@@ -165,7 +165,7 @@ Sometimes multiple actions are expected to be executed. For example, you would l
 Or you would like to chain another action-handler once the first was finished.
 
 For this purpose you can register middlewarer in mediator with `UseConcurrentMultiHandler()` and `UseSequenceMultiHandler()`
-``` .AddMediator()
+``` .AddMediatorServer()
     ... //Action and handler registrations
     .AddPipeline<...>()
         .UseConcurrentMultiHandler()
