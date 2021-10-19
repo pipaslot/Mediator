@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>3.0.0</Version>
+		<Version>3.1.0</Version>
 		<PackageId>Pipaslot.Mediator.Client</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Client</AssemblyName>
 		<Authors>Petr Stipek</Authors>
@@ -11,6 +11,7 @@
 			Consume Pipaslot.Mediator.Server endpoint for ASP.NET Core applications
 
 			Updates:
+			3.1.0 - New overloads in ClientMediator for ProcessSuccessfullResult, ProcessParsingError and ProcessUnsuccessfullStatusCode providung access to original action.
 			3.0.0 - IMessage and IRequest were abstracted to IMediatorAction
 			2.1.0 - Provide IMediator.DispatchUnhandled and IMediator.ExecuteUnhandled
 			2.0.3 - Backward compatibility fix for assemblies not using System.Private.CoreLib
