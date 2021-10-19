@@ -46,7 +46,6 @@ namespace Pipaslot.Mediator.Server
             var options = new ServerMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            //services.AddHttpContextAccessor();
 
             return services.AddMediator();
         }

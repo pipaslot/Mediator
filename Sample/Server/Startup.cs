@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pipaslot.Mediator;
 using Pipaslot.Mediator.Server;
 using Sample.Server.Handlers;
 using Sample.Shared;
@@ -29,7 +28,7 @@ namespace Sample.Server
             services.AddRazorPages();
 
             //////// Mediator implementation
-            services.AddMediator(o=> {
+            services.AddMediatorServer(o=> {
                 o.Endpoint = Constants.CustomMediatorUrl;
             })
                 .AddActionsFromAssemblyOf<WeatherForecast.Request>()

@@ -31,18 +31,18 @@ namespace Pipaslot.Mediator.Tests
 
         public class RequestException : System.Exception
         {
-            public static string Message = "REquesthandler failed";
+            public static string DefaultMessage = "REquesthandler failed";
 
-            public RequestException() : base(Message)
+            public RequestException() : base(DefaultMessage)
             {
             }
         }
 
         public class MessageException : System.Exception
         {
-            public static string Message = "Message handler failed";
+            public static string DefaultMessage = "Message handler failed";
 
-            public MessageException() : base(Message)
+            public MessageException() : base(DefaultMessage)
             {
             }
         }
