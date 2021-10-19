@@ -24,12 +24,12 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             try
             {
                 await ProcessPipeline(pipeline, message, context, cancellationToken);
 
-                var success = context.ErrorMessages.Count() == 0;
+                var success = context.ErrorMessages.Count == 0;
                 return new MediatorResponse(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(message.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             await ProcessPipeline(pipeline, message, context, cancellationToken);
 
             if (context.ErrorMessages.Any())
@@ -54,12 +54,12 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             try
             {
                 await ProcessPipeline(pipeline, request, context, cancellationToken);
 
-                var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+                var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
                 return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessagesDistincted);
             }
             catch (Exception e)
@@ -72,10 +72,10 @@ namespace Pipaslot.Mediator
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceResolver.GetPipeline(request.GetType());
-            var context = new MediatorContext();
+            var context = CreateContext();
             await ProcessPipeline(pipeline, request, context, cancellationToken);
 
-            var success = context.ErrorMessages.Count() == 0 && context.Results.Any(r => r is TResult);
+            var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
             if (context.ErrorMessages.Any())
             {
                 throw new MediatorExecutionException(context.ErrorMessagesDistincted);
@@ -84,6 +84,10 @@ namespace Pipaslot.Mediator
                 .Where(r => r is TResult)
                 .Cast<TResult>()
                 .FirstOrDefault();
+            if(result == null)
+            {
+                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline");
+            }
             return result;
         }
 
@@ -95,6 +99,11 @@ namespace Pipaslot.Mediator
                 .Reverse()
                 .Aggregate((MiddlewareDelegate)Seed,
                     (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
+        }
+
+        private MediatorContext CreateContext()
+        {
+            return new MediatorContext(this);
         }
     }
 }

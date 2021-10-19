@@ -11,9 +11,10 @@ namespace Pipaslot.Mediator
     /// <summary>
     /// Server side executed receiving CommandQueryContract object through network connection
     /// </summary>
+    /// TODO: make internal in next major version
     public class RequestContractExecutor
     {
-        private static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        private readonly static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = null
         };

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Contracts;
+using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Server
 {
@@ -20,13 +21,10 @@ namespace Pipaslot.Mediator.Server
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path == _option.Endpoint && context.Request.Method.ToUpper() == "POST")
+            var method = context.Request.Method.ToUpper();
+            if (context.Request.Path == _option.Endpoint && method == "POST")
             {
-                var mediator = context.RequestServices.GetService(typeof(IMediator)) as IMediator;
-                if (mediator == null)
-                {
-                    throw new System.Exception($"Interface {typeof(IMediator).FullName} was not registered in service collection");
-                }
+                var mediator = CreateMediator(context, method);
                 var version = GetClientVersion(context);
                 var contract = await GetContract(context, version);
                 if (contract == null)
@@ -43,6 +41,16 @@ namespace Pipaslot.Mediator.Server
                 await _next(context);
             }
         }
+
+        private IMediator CreateMediator(HttpContext context, string httpMethod)
+        {
+            if (!(context.RequestServices.GetService(typeof(ServiceResolver)) is ServiceResolver resolver))
+            {
+                throw new System.Exception($"Interface {typeof(ServiceResolver).FullName} was not registered in service collection");
+            }
+            return new HttpMediator(resolver, httpMethod);
+        }
+
         private string GetClientVersion(HttpContext context)
         {
             if (_option.KeepCompatibilityWithVersion1)
@@ -55,6 +63,7 @@ namespace Pipaslot.Mediator.Server
             }
             return MediatorRequestSerializable.VersionHeaderValueV2;
         }
+
         private async Task<MediatorRequestSerializable?> GetContract(HttpContext context, string version)
         {
             var body = await GetBody(context);
@@ -73,15 +82,13 @@ namespace Pipaslot.Mediator.Server
 
         private async Task<string> GetBody(HttpContext context)
         {
-            using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+            using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
+            var body = await reader.ReadToEndAsync();
+            if (string.IsNullOrWhiteSpace(body))
             {
-                var body = await reader.ReadToEndAsync();
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    throw new System.Exception("Request body has empty body. JSON was expected.");
-                }
-                return body;
+                throw new System.Exception("Request body has empty body. JSON was expected.");
             }
+            return body;
         }
     }
 }
