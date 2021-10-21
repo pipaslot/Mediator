@@ -4,8 +4,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Contracts;
-
+using Pipaslot.Mediator.Server;
+//TODO move into Server namespace
 namespace Pipaslot.Mediator
 {
     /// <summary>
@@ -19,11 +21,13 @@ namespace Pipaslot.Mediator
             PropertyNamingPolicy = null
         };
         private readonly IMediator _mediator;
+        private readonly PipelineConfigurator _configurator;
         private readonly string _version;
 
-        public RequestContractExecutor(IMediator mediator, string version = "")
+        public RequestContractExecutor(IMediator mediator, PipelineConfigurator configurator, string version = "")
         {
             _mediator = mediator;
+            _configurator = configurator;
             _version = version;
         }
 
@@ -32,12 +36,22 @@ namespace Pipaslot.Mediator
             var queryType = Type.GetType(request.ObjectName);
             if (queryType == null)
             {
-                throw new Exception($"Can not recognize type {request.ObjectName}");
+                throw MediatorServerException.CreateForUnrecognizedType(request.ObjectName);
             }
+            if (!_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
+            {
+                throw MediatorServerException.CreateForUnregisteredType(queryType);
+            }
+            // TODO Consider implementing this check in next version
+            // This check causes that Mediator V2 wont be able to send their actions because Action abstraction was implemented in version 3
+            //if (!typeof(IMediatorAction).IsAssignableFrom(queryType))
+            //{
+            //    throw MediatorServerException.CreateForNonContractType(queryType);
+            //}
             var query = JsonSerializer.Deserialize(request.Json, queryType);
             if (query == null)
             {
-                throw new Exception($"Can not deserialize contract as type {request.ObjectName}");
+                throw new MediatorServerException($"Can not deserialize contract as type {request.ObjectName}");
             }
             if (query is IMediatorActionProvidingData req)
             {
@@ -65,7 +79,7 @@ namespace Pipaslot.Mediator
             var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType());
             if (resultType == null)
             {
-                throw new Exception($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
+                throw new MediatorServerException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
             }
             var method = _mediator.GetType()
                     .GetMethod(nameof(IMediator.Execute))!

@@ -29,9 +29,11 @@ namespace Pipaslot.Mediator.Server
                 var contract = await GetContract(context, version);
                 if (contract == null)
                 {
-                    throw new System.Exception($"Can not parse contract object from request body");
+                    throw MediatorServerException.CreateForUnparsedContract();
+                    
                 }
-                var executor = new RequestContractExecutor(mediator, version);
+                var pipelineConfigurator = GetPipelineConfigurator(context);
+                var executor = new RequestContractExecutor(mediator, pipelineConfigurator, version);
                 var result = await executor.ExecuteQuery(contract, context.RequestAborted);
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(result);
@@ -46,9 +48,18 @@ namespace Pipaslot.Mediator.Server
         {
             if (!(context.RequestServices.GetService(typeof(ServiceResolver)) is ServiceResolver resolver))
             {
-                throw new System.Exception($"Interface {typeof(ServiceResolver).FullName} was not registered in service collection");
+                throw MediatorServerException.CreateForUnregisteredService(typeof(ServiceResolver));
             }
             return new HttpMediator(resolver, httpMethod);
+        }
+
+        private PipelineConfigurator GetPipelineConfigurator(HttpContext context)
+        {
+            if (!(context.RequestServices.GetService(typeof(PipelineConfigurator)) is PipelineConfigurator configurator))
+            {
+                throw MediatorServerException.CreateForUnregisteredService(typeof(PipelineConfigurator));
+            }
+            return configurator;
         }
 
         private string GetClientVersion(HttpContext context)
@@ -86,7 +97,7 @@ namespace Pipaslot.Mediator.Server
             var body = await reader.ReadToEndAsync();
             if (string.IsNullOrWhiteSpace(body))
             {
-                throw new System.Exception("Request body has empty body. JSON was expected.");
+                throw MediatorServerException.CreateForEmptyBody();
             }
             return body;
         }
