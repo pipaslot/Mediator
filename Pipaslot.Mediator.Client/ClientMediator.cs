@@ -28,27 +28,25 @@ namespace Pipaslot.Mediator.Client
             _options = options;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMediatorAction request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse> Dispatch(IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var contract = CreateContract(request);
-            var requestType = request.GetType();
+            var contract = CreateContract(action);
 
-            var task = SendRequest<object>(contract, requestType, cancellationToken);
+            var task = SendRequest<object>(contract, action, cancellationToken);
             return await task;
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> action, CancellationToken cancellationToken = default)
         {
-            var contract = CreateContract(request);
-            var requestType = request.GetType();
+            var contract = CreateContract(action);
 
-            var task = SendRequest<TResult>(contract, requestType, cancellationToken);
+            var task = SendRequest<TResult>(contract, action, cancellationToken);
             return await task;
         }
 
-        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> action, CancellationToken cancellationToken = default)
         {
-            var result = await Execute(request, cancellationToken);
+            var result = await Execute(action, cancellationToken);
             if (result.Failure)
             {
                 throw new MediatorExecutionException(result.ErrorMessages);
@@ -69,8 +67,9 @@ namespace Pipaslot.Mediator.Client
             }
         }
 
-        private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, Type requestType, CancellationToken cancellationToken = default)
+        private async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorRequestSerializable contract, IMediatorAction action, CancellationToken cancellationToken = default)
         {
+            var requestType = action.GetType();
             var url = _options.Endpoint + $"?type={requestType}";
 
             var content = JsonContent.Create(contract, null, _serializationOptions);
@@ -87,13 +86,13 @@ namespace Pipaslot.Mediator.Client
                 }
                 catch (Exception e)
                 {
-                    return await ProcessParsingError<TResult>(contract, requestType, response, e);
+                    return await ProcessParsingError<TResult>(action, contract, response, e);
                 }
-                return await ProcessSuccessfullResult(contract, requestType, response, result);
+                return await ProcessSuccessfullResult(action, contract, response, result);
             }
             else
             {
-                return await ProcessUnsuccessfullStatusCode<TResult>(contract, requestType, response);
+                return await ProcessUnsuccessfullStatusCode<TResult>(action, contract, response);
             }
         }
 
@@ -109,6 +108,7 @@ namespace Pipaslot.Mediator.Client
                 Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
             };
         }
+
         private object DeserializeResult(MediatorResponseSerializableV2.SerializedResult serializedResult)
         {
             var queryType = Type.GetType(serializedResult.ObjectName);
@@ -127,6 +127,7 @@ namespace Pipaslot.Mediator.Client
             }
             return result;
         }
+
         /// <summary>
         /// This method converst type Definition like "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=none"
         /// to "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
@@ -151,6 +152,7 @@ namespace Pipaslot.Mediator.Client
                 return RemoveAssemblySuffix(fullTypeAsString);
             }
         }
+
         private static string RemoveAssemblySuffix(string typeAsString)
         {
             var assemblyIndex = typeAsString.LastIndexOf(", System.Private.CoreLib");
@@ -169,18 +171,36 @@ namespace Pipaslot.Mediator.Client
             };
         }
 
+        protected virtual async Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(IMediatorAction action, MediatorRequestSerializable contract, HttpResponseMessage response, IMediatorResponse<TResult> result)
+        {
+            return await ProcessSuccessfullResult<TResult>(contract, action.GetType(), response, result);
+        }
+
+        protected virtual async Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(IMediatorAction action, MediatorRequestSerializable contract, HttpResponseMessage response, Exception e)
+        {
+            return await ProcessParsingError<TResult>(contract, action.GetType(), response, e);
+        }
+
+        protected virtual async Task<IMediatorResponse<TResult>> ProcessUnsuccessfullStatusCode<TResult>(IMediatorAction action, MediatorRequestSerializable contract, HttpResponseMessage response)
+        {
+            return await ProcessUnsuccessfullStatusCode<TResult>(contract, action.GetType(), response);
+        }
+
+        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, IMediatorResponse<TResult> result)
         {
             IMediatorResponse<TResult> normalized = result ?? throw new InvalidOperationException("No data received");
             return Task.FromResult(normalized);
         }
 
+        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, Exception e)
         {
             IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Can not deserialize response object");
             return Task.FromResult(result);
         }
 
+        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessUnsuccessfullStatusCode<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response)
         {
             IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Request failed");
