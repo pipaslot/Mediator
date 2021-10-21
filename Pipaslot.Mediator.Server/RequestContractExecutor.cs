@@ -42,12 +42,10 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorServerException.CreateForUnregisteredType(queryType);
             }
-            // TODO Consider implementing this check in next version
-            // This check causes that Mediator V2 wont be able to send their actions because Action abstraction was implemented in version 3
-            //if (!typeof(IMediatorAction).IsAssignableFrom(queryType))
-            //{
-            //    throw MediatorServerException.CreateForNonContractType(queryType);
-            //}
+            if (!typeof(IMediatorAction).IsAssignableFrom(queryType))
+            {
+                throw MediatorServerException.CreateForNonContractType(queryType);
+            }
             var query = JsonSerializer.Deserialize(request.Json, queryType);
             if (query == null)
             {

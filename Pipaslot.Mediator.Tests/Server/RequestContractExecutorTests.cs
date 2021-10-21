@@ -26,19 +26,18 @@ namespace Pipaslot.Mediator.Tests.Server
             Assert.Equal(MediatorServerException.CreateForUnregisteredType(contractType).Message, exception.Message);
         }
 
-        // TODO Consider implementing this check in next version
-        //[Fact]
-        //public async Task ExecuteQuery_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
-        //{
-        //    var sut = CreateConfigurator(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
-        //    var contractType = typeof(FakeNonContract);
-        //    var request = CreateRequest(contractType);
-        //    var exception = await Assert.ThrowsAsync<MediatorServerException>(async () =>
-        //    {
-        //        await sut.ExecuteQuery(request, System.Threading.CancellationToken.None);
-        //    });
-        //    Assert.Equal(MediatorServerException.CreateForNonContractType(contractType).Message, exception.Message);
-        //}
+        [Fact]
+        public async Task ExecuteQuery_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
+        {
+            var sut = CreateConfigurator(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
+            var contractType = typeof(FakeNonContract);
+            var request = CreateRequest(contractType);
+            var exception = await Assert.ThrowsAsync<MediatorServerException>(async () =>
+            {
+                await sut.ExecuteQuery(request, System.Threading.CancellationToken.None);
+            });
+            Assert.Equal(MediatorServerException.CreateForNonContractType(contractType).Message, exception.Message);
+        }
 
         [Fact]
         public async Task ExecuteQuery_ContractTypeIsFromRegisteredAssembly_Pass()
