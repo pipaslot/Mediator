@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Middlewares;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +10,10 @@ namespace Pipaslot.Mediator.Server
     public class MediatorExceptionLoggingMiddleware : IMediatorMiddleware
     {
         private readonly ILogger<MediatorExceptionLoggingMiddleware> _logger;
+        private readonly static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = null
+        };
 
         public MediatorExceptionLoggingMiddleware(ILogger<MediatorExceptionLoggingMiddleware> logger)
         {
@@ -23,8 +28,25 @@ namespace Pipaslot.Mediator.Server
             }
             catch(Exception e)
             {
-                _logger.LogError(e, "Exception occured during Mediator execution: " + e.Message);
+                var serializedData = Serialize(action);
+                _logger.LogError(e, @$"Exception occured during Mediator execution for action '{action?.GetType()}' with message: '{e.Message}'. Action content: {serializedData}");
                 throw;
+            }
+        }
+
+        private string Serialize(object? obj)
+        {
+            if(obj == null)
+            {
+                return "NULL";
+            }
+            try
+            {
+                return JsonSerializer.Serialize(obj, _serializationOptions);
+            }
+            catch (Exception e)
+            {
+                return "Data serialization failed: " + e.Message;
             }
         }
     }

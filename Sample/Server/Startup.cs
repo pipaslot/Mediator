@@ -35,12 +35,12 @@ namespace Sample.Server
                 .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
                 // Configure pipelines for own custom action types. This is CQRS implementaiton sample 
                 //.AddPipeline<IQuery>()                // Pipeline specified only for queries
-                //    .UseExceptionHandling()           // Log all unhalded exception via ILogger
+                //    .UseExceptionLogging()           // Log all unhalded exception via ILogger
                 //    .Use<QuerySpecificMiddleware>()   // Middleare which should be applied only to Queries
                 //    .Use<CommonMiddleware>()          // Middleware which should be used for all action types
 
                 //.AddPipeline<ICommand>()              // Pipeline specified only for commands
-                //    .UseExceptionHandling()           // Log all unhalded exception via ILogger
+                //    .UseExceptionLogging()           // Log all unhalded exception via ILogger
                 //    .Use<CommandSpecificMiddleware>() // Middleare which should be applied only to Commands
                 //    .Use<CommonMiddleware>()          // Middleware which should be used for all action types
                 //    .UseSequenceMultiHandler()        // This allow to define and executie multiple action handlers. Must be defined as last middleware in pipeline. 

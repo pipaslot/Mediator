@@ -5,12 +5,13 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>3.1.0</Version>
+		<Version>3.1.1</Version>
 		<PackageId>Pipaslot.Mediator.Server</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Server</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Expose Pipaslot.Mediator as separeted endpoint on HTTP protocol for ASP.NET Core applications
+			3.1.1 - Log incomming action data when execution fails for MediatorExceptionLoggingMiddleware
 			3.1.0 - Vulnerability fix by testing that requested contract is registered before its deserialization
 			3.0.0 - IMessage and IRequest were abstracted to IMediatorAction
 			2.1.0 - Provide default ExceptionLoggingMiddleware
