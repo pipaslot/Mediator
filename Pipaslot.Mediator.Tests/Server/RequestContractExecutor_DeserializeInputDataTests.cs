@@ -119,5 +119,12 @@ namespace Pipaslot.Mediator.Tests.Server
 
         public record PositionalRecordContract(string Name, int Number) : IMessage;
 
+        public static void Main()
+        {
+            new PositionalRecordContract(
+                Number: 34,
+                Name: "Pepa");
+        }
+
     }
 }
