@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Server
 {
-    public class RequestContractExecutorTests
+    public class RequestContractExecutor_WhitelistDeserializedTypesTests
     {
         [Fact]
         public async Task ExecuteQuery_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
