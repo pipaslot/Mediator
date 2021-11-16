@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator
 
             if (context.ErrorMessages.Any())
             {
-                throw new MediatorExecutionException(context.ErrorMessagesDistincted);
+                throw new MediatorExecutionException("An error occurred during processing.", context);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Pipaslot.Mediator
             var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
             if (context.ErrorMessages.Any())
             {
-                throw new MediatorExecutionException(context.ErrorMessagesDistincted);
+                throw new MediatorExecutionException("An error occurred during processing.", context);
             }
             var result = context.Results
                 .Where(r => r is TResult)
@@ -86,7 +86,7 @@ namespace Pipaslot.Mediator
                 .FirstOrDefault();
             if(result == null)
             {
-                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline");
+                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
             }
             return result;
         }

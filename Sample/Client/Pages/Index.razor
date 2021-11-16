@@ -7,6 +7,7 @@
 <button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
+<button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
 @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value) || !string.IsNullOrWhiteSpace(_serializedData.Value))
 {
     <h4>Response</h4>
@@ -25,18 +26,29 @@
     private async Task RunPassing()
     {
         var response = await Mediator.Execute(new WeatherForecast.Request());
-        ProcessResponse(response);
+        ProcessRequestResponse(response);
     }
 
     private async Task RunFailing()
     {
         var response = await Mediator.Execute(new Failing.Request());
-        ProcessResponse(response);
+        ProcessRequestResponse(response);
     }
 
     private async Task RunMessage(bool pass)
     {
         var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
+        ProcessMessageResponse(response);
+    }
+
+    private async Task RunCascadingFailing()
+    {
+        var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
+        ProcessMessageResponse(response);
+    }
+
+    private void ProcessMessageResponse(IMediatorResponse response)
+    {
         var converted = (IMediatorResponse<object>)response;
         _serializedReponse = Serialize(new
         {
@@ -50,7 +62,7 @@
         });
     }
 
-    private void ProcessResponse<TResult>(IMediatorResponse<TResult> response)
+    private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
     {
         _serializedReponse = Serialize(new
         {

@@ -49,11 +49,11 @@ namespace Pipaslot.Mediator.Client
             var result = await Execute(action, cancellationToken);
             if (result.Failure)
             {
-                throw new MediatorExecutionException(result.ErrorMessages);
+                throw new MediatorExecutionException(result);
             }
             if(result.Result == null)
             {
-                throw new MediatorExecutionException($"Null was returned from mediator. Use method {nameof(Execute)} if you expect null as valid result.");
+                throw new MediatorExecutionException($"Null was returned from mediator. Use method {nameof(Execute)} if you expect null as valid result.", result);
             }
             return result.Result;
         }
@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Client
             var result = await Dispatch(message, cancellationToken);
             if (result.Failure)
             {
-                throw new MediatorExecutionException(result.ErrorMessage);
+                throw new MediatorExecutionException(result);
             }
         }
 
@@ -186,21 +186,21 @@ namespace Pipaslot.Mediator.Client
             return await ProcessUnsuccessfullStatusCode<TResult>(contract, action.GetType(), response);
         }
 
-        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
+        [Obsolete("User different method overload. This overload will be removed in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, IMediatorResponse<TResult> result)
         {
             IMediatorResponse<TResult> normalized = result ?? throw new InvalidOperationException("No data received");
             return Task.FromResult(normalized);
         }
 
-        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
+        [Obsolete("User different method overload. This overload will be removed in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response, Exception e)
         {
             IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Can not deserialize response object");
             return Task.FromResult(result);
         }
 
-        [Obsolete("User different method overload. This overload will beremoved in version 4.0.0")]
+        [Obsolete("User different method overload. This overload will be removed in version 4.0.0")]
         protected virtual Task<IMediatorResponse<TResult>> ProcessUnsuccessfullStatusCode<TResult>(MediatorRequestSerializable contract, Type requestType, HttpResponseMessage response)
         {
             IMediatorResponse<TResult> result = new MediatorResponse<TResult>("Request failed");
