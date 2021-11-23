@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pipaslot.Mediator.Server;
 using Sample.Server.Handlers;
+using Sample.Server.MediatorMiddlewares;
 using Sample.Shared;
 using Sample.Shared.Requests;
 
@@ -26,6 +27,7 @@ namespace Sample.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddHttpContextAccessor();
 
             //////// Mediator implementation
             services.AddMediatorServer(o=> {
@@ -48,6 +50,7 @@ namespace Sample.Server
                 // Use default pipelin if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution
                 .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
                     .UseExceptionLogging()             // Log all unhalded exception via ILogger
+                    .Use<MediatorCallStackLoggerMiddleware>()
                     .Use<ValidatorMiddleware>()
                     .Use<CommonMiddleware>();
             ////////
