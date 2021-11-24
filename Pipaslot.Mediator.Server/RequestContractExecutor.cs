@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Contracts;
+using Pipaslot.Mediator.Serialization;
 using Pipaslot.Mediator.Server;
 //TODO move into Server namespace
 namespace Pipaslot.Mediator
@@ -16,19 +13,17 @@ namespace Pipaslot.Mediator
     /// TODO: make internal in next major version
     public class RequestContractExecutor
     {
-        private readonly static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = null
-        };
         private readonly IMediator _mediator;
         private readonly PipelineConfigurator _configurator;
-        private readonly string _version;
+        private readonly IContractSerializer _serializer;
 
         public RequestContractExecutor(IMediator mediator, PipelineConfigurator configurator, string version = "")
         {
             _mediator = mediator;
             _configurator = configurator;
-            _version = version;
+            _serializer = version == MediatorRequestSerializable.VersionHeaderValueV2
+                ? new ContractSerializerV2()
+                : new ContractSerializerV1();
         }
 
         public async Task<string> ExecuteQuery(MediatorRequestSerializable request, CancellationToken cancellationToken)
@@ -46,7 +41,7 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorServerException.CreateForNonContractType(queryType);
             }
-            var query = JsonSerializer.Deserialize(request.Json, queryType);
+            var query = _serializer.DeserializeRequest(request);
             if (query == null)
             {
                 throw new MediatorServerException($"Can not deserialize contract as type {request.ObjectName}");
@@ -102,50 +97,14 @@ namespace Pipaslot.Mediator
         {
             if (result is MediatorResponse mediatorResponse)
             {
-                return SerializeResponse(mediatorResponse);
+                return _serializer.SerializeResponse(mediatorResponse);
             }
             return SerializeError($"Unexpected result type from mediator pipeline. Was expected {typeof(MediatorResponse)} but {result?.GetType()} was returned instead.");
         }
 
         private string SerializeError(string errorMessage)
         {
-            return SerializeResponse(new MediatorResponse(errorMessage));
+            return _serializer.SerializeResponse(new MediatorResponse(errorMessage));
         }
-
-        private string SerializeResponse(MediatorResponse response)
-        {
-            if (_version == MediatorRequestSerializable.VersionHeaderValueV2)
-            {
-                var obj = new MediatorResponseSerializableV2
-                {
-                    ErrorMessages = response.ErrorMessages.ToArray(),
-                    Results = response.Results
-                    .Select(r => SerializerResult(r))
-                    .ToArray(),
-                    Success = response.Success
-                };
-                return JsonSerializer.Serialize(obj, _serializationOptions);
-            }
-            else
-            {
-                var obj = new MediatorResponseSerializable
-                {
-                    ErrorMessages = response.ErrorMessages.ToArray(),
-                    Results = response.Results.ToArray(),
-                    Success = response.Success
-                };
-                return JsonSerializer.Serialize(obj, _serializationOptions);
-            }
-        }
-
-        private MediatorResponseSerializableV2.SerializedResult SerializerResult(object request)
-        {
-            return new MediatorResponseSerializableV2.SerializedResult
-            {
-                Json = JsonSerializer.Serialize(request, _serializationOptions),
-                ObjectName = request.GetType().AssemblyQualifiedName
-            };
-        }
-
     }
 }

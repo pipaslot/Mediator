@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Contracts;
+using Pipaslot.Mediator.Serialization;
 
 namespace Pipaslot.Mediator.Client
 {
@@ -21,6 +21,7 @@ namespace Pipaslot.Mediator.Client
         };
         private readonly HttpClient _httpClient;
         private readonly ClientMediatorOptions _options;
+        private readonly IContractSerializer _serializer = new ContractSerializerV2();
 
         public ClientMediator(HttpClient httpClient, ClientMediatorOptions options)
         {
@@ -30,7 +31,7 @@ namespace Pipaslot.Mediator.Client
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var contract = CreateContract(action);
+            var contract = _serializer.CreateContract(action);
 
             var task = SendRequest<object>(contract, action, cancellationToken);
             return await task;
@@ -38,7 +39,7 @@ namespace Pipaslot.Mediator.Client
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> action, CancellationToken cancellationToken = default)
         {
-            var contract = CreateContract(action);
+            var contract = _serializer.CreateContract(action);
 
             var task = SendRequest<TResult>(contract, action, cancellationToken);
             return await task;
@@ -71,8 +72,8 @@ namespace Pipaslot.Mediator.Client
         {
             var requestType = action.GetType();
             var url = _options.Endpoint + $"?type={requestType}";
-
-            var content = JsonContent.Create(contract, null, _serializationOptions);
+            var json = _serializer.SerializeRequest(contract);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"); 
             content.Headers.Add(MediatorRequestSerializable.VersionHeader, MediatorRequestSerializable.VersionHeaderValueV2);
             var response = await _httpClient.PostAsync(url, content, cancellationToken);
 
@@ -82,7 +83,7 @@ namespace Pipaslot.Mediator.Client
                 try
                 {
                     var serializedResult = await response.Content.ReadFromJsonAsync<MediatorResponseSerializableV2>(cancellationToken: cancellationToken);
-                    result = DeserializeResults<TResult>(serializedResult);
+                    result = _serializer.DeserializeResults<TResult>(serializedResult);
                 }
                 catch (Exception e)
                 {
@@ -94,81 +95,6 @@ namespace Pipaslot.Mediator.Client
             {
                 return await ProcessUnsuccessfullStatusCode<TResult>(action, contract, response);
             }
-        }
-
-        private IMediatorResponse<TResult> DeserializeResults<TResult>(MediatorResponseSerializableV2 serializedResult)
-        {
-            var results = serializedResult.Results
-                .Select(r => DeserializeResult(r))
-                .ToArray();
-            return new MediatorResponseDeserialized<TResult>
-            {
-                Success = serializedResult.Success,
-                ErrorMessages = serializedResult.ErrorMessages,
-                Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
-            };
-        }
-
-        private object DeserializeResult(MediatorResponseSerializableV2.SerializedResult serializedResult)
-        {
-            var queryType = Type.GetType(serializedResult.ObjectName);
-            if (queryType == null)
-            {
-                queryType = Type.GetType(GetTypeWithoutAssembly(serializedResult.ObjectName));
-                if (queryType == null)
-                {
-                    throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response. Ensure that type returned and serialized on server is available/referenced on client as well.");
-                }
-            }
-            var result = JsonSerializer.Deserialize(serializedResult.Json, queryType);
-            if (result == null)
-            {
-                throw new Exception($"Can not deserialize contract as type {serializedResult.ObjectName} received from server");
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// This method converst type Definition like "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=none"
-        /// to "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
-        /// This is fix providing backward compatibility for .NET Core 3.1 and older where was issue with parsing types belonging to assembly System.Private.CoreLib, because this assembly is not available or the version might be different
-        /// </summary>
-        /// <param name="fullTypeAsString"></param>
-        /// <returns></returns>
-        internal static string GetTypeWithoutAssembly(string fullTypeAsString)
-        {
-            var isGeneric = fullTypeAsString.Contains("]]");
-            if (isGeneric)
-            {
-                var startIndex = fullTypeAsString.IndexOf("[[")+2;
-                var endIndex = fullTypeAsString.LastIndexOf("]]");
-                var before = fullTypeAsString.Substring(0, startIndex);
-                var between = fullTypeAsString.Substring(startIndex, endIndex-startIndex);
-                var after = fullTypeAsString.Substring(endIndex);
-                return before + GetTypeWithoutAssembly(between) + RemoveAssemblySuffix(after);
-            }
-            else
-            {
-                return RemoveAssemblySuffix(fullTypeAsString);
-            }
-        }
-
-        private static string RemoveAssemblySuffix(string typeAsString)
-        {
-            var assemblyIndex = typeAsString.LastIndexOf(", System.Private.CoreLib");
-
-            return assemblyIndex >=0 
-                ? typeAsString.Substring(0, assemblyIndex)
-                : typeAsString;
-        }
-
-        private MediatorRequestSerializable CreateContract(object request)
-        {
-            return new MediatorRequestSerializable
-            {
-                Json = JsonSerializer.Serialize(request, _serializationOptions),
-                ObjectName = request.GetType().AssemblyQualifiedName
-            };
         }
 
         protected virtual async Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(IMediatorAction action, MediatorRequestSerializable contract, HttpResponseMessage response, IMediatorResponse<TResult> result)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Contracts;
+using Pipaslot.Mediator.Serialization;
 using System;
 using System.Linq.Expressions;
 using System.Threading;

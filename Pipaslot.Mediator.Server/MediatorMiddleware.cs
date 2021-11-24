@@ -3,8 +3,8 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Contracts;
 using Pipaslot.Mediator.Services;
+using Pipaslot.Mediator.Serialization;
 
 namespace Pipaslot.Mediator.Server
 {

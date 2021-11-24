@@ -1,9 +1,9 @@
-﻿using Pipaslot.Mediator.Client;
+﻿using Pipaslot.Mediator.Serialization;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Client
 {
-    public class ClientMediatorTests
+    public class ContractSerializerV2Tests
     {
 
         [Theory]
@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.Client
 
         public void ConvertTypeDefinitions(string expected,string value)
         {
-            var result = ClientMediator.GetTypeWithoutAssembly(value);
+            var result = ContractSerializerV2.GetTypeWithoutAssembly(value);
             Assert.Equal(expected, result);
         }
     }
