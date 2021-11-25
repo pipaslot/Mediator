@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Serialization;
+using Pipaslot.Mediator.Http;
 
 namespace Pipaslot.Mediator.Client
 {

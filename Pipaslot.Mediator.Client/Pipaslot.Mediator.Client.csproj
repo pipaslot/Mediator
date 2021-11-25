@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Pipaslot.Mediator.Serialization\Pipaslot.Mediator.Serialization.csproj" />
+		<ProjectReference Include="..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj" />
 		<ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
 	</ItemGroup>
 

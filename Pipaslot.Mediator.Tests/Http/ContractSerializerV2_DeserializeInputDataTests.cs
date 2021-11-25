@@ -1,9 +1,9 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Serialization;
+using Pipaslot.Mediator.Http;
 using System;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Serialization
+namespace Pipaslot.Mediator.Tests.Http
 {
     public class ContractSerializerV2_DeserializeInputDataTests
     {

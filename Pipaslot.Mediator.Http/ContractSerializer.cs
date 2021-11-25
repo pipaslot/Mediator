@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Serialization
+namespace Pipaslot.Mediator.Http
 {
     public class ContractSerializer : IContractSerializer
     {

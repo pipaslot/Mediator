@@ -1,4 +1,4 @@
-﻿using Pipaslot.Mediator.Serialization;
+﻿using Pipaslot.Mediator.Http;
 
 namespace Pipaslot.Mediator.Client
 {

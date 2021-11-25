@@ -4,8 +4,8 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Version>1.0.0</Version>
-		<PackageId>Pipaslot.Mediator.Serialization</PackageId>
-		<AssemblyName>Pipaslot.Mediator.Serialization</AssemblyName>
+		<PackageId>Pipaslot.Mediator.Http</PackageId>
+		<AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Provide serializers designed for communication between Pipaslot.Mediator.Client and Pipaslot.Mediator.Server

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Serialization;
+using Pipaslot.Mediator.Http;
 using System;
 
 namespace Pipaslot.Mediator.Server

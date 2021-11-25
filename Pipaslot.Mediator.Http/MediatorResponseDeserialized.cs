@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Pipaslot.Mediator.Serialization
+namespace Pipaslot.Mediator.Http
 {
     internal class MediatorResponseDeserialized<TResult> : IMediatorResponse<TResult>
     {
