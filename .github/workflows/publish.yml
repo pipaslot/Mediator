@@ -19,6 +19,14 @@ jobs:
           PACKAGE_NAME: Pipaslot.Mediator
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
+      - name: publish Pipaslot.Mediator.Http
+        id: publish_nuget_client
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj          
+          PACKAGE_NAME: Pipaslot.Mediator.Http
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}  
+
       - name: publish Pipaslot.Mediator.Client
         id: publish_nuget_client
         uses: rohith/publish-nuget@v2
