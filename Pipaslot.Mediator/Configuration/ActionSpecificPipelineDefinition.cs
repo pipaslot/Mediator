@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,11 @@ namespace Pipaslot.Mediator
             MarkerType = markerType;
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>() where TMiddleware : IMediatorMiddleware
+        public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             var type = typeof(TMiddleware);
             _middlewares.Add(type);
-            _configurator.RegisterMiddleware(type);
+            _configurator.RegisterMiddleware(type, lifetime);
             return this;
         }
 

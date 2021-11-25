@@ -88,9 +88,9 @@ namespace Pipaslot.Mediator
             return pipeline;
         }
 
-        internal void RegisterMiddleware(Type middlewareType)
+        internal void RegisterMiddleware(Type middlewareType, ServiceLifetime lifetime)
         {
-            _services.AddScoped(middlewareType);
+            _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
         }
     }
 }

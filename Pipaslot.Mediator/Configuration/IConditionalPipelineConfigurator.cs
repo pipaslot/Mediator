@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator
 {
@@ -10,6 +11,6 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Register middleware in pipeline for all actions
         /// </summary>
-        IConditionalPipelineConfigurator Use<TMiddleware>() where TMiddleware : IMediatorMiddleware;
+        IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware;
     }
 }
