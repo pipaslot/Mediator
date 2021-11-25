@@ -57,17 +57,17 @@ and execute on your client:
     private WeatherForecast.Result[] _forecasts;
     protected override async Task OnInitializedAsync()
     {
-        var result = await Mediator.Execute(new WeatherForecast.Request());
-        if (result.Success)
+        var response = await Mediator.Execute(new WeatherForecast.Request());
+        if (response.Success)
         {
-            _forecasts = result.Result;
+            _forecasts = response.Result;
             ...
         }
     }
 
 }
 ```
-Or if you prefer direct access to result and exception are thrown in case of error:
+Or if you prefer direct access to result and exception thrown in case of error:
 ```
 @inject IMediator Mediator
 
