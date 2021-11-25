@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Tests
         }
         public class Response
         {
-            public static Response Instance = new Response();
+            public static Response Instance = new ();
         }
 
         public class Message : IMessage

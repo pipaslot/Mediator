@@ -10,7 +10,7 @@ namespace Pipaslot.Mediator.Server
     public class MediatorExceptionLoggingMiddleware : IMediatorMiddleware
     {
         private readonly ILogger<MediatorExceptionLoggingMiddleware> _logger;
-        private readonly static JsonSerializerOptions _serializationOptions = new JsonSerializerOptions
+        private readonly static JsonSerializerOptions _serializationOptions = new()
         {
             PropertyNamingPolicy = null
         };
