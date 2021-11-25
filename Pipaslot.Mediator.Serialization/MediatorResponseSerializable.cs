@@ -3,7 +3,7 @@
     /// <summary>
     /// Response contract with all necessary fields sent over network
     /// </summary>
-    public class MediatorResponseSerializableV2
+    internal class MediatorResponseSerializable
     {
         public bool Success { get; set; }
         public SerializedResult[] Results { get; set; } = new SerializedResult[0];

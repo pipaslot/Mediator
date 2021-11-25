@@ -1,8 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pipaslot.Mediator.Server
 {

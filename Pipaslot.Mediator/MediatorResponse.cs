@@ -14,8 +14,6 @@ namespace Pipaslot.Mediator
         }
 
         TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult);
-
-        object[] IMediatorResponse<TResult>.Results => Results.ToArray();        
     }
 
     public class MediatorResponse : IMediatorResponse
@@ -42,6 +40,7 @@ namespace Pipaslot.Mediator
 
         public object? Result => Results.FirstOrDefault();
         public List<object> Results { get; } = new List<object>(1);
+        object[] IMediatorResponse.Results => Results.ToArray();
 
     }
 }

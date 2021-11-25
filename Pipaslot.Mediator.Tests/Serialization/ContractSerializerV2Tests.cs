@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.Client
 
         public void ConvertTypeDefinitions(string expected,string value)
         {
-            var result = ContractSerializerV2.GetTypeWithoutAssembly(value);
+            var result = ContractSerializer.GetTypeWithoutAssembly(value);
             Assert.Equal(expected, result);
         }
     }

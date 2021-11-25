@@ -3,64 +3,60 @@ using Moq;
 using Pipaslot.Mediator.Serialization;
 using Pipaslot.Mediator.Server;
 using System;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Server
 {
-    public class RequestContractExecutor_WhitelistDeserializedTypesTests
+    public class MediatorMiddleware_WhitelistDeserializedTypesTests
     {
         [Fact]
-        public async Task ExecuteQuery_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
+        public void ExecuteQuery_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
         {
             var sut = CreateConfigurator(c => { });
             var contractType = typeof(FakeContract);
             var request = CreateRequest(contractType);
-            var exception = await Assert.ThrowsAsync<MediatorServerException>(async () =>
+            var exception = Assert.Throws<MediatorServerException>(() =>
             {
-                await sut.ExecuteQuery(request, System.Threading.CancellationToken.None);
+                sut.Validate(request);
             });
             Assert.Equal(MediatorServerException.CreateForUnregisteredType(contractType).Message, exception.Message);
         }
 
         [Fact]
-        public async Task ExecuteQuery_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
+        public void ExecuteQuery_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
         {
             var sut = CreateConfigurator(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
             var contractType = typeof(FakeNonContract);
             var request = CreateRequest(contractType);
-            var exception = await Assert.ThrowsAsync<MediatorServerException>(async () =>
+            var exception = Assert.Throws<MediatorServerException>(() =>
             {
-                await sut.ExecuteQuery(request, System.Threading.CancellationToken.None);
+                sut.Validate(request);
             });
             Assert.Equal(MediatorServerException.CreateForNonContractType(contractType).Message, exception.Message);
         }
 
         [Fact]
-        public async Task ExecuteQuery_ContractTypeIsFromRegisteredAssembly_Pass()
+        public void ExecuteQuery_ContractTypeIsFromRegisteredAssembly_Pass()
         {
             var sut = CreateConfigurator(c => c.AddActionsFromAssemblyOf<FakeContract>());
 
             var request = CreateRequest(typeof(FakeContract));
-            await sut.ExecuteQuery(request, System.Threading.CancellationToken.None);
+            sut.Validate(request);
         }
 
-        private RequestContractExecutor CreateConfigurator(Action<PipelineConfigurator> setup)
+        private static MediatorMiddleware CreateConfigurator(Action<PipelineConfigurator> setup)
         {
             var mediatorMock = new Mock<IMediator>();
             var serviceCollctionMock = new Mock<IServiceCollection>();
             var configurator = new PipelineConfigurator(serviceCollctionMock.Object);
             setup(configurator);
-            return new RequestContractExecutor(mediatorMock.Object, configurator, null);
+            return new MediatorMiddleware(null, null, new ContractSerializer(), configurator);
         }
 
-        private MediatorRequestSerializable CreateRequest(Type objectType)
+        private static MediatorRequestDeserialized CreateRequest(Type objectType)
         {
-            return new MediatorRequestSerializable()
-            {
-                ObjectName = objectType.AssemblyQualifiedName,
-                Json = "{}"
-            };
+            var content = Activator.CreateInstance(objectType);
+            return new MediatorRequestDeserialized(content, objectType, objectType.AssemblyQualifiedName);
         }
 
         public class FakeContract : IMessage

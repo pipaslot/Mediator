@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using System;
-using System.Collections.Generic;
 
 namespace Pipaslot.Mediator
 {
@@ -24,16 +23,6 @@ namespace Pipaslot.Mediator
         public MediatorExecutionException(IMediatorResponse response) : base(string.Join("; ", response.ErrorMessages))
         {
             Response = response;
-        }
-
-        [Obsolete("Will be removed in version 4.0.0")]
-        public MediatorExecutionException(string message) : base(message)
-        {
-        }
-
-        [Obsolete("Will be removed in version 4.0.0")]
-        public MediatorExecutionException(ICollection<string> messages) : base(string.Join("; ", messages))
-        {
         }
     }
 }

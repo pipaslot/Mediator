@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Serialization;
 using System;
 
 namespace Pipaslot.Mediator.Client
@@ -43,6 +44,7 @@ namespace Pipaslot.Mediator.Client
             configure(options);
             services.AddSingleton(options);
             services.AddScoped<IMediator, TClientMediator>();
+            services.AddSingleton<IContractSerializer, ContractSerializer>();
             return services;
         }
     }
