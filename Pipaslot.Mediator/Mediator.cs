@@ -14,16 +14,16 @@ namespace Pipaslot.Mediator
     /// </summary>
     public class Mediator : IMediator
     {
-        private readonly ServiceResolver _serviceResolver;
+        private readonly IServiceProvider _serviceProvider;
 
-        public Mediator(ServiceResolver handlerResolver)
+        public Mediator(IServiceProvider serviceProvider)
         {
-            _serviceResolver = handlerResolver;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceResolver.GetPipeline(message.GetType());
+            var pipeline = _serviceProvider.GetPipeline(message.GetType());
             var context = CreateContext();
             try
             {
@@ -41,7 +41,7 @@ namespace Pipaslot.Mediator
 
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceResolver.GetPipeline(message.GetType());
+            var pipeline = _serviceProvider.GetPipeline(message.GetType());
             var context = CreateContext();
             await ProcessPipeline(pipeline, message, context, cancellationToken);
 
@@ -53,7 +53,7 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceResolver.GetPipeline(request.GetType());
+            var pipeline = _serviceProvider.GetPipeline(request.GetType());
             var context = CreateContext();
             try
             {
@@ -71,7 +71,7 @@ namespace Pipaslot.Mediator
 
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceResolver.GetPipeline(request.GetType());
+            var pipeline = _serviceProvider.GetPipeline(request.GetType());
             var context = CreateContext();
             await ProcessPipeline(pipeline, request, context, cancellationToken);
 

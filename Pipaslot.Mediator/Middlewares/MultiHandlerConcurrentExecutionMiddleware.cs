@@ -12,18 +12,18 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class MultiHandlerConcurrentExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly ServiceResolver _handlerResolver;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MultiHandlerConcurrentExecutionMiddleware(ServiceResolver handlerResolver)
+        public MultiHandlerConcurrentExecutionMiddleware(IServiceProvider serviceProvider)
         {
-            _handlerResolver = handlerResolver;
+            _serviceProvider = serviceProvider;
         }
 
         public override bool ExecuteMultipleHandlers => true;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
+            var handlers = _serviceProvider.GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
             {
                 throw new Exception("No handler was found for " + message?.GetType());
@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator.Middlewares
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
             var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = _serviceProvider.GetRequestHandlers(request?.GetType(), resultType);
             if (handlers.Length == 0)
             {
                 throw new Exception("No handler was found for " + request?.GetType());

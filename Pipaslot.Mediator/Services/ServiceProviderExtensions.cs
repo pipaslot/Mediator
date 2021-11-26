@@ -7,25 +7,19 @@ using Pipaslot.Mediator.Abstractions;
 
 namespace Pipaslot.Mediator.Services
 {
-    public class ServiceResolver
+    internal static class ServiceProviderExtensions
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ServiceResolver(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>
-        public object[] GetMessageHandlers(Type? messageType)
+        public static object[] GetMessageHandlers(this IServiceProvider serviceProvider, Type? messageType)
         {
             if (messageType == null)
             {
                 return new object[0];
             }
             var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
-            return _serviceProvider.GetServices(handlerType)
+            return serviceProvider.GetServices(handlerType)
                 .Where(h => h != null)
                 // ReSharper disable once RedundantEnumerableCastCall
                 .Cast<object>()
@@ -35,32 +29,32 @@ namespace Pipaslot.Mediator.Services
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>
-        public object[] GetRequestHandlers<TResponse>(Type? requestType)
+        public static object[] GetRequestHandlers<TResponse>(this IServiceProvider serviceProvider, Type? requestType)
         {
-            return GetRequestHandlers(requestType, typeof(TResponse));
+            return serviceProvider.GetRequestHandlers(requestType, typeof(TResponse));
         }
 
 
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>
-        public object[] GetRequestHandlers(Type? requestType, Type? responseType)
+        public static object[] GetRequestHandlers(this IServiceProvider serviceProvider, Type? requestType, Type? responseType)
         {
             if (requestType == null || responseType == null)
             {
                 return new object[0];
             }
             var handlerType = typeof(IMediatorHandler<,>).MakeGenericType(requestType, responseType);
-            return _serviceProvider.GetServices(handlerType)
+            return serviceProvider.GetServices(handlerType)
                 .Where(h => h != null)
                 // ReSharper disable once RedundantEnumerableCastCall
                 .Cast<object>()
                 .ToArray();
         }
 
-        public IExecutionMiddleware GetExecutiveMiddleware(Type requestType)
+        public static IExecutionMiddleware GetExecutiveMiddleware(this IServiceProvider serviceProvider, Type requestType)
         {
-            var pipeline = GetPipeline(requestType).Last();
+            var pipeline = serviceProvider.GetPipeline(requestType).Last();
             if (pipeline is IExecutionMiddleware ep)
             {
                 return ep;
@@ -68,30 +62,30 @@ namespace Pipaslot.Mediator.Services
             throw new Exception("Executive pipeline not found");//This should never happen as GetMessagePipelines always returns last pipeline as executive
         }
 
-        public IEnumerable<IMediatorMiddleware> GetPipeline(Type requestType)
+        public static IEnumerable<IMediatorMiddleware> GetPipeline(this IServiceProvider serviceProvider, Type requestType)
         {
-            var actionSpecificPipelineDefinitions = _serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
+            var actionSpecificPipelineDefinitions = serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
             var actionSpecificPipeline = actionSpecificPipelineDefinitions
                 .Where(p => p.MarkerType.IsAssignableFrom(requestType))
                 .FirstOrDefault();
             if (actionSpecificPipeline != null)
             {
-                var actionSpecificPipelineMiddlewares = actionSpecificPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)_serviceProvider.GetRequiredService(m));
-                return GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
+                var actionSpecificPipelineMiddlewares = actionSpecificPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)serviceProvider.GetRequiredService(m));
+                return serviceProvider.GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
             }
 
-            var defaultPipeline = _serviceProvider.GetServices<DefaultPipelineDefinition>()
+            var defaultPipeline = serviceProvider.GetServices<DefaultPipelineDefinition>()
                 .FirstOrDefault();
             if (defaultPipeline != null)
             {
-                var defaultPipelineMiddlewares = defaultPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)_serviceProvider.GetRequiredService(m));
-                return GetMiddlewaresWithLastExecutive(defaultPipelineMiddlewares);
+                var defaultPipelineMiddlewares = defaultPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)serviceProvider.GetRequiredService(m));
+                return serviceProvider.GetMiddlewaresWithLastExecutive(defaultPipelineMiddlewares);
             }
 
-            return GetMiddlewaresWithLastExecutive(new IMediatorMiddleware[0]);
+            return serviceProvider.GetMiddlewaresWithLastExecutive(new IMediatorMiddleware[0]);
         }
 
-        private IEnumerable<IMediatorMiddleware> GetMiddlewaresWithLastExecutive(IEnumerable<IMediatorMiddleware> pipeline)
+        private static IEnumerable<IMediatorMiddleware> GetMiddlewaresWithLastExecutive(this IServiceProvider serviceProvider, IEnumerable<IMediatorMiddleware> pipeline)
         {
             foreach (var middleware in pipeline)
             {
@@ -102,7 +96,7 @@ namespace Pipaslot.Mediator.Services
                 }
             }
 
-            yield return new SingleHandlerExecutionMiddleware(this);
+            yield return new SingleHandlerExecutionMiddleware(serviceProvider);
         }
     }
 }

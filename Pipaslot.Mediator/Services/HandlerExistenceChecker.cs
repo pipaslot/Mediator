@@ -12,12 +12,12 @@ namespace Pipaslot.Mediator.Services
         /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
         /// </summary>
         private readonly HashSet<Type> _alreadyVerified = new HashSet<Type>();
-        private readonly ServiceResolver _handlerResolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly PipelineConfigurator _configurator;
 
-        public HandlerExistenceChecker(ServiceResolver handlerResolver, PipelineConfigurator configurator)
+        public HandlerExistenceChecker(IServiceProvider serviceProvider, PipelineConfigurator configurator)
         {
-            _handlerResolver = handlerResolver;
+            _serviceProvider = serviceProvider;
             _configurator = configurator;
         }
 
@@ -45,8 +45,8 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
 
-                var handlers = _handlerResolver.GetMessageHandlers(subject).ToArray();
-                var middleware = _handlerResolver.GetExecutiveMiddleware(subject);
+                var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
+                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
                 VerifyHandlerCount(middleware, handlers, subject, subjectName);
                 _alreadyVerified.Add(subject);
             }
@@ -63,8 +63,8 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
-                var handlers = _handlerResolver.GetRequestHandlers(subject, resultType);
-                var middleware = _handlerResolver.GetExecutiveMiddleware(subject);
+                var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
+                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
                 VerifyHandlerCount(middleware, handlers, subject, subjectName);
                 _alreadyVerified.Add(subject);
             }

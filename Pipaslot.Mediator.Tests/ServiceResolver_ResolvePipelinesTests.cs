@@ -4,6 +4,7 @@ using System.Threading;
 using System.Linq;
 using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Middlewares;
+using System;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -76,9 +77,9 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
         }
 
-        private ServiceResolver CreateServiceResolver()
+        private static IServiceProvider CreateServiceResolver()
         {
-            return Factory.CreateServiceResolver(c => c
+            return Factory.CreateServiceProvider(c => c
                 .AddPipeline<IQuery>()
                     .Use<SharedMiddleware>()
                     .Use<QueryMiddleware>()

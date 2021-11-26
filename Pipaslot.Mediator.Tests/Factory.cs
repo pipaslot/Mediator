@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Services;
 using System;
 
 namespace Pipaslot.Mediator.Tests
@@ -23,13 +22,7 @@ namespace Pipaslot.Mediator.Tests
             return services.GetRequiredService<IMediator>();
         }
 
-        public static ServiceResolver CreateServiceResolver(Action<IPipelineConfigurator> setup)
-        {
-            var services = CreateServiceProvider(setup);
-            return services.GetRequiredService<ServiceResolver>();
-        }
-
-        public static ServiceProvider CreateServiceProvider(Action<IPipelineConfigurator> setup)
+        public static IServiceProvider CreateServiceProvider(Action<IPipelineConfigurator> setup)
         {
             var collection = new ServiceCollection();
             collection.AddLogging();
