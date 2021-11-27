@@ -1,6 +1,6 @@
 ﻿namespace Pipaslot.Mediator.Http
 {
-    public class Constants
+    public class MediatorConstants
     {
         public const string Endpoint = "/_mediator/request";
     }

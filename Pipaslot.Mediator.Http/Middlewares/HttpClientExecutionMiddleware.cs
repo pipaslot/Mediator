@@ -1,12 +1,12 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Options;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Client
+namespace Pipaslot.Mediator.Http.Middlewares
 {
     public class HttpClientExecutionMiddleware : IExecutionMiddleware
     {

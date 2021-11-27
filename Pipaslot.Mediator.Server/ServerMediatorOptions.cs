@@ -4,7 +4,7 @@ namespace Pipaslot.Mediator.Server
 {
     public class ServerMediatorOptions
     {
-        private string _endpoint = Constants.Endpoint;
+        private string _endpoint = MediatorConstants.Endpoint;
 
         public string Endpoint
         {

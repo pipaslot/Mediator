@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Client;
+using Pipaslot.Mediator.Http;
 using Sample.Shared;
 using System;
 using System.Net.Http;

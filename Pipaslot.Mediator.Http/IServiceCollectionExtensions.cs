@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Middlewares;
+using Pipaslot.Mediator.Http.Options;
 using System;
 
-namespace Pipaslot.Mediator.Client
+namespace Pipaslot.Mediator.Http
 {
     public static class IServiceCollectionExtensions
     {

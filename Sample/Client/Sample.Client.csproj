@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Pipaslot.Mediator.Client\Pipaslot.Mediator.Client.csproj" />
+    <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj" />
     <ProjectReference Include="..\Shared\Sample.Shared.csproj" />
   </ItemGroup>
 

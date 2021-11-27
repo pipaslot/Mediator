@@ -261,6 +261,7 @@ News:
 
 Breaking changes:
  - obsolete code from previous version was removed
+ - Nuget packages Pipaslot.Mediator.Client and Pipaslot.Mediator.Server were repalced by Pipaslot.Mediator.Http
  - Service collection method AddMediatorClient returns IPipelineConfigurator instead of IServiceColelction
  - ClientMediator removed was replaced by HttpClientExecutionMiddleware
  - Contracts MediatorRequestSerializable, MediatorResponseDeserialized, MediatorResponseSerializable were moved from Pipaslot.Mediator.Contracts to Pipaslot.Mediator.Http.Contracts
