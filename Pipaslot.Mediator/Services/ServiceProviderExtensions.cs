@@ -96,7 +96,7 @@ namespace Pipaslot.Mediator.Services
                 }
             }
 
-            yield return new SingleHandlerExecutionMiddleware(serviceProvider);
+            yield return serviceProvider.GetRequiredService<IExecutionMiddleware>();
         }
     }
 }
