@@ -250,7 +250,6 @@ Mediator catches all exception which occures during midleware or action handler 
 Keep in mind that mediator handles all unhandled exceptions internally. That means that your ASP.NET Core middleware handling exceptions for example from ASP.NET Core MVC wont receive these exceptions.
 
 # Verion 3
-
 Breaking changes:
 - Pipaslot.Mediator.Client 2.0.0 is not fully compatible with Pipaslot.Mediator.Server 3.0.0
 - Interface IMessage was replacedd by IMediatorAction
