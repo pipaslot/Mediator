@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Http.Contracts;
+using System;
 using System.Linq;
 using System.Text.Json;
 

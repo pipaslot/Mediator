@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipaslot.Mediator.Http
+namespace Pipaslot.Mediator.Http.Contracts
 {
     public class MediatorRequestDeserialized
     {

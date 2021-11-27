@@ -6,6 +6,7 @@ using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
+using Pipaslot.Mediator.Http.Contracts;
 
 namespace Pipaslot.Mediator.Server
 {

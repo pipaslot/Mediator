@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Http
+﻿namespace Pipaslot.Mediator.Http.Contracts
 {
     /// <summary>
     /// Response contract with all necessary fields sent over network

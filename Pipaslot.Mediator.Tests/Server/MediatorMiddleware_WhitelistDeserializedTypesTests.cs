@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Contracts;
 using Pipaslot.Mediator.Server;
 using System;
 using Xunit;

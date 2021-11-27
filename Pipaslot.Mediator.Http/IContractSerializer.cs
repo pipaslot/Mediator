@@ -1,4 +1,6 @@
-﻿namespace Pipaslot.Mediator.Http
+﻿using Pipaslot.Mediator.Http.Contracts;
+
+namespace Pipaslot.Mediator.Http
 {
     public interface IContractSerializer
     {
