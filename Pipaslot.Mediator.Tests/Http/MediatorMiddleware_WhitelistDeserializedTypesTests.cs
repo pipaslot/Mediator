@@ -2,11 +2,10 @@
 using Moq;
 using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Http.Contracts;
-using Pipaslot.Mediator.Server;
 using System;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Server
+namespace Pipaslot.Mediator.Tests.Http
 {
     public class MediatorMiddleware_WhitelistDeserializedTypesTests
     {

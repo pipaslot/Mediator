@@ -1,8 +1,8 @@
-﻿using Pipaslot.Mediator.Server;
+﻿using Pipaslot.Mediator.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Server
+namespace Pipaslot.Mediator.Tests.Http
 {
     public class MediatorExceptionLoggingMiddlewareTests
     {
@@ -58,7 +58,7 @@ namespace Pipaslot.Mediator.Tests.Server
             });
         }
 
-        private IMediator CreateMediator()
+        private static IMediator CreateMediator()
         {
             return Factory.CreateMediator(c => c.AddDefaultPipeline().UseExceptionLogging());
         }

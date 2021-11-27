@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Server
+namespace Pipaslot.Mediator.Http.Middlewares
 {
     public class MediatorExceptionLoggingMiddleware : IMediatorMiddleware
     {

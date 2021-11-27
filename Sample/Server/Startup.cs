@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pipaslot.Mediator.Server;
+using Pipaslot.Mediator.Http;
 using Sample.Server.Handlers;
 using Sample.Server.MediatorMiddlewares;
 using Sample.Shared;

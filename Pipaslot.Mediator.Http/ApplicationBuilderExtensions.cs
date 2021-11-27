@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Http.Options;
 using Pipaslot.Mediator.Services;
 
-namespace Pipaslot.Mediator.Server
+namespace Pipaslot.Mediator.Http
 {
-    public static class IApplicationBuilderExtensions
+    public static class ApplicationBuilderExtensions
     {
         /// <summary>
         /// Register Mediator middleware handling messages

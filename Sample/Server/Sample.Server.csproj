@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Pipaslot.Mediator.Server\Pipaslot.Mediator.Server.csproj" />
     <ProjectReference Include="..\Client\Sample.Client.csproj" />
     <ProjectReference Include="..\Shared\Sample.Shared.csproj" />
   </ItemGroup>

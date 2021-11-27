@@ -2,7 +2,7 @@
 using Pipaslot.Mediator.Configuration;
 using System;
 
-namespace Pipaslot.Mediator.Server
+namespace Pipaslot.Mediator.Http
 {
     public class MediatorServerException : Exception
     {

@@ -2,13 +2,13 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
 using Pipaslot.Mediator.Http.Contracts;
+using Pipaslot.Mediator.Http.Options;
 
-namespace Pipaslot.Mediator.Server
+namespace Pipaslot.Mediator.Http
 {
     public class MediatorMiddleware
     {

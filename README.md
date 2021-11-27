@@ -268,3 +268,4 @@ Breaking changes:
  - Removed support for contract serialization implemented in Version 1
  - property ServerMediatorOptions.KeepCompatibilityWithVersion1 was removed
  - class RequestContractExecutor was removed, behavior was moved to MediatorMiddleware and IContractSerializer
+ - class Pipaslot.Mediator.Server.MediatorExceptionLoggingMiddleware was replaced by Pipaslot.Mediator.Http.Middlewares.ExceptionLoggingMiddleware

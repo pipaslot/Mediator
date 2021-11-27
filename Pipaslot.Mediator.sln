@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator", "Pipaslot.Mediator\Pipaslot.Mediator.csproj", "{ACD45FD7-A381-4B61-937F-9E21A3D5564C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Server", "Pipaslot.Mediator.Server\Pipaslot.Mediator.Server.csproj", "{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Server", "Sample\Server\Sample.Server.csproj", "{D2631D13-F985-44F6-9392-5D75B855D5BA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Client", "Sample\Client\Sample.Client.csproj", "{3EE930D3-11FC-4ECB-8606-B8F67DB86A06}"
@@ -35,10 +33,6 @@ Global
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Release|Any CPU.ActiveCfg = Release|Any CPU

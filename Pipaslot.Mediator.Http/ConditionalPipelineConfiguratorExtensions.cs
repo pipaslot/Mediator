@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Http.Middlewares;
 
-namespace Pipaslot.Mediator.Server
+namespace Pipaslot.Mediator.Http
 {
     public static class ConditionalPipelineConfiguratorExtensions
     {
