@@ -20,5 +20,13 @@ namespace Pipaslot.Mediator
         {
             return config.Use<MultiHandlerSequenceExecutionMiddleware>();
         }
+
+        /// <summary>
+        /// Execute single handler
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseSingleHandler(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<SingleHandlerExecutionMiddleware>();
+        }
     }
 }
