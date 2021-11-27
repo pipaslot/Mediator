@@ -15,11 +15,11 @@ namespace Pipaslot.Mediator.Tests.Http
             var sut = CreateConfigurator(c => { });
             var contractType = typeof(FakeContract);
             var request = CreateRequest(contractType);
-            var exception = Assert.Throws<MediatorServerException>(() =>
+            var exception = Assert.Throws<MediatorHttpException>(() =>
             {
                 sut.Validate(request);
             });
-            Assert.Equal(MediatorServerException.CreateForUnregisteredType(contractType).Message, exception.Message);
+            Assert.Equal(MediatorHttpException.CreateForUnregisteredType(contractType).Message, exception.Message);
         }
 
         [Fact]
@@ -28,11 +28,11 @@ namespace Pipaslot.Mediator.Tests.Http
             var sut = CreateConfigurator(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
             var contractType = typeof(FakeNonContract);
             var request = CreateRequest(contractType);
-            var exception = Assert.Throws<MediatorServerException>(() =>
+            var exception = Assert.Throws<MediatorHttpException>(() =>
             {
                 sut.Validate(request);
             });
-            Assert.Equal(MediatorServerException.CreateForNonContractType(contractType).Message, exception.Message);
+            Assert.Equal(MediatorHttpException.CreateForNonContractType(contractType).Message, exception.Message);
         }
 
         [Fact]

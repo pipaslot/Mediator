@@ -55,7 +55,7 @@ namespace Pipaslot.Mediator.Http
         {
             if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolver)
             {
-                throw MediatorServerException.CreateForUnregisteredService(typeof(IMediator));
+                throw MediatorHttpException.CreateForUnregisteredService(typeof(IMediator));
             }
             return resolver;
         }
@@ -66,7 +66,7 @@ namespace Pipaslot.Mediator.Http
             var body = await reader.ReadToEndAsync();
             if (string.IsNullOrWhiteSpace(body))
             {
-                throw MediatorServerException.CreateForEmptyBody();
+                throw MediatorHttpException.CreateForEmptyBody();
             }
             return body;
         }
@@ -75,25 +75,25 @@ namespace Pipaslot.Mediator.Http
         {
             if (request.ActionType == null)
             {
-                throw MediatorServerException.CreateForUnrecognizedType(request.ObjectName);
+                throw MediatorHttpException.CreateForUnrecognizedType(request.ObjectName);
             }
             var queryType = request.ActionType;
             if (request.Content == null)
             {
-                throw MediatorServerException.CreateForUnparsedContract();
+                throw MediatorHttpException.CreateForUnparsedContract();
             }
             var query = request.Content;
             if (!_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
             {
-                throw MediatorServerException.CreateForUnregisteredType(queryType);
+                throw MediatorHttpException.CreateForUnregisteredType(queryType);
             }
             if (!typeof(IMediatorAction).IsAssignableFrom(queryType))
             {
-                throw MediatorServerException.CreateForNonContractType(queryType);
+                throw MediatorHttpException.CreateForNonContractType(queryType);
             }
             if (query == null)
             {
-                throw new MediatorServerException($"Can not deserialize contract as type {request.ObjectName}");
+                throw new MediatorHttpException($"Can not deserialize contract as type {request.ObjectName}");
             }
             return request.Content;
         }
@@ -116,7 +116,7 @@ namespace Pipaslot.Mediator.Http
             var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType());
             if (resultType == null)
             {
-                throw new MediatorServerException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
+                throw new MediatorHttpException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
             }
             var method = mediator.GetType()
                     .GetMethod(nameof(IMediator.Execute))!
