@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
 using System;
 
@@ -10,27 +11,27 @@ namespace Pipaslot.Mediator.Client
         /// Register Mediator sending messages and requests over HTTPClient
         /// </summary>
         /// <param name="services">Service collection</param>
-        public static IServiceCollection AddMediatorClient(this IServiceCollection services)
+        public static IPipelineConfigurator AddMediatorClient(this IServiceCollection services)
         {
-            return services.AddMediatorClient<ClientMediator>(o => { });
+            return services.AddMediatorClient<HttpClientExecutionMiddleware>(o => { });
         }
         /// <summary>
         /// Register Mediator sending messages and requests over HTTPClient
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <param name="configure">Mediator configuration</param>
-        public static IServiceCollection AddMediatorClient(this IServiceCollection services, Action<ClientMediatorOptions> configure)
+        public static IPipelineConfigurator AddMediatorClient(this IServiceCollection services, Action<ClientMediatorOptions> configure)
         {
-            return services.AddMediatorClient<ClientMediator>(configure);
+            return services.AddMediatorClient<HttpClientExecutionMiddleware>(configure);
         }
 
         /// <summary>
         /// Register Custom Mediator sending messages and requests over HTTPClient
         /// </summary>
         /// <param name="services">Service collection</param>
-        public static IServiceCollection AddMediatorClient<TClientMediator>(this IServiceCollection services) where TClientMediator : ClientMediator
+        public static IPipelineConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
-            return services.AddMediatorClient<TClientMediator>(o => { });
+            return services.AddMediatorClient<THttpClientExecutionMiddleware>(o => { });
         }
 
         /// <summary>
@@ -38,14 +39,13 @@ namespace Pipaslot.Mediator.Client
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <param name="configure">Mediator configuration</param>
-        public static IServiceCollection AddMediatorClient<TClientMediator>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where TClientMediator : ClientMediator
+        public static IPipelineConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
             var options = new ClientMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            services.AddScoped<IMediator, TClientMediator>();
             services.AddSingleton<IContractSerializer, ContractSerializer>();
-            return services;
+            return services.AddMediator<THttpClientExecutionMiddleware>();
         }
     }
 }

@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator
 
         private MediatorContext CreateContext()
         {
-            return new MediatorContext(this);
+            return new MediatorContext();
         }
     }
 }

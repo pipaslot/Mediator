@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Middlewares
 {
     public class MediatorContext
     {
-        public IMediator Mediator { get; }
-
-        public MediatorContext(IMediator mediator)
-        {
-            Mediator = mediator;
-        }
-
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
         /// </summary>
@@ -27,7 +19,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext(Mediator);
+            var copy = new MediatorContext();
             return copy;
         }
 
@@ -39,6 +31,16 @@ namespace Pipaslot.Mediator.Middlewares
         {
             ErrorMessages.AddRange(context.ErrorMessages);
             Results.AddRange(context.Results);
+        }
+
+        /// <summary>
+        /// Append properties from response
+        /// </summary>
+        /// <param name="response"></param>
+        public void Append(IMediatorResponse response)
+        {
+            ErrorMessages.AddRange(response.ErrorMessages);
+            Results.AddRange(response.Results);
         }
     }
 }

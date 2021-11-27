@@ -248,3 +248,17 @@ And that is it. Easy!
 ## Error Handling
 Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging via ILogger interface, you can create own logging middleware or register already prepared middleware in your pipelines by `.UseExceptionLogging()`
 Keep in mind that mediator handles all unhandled exceptions internally. That means that your ASP.NET Core middleware handling exceptions for example from ASP.NET Core MVC wont receive these exceptions.
+
+
+
+# Verion 4
+
+News:
+ - Client mediator supports own pipeline, action and handler registration, but by default it sends actions to server via HTTP protocol
+ - Serialization logic from server and client was extracted into service IContracSerializer which can be replaced via DI re-configuration
+ 
+Breaking changes:
+ - Service collection method AddMediatorClient returns IPipelineConfigurator instead of IServiceColelction
+ - ClientMediator removed was replaced by HttpClientExecutionMiddleware
+ - Contracts MediatorRequestSerializable, MediatorResponseDeserialized, MediatorResponseSerializable were moved from Pipaslot.Mediator.Contracts to Pipaslot.Mediator.Http.Contracts
+ - Removed support for contract serialization implemented in Version 1

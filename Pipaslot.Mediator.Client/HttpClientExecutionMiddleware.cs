@@ -1,58 +1,49 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Middlewares;
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Http;
 
 namespace Pipaslot.Mediator.Client
 {
-    /// <summary>
-    /// Request / message dispatcher over HTTP to server endpoint
-    /// </summary>
-    public class ClientMediator : IMediator
+    public class HttpClientExecutionMiddleware : IExecutionMiddleware
     {
+        public bool ExecuteMultipleHandlers => false;
+
         private readonly HttpClient _httpClient;
         private readonly ClientMediatorOptions _options;
         private readonly IContractSerializer _serializer;
 
-        public ClientMediator(HttpClient httpClient, ClientMediatorOptions options, IContractSerializer serializer)
+        public HttpClientExecutionMiddleware(HttpClient httpClient, ClientMediatorOptions options, IContractSerializer serializer)
         {
             _httpClient = httpClient;
             _options = options;
             _serializer = serializer;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMediatorAction action, CancellationToken cancellationToken = default)
+        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            return await SendRequest<object>(action, cancellationToken);
-        }
-
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> action, CancellationToken cancellationToken = default)
-        {
-            return await SendRequest<TResult>(action, cancellationToken);
-        }
-
-        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> action, CancellationToken cancellationToken = default)
-        {
-            var result = await Execute(action, cancellationToken);
-            if (result.Failure)
+            if (action is null)
             {
-                throw new MediatorExecutionException(result);
+                throw new ArgumentNullException(nameof(action));
             }
-            if(result.Result == null)
+            if (action is IMediatorAction a)
             {
-                throw new MediatorExecutionException($"Null was returned from mediator. Use method {nameof(Execute)} if you expect null as valid result.", result);
+                try
+                {
+                    var response = await SendRequest<object>(a, cancellationToken);
+                    context.Append(response);
+                }
+                catch (Exception e)
+                {
+                    context.ErrorMessages.Add(e.Message);
+                }
             }
-            return result.Result;
-        }
-
-        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
-        {
-            var result = await Dispatch(message, cancellationToken);
-            if (result.Failure)
+            else
             {
-                throw new MediatorExecutionException(result);
+                throw new ArgumentException("Must implement interface " + nameof(IMediatorAction), nameof(action));
             }
         }
 
@@ -61,7 +52,7 @@ namespace Pipaslot.Mediator.Client
             var requestType = action.GetType();
             var url = _options.Endpoint + $"?type={requestType}";
             var json = _serializer.SerializeRequest(action, out var actionName);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"); 
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(url, content, cancellationToken);
 
             if (response.IsSuccessStatusCode)
