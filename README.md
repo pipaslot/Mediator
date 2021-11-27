@@ -256,9 +256,14 @@ Keep in mind that mediator handles all unhandled exceptions internally. That mea
 News:
  - Client mediator supports own pipeline, action and handler registration, but by default it sends actions to server via HTTP protocol
  - Serialization logic from server and client was extracted into service IContracSerializer which can be replaced via DI re-configuration
- 
+ - IMediatorResponse has property Results as object array type providing messages from middlewares
+ - All middlewares (except execution middlewares) can have configured ServiceLifetime (default is scoped)
+
 Breaking changes:
+ - obsolete code from previous version was removed
  - Service collection method AddMediatorClient returns IPipelineConfigurator instead of IServiceColelction
  - ClientMediator removed was replaced by HttpClientExecutionMiddleware
  - Contracts MediatorRequestSerializable, MediatorResponseDeserialized, MediatorResponseSerializable were moved from Pipaslot.Mediator.Contracts to Pipaslot.Mediator.Http.Contracts
  - Removed support for contract serialization implemented in Version 1
+ - property ServerMediatorOptions.KeepCompatibilityWithVersion1 was removed
+ - class RequestContractExecutor was removed, behavior was moved to MediatorMiddleware and IContractSerializer
