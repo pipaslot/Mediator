@@ -12,9 +12,9 @@ namespace Pipaslot.Mediator.Http
             PropertyNamingPolicy = null
         };
 
-        public string SerializeRequest(object request, out string actionName)
+        public string SerializeRequest(object request)
         {
-            actionName = request.GetType().AssemblyQualifiedName;
+            var actionName = request.GetType().AssemblyQualifiedName;
             var contract = new MediatorRequestSerializable
             {
                 Json = JsonSerializer.Serialize(request, _serializationOptions),

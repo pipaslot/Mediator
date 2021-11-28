@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator.Http
 
                 var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
 
-                context.Response.ContentType = "application/json; charset=utf-8";
+                context.Response.ContentType = "application/json; charset=utf-8";                
                 await context.Response.WriteAsync(serializedResponse);
             }
             else
