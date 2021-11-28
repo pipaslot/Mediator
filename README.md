@@ -263,6 +263,7 @@ News:
  - Serialization logic from server and client was extracted into service IContracSerializer which can be replaced via DI re-configuration
  - IMediatorResponse has property Results as object array type providing messages from middlewares
  - All middlewares (except execution middlewares) can have configured ServiceLifetime (default is scoped)
+ - Mediator provides events ActionStarted and ActionCompleted notifying subscribers when new action is started and completed. These events provides also collection of all running actions.
 
 Breaking changes:
  - obsolete code from previous version was removed

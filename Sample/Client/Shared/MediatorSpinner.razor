@@ -7,10 +7,30 @@
 
     protected override void OnInitialized()
     {
-        
+        Mediator.ActionStarted += OnStarted;
+        Mediator.ActionCompleted += OnFinished;
     }
     public void Dispose()
     {
-        
+        Mediator.ActionStarted -= OnStarted;
+        Mediator.ActionCompleted -= OnFinished;
+    }
+
+    private void OnStarted(object sender, ActionStartedEventArgs args)
+    {
+        if (!_show)
+        {
+            _show = true;
+            StateHasChanged();
+
+        }
+    }
+    private void OnFinished(object sender, ActionCompletedEventArgs args)
+    {
+        if (_show && args.RunningActions.Count == 0)
+        {
+            _show = false;
+            StateHasChanged();
+        }
     }
 }

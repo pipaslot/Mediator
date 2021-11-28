@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,6 +17,11 @@ namespace Pipaslot.Mediator
     {
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly ConcurrentDictionary<Guid, IMediatorAction> _runningActions = new();
+
+        public event EventHandler<ActionStartedEventArgs>? ActionStarted;
+        public event EventHandler<ActionCompletedEventArgs>? ActionCompleted;
+
         public Mediator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -25,6 +31,7 @@ namespace Pipaslot.Mediator
         {
             var pipeline = _serviceProvider.GetPipeline(message.GetType());
             var context = CreateContext();
+            var guid = AddToQueue(message);
             try
             {
                 await ProcessPipeline(pipeline, message, context, cancellationToken);
@@ -37,17 +44,29 @@ namespace Pipaslot.Mediator
                 context.ErrorMessages.Add(e.Message);
                 return new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
             }
+            finally
+            {
+                RemoveFromQueue(guid);
+            }
         }
 
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(message.GetType());
             var context = CreateContext();
-            await ProcessPipeline(pipeline, message, context, cancellationToken);
-
-            if (context.ErrorMessages.Any())
+            var guid = AddToQueue(message);
+            try
             {
-                throw MediatorExecutionException.CreateForUnhandledError(context);
+                await ProcessPipeline(pipeline, message, context, cancellationToken);
+
+                if (context.ErrorMessages.Any())
+                {
+                    throw MediatorExecutionException.CreateForUnhandledError(context);
+                }
+            }
+            finally
+            {
+                RemoveFromQueue(guid);
             }
         }
 
@@ -55,6 +74,7 @@ namespace Pipaslot.Mediator
         {
             var pipeline = _serviceProvider.GetPipeline(request.GetType());
             var context = CreateContext();
+            var guid = AddToQueue(request);
             try
             {
                 await ProcessPipeline(pipeline, request, context, cancellationToken);
@@ -67,28 +87,40 @@ namespace Pipaslot.Mediator
                 context.ErrorMessages.Add(e.Message);
                 return new MediatorResponse<TResult>(false, context.Results, context.UniqueErrorMessages);
             }
+            finally
+            {
+                RemoveFromQueue(guid);
+            }
         }
 
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(request.GetType());
             var context = CreateContext();
-            await ProcessPipeline(pipeline, request, context, cancellationToken);
+            var guid = AddToQueue(request);
+            try
+            {
+                await ProcessPipeline(pipeline, request, context, cancellationToken);
 
-            var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
-            if (context.ErrorMessages.Any())
-            {
-                throw MediatorExecutionException.CreateForUnhandledError(context);
+                var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
+                if (context.ErrorMessages.Any())
+                {
+                    throw MediatorExecutionException.CreateForUnhandledError(context);
+                }
+                var result = context.Results
+                    .Where(r => r is TResult)
+                    .Cast<TResult>()
+                    .FirstOrDefault();
+                if (result == null)
+                {
+                    throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
+                }
+                return result;
             }
-            var result = context.Results
-                .Where(r => r is TResult)
-                .Cast<TResult>()
-                .FirstOrDefault();
-            if(result == null)
+            finally
             {
-                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
+                RemoveFromQueue(guid);
             }
-            return result;
         }
 
         private async Task ProcessPipeline<TAction>(IEnumerable<IMediatorMiddleware> pipeline, TAction request, MediatorContext context, CancellationToken cancellationToken)
@@ -104,6 +136,21 @@ namespace Pipaslot.Mediator
         private MediatorContext CreateContext()
         {
             return new MediatorContext();
+        }
+
+        private Guid AddToQueue(IMediatorAction action)
+        {
+            var guid = Guid.NewGuid();
+            _runningActions.TryAdd(guid, action);
+            var runningActions = _runningActions.Values.ToArray();
+            ActionStarted?.Invoke(this, new ActionStartedEventArgs(action, runningActions));
+            return guid;
+        }
+        private void RemoveFromQueue(Guid guid)
+        {
+            _runningActions.TryRemove(guid, out var action);
+            var runningActions = _runningActions.Values.ToArray();
+            ActionCompleted?.Invoke(this, new ActionCompletedEventArgs(action, runningActions));
         }
     }
 }
