@@ -3,12 +3,12 @@ using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     internal class DefaultPipelineDefinition : IConditionalPipelineConfigurator
     {
         private readonly PipelineConfigurator _configurator;
-        private readonly List<Type> _middlewares = new List<Type>();
+        private readonly List<Type> _middlewares = new();
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
 

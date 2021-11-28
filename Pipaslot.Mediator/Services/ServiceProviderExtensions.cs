@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 
 namespace Pipaslot.Mediator.Services
 {

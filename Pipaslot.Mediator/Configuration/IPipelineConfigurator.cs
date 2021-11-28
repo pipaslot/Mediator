@@ -1,7 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Middlewares;
-using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
 {

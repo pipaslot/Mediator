@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
 
 namespace Pipaslot.Mediator.Http

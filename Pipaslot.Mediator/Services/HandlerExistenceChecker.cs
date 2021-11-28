@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Services
@@ -11,7 +12,7 @@ namespace Pipaslot.Mediator.Services
         /// <summary>
         /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
         /// </summary>
-        private readonly HashSet<Type> _alreadyVerified = new HashSet<Type>();
+        private readonly HashSet<Type> _alreadyVerified = new();
         private readonly IServiceProvider _serviceProvider;
         private readonly PipelineConfigurator _configurator;
 

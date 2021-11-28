@@ -266,13 +266,14 @@ News:
  - Mediator provides events ActionStarted and ActionCompleted notifying subscribers when new action is started and completed. These events provides also collection of all running actions.
 
 Breaking changes:
- - obsolete code from previous version was removed
+ - Obsolete code from previous version was removed
  - Nuget packages Pipaslot.Mediator.Client and Pipaslot.Mediator.Server were repalced by Pipaslot.Mediator.Http
  - Service collection method AddMediatorClient returns IPipelineConfigurator instead of IServiceColelction
  - ClientMediator removed was replaced by HttpClientExecutionMiddleware
  - Contracts MediatorRequestSerializable, MediatorResponseDeserialized, MediatorResponseSerializable were moved from Pipaslot.Mediator.Contracts to Pipaslot.Mediator.Http.Contracts
  - Removed support for contract serialization implemented in Version 1
  - property ServerMediatorOptions.KeepCompatibilityWithVersion1 was removed
- - class RequestContractExecutor was removed, behavior was moved to MediatorMiddleware and IContractSerializer
- - class Pipaslot.Mediator.Server.MediatorExceptionLoggingMiddleware was replaced by Pipaslot.Mediator.Http.Middlewares.ExceptionLoggingMiddleware
- - class Pipaslot.Mediator.Server.MediatorServerException was replaced by Pipaslot.Mediator.Http.MediatorHttpException
+ - plass RequestContractExecutor was removed, behavior was moved to MediatorMiddleware and IContractSerializer
+ - plass Pipaslot.Mediator.Server.MediatorExceptionLoggingMiddleware was replaced by Pipaslot.Mediator.Http.Middlewares.ExceptionLoggingMiddleware
+ - Class Pipaslot.Mediator.Server.MediatorServerException was replaced by Pipaslot.Mediator.Http.MediatorHttpException
+ - Pipelineconfiguration classes were moved into Pipaslot.Mediator.Configuration

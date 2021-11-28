@@ -1,6 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-
-namespace Pipaslot.Mediator
+﻿namespace Pipaslot.Mediator.Configuration
 {
     public interface IPipelineRegistrator
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Middlewares;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     /// <summary>
     /// Define single pipeline definition. Mulptiple pilepinec can be registered but only single one will be always applied.

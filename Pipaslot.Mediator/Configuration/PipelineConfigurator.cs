@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Pipaslot.Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Configuration;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     public class PipelineConfigurator : IPipelineConfigurator
     {

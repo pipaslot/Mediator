@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using Pipaslot.Mediator.Http.Contracts;
 using Pipaslot.Mediator.Http.Options;
+using Pipaslot.Mediator.Configuration;
 
 namespace Pipaslot.Mediator.Http
 {
