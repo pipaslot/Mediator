@@ -48,7 +48,7 @@ namespace Pipaslot.Mediator.Tests.Http
         {
             var sut = new ContractSerializer();
 
-            var serialized = sut.SerializeRequest(seed, out var _);
+            var serialized = sut.SerializeRequest(seed);
             var deserialized = sut.DeserializeRequest(serialized);
 
             Assert.True(match((TContract)deserialized.Content));
