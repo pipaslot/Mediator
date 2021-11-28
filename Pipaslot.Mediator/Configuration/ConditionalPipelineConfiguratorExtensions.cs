@@ -2,7 +2,7 @@
 
 namespace Pipaslot.Mediator
 {
-    public static class IConditionalPipelineConfiguratorExtensions
+    public static class ConditionalPipelineConfiguratorExtensions
     {
         /// <summary>
         /// Middleware running all handlers concurrently. Not further middleware will be executed after this one.
