@@ -30,12 +30,12 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, message, context, cancellationToken);
 
                 var success = context.ErrorMessages.Count == 0;
-                return new MediatorResponse(success, context.Results, context.ErrorMessagesDistincted);
+                return new MediatorResponse(success, context.Results, context.UniqueErrorMessages);
             }
             catch (Exception e)
             {
                 context.ErrorMessages.Add(e.Message);
-                return new MediatorResponse(false, context.Results, context.ErrorMessagesDistincted);
+                return new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator
 
             if (context.ErrorMessages.Any())
             {
-                throw new MediatorExecutionException("An error occurred during processing.", context);
+                throw MediatorExecutionException.CreateForUnhandledError(context);
             }
         }
 
@@ -60,12 +60,12 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, request, context, cancellationToken);
 
                 var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
-                return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessagesDistincted);
+                return new MediatorResponse<TResult>(success, context.Results, context.UniqueErrorMessages);
             }
             catch (Exception e)
             {
                 context.ErrorMessages.Add(e.Message);
-                return new MediatorResponse<TResult>(false, context.Results, context.ErrorMessagesDistincted);
+                return new MediatorResponse<TResult>(false, context.Results, context.UniqueErrorMessages);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Pipaslot.Mediator
             var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
             if (context.ErrorMessages.Any())
             {
-                throw new MediatorExecutionException("An error occurred during processing.", context);
+                throw MediatorExecutionException.CreateForUnhandledError(context);
             }
             var result = context.Results
                 .Where(r => r is TResult)

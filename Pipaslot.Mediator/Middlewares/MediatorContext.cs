@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public List<object> Results { get; } = new List<object>(1);
 
-        internal string[] ErrorMessagesDistincted => ErrorMessages.Distinct().ToArray();
+        internal string[] UniqueErrorMessages => ErrorMessages.Distinct().ToArray();
 
         public MediatorContext CopyEmpty()
         {

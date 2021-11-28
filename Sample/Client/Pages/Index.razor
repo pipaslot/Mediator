@@ -5,20 +5,22 @@
 
 <button class="btn btn-primary" @onclick="RunPassing">Run Passing request</button>
 <button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
+<button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled request</button>
+<br />
 <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
+<button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled message</button>
+<br />
 <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
-@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value) || !string.IsNullOrWhiteSpace(_serializedData.Value))
+
+@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
 {
     <h4>Response</h4>
     <div>@_serializedReponse</div>
-    <h4>Data transfered from server</h4>
-    <div>@_serializedData</div>
 }
 
 @code{
     private MarkupString _serializedReponse;
-    private MarkupString _serializedData;
     private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
     {
         WriteIndented = true
@@ -28,11 +30,15 @@
         var response = await Mediator.Execute(new WeatherForecast.Request());
         ProcessRequestResponse(response);
     }
-
+    
     private async Task RunFailing()
     {
         var response = await Mediator.Execute(new Failing.Request());
         ProcessRequestResponse(response);
+    }
+    private async Task RunFailingUnhandled()
+    {
+        var response = await Mediator.ExecuteUnhandled(new Failing.Request());
     }
 
     private async Task RunMessage(bool pass)
@@ -40,6 +46,12 @@
         var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
         ProcessMessageResponse(response);
     }
+
+    private async Task RunFailingUnhandledMessage()
+    {
+        await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
+    }
+    
 
     private async Task RunCascadingFailing()
     {
@@ -49,16 +61,11 @@
 
     private void ProcessMessageResponse(IMediatorResponse response)
     {
-        var converted = (IMediatorResponse<object>)response;
         _serializedReponse = Serialize(new
         {
+            _Type = response.GetType().FullName,
             Success = response.Success,
             ErrorMessage = response.ErrorMessage
-        });
-        _serializedData = Serialize(new
-        {
-            Results = converted.Results,
-            ErrorMessages = converted.ErrorMessages
         });
     }
 
@@ -66,14 +73,10 @@
     {
         _serializedReponse = Serialize(new
         {
+            _Type = response.GetType().FullName,
             Success = response.Success,
             Result = response.Result,
             ErrorMessage = response.ErrorMessage
-        });
-        _serializedData = Serialize(new
-        {
-            Results = response.Results,
-            ErrorMessages = response.ErrorMessages
         });
     }
 

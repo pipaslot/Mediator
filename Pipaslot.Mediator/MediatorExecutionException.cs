@@ -10,12 +10,12 @@ namespace Pipaslot.Mediator
         /// </summary>
         public IMediatorResponse Response { get; }
 
-        public MediatorExecutionException(string message, MediatorContext context) : base(message)
+        public MediatorExecutionException(string message, MediatorContext context) : base($"{message} Errors: ['{string.Join("; ", context.UniqueErrorMessages)}']")
         {
-            Response = new MediatorResponse(false, context.Results, context.ErrorMessagesDistincted);
+            Response = new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
         }
 
-        public MediatorExecutionException(string message, IMediatorResponse response) : base(message)
+        public MediatorExecutionException(string message, IMediatorResponse response) : base($"{message} Errors: ['{string.Join("; ", response.ErrorMessages)}']")
         {
             Response = response;
         }
@@ -23,6 +23,11 @@ namespace Pipaslot.Mediator
         public MediatorExecutionException(IMediatorResponse response) : base(string.Join("; ", response.ErrorMessages))
         {
             Response = response;
+        }
+
+        public static MediatorExecutionException CreateForUnhandledError(MediatorContext context)
+        {
+            return new MediatorExecutionException("An error occurred during processing.", context);
         }
     }
 }
