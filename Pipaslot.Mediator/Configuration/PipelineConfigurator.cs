@@ -28,12 +28,17 @@ namespace Pipaslot.Mediator.Configuration
             return this;
         }
 
-        public IPipelineConfigurator AddHandlersFromAssemblyOf<T>()
+        public IPipelineConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
-            return AddHandlersFromAssembly(typeof(T).Assembly);
+            return RegisterHandlersFromAssembly(new[] { typeof(T).Assembly }, serviceLifetime);
         }
 
         public IPipelineConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)
+        {
+            return RegisterHandlersFromAssembly(assemblies);
+        }
+
+        private IPipelineConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var handlerTypes = new[]
             {
@@ -54,7 +59,8 @@ namespace Pipaslot.Mediator.Configuration
             {
                 foreach (var iface in pair.Interfaces)
                 {
-                    _services.AddTransient(iface, pair.Type);
+                    var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
+                    _services.Add(item);
                 }
             }
             return this;
@@ -65,7 +71,7 @@ namespace Pipaslot.Mediator.Configuration
             var markerType = typeof(TActionMarker);
             var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
             var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(ActionSpecificPipelineDefinition) && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == markerType);
-            if(existingPipelineDescriptor != null)
+            if (existingPipelineDescriptor != null)
             {
                 _services.Remove(existingPipelineDescriptor);
             }
