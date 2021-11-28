@@ -13,5 +13,24 @@ namespace Pipaslot.Mediator.Http
             configurator.Use<MediatorExceptionLoggingMiddleware>(lifetime);
             return configurator;
         }
+
+        /// <summary>
+        /// Register middleware sending actions over HTTP client to mediator server implementation. Not further middleware will be executed after this one.
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseHttpClient(this IConditionalPipelineConfigurator configurator)
+        {
+            configurator.Use<HttpClientExecutionMiddleware>();
+            return configurator;
+        }
+
+        /// <summary>
+        /// Register middleware sending actions over HTTP client to mediator server implementation. Not further middleware will be executed after this one.
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseHttpClietn<THttpClientExecutionMiddleware>(this IConditionalPipelineConfigurator configurator)
+            where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
+        {
+            configurator.Use<THttpClientExecutionMiddleware>();
+            return configurator;
+        }
     }
 }
