@@ -265,6 +265,7 @@ News:
  - All middlewares (except execution middlewares) can have configured ServiceLifetime (default is scoped)
  - ServiceLifetime for handlers can be changed (default is transient)
  - Mediator provides events ActionStarted and ActionCompleted notifying subscribers when new action is started and completed. These events provides also collection of all running actions.
+ - new method Mediator.ExecuteOrDefault returning data or default object depending on succeess status
 
 Breaking changes:
  - Obsolete code from previous version was removed
