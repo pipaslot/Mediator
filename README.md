@@ -5,7 +5,7 @@ Define action contract on a shared project, define action handler on server-side
 This package was designed for fast and flexible development of simultaneously developed client and server applications.
 
 Documentation:
- - [Update guide](docs/UPDATE-GUIDE.md)
+ - [Release notes and breaking changes](docs/RELEASES.md)
 
 
 ## Basic usage

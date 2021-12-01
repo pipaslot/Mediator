@@ -1,13 +1,15 @@
-# Verion 3
-Breaking changes:
+# Release notes and breaking changes
+
+## Version 3
+### Breaking changes:
 - Pipaslot.Mediator.Client 2.0.0 is not fully compatible with Pipaslot.Mediator.Server 3.0.0
 - Interface IMessage was replacedd by IMediatorAction
 - Interface IRequest<T> was replacedd by IMediatorAction<T>
 - Interface IMessageHandler was replacedd by IMediatornHandler
 - Interface IRequestHandler<T> was replacedd by IMediatorHandler<T>
 
-# Verion 4
-News:
+## Version 4
+### News:
  - Client mediator supports own pipeline, action and handler registration, but by default it sends actions to server via HTTP protocol
  - Serialization logic from server and client was extracted into service IContracSerializer which can be replaced via DI re-configuration
  - IMediatorResponse has property Results as object array type providing messages from middlewares
@@ -17,7 +19,7 @@ News:
  - new method Mediator.ExecuteOrDefault returning data or default object depending on succeess status
  - added configurable middleware UseReduceDuplicateProcessing for reducing concurrent action calls to minimize server load 
 
-Breaking changes:
+### Breaking changes:
  - Obsolete code from previous version was removed
  - Nuget packages Pipaslot.Mediator.Client and Pipaslot.Mediator.Server were repalced by Pipaslot.Mediator.Http
  - Service collection method AddMediatorClient returns IPipelineConfigurator instead of IServiceColelction
