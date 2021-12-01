@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http
 {
-    public class ContractSerializerV2Tests
+    public class ContractSerializerTypeHelperTests
     {
 
         [Theory]
@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.Http
 
         public void ConvertTypeDefinitions(string expected,string value)
         {
-            var result = ContractSerializer.GetTypeWithoutAssembly(value);
+            var result = ContractSerializerTypeHelper.GetTypeWithoutAssembly(value);
             Assert.Equal(expected, result);
         }
     }
