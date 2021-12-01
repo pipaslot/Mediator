@@ -12,6 +12,8 @@
 <button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled message</button>
 <br />
 <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
+<br />
+<button class="btn btn-primary" @onclick="RunDuplicateQuery">Run Duplicate Requests (only one server request will be executed)</button>
 
 @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
 {
@@ -19,12 +21,12 @@
     <div>@_serializedReponse</div>
 }
 
-@code{
+@code {
     private MarkupString _serializedReponse;
     private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
-    {
-        WriteIndented = true
-    };
+        {
+            WriteIndented = true
+        };
     private async Task RunPassing()
     {
         Loading();
@@ -65,6 +67,22 @@
         ProcessMessageResponse(response);
     }
 
+    private async Task RunDuplicateQuery()
+    {
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
+        _serializedReponse = Serialize(new
+        {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
+
+    }
+
     private void ProcessMessageResponse(IMediatorResponse response)
     {
         _serializedReponse = Serialize(new
@@ -77,25 +95,30 @@
 
     private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
     {
-        _serializedReponse = Serialize(new
+        _serializedReponse = Serialize(Format(response));
+    }
+
+    private object Format<TResult>(IMediatorResponse<TResult> response)
+    {
+        return new
         {
             _Type = response.GetType().FullName,
             Success = response.Success,
             Result = response.Result,
             ErrorMessage = response.ErrorMessage
-        });
+        };
     }
 
     private MarkupString Serialize(object value)
     {
-        var serialized =        JsonSerializer.Serialize(value, _serializerOptions)
-        .Replace(" \"","&nbsp; &nbsp;\"")
-        .Replace("\n","<br />");
+        var serialized = JsonSerializer.Serialize(value, _serializerOptions)
+        .Replace(" \"", "&nbsp; &nbsp;\"")
+        .Replace("\n", "<br />");
         return new MarkupString(serialized);
     }
 
     private void Loading()
-    {        
+    {
         _serializedReponse = new MarkupString("Loading");
     }
 }

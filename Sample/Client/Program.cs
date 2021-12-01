@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 using Sample.Shared;
 using System;
@@ -20,7 +21,9 @@ namespace Sample.Client
             //////// Mediator implementation
             builder.Services.AddMediatorClient(o => {
                 o.Endpoint = Constants.CustomMediatorUrl;
-            });
+            })
+                .AddPipeline<IRequest>()
+                    .UseReduceDuplicateProcessing();
             ////////
 
             await builder.Build().RunAsync();

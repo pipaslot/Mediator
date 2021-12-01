@@ -7,7 +7,12 @@ namespace Sample.Shared.Requests
     {
         public class Request : IRequest<Result[]>
         {
+            public DateTime Date { get; set; } = DateTime.Now;
 
+            public override int GetHashCode()
+            {
+                return Date.GetHashCode();
+            }
         }
 
         public class Result
