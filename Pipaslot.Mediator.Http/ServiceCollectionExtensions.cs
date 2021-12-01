@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Http.Middlewares;
 using Pipaslot.Mediator.Http.Options;
 using System;
+using System.Linq;
 
 namespace Pipaslot.Mediator.Http
 {
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Register Mediator sending messages and requests over HTTPClient
@@ -46,7 +46,7 @@ namespace Pipaslot.Mediator.Http
             var options = new ClientMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            services.AddSingleton<IContractSerializer, ContractSerializer>();
+            services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
             return services.AddMediator<THttpClientExecutionMiddleware>();
         }
 
@@ -73,9 +73,21 @@ namespace Pipaslot.Mediator.Http
             var options = new ServerMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            services.AddSingleton<IContractSerializer, ContractSerializer>();
+            services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
 
             return services.AddMediator();
+        }
+
+        /// <summary>
+        /// Replace mediator serializer used by Pipaslot.Mediator.Client and Pipaslot.Mediator.Server in versions 2.0 and 3.0
+        /// Register this service after AddMediatorClient() and AddMediatorServer()
+        /// </summary>
+        public static IServiceCollection UseMediatorSerializerV2(this IServiceCollection services)
+        {
+            var descriptor = services.First(d => d.ServiceType == typeof(IContractSerializer));
+            services.Remove(descriptor);
+            services.AddSingleton<IContractSerializer, ContractSerializer>();
+            return services;
         }
     }
 }

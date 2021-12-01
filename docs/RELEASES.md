@@ -12,6 +12,7 @@
 ### News:
  - Client mediator supports own pipeline, action and handler registration, but by default it sends actions to server via HTTP protocol
  - Serialization logic from server and client was extracted into service IContracSerializer which can be replaced via DI re-configuration
+ - New data serializer was implemented supporting full JSON support
  - IMediatorResponse has property Results as object array type providing messages from middlewares
  - All middlewares (except execution middlewares) can have configured ServiceLifetime (default is scoped)
  - ServiceLifetime for handlers can be changed (default is transient)
