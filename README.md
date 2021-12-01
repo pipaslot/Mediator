@@ -245,7 +245,28 @@ namespace CustomMediator.Cqrs
 
 And that is it. Easy!
 
-## Error Handling
+### Middlewares
+Middlewares provides you a possibility to intercept action exectuon. With middleares you can achieve  for exampe:caching, auditing, logging, pre-processing, post-processing, transactions ...
+
+Simplest middleware lookis like this:
+
+```
+public class DummyMiddleware : IMediatorMiddleware
+{
+    public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+    {
+        // Here place code executed before handler call
+        await next(context);
+        // Here place code executed after handler call
+    }
+}
+```
+
+Do not forget to ensure that you execute `await next(context);`, otherwise neither next middleware nor handler would be executed.
+Handler executing is also realised by build-in middleware .UseSingleHandler() used as default. For MediatorClient it is .UseHttpClient() by default
+
+
+#### Error Handling
 Mediator catches all exception which occures during midleware or action handler execution. If you want to provide Logging via ILogger interface, you can create own logging middleware or register already prepared middleware in your pipelines by `.UseExceptionLogging()`
 Keep in mind that mediator handles all unhandled exceptions internally. That means that your ASP.NET Core middleware handling exceptions for example from ASP.NET Core MVC wont receive these exceptions.
 
