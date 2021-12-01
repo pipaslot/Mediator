@@ -34,9 +34,9 @@ namespace Pipaslot.Mediator.Tests
         public async Task SemaphoreActionIsExcetutable()
         {
             var sut = Create();
-            var responseTask = sut.Dispatch(new SemaphoreAction());
+            var task = sut.Dispatch(new SemaphoreAction());
             _handlerSemaphore.Release();
-            var response = await responseTask;
+            var response = await task;
             Assert.True(response.Success);
         }
 
@@ -44,29 +44,29 @@ namespace Pipaslot.Mediator.Tests
         public async Task StartedEventIsCalledInTheBeginningOfMediatorExcecution()
         {
             var sut = Create();
-            var responseTask = sut.Dispatch(new SemaphoreAction());
+            var task = sut.Dispatch(new SemaphoreAction());
             Assert.Single(_started);
             _handlerSemaphore.Release();
-            await responseTask;
+            await task;
         }
 
         [Fact]
         public async Task CompletedEventIsNotCalledInTheBeginningOfMediatorExcecution()
         {
             var sut = Create();
-            var responseTask = sut.Dispatch(new SemaphoreAction());
+            var task = sut.Dispatch(new SemaphoreAction());
             Assert.Empty(_completed);
             _handlerSemaphore.Release();
-            await responseTask;
+            await task;
         }
 
         [Fact]
         public async Task CompletedEventIsCalledAfterMediatorExcecution()
         {
             var sut = Create();
-            var responseTask = sut.Dispatch(new SemaphoreAction());
+            var task = sut.Dispatch(new SemaphoreAction());
             _handlerSemaphore.Release();
-            await responseTask;
+            await task;
             Assert.Single(_completed);
         }
 
@@ -74,9 +74,9 @@ namespace Pipaslot.Mediator.Tests
         public async Task StartedEventIsNotCalledAfterMediatorExcecution()
         {
             var sut = Create();
-            var responseTask = sut.Dispatch(new SemaphoreAction());
+            var task = sut.Dispatch(new SemaphoreAction());
             _handlerSemaphore.Release();
-            await responseTask;
+            await task;
             Assert.Single(_started);
         }
 
@@ -87,21 +87,21 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Create();
             var action = new SemaphoreAction();
-            var responseTask = sut.Dispatch(action);
-            var responseTask2 = sut.Dispatch(action);
+            var task1 = sut.Dispatch(action);
+            var task2 = sut.Dispatch(action);
             Assert.Equal(2, _started.Count);
             _handlerSemaphore.Release(2);
-            await Task.WhenAll(responseTask, responseTask2);
+            await Task.WhenAll(task1, task2);
         }
         [Fact]
         public async Task SendingTheSameActionInstanceTwiceFiresTwoCompletedEvents()
         {
             var sut = Create();
             var action = new SemaphoreAction();
-            var responseTask = sut.Dispatch(action);
-            var responseTask2 = sut.Dispatch(action);
+            var task1 = sut.Dispatch(action);
+            var task2 = sut.Dispatch(action);
             _handlerSemaphore.Release(2);
-            await Task.WhenAll(responseTask, responseTask2);
+            await Task.WhenAll(task1, task2);
             Assert.Equal(2, _completed.Count);
         }
 

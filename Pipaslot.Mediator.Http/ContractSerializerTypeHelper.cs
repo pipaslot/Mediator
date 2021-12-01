@@ -1,7 +1,23 @@
-﻿namespace Pipaslot.Mediator.Http
+﻿using System;
+
+namespace Pipaslot.Mediator.Http
 {
     internal class ContractSerializerTypeHelper
     {
+        internal static Type GetType(string type)
+        {
+            var queryType = Type.GetType(type);
+            if (queryType == null)
+            {
+                queryType = Type.GetType(ContractSerializerTypeHelper.GetTypeWithoutAssembly(type));
+                if (queryType == null)
+                {
+                    throw new Exception($"Can not recognize type {type} from received response. Ensure that type returned and serialized on server is available/referenced on client as well.");
+                }
+            }
+            return queryType;
+        } 
+
         /// <summary>
         /// This method converst type Definition like "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=none"
         /// to "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"

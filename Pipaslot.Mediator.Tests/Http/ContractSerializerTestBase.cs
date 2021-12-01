@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http
@@ -10,41 +11,43 @@ namespace Pipaslot.Mediator.Tests.Http
         private const string _name = "JSON name";
         private const int _number = 6;
 
+        #region Request serialization
+
         [Fact]
-        public void PublicPropertyGettersAndSetters_WillPass()
+        public void Request_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
-                RunTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);
+                RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);
             });
         }
 
         [Fact]
-        public void PublicPropertyGetterAndInitSetter_WillPass()
+        public void Request_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void PositionalRecord_WillPass()
+        public void Request_PositionalRecord_WillPass()
         {
-            RunTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
-        private void RunTest<TContract>(TContract seed, Func<TContract, bool> match) where TContract : IMediatorAction
+        private void RunRequestTest<TContract>(TContract seed, Func<TContract, bool> match) where TContract : IMediatorAction
         {
             var sut = CreateSerializer();
 
@@ -54,7 +57,65 @@ namespace Pipaslot.Mediator.Tests.Http
             Assert.True(match((TContract)deserialized.Content));
         }
 
+        #endregion
+
+        #region Response serialization
+
+        [Fact]
+        public void Response_PublicPropertyGettersAndSetters_WillPass()
+        {
+            RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+        }
+
+        [Fact]
+        public void Response_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        {
+            RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
+        }
+
+        [Fact]
+        public void Response_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        {
+            var exception = Assert.Throws<InvalidOperationException>(() =>
+            {
+                //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
+                RunResponseTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);
+            });
+        }
+
+        [Fact]
+        public void Response_PublicPropertyGetterAndInitSetter_WillPass()
+        {
+            RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+        }
+
+        [Fact]
+        public void Response_PositionalRecord_WillPass()
+        {
+            RunResponseTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
+        }
+
+        private void RunResponseTest<TDto>(TDto seed, Func<TDto, bool> match)
+        {
+            var results = new System.Collections.Generic.List<object>
+            {
+                seed
+            };
+            var response = new MediatorResponse(true, results, new string[0]);
+            var sut = CreateSerializer();
+
+            var serialized = sut.SerializeResponse(response);
+            var deserialized = sut.DeserializeResponse<TDto>(serialized);
+
+            Assert.True(match(deserialized.Result));
+        }
+
+
+        #endregion
+
         protected abstract IContractSerializer CreateSerializer();
+
+        #region Actions
 
         public class PublicPropertyGettersAndSettersContract : IMessage
         {
@@ -93,6 +154,8 @@ namespace Pipaslot.Mediator.Tests.Http
         }
 
         public record PositionalRecordContract(string Name, int Number) : IMessage;
+
+        #endregion
 
     }
 }

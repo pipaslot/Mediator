@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Http.Contracts;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.Json;
 
@@ -26,7 +25,7 @@ namespace Pipaslot.Mediator.Http
         public MediatorRequestDeserialized DeserializeRequest(string requestBody)
         {
             var contract = JsonSerializer.Deserialize<MediatorRequestSerializable>(requestBody);
-            if(contract == null)
+            if (contract == null)
             {
                 return new MediatorRequestDeserialized(null, null, null);
             }
@@ -64,14 +63,12 @@ namespace Pipaslot.Mediator.Http
         public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
         {
             var serializedResult = JsonSerializer.Deserialize<MediatorResponseSerializable>(response);
-            if(serializedResult == null)
+            if (serializedResult == null)
             {
                 throw new Exception("Can not deserialize server response. Please check if Pipaslot.Mediator.Client and Pipaslot.Mediator.Server have the same version or if response is valid JSON.");
             }
-            var results = serializedResult.Results
-                .Select(r => DeserializeResult(r))
-                .ToArray();
-            return new MediatorResponseDeserialized<TResult>
+
+            return new ResponseDeserialized<TResult>
             {
                 Success = serializedResult.Success,
                 ErrorMessages = serializedResult.ErrorMessages,
@@ -81,15 +78,7 @@ namespace Pipaslot.Mediator.Http
 
         private object DeserializeResult(MediatorResponseSerializable.SerializedResult serializedResult)
         {
-            var queryType = Type.GetType(serializedResult.ObjectName);
-            if (queryType == null)
-            {
-                queryType = Type.GetType(ContractSerializerTypeHelper.GetTypeWithoutAssembly(serializedResult.ObjectName));
-                if (queryType == null)
-                {
-                    throw new Exception($"Can not recognize type {serializedResult.ObjectName} from received response. Ensure that type returned and serialized on server is available/referenced on client as well.");
-                }
-            }
+            var queryType = ContractSerializerTypeHelper.GetType(serializedResult.ObjectName);
             var result = JsonSerializer.Deserialize(serializedResult.Json, queryType);
             if (result == null)
             {
@@ -97,5 +86,50 @@ namespace Pipaslot.Mediator.Http
             }
             return result;
         }
+
+        #region Contracts
+
+        /// <summary>
+        /// Request contract with all necessary fields sent over network
+        /// </summary>
+        internal class MediatorRequestSerializable
+        {
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+            public string Json { get; set; } = string.Empty;
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+            public string ObjectName { get; set; } = string.Empty;
+        }
+
+        /// <summary>
+        /// Response contract with all necessary fields sent over network
+        /// </summary>
+        internal class MediatorResponseSerializable
+        {
+            public bool Success { get; set; }
+            public SerializedResult[] Results { get; set; } = new SerializedResult[0];
+            public string[] ErrorMessages { get; set; } = new string[0];
+
+            public class SerializedResult
+            {
+                // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+                public string Json { get; set; } = string.Empty;
+
+                // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+                public string ObjectName { get; set; } = string.Empty;
+            }
+        }
+
+        internal class ResponseDeserialized<TResult> : IMediatorResponse<TResult>
+        {
+            public bool Success { get; set; }
+            public bool Failure => !Success;
+            public string ErrorMessage => string.Join(";", ErrorMessages);
+            public TResult Result => (TResult)Results.FirstOrDefault(r => r is TResult);
+            public object[] Results { get; set; } = new object[0];
+            public string[] ErrorMessages { get; set; } = new string[0];
+        }
+
+        #endregion
     }
 }
