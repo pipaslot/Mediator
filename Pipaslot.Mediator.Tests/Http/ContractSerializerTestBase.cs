@@ -5,25 +5,25 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http
 {
-    public class ContractSerializerV2_DeserializeInputDataTests
+    public abstract class ContractSerializerTestBase
     {
         private const string _name = "JSON name";
         private const int _number = 6;
 
         [Fact]
-        public void  PublicPropertyGettersAndSetters_WillPass()
+        public void PublicPropertyGettersAndSetters_WillPass()
         {
             RunTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void  ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
             RunTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void  ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -33,26 +33,28 @@ namespace Pipaslot.Mediator.Tests.Http
         }
 
         [Fact]
-        public void  PublicPropertyGetterAndInitSetter_WillPass()
+        public void PublicPropertyGetterAndInitSetter_WillPass()
         {
             RunTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void  PositionalRecord_WillPass()
+        public void PositionalRecord_WillPass()
         {
             RunTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
-        private static void RunTest<TContract>(TContract seed, Func<TContract, bool> match) where TContract : IMediatorAction
+        private void RunTest<TContract>(TContract seed, Func<TContract, bool> match) where TContract : IMediatorAction
         {
-            var sut = new ContractSerializer();
+            var sut = CreateSerializer();
 
             var serialized = sut.SerializeRequest(seed);
             var deserialized = sut.DeserializeRequest(serialized);
 
             Assert.True(match((TContract)deserialized.Content));
         }
+
+        protected abstract IContractSerializer CreateSerializer();
 
         public class PublicPropertyGettersAndSettersContract : IMessage
         {

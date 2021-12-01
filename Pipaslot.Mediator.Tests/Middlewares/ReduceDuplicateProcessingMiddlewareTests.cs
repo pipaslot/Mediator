@@ -93,7 +93,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 
         private Task Run<TAction>(TAction action)
         {
-            var sut = new DuplicatesReductionMiddleware();
+            var sut = new ReduceDuplicateProcessingMiddleware();
             return sut.Invoke(action, _context, _next, CancellationToken.None);
         }
 
