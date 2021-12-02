@@ -2,31 +2,23 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
+using Sample.Client;
 using Sample.Shared;
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 
-namespace Sample.Client
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+//////// Mediator implementation
+builder.Services.AddMediatorClient(o =>
 {
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
+    o.Endpoint = Constants.CustomMediatorUrl;
+})
+    .AddPipeline<IRequest>()
+        .UseReduceDuplicateProcessing();
+////////
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-            //////// Mediator implementation
-            builder.Services.AddMediatorClient(o => {
-                o.Endpoint = Constants.CustomMediatorUrl;
-            })
-                .AddPipeline<IRequest>()
-                    .UseReduceDuplicateProcessing();
-            ////////
-
-            await builder.Build().RunAsync();
-        }
-    }
-}
+await builder.Build().RunAsync();
