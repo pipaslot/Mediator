@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>4.0.0-alpha-1</Version>
+		<Version>4.0.0-beta01</Version>
 		<PackageId>Pipaslot.Mediator</PackageId>
 		<AssemblyName>Pipaslot.Mediator</AssemblyName>
 		<Authors>Petr Stipek</Authors>
@@ -27,14 +27,10 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
-	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
 	</ItemGroup>
-
-	<ItemGroup Condition="$(TargetFramework.StartsWith('net6'))">
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>Pipaslot.Mediator.Tests</_Parameter1>
