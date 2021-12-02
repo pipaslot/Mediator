@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: '6.0.x'
       
       # Publish
       - name: publish Pipaslot.Mediator
@@ -23,7 +27,7 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: publish Pipaslot.Mediator.Http
-        id: publish_nuget_client
+        id: publish_nuget_http
         uses: rohith/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj          
