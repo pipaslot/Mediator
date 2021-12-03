@@ -44,7 +44,7 @@ namespace Pipaslot.Mediator.Middlewares
                 {
                     await task;
                 }
-                context.HandlerExecuted = true;
+                context.ExecutedHandlers++;
                 await OnSuccessExecution(handler, message);
 
             }
@@ -88,7 +88,7 @@ namespace Pipaslot.Mediator.Middlewares
 
                     var resultProperty = task.GetType().GetProperty("Result");
                     var result = resultProperty?.GetValue(task);
-                    context.HandlerExecuted = true;
+                    context.ExecutedHandlers++;
                     if (result != null)
                     {
                         await OnSuccessExecution(handler, request);

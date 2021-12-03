@@ -7,17 +7,8 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Middlewares
 {
-    public class SingleHandlerExecutionMiddlewareTests
+    public class MultiHandlerConcurrentExecutionMiddlewareTests
     {
-
-        [Fact]
-        public async Task RequestWithSingleHandler_ExecuteHandler()
-        {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
-            var context = await RunRequest(services);
-            Assert.Equal(1, context.ExecutedHandlers);
-        }
-
         [Fact]
         public async Task RequestWithoutHandler_ThrowException()
         {
@@ -29,21 +20,19 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         }
 
         [Fact]
-        public async Task RequestWithMultipleHandlers_ThrowException()
+        public async Task RequestWithSingleHandler_ExecuteHandler()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler, SingleHandler.RequestHandler>();
-            await Assert.ThrowsAsync<Exception>(async () =>
-            {
-                await RunRequest(services);
-            });
+            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
+            var context = await RunRequest(services);
+            Assert.Equal(1, context.ExecutedHandlers);
         }
 
         [Fact]
-        public async Task MessageWithSingleHandler_ExecuteHandler()
+        public async Task RequestWithMultipleHandlers_ThrowException()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler>();
-            var context = await RunMessage(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler, SingleHandler.RequestHandler>();
+            var context = await RunRequest(services);
+            Assert.Equal(2, context.ExecutedHandlers);
         }
 
         [Fact]
@@ -57,13 +46,20 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         }
 
         [Fact]
+        public async Task MessageWithSingleHandler_ExecuteHandler()
+        {
+            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler>();
+            var context = await RunMessage(services);
+            Assert.Equal(1, context.ExecutedHandlers);
+        }
+
+
+        [Fact]
         public async Task MessageWithMultipleHandlers_ThrowException()
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler, SingleHandler.MessageHandler>();
-            await Assert.ThrowsAsync<Exception>(async () =>
-           {
-               await RunMessage(services);
-           });
+            var context = await RunMessage(services);
+            Assert.Equal(2, context.ExecutedHandlers);
         }
 
         private async Task<MediatorContext> RunRequest(IServiceProvider services)
@@ -79,7 +75,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 
         private async Task<MediatorContext> Run<TAction>(IServiceProvider services, TAction action)
         {
-            var sut = new SingleHandlerExecutionMiddleware(services);
+            var sut = new MultiHandlerConcurrentExecutionMiddleware(services);
             var context = new MediatorContext();
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(action, context, next, CancellationToken.None);

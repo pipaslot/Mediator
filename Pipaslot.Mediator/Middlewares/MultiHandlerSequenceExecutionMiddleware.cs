@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Middlewares
 {
     /// <summary>
     /// Pipeline executing multiple handlers implementing TMarker type. Handlers are executed in row, once previous execution finished.
-    /// For order specification see <see cref="ISequenceHandler"/>
+    /// For order specification <see cref="ISequenceHandler"/>
     /// </summary>
     public class MultiHandlerSequenceExecutionMiddleware : ExecutionMiddleware
     {

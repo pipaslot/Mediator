@@ -6,9 +6,9 @@ namespace Pipaslot.Mediator.Middlewares
     public class MediatorContext
     {
         /// <summary>
-        /// Flag set by Execution middleware once handler was successfully executed
+        /// Contains number of executed handlers set by Execution middleware 
         /// </summary>
-        public bool HandlerExecuted { get; internal set; }
+        internal int ExecutedHandlers { get; set; }
 
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
@@ -36,6 +36,7 @@ namespace Pipaslot.Mediator.Middlewares
         {
             ErrorMessages.AddRange(context.ErrorMessages);
             Results.AddRange(context.Results);
+            ExecutedHandlers += context.ExecutedHandlers;
         }
 
         /// <summary>
