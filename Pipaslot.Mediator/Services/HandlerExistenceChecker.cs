@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Services
             {
                 throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
             }
-            
+
             var types = assemblies.SelectMany(s => s.GetTypes());
             VerifyMessages(types);
             VerifyRequests(types);
@@ -46,9 +46,13 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
 
-                var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                VerifyHandlerCount(middleware, handlers, subject, subjectName);
+                if (middleware is ExecutionMiddleware handlerExecution)
+                {
+                    var handlers = _serviceProvider.GetMessageHandlers(subject, handlerExecution.BindingType).ToArray();
+                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                }
+
                 _alreadyVerified.Add(subject);
             }
         }
@@ -64,13 +68,16 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
-                var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                VerifyHandlerCount(middleware, handlers, subject, subjectName);
+                if (middleware is ExecutionMiddleware handlerExecution)
+                {
+                    var handlers = _serviceProvider.GetRequestHandlers(subject, resultType, handlerExecution.BindingType);
+                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                }
                 _alreadyVerified.Add(subject);
             }
         }
-        private void VerifyHandlerCount(IExecutionMiddleware middleware, object[] handlers, Type subject, string subjectName)
+        private void VerifyHandlerCount(ExecutionMiddleware middleware, object[] handlers, Type subject, string subjectName)
         {
             if (handlers.Count() == 0)
             {

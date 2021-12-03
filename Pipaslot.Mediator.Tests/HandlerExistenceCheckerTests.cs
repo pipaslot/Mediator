@@ -1,10 +1,5 @@
 ﻿using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.FakeActions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests

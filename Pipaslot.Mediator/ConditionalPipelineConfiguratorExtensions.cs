@@ -31,6 +31,14 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
+        /// Execute single handler with action defined as interface derived from IMediatorAction
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseSingleInterfaceHandler(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<SingleInterfaceHandlerExecutionMiddleware>();
+        }
+
+        /// <summary>
         /// Reduce action processing to only one at the same time for the same action type with the same properties.
         /// This is useful when you know that your application executes the same action multiple times but you want to reduce the server load. 
         /// IMPORTANT!: object method GetHashcode() is used for evaluating object similarities

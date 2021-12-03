@@ -19,6 +19,7 @@
  - Mediator provides events ActionStarted and ActionCompleted notifying subscribers when new action is started and completed. These events provides also collection of all running actions.
  - new method Mediator.ExecuteOrDefault returning data or default object depending on succeess status
  - added configurable middleware UseReduceDuplicateProcessing for reducing concurrent action calls to minimize server load 
+ - New middleware UseSingleInterfaceHandler() processing actions represented by interface instead of specific class
 
 ### Breaking changes:
  - Obsolete code from previous version was removed

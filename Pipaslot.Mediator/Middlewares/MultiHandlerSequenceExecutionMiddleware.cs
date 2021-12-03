@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Middlewares
 {
@@ -13,18 +12,16 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class MultiHandlerSequenceExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public MultiHandlerSequenceExecutionMiddleware(IServiceProvider serviceProvider)
+        public MultiHandlerSequenceExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _serviceProvider = serviceProvider;
         }
 
         public override bool ExecuteMultipleHandlers => true;
+        public override ActionToHandlerBindingType BindingType => ActionToHandlerBindingType.Class;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _serviceProvider.GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
             {
                 throw new Exception("No handler was found for " + message?.GetType());
@@ -37,8 +34,7 @@ namespace Pipaslot.Mediator.Middlewares
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _serviceProvider.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length == 0)
             {
                 throw new Exception("No handler was found for " + request?.GetType());

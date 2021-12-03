@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Tests
         public void ShouldResolve()
         {
             var sut = Factory.CreateServiceProvider(c => c.AddHandlersFromAssembly(this.GetType().Assembly));
-            var handlers = sut.GetRequestHandlers<FakeFixedResponse>(typeof(FakeFixedRequest));
+            var handlers = sut.GetRequestHandlers(typeof(FakeFixedRequest), typeof(FakeFixedResponse), Pipaslot.Mediator.Middlewares.ActionToHandlerBindingType.Class);
 
             Assert.Single(handlers);
             Assert.Equal(typeof(FakeFixedRequestHandler), handlers.First().GetType());

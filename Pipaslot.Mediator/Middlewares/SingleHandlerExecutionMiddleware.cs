@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -12,18 +11,16 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class SingleHandlerExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public SingleHandlerExecutionMiddleware(IServiceProvider serviceProvider)
+        public SingleHandlerExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _serviceProvider = serviceProvider;
         }
 
         public override bool ExecuteMultipleHandlers => false;
+        public override ActionToHandlerBindingType BindingType => ActionToHandlerBindingType.Class;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _serviceProvider.GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length > 1)
             {
                 throw new Exception($"Multiple handlers were registered for the same request. Remove one from defined type: {string.Join(" OR ", handlers)}");
@@ -39,8 +36,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _serviceProvider.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length > 1)
             {
                 throw new Exception($"Multiple handlers were registered for the same request. Remove one from defined type: {string.Join(" OR ", handlers)}");

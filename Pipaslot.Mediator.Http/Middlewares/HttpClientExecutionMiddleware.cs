@@ -11,8 +11,6 @@ namespace Pipaslot.Mediator.Http.Middlewares
 {
     public class HttpClientExecutionMiddleware : IExecutionMiddleware
     {
-        public bool ExecuteMultipleHandlers => false;
-
         private readonly HttpClient _httpClient;
         private readonly ClientMediatorOptions _options;
         private readonly IContractSerializer _serializer;

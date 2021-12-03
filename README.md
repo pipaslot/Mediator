@@ -179,6 +179,8 @@ For this purpose you can register middlewarer in mediator with `UseConcurrentMul
 
 If you need to define the order of how the sequence handlers will be executed, then implement interface `ISequenceHandler` in your handlers and define ordering.
 
+### Single handler for multiple actions (interface handler)
+TODO
 
 ### Create custom action types
 Don't you like naming as Request and Message? Or do you want to provide more action types to cover your specific pipeline behaviour? Just defino own Action and message types.
