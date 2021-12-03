@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading;
+﻿using Pipaslot.Mediator.Tests.FakeActions;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class SingleHandlerTests
+    public class Mediator_E2ETests
     {
         #region Execute single handler
 

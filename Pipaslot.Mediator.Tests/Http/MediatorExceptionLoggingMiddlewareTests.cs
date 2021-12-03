@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Tests.FakeActions;
 using System.Threading.Tasks;
 using Xunit;
 

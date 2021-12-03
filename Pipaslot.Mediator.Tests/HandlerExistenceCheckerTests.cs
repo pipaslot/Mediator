@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Services;
+using Pipaslot.Mediator.Tests.FakeActions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

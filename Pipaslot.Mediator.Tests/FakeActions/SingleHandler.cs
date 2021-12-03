@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests
+namespace Pipaslot.Mediator.Tests.FakeActions
 {
     public static class SingleHandler
     {
@@ -13,10 +13,10 @@ namespace Pipaslot.Mediator.Tests
             {
                 Pass = pass;
             }
-        }
+        }        
         public class Response
         {
-            public static Response Instance = new ();
+            public static Response Instance = new();
         }
 
         public class Message : IMessage
@@ -31,7 +31,7 @@ namespace Pipaslot.Mediator.Tests
 
         public class RequestException : System.Exception
         {
-            public static string DefaultMessage = "REquesthandler failed";
+            public static string DefaultMessage = "Requesthandler failed";
 
             public RequestException() : base(DefaultMessage)
             {
