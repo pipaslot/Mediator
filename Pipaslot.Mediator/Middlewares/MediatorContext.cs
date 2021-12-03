@@ -6,6 +6,11 @@ namespace Pipaslot.Mediator.Middlewares
     public class MediatorContext
     {
         /// <summary>
+        /// Flag set by Execution middleware once handler was successfully executed
+        /// </summary>
+        public bool HandlerExecuted { get; internal set; }
+
+        /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
         /// </summary>
         public List<string> ErrorMessages { get; } = new List<string>();

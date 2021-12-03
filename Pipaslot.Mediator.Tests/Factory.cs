@@ -1,6 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -21,6 +26,10 @@ namespace Pipaslot.Mediator.Tests
             );
             return services.GetRequiredService<IMediator>();
         }
+        public static IServiceProvider CreateServiceProvider()
+        {
+            return CreateServiceProvider(_ => { });
+        }
 
         public static IServiceProvider CreateServiceProvider(Action<IPipelineConfigurator> setup)
         {
@@ -28,6 +37,48 @@ namespace Pipaslot.Mediator.Tests
             collection.AddLogging();
             setup(collection.AddMediator());
             return collection.BuildServiceProvider();
+        }
+
+        public static IServiceProvider CreateServiceProviderWithHandlers<THandler1>()
+        {
+            return CreateServiceProviderWithHandlers(typeof(THandler1));
+        }
+        public static IServiceProvider CreateServiceProviderWithHandlers<THandler1, THandler2>()
+        {
+            return CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
+        }
+        public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
+        {
+            var collection = new ServiceCollection();
+            var services = (ICollection<ServiceDescriptor>)collection;
+            var handlerTypes = new[]
+           {
+                typeof(IMediatorHandler<,>),
+                typeof(IMediatorHandler<>)
+            };
+            var types = handlers
+                .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
+                .Select(t => new
+                {
+                    Type = t,
+                    Interfaces = t.GetInterfaces()
+                        .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
+                });
+            foreach (var pair in types)
+            {
+                foreach (var iface in pair.Interfaces)
+                {
+                    var item = new ServiceDescriptor(iface, pair.Type, ServiceLifetime.Scoped);
+                    services.Add(item);
+                }
+            }
+            return collection.BuildServiceProvider();
+        }
+
+        public static MiddlewareDelegate CreateMiddlewareDelegate()
+        {
+            return (MediatorContext ctx) => Task.CompletedTask;
         }
     }
 }
