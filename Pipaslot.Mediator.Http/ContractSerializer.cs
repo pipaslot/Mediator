@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
+using System;
 using System.Linq;
 using System.Text.Json;
 
@@ -6,6 +8,13 @@ namespace Pipaslot.Mediator.Http
 {
     public class ContractSerializer : IContractSerializer
     {
+        private readonly PipelineConfigurator _configurator;
+
+        public ContractSerializer(PipelineConfigurator configurator)
+        {
+            _configurator = configurator;
+        }
+
         private readonly static JsonSerializerOptions _serializationOptions = new()
         {
             PropertyNamingPolicy = null
@@ -22,20 +31,36 @@ namespace Pipaslot.Mediator.Http
             return JsonSerializer.Serialize(contract, typeof(MediatorRequestSerializable), _serializationOptions);
         }
 
-        public MediatorRequestDeserialized DeserializeRequest(string requestBody)
+        public IMediatorAction DeserializeRequest(string requestBody)
         {
+            if (string.IsNullOrWhiteSpace(requestBody))
+            {
+                throw MediatorHttpException.CreateForEmptyBody();
+            }
             var contract = JsonSerializer.Deserialize<MediatorRequestSerializable>(requestBody);
             if (contract == null)
             {
-                return new MediatorRequestDeserialized(null, null, null);
+                throw MediatorHttpException.CreateForUnparsedContract();
             }
             var actionType = Type.GetType(contract.ObjectName);
             if (actionType == null)
             {
-                return new MediatorRequestDeserialized(null, null, contract.ObjectName);
+                throw MediatorHttpException.CreateForUnrecognizedType(contract.ObjectName);
+            }
+            if (!_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
+            {
+                throw MediatorHttpException.CreateForUnregisteredType(actionType);
+            }
+            if (!typeof(IMediatorAction).IsAssignableFrom(actionType))
+            {
+                throw MediatorHttpException.CreateForNonContractType(actionType);
             }
             var content = JsonSerializer.Deserialize(contract.Json, actionType);
-            return new MediatorRequestDeserialized(content, actionType, contract.ObjectName);
+            if (content == null)
+            {
+                throw MediatorHttpException.CreateForUnparsedContract();
+            }
+            return (IMediatorAction)content;
         }
 
         public string SerializeResponse(IMediatorResponse response)

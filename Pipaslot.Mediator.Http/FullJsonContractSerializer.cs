@@ -1,6 +1,7 @@
-﻿using Pipaslot.Mediator.Http.Converters;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Http.Converters;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
@@ -8,19 +9,24 @@ namespace Pipaslot.Mediator.Http
 {
     public class FullJsonContractSerializer : IContractSerializer
     {
-        private readonly static JsonSerializerOptions _serializationOptions = new()
-        {
-            PropertyNamingPolicy = null,
-            Converters =
-            {
-                new ContractSerializableConverter(),
-                new ResponseDeserializedConverter()
-            }
-        };
+        private readonly JsonSerializerOptions _serializationOptions;
         internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()
         {
             PropertyNamingPolicy = null
         };
+
+        public FullJsonContractSerializer(PipelineConfigurator configurator)
+        {
+            _serializationOptions = new()
+            {
+                PropertyNamingPolicy = null,
+                Converters =
+                {
+                    new ContractSerializableConverter(configurator),
+                    new ResponseDeserializedConverter()
+                }
+            };
+        }
 
         public string SerializeRequest(object request)
         {
@@ -29,18 +35,24 @@ namespace Pipaslot.Mediator.Http
             return JsonSerializer.Serialize(contract, typeof(ContractSerializable), _serializationOptions);
         }
 
-        public MediatorRequestDeserialized DeserializeRequest(string requestBody)
+        public IMediatorAction DeserializeRequest(string requestBody)
         {
             var contract = JsonSerializer.Deserialize<ContractSerializable>(requestBody, _serializationOptions);
+
             if (contract == null)
             {
-                return new MediatorRequestDeserialized(null, null, null);
+                throw MediatorHttpException.CreateForUnparsedContract();
             }
-            if (contract.Content == null)
+            if (string.IsNullOrWhiteSpace(contract.Type))
             {
-                return new MediatorRequestDeserialized(null, null, contract.Type);
+                throw MediatorHttpException.CreateForUnrecognizedType(contract.Type);
             }
-            return new MediatorRequestDeserialized(contract.Content, contract.Content.GetType(), contract.Type);
+            var actionType = contract.Content.GetType();
+            if (!typeof(IMediatorAction).IsAssignableFrom(actionType))
+            {
+                throw MediatorHttpException.CreateForNonContractType(actionType);
+            }
+            return (IMediatorAction)contract.Content;
         }
 
         public string SerializeResponse(IMediatorResponse response)

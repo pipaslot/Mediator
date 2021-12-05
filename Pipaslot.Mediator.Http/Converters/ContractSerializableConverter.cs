@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Configuration;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Pipaslot.Mediator.Http.FullJsonContractSerializer;
@@ -7,6 +8,13 @@ namespace Pipaslot.Mediator.Http.Converters
 {
     internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
     {
+        private readonly PipelineConfigurator _configurator;
+
+        public ContractSerializableConverter(PipelineConfigurator configurator)
+        {
+            _configurator = configurator;
+        }
+
         public override ContractSerializable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var content = "";
@@ -40,9 +48,13 @@ namespace Pipaslot.Mediator.Http.Converters
             return CreateObject(content, type);
         }
 
-        private static ContractSerializable CreateObject(string content, string type)
+        private ContractSerializable CreateObject(string content, string type)
         {
             var queryType = ContractSerializerTypeHelper.GetType(type);
+            if (!_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
+            {
+                throw MediatorHttpException.CreateForUnregisteredType(queryType);
+            }
             var result = JsonSerializer.Deserialize(content, queryType);
             if (result == null)
             {

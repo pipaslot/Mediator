@@ -6,7 +6,6 @@ using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
 using Pipaslot.Mediator.Http.Options;
-using Pipaslot.Mediator.Configuration;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -15,14 +14,12 @@ namespace Pipaslot.Mediator.Http
         private readonly RequestDelegate _next;
         private readonly ServerMediatorOptions _option;
         private readonly IContractSerializer _serializer;
-        private readonly PipelineConfigurator _configurator;
 
-        public MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer, PipelineConfigurator configurator)
+        public MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer)
         {
             _next = next;
             _option = option;
             _serializer = serializer;
-            _configurator = configurator;
         }
 
         public async Task Invoke(HttpContext context)
@@ -33,9 +30,7 @@ namespace Pipaslot.Mediator.Http
                 var mediator = CreateMediator(context);
                 var body = await GetBody(context);
 
-                var contract = _serializer.DeserializeRequest(body);
-                var action = Validate(contract);
-
+                var action = _serializer.DeserializeRequest(body);
                 var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted)
                 : await ExecuteMessage(mediator, (IMediatorAction)action, context.RequestAborted);
@@ -69,33 +64,6 @@ namespace Pipaslot.Mediator.Http
                 throw MediatorHttpException.CreateForEmptyBody();
             }
             return body;
-        }
-
-        internal object Validate(MediatorRequestDeserialized request)
-        {
-            if (request.ActionType == null)
-            {
-                throw MediatorHttpException.CreateForUnrecognizedType(request.ObjectName);
-            }
-            var queryType = request.ActionType;
-            if (request.Content == null)
-            {
-                throw MediatorHttpException.CreateForUnparsedContract();
-            }
-            var query = request.Content;
-            if (!_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
-            {
-                throw MediatorHttpException.CreateForUnregisteredType(queryType);
-            }
-            if (!typeof(IMediatorAction).IsAssignableFrom(queryType))
-            {
-                throw MediatorHttpException.CreateForNonContractType(queryType);
-            }
-            if (query == null)
-            {
-                throw new MediatorHttpException($"Can not deserialize contract as type {request.ObjectName}");
-            }
-            return request.Content;
         }
 
         private async Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)

@@ -1,7 +1,9 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
 using System;
-using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http
@@ -54,7 +56,7 @@ namespace Pipaslot.Mediator.Tests.Http
             var serialized = sut.SerializeRequest(seed);
             var deserialized = sut.DeserializeRequest(serialized);
 
-            Assert.True(match((TContract)deserialized.Content));
+            Assert.True(match((TContract)deserialized));
         }
 
         #endregion
@@ -113,7 +115,67 @@ namespace Pipaslot.Mediator.Tests.Http
 
         #endregion
 
-        protected abstract IContractSerializer CreateSerializer();
+        #region Request deserialization validation
+
+        [Fact]
+        public void DeserializeRequest_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
+        {
+            var sut = CreateSerializer(_ => { });
+            var request = sut.SerializeRequest(new FakeContract());
+            var exception = Assert.Throws<MediatorHttpException>(() =>
+            {
+                sut.DeserializeRequest(request);
+            });
+            Assert.Equal(MediatorHttpException.CreateForUnregisteredType(typeof(FakeContract)).Message, exception.Message);
+        }
+
+        [Fact]
+        public void DeserializeRequest_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
+        {
+            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
+            var request = sut.SerializeRequest(new FakeNonContract());
+            var exception = Assert.Throws<MediatorHttpException>(() =>
+            {
+                sut.DeserializeRequest(request);
+            });
+            Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
+        }
+
+        [Fact]
+        public void DeserializeRequest_ContractTypeIsFromRegisteredAssembly_Pass()
+        {
+            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
+            var request = sut.SerializeRequest(new FakeContract());            
+            var deserialized = sut.DeserializeRequest(request);
+            Assert.NotNull(deserialized);
+        }
+
+        public class FakeContract : IMessage
+        {
+
+        }
+
+        public class FakeNonContract
+        {
+
+        }
+
+        #endregion
+
+        private IContractSerializer CreateSerializer()
+        {
+            return CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
+        }
+
+        private IContractSerializer CreateSerializer(Action<PipelineConfigurator> setup)
+        {
+            var serviceCollctionMock = new Mock<IServiceCollection>();
+            var configurator = new PipelineConfigurator(serviceCollctionMock.Object);
+            setup(configurator);
+            return CreateSerializer(configurator);
+        }
+
+        protected abstract IContractSerializer CreateSerializer(PipelineConfigurator configurator);
 
         #region Actions
 
