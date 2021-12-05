@@ -16,7 +16,7 @@
         Mediator.ActionCompleted -= OnFinished;
     }
 
-    private void OnStarted(object sender, ActionStartedEventArgs args)
+    private void OnStarted(object? sender, ActionStartedEventArgs args)
     {
         if (!_show)
         {
@@ -25,7 +25,7 @@
 
         }
     }
-    private void OnFinished(object sender, ActionCompletedEventArgs args)
+    private void OnFinished(object? sender, ActionCompletedEventArgs args)
     {
         if (_show && args.RunningActions.Count == 0)
         {

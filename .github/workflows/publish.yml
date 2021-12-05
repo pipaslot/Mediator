@@ -17,10 +17,10 @@ jobs:
         with:
             dotnet-version: '6.0.x'
     
-      - name: Generate coverage report
+      - name: Run tests
         run: |
           cd ./Pipaslot.Mediator.Tests/
-          dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+          dotnet test
       
       # Publish
       - name: publish Pipaslot.Mediator

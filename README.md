@@ -5,7 +5,8 @@ Define action contract on a shared project, define action handler on server-side
 This package was designed for fast and flexible development of simultaneously developed client and server applications.
 
 Documentation:
- - [Release notes and breaking changes](docs/RELEASES.md)
+ - [Wiki](https://github.com/pipaslot/Mediator/wiki)
+ - [Release notes and breaking changes](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes)
 
 
 ## Basic usage
