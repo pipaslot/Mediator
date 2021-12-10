@@ -17,27 +17,27 @@ namespace Pipaslot.Mediator.Http
 
         internal static MediatorHttpException CreateForUnregisteredService(Type serviceType)
         {
-            return new MediatorHttpException($"Service {serviceType.FullName} was not registered in service collection");
+            return new MediatorHttpException($"Service {serviceType.FullName} was not registered in service collection.");
         }
 
         internal static MediatorHttpException CreateForUnparsedContract()
         {
-            return new MediatorHttpException($"Can not parse contract object from request body");
+            return new MediatorHttpException($"Can not parse contract object from request body.");
         }
 
         internal static MediatorHttpException CreateForUnrecognizedType(string objectName)
         {
-            return new MediatorHttpException($"Can not recognize type {objectName}");
+            return new MediatorHttpException($"Can not recognize type {objectName}.");
         }
 
         internal static MediatorHttpException CreateForUnregisteredType(Type queryType)
         {
-            return new MediatorHttpException($"Received contract type {queryType.FullName} does not belongs into trusted Marker Assemblies registered in mediator configuration via {nameof(IPipelineConfigurator.AddHandlersFromAssembly)} or {nameof(IPipelineConfigurator.AddHandlersFromAssemblyOf)}");
+            return new MediatorHttpException($"Received contract type {queryType.FullName} does not belongs into trusted Marker Assemblies registered in mediator configuration via {nameof(IPipelineConfigurator.AddActionsFromAssembly)} or {nameof(IPipelineConfigurator.AddActionsFromAssemblyOf)}.");
         }
 
         internal static MediatorHttpException CreateForNonContractType(Type queryType)
         {
-            return new MediatorHttpException($"Received contract type {queryType.FullName} does not implements interface {nameof(IMediatorAction)}");
+            return new MediatorHttpException($"Received contract type {queryType.FullName} does not implements interface {nameof(IMediatorAction)}.");
         }
     }
 }
