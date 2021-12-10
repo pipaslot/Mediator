@@ -7,21 +7,7 @@ This package was designed for fast and flexible development of simultaneously de
 Documentation:
  - [Wiki](https://github.com/pipaslot/Mediator/wiki)
  - [Release notes and breaking changes](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes)
- - [Basic sample for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/1.1-Basic-usage:-in-process)
-
-## Mediator
-Execution of any action is made through `IMediator` interface (does not matter if it is from the client-side or server-side). This interface provides basic two methods `Dispatch` and `Execute`
-`IMediator.Dispatch` - Executes messages without expected response. It is like fire and forget. But still you can await this action because server can for example refuse this request for many reasons (like validation or auth). Once action is processed, boolean status with colection of error messages will be returned.
-`IMediator.Execute` - Executes Request from which you expects response with data. Response is wrapped to provide execution final status, error messages and all results from handler.
-
-These two methods do not return data directly, but they wrapps the data into `MediatorResponse`. This wrapper holds the handler result (or more objects if you have multiple handlers configured), status flag if the operation failed or succeeded and error messages from exceptions caught during processing.
-
-You can also use alternative methods `IMediator.DispatchUnhandled` and `IMediator.ExecuteUnhandled` which returns result object directly. In case of error, exception will be thrown.
-
-### Passing data types across network
-Data sent through the network are serialized and deserialized into the same object type. This keeps you a possibility to use type checking `mediatorResponse.Result is MyCustomHandlerResult` or to use property attributes for a custom purposes like shared validation rules on client and server.
-
-The dark side of this fact is, that **types that are unknown or unavailable on client won't be deserialized** and exceptions will be thrown. 
+ - [Basic sample for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/1.-Basic-usage:-in-process)
 
 
 ## Pipelines
