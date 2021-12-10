@@ -1,6 +1,4 @@
-﻿using Pipaslot.Mediator.Http;
-
-namespace Pipaslot.Mediator.Http.Options
+﻿namespace Pipaslot.Mediator.Http.Options
 {
     public class ClientMediatorOptions
     {
