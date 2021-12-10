@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Services
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
                 if (middleware is ExecutionMiddleware handlerExecution)
                 {
-                    var handlers = _serviceProvider.GetMessageHandlers(subject, handlerExecution.BindingType).ToArray();
+                    var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
                     VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
                 }
 
@@ -71,7 +71,7 @@ namespace Pipaslot.Mediator.Services
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
                 if (middleware is ExecutionMiddleware handlerExecution)
                 {
-                    var handlers = _serviceProvider.GetRequestHandlers(subject, resultType, handlerExecution.BindingType);
+                    var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
                     VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
                 }
                 _alreadyVerified.Add(subject);

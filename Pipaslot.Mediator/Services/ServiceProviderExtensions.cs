@@ -13,65 +13,37 @@ namespace Pipaslot.Mediator.Services
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>
-        public static object[] GetMessageHandlers(this IServiceProvider serviceProvider, Type? messageType, ActionToHandlerBindingType bindingType)
+        public static object[] GetMessageHandlers(this IServiceProvider serviceProvider, Type? messageType)
         {
             if (messageType == null)
             {
                 return new object[0];
             }
             var mediatorActionType = typeof(IMediatorAction);
-            var actionTypes = bindingType == ActionToHandlerBindingType.Class
-                ? new[] { messageType }
-                : bindingType == ActionToHandlerBindingType.Interface
-                    ? messageType
-                        .GetInterfaces()
-                        .Where(i => mediatorActionType.IsAssignableFrom(i))
-                        .ToArray()
-                    : throw new NotImplementedException($"Unknown binding type {bindingType}");
-
-            var handlers = new List<object>();
-            foreach (var actionType in actionTypes)
-            {
-                var handlerType = typeof(IMediatorHandler<>).MakeGenericType(actionType);
-                handlers.AddRange(serviceProvider.GetServices(handlerType)
-                    .Where(h => h != null)
-                    // ReSharper disable once RedundantEnumerableCastCall
-                    .Cast<object>()
-                    .ToArray());
-            }
-            return handlers.ToArray();
+            var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
+            return serviceProvider.GetServices(handlerType)
+                .Where(h => h != null)
+                // ReSharper disable once RedundantEnumerableCastCall
+                .Cast<object>()
+                .ToArray();
         }
 
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>
-        public static object[] GetRequestHandlers(this IServiceProvider serviceProvider, Type? requestType, Type? responseType, ActionToHandlerBindingType bindingType)
+        public static object[] GetRequestHandlers(this IServiceProvider serviceProvider, Type? requestType, Type? responseType)
         {
             if (requestType == null || responseType == null)
             {
                 return new object[0];
             }
             var mediatorHandlerType = typeof(IMediatorHandler<,>);
-            var actionTypes = bindingType == ActionToHandlerBindingType.Class
-                ? new[] { requestType }
-                : bindingType == ActionToHandlerBindingType.Interface
-                    ? requestType
-                        .GetInterfaces()
-                        .Where(i => IsRequestInterface(i, responseType))
-                        .ToArray()
-                    : throw new NotImplementedException($"Unknown binding type {bindingType}");
-
-            var handlers = new List<object>();
-            foreach (var actionType in actionTypes)
-            {
-                var handlerType = mediatorHandlerType.MakeGenericType(actionType, responseType);
-                handlers.AddRange(serviceProvider.GetServices(handlerType)
-                    .Where(h => h != null)
-                    // ReSharper disable once RedundantEnumerableCastCall
-                    .Cast<object>()
-                    .ToArray());
-            }
-            return handlers.ToArray();
+            var handlerType = mediatorHandlerType.MakeGenericType(requestType, responseType);
+            return serviceProvider.GetServices(handlerType)
+                .Where(h => h != null)
+                // ReSharper disable once RedundantEnumerableCastCall
+                .Cast<object>()
+                .ToArray();
         }
 
         private static bool IsRequestInterface(Type type, Type responseType)

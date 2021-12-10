@@ -17,8 +17,6 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => true;
 
-        public override ActionToHandlerBindingType BindingType => ActionToHandlerBindingType.Class;
-
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
             var handlers = GetMessageHandlers(message?.GetType());

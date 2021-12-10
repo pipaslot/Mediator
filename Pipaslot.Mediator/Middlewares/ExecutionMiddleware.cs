@@ -14,7 +14,6 @@ namespace Pipaslot.Mediator.Middlewares
     public abstract class ExecutionMiddleware : IExecutionMiddleware
     {
         public abstract bool ExecuteMultipleHandlers { get; }
-        public abstract ActionToHandlerBindingType BindingType { get; }
         protected abstract Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken);
         protected abstract Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken);
 
@@ -137,7 +136,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         protected object[] GetMessageHandlers(Type? messageType)
         {
-            return _serviceProvider.GetMessageHandlers(messageType, BindingType);
+            return _serviceProvider.GetMessageHandlers(messageType);
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace Pipaslot.Mediator.Middlewares
         protected object[] GetRequestHandlers(Type? requestType)
         {
             var resultType = RequestGenericHelpers.GetRequestResultType(requestType);
-            return _serviceProvider.GetRequestHandlers(requestType, resultType, BindingType);
+            return _serviceProvider.GetRequestHandlers(requestType, resultType);
         }
 
         /// <summary>
