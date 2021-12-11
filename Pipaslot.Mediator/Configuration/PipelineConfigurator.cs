@@ -95,7 +95,18 @@ namespace Pipaslot.Mediator.Configuration
 
         internal void RegisterMiddleware(Type middlewareType, ServiceLifetime lifetime)
         {
-            _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+            var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
+            if (existingDescriptor != null)
+            { 
+                if(existingDescriptor.Lifetime != lifetime)
+                {
+                    throw new Exception($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
+                }
+            }
+            else
+            {
+                _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+            }
         }
     }
 }
