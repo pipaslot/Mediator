@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator.Services
             var assemblies = _configurator.ActionMarkerAssemblies;
             if (assemblies.Count == 0)
             {
-                throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
+                throw new MediatorException($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
             }
 
             var types = assemblies.SelectMany(s => s.GetTypes());
@@ -81,11 +81,11 @@ namespace Pipaslot.Mediator.Services
         {
             if (handlers.Count() == 0)
             {
-                throw new Exception($"No handler was registered for {subjectName} type: {subject}");
+                throw new MediatorException($"No handler was registered for {subjectName} type: {subject}");
             }
             if (!middleware.ExecuteMultipleHandlers && handlers.Count() > 1)
             {
-                throw new Exception($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
+                throw new MediatorException($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
             }
         }
 

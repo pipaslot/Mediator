@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Middlewares
             var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + message?.GetType());
+                throw MediatorException.CreateForNoHandler(message?.GetType());
             }
 
             var tasks = handlers
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Middlewares
             var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + request?.GetType());
+                throw MediatorException.CreateForNoHandler(request?.GetType());
             }
 
             var tasks = handlers

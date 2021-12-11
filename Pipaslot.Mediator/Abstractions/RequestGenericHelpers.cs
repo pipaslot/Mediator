@@ -17,7 +17,7 @@ namespace Pipaslot.Mediator.Abstractions
                 .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericRequestType);
             if (genericInterface == null)
             {
-                throw new Exception($"Type {requestType} does not implements {genericRequestType}");
+                throw new MediatorException($"Type {requestType} does not implements {genericRequestType}");
             }
             return genericInterface
                 .GetGenericArguments()

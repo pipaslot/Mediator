@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async Task RequestWithoutHandler_ThrowException()
         {
             var services = Factory.CreateServiceProvider();
-            await Assert.ThrowsAsync<Exception>(async () =>
+            await Assert.ThrowsAsync<MediatorException>(async () =>
             {
                 await RunRequest(services);
             });
@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async Task RequestWithMultipleHandlers_ThrowException()
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler, SingleHandler.RequestHandler>();
-            await Assert.ThrowsAsync<Exception>(async () =>
+            await Assert.ThrowsAsync<MediatorException>(async () =>
             {
                 await RunRequest(services);
             });
@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async Task MessageWithoutHandler_ThrowException()
         {
             var services = Factory.CreateServiceProvider();
-            await Assert.ThrowsAsync<Exception>(async () =>
+            await Assert.ThrowsAsync<MediatorException>(async () =>
             {
                 await RunMessage(services);
             });
@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async Task MessageWithMultipleHandlers_ThrowException()
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler, SingleHandler.MessageHandler>();
-            await Assert.ThrowsAsync<Exception>(async () =>
+            await Assert.ThrowsAsync<MediatorException>(async () =>
            {
                await RunMessage(services);
            });

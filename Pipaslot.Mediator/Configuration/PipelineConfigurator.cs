@@ -100,7 +100,7 @@ namespace Pipaslot.Mediator.Configuration
             { 
                 if(existingDescriptor.Lifetime != lifetime)
                 {
-                    throw new Exception($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
+                    throw new MediatorException($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
                 }
             }
             else

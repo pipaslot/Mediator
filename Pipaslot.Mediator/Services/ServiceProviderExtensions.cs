@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Services
             {
                 return ep;
             }
-            throw new Exception("Executive pipeline not found");//This should never happen as GetMessagePipelines always returns last pipeline as executive
+            throw new MediatorException("Executive pipeline not found");//This should never happen as GetMessagePipelines always returns last pipeline as executive
         }
 
         public static IEnumerable<IMediatorMiddleware> GetPipeline(this IServiceProvider serviceProvider, Type requestType)

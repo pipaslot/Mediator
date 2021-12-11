@@ -10,7 +10,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntTheSamePipeline_ThrowException()
         {
-            Assert.Throws<Exception>(() =>
+            Assert.Throws<MediatorException>(() =>
             {
                 Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntDifferentePipeline_ThrowException()
         {
-            Assert.Throws<Exception>(() =>
+            Assert.Throws<MediatorException>(() =>
             {
                 Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()

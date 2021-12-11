@@ -1,9 +1,8 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using System;
 
 namespace Pipaslot.Mediator
 {
-    public class MediatorExecutionException : Exception
+    public class MediatorExecutionException : MediatorException
     {
         /// <summary>
         /// Response containing all information gathered from Mediator execution
