@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Fact]
-        public void AddDefaultPipeline_MultipleDefaultPipelines_ThrowException()
+        public void AddDefaultPipeline_MultipleDefaultPipelines_OnlyTheLastOneIsUsed()
         {
             var sr = Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
