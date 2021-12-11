@@ -4,6 +4,8 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http
@@ -120,7 +122,7 @@ namespace Pipaslot.Mediator.Tests.Http
         [Fact]
         public void DeserializeRequest_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
         {
-            var sut = CreateSerializer(_ => { });
+            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<Mediator>());
             var request = sut.SerializeRequest(new FakeContract());
             var exception = Assert.Throws<MediatorHttpException>(() =>
             {
@@ -145,7 +147,7 @@ namespace Pipaslot.Mediator.Tests.Http
         public void DeserializeRequest_ContractTypeIsFromRegisteredAssembly_Pass()
         {
             var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
-            var request = sut.SerializeRequest(new FakeContract());            
+            var request = sut.SerializeRequest(new FakeContract());
             var deserialized = sut.DeserializeRequest(request);
             Assert.NotNull(deserialized);
         }

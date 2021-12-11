@@ -93,7 +93,7 @@ namespace Pipaslot.Mediator.Http.Converters
                 }
             }
             var queryType = ContractSerializerTypeHelper.GetType(type);
-            return JsonSerializer.Deserialize(content, queryType) ?? throw new Exception($"Can not deserialize json {content} to type {queryType}");
+            return JsonSerializer.Deserialize(content, queryType) ?? throw new MediatorException($"Can not deserialize json {content} to type {queryType}");
         }
 
         public override void Write(Utf8JsonWriter writer, ResponseDeserialized value, JsonSerializerOptions options)

@@ -1,5 +1,7 @@
-﻿using Pipaslot.Mediator.Configuration;
+﻿using Microsoft.Extensions.Logging;
+using Pipaslot.Mediator.Configuration;
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Pipaslot.Mediator.Http.FullJsonContractSerializer;
@@ -51,10 +53,11 @@ namespace Pipaslot.Mediator.Http.Converters
         private ContractSerializable CreateObject(string content, string type)
         {
             var queryType = ContractSerializerTypeHelper.GetType(type);
-            if (!_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
+            if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
             {
                 throw MediatorHttpException.CreateForUnregisteredType(queryType);
             }
+
             var result = JsonSerializer.Deserialize(content, queryType);
             if (result == null)
             {
