@@ -10,30 +10,6 @@ Documentation:
  - [Basic sample for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/1.-Basic-usage:-in-process)
 
 
-## Pipelines
-Pipelines are optional. The purpose is to provide different processing for different action types. For example you want to apply caching for Request reponses which should not affect messages. 
-From oposite site you want to audit all messages sent throug mediator but do not want to audit Requests. To gain the expected result we will define two pipelines.
-``` .AddMediatorServer()
-    ... //Action and handler registrations
-    .AddPipeline<IMessage>()
-        .Use<AuditMessageMediatorMiddleware()
-        .Use<AnotherMessageSpecificMediatorMiddleware>()
-    .AddPipeline<IRequest>()
-        .Use<CacheRequestResponseMediatorMiddleware()
-```
-For more complex sample we may decide to audit only some specific Messages which has interface `IAuditableMessage` inheriting from`IMessage`. In this case we would update the mediator configuration to:
-``` .AddMediatorServer()
-    ... //Action and handler registrations
-    .AddPipeline<IAuditableMessage>()
-        .Use<AuditMessageMediatorMiddleware()
-        .Use<AnotherMessageSpecificMediatorMiddleware>()
-    .AddPipeline<IMessage>()
-        .Use<AnotherMessageSpecificMediatorMiddleware>()
-    .AddPipeline<IRequest>()
-        .Use<CacheRequestResponseMediatorMiddleware()
-```
-Pay attention on the ordering in pipeline definitions! `IAuditableMessage` is more specific type. If we would register `AddPipeline<IMessage>()` before `AddPipeline<IAuditableMessage>()`, pipeline for `IAuditableMessage` would never been used!
-
 ### Multiple handlers per action contract
 Sometimes multiple actions are expected to be executed. For example, you would like to forward the message to another audit server meanwhile the message is processed on your server. 
 Or you would like to chain another action-handler once the first was finished.
@@ -120,26 +96,6 @@ namespace CustomMediator.Cqrs
 ```
 
 And that is it. Easy!
-
-### Middlewares
-Middlewares provides you a possibility to intercept action exectuon. With middleares you can achieve  for exampe:caching, auditing, logging, pre-processing, post-processing, transactions ...
-
-Simplest middleware lookis like this:
-
-```
-public class DummyMiddleware : IMediatorMiddleware
-{
-    public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
-    {
-        // Here place code executed before handler call
-        await next(context);
-        // Here place code executed after handler call
-    }
-}
-```
-
-Do not forget to ensure that you execute `await next(context);`, otherwise neither next middleware nor handler would be executed.
-Handler executing is also realised by build-in middleware .UseSingleHandler() used as default. For MediatorClient it is .UseHttpClient() by default
 
 
 #### Error Handling
