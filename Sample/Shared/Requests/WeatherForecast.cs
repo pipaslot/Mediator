@@ -14,6 +14,12 @@ namespace Sample.Shared.Requests
                 return Date.GetHashCode();
             }
         }
+        public record RequestRecord : IRequest<Result[]>
+        {
+            public DateTime Date { get; set; } = DateTime.Now;
+
+            //Hash code do not need to be provided
+        }
 
         public class Result
         {

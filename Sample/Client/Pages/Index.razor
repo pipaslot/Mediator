@@ -13,7 +13,8 @@
 <br />
 <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
 <br />
-<button class="btn btn-primary" @onclick="RunDuplicateQuery">Run Duplicate Requests (only one server request will be executed)</button>
+<button class="btn btn-primary" @onclick="RunDuplicateClassQuery">Run Duplicate Request classes (only one server request will be executed)</button>
+<button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records (only one server request will be executed)</button>
 
 @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
 {
@@ -67,7 +68,7 @@
         ProcessMessageResponse(response);
     }
 
-    private async Task RunDuplicateQuery()
+    private async Task RunDuplicateClassQuery()
     {
         var date = DateTime.Now;
         var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
@@ -80,7 +81,21 @@
             Task2 = Format(task2.Result),
             Task3 = Format(task3.Result),
         });
+    }
 
+    private async Task RunDuplicateRecordQuery()
+    {
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
+        _serializedReponse = Serialize(new
+        {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
     }
 
     private void ProcessMessageResponse(IMediatorResponse response)
