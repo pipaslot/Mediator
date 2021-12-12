@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -12,44 +11,40 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class SingleHandlerExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly ServiceResolver _handlerResolver;
-
-        public SingleHandlerExecutionMiddleware(ServiceResolver handlerResolver)
+        public SingleHandlerExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _handlerResolver = handlerResolver;
         }
 
         public override bool ExecuteMultipleHandlers => false;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length > 1)
             {
-                throw new Exception($"Multiple handlers were registered for the same request. Remove one from defined type: {string.Join(" OR ", handlers)}");
+                throw MediatorException.CreateForDuplicateHandlers(handlers);
             }
 
             var handler = handlers.FirstOrDefault();
             if (handler == null)
             {
-                throw new Exception("No handler was found for " + message?.GetType());
+                throw MediatorException.CreateForNoHandler(message?.GetType());
             }
             await ExecuteMessage(handler, message, context, cancellationToken);
         }
 
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length > 1)
             {
-                throw new Exception($"Multiple handlers were registered for the same request. Remove one from defined type: {string.Join(" OR ", handlers)}");
+                throw MediatorException.CreateForDuplicateHandlers(handlers);
             }
 
             var handler = handlers.FirstOrDefault();
             if (handler == null)
             {
-                throw new Exception("No handler was found for " + request?.GetType());
+                throw MediatorException.CreateForNoHandler(request?.GetType());
             }
             await ExecuteRequest(handler, request, context, cancellationToken);
         }

@@ -1,10 +1,7 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Sample.Shared;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Sample.Server
+namespace Sample.Server.MediatorMiddlewares
 {
     public class ValidatorMiddleware : IMediatorMiddleware
     {

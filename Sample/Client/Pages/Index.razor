@@ -5,83 +5,135 @@
 
 <button class="btn btn-primary" @onclick="RunPassing">Run Passing request</button>
 <button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
+<button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled request</button>
+<br />
 <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
 <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
+<button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled message</button>
+<br />
 <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
-@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value) || !string.IsNullOrWhiteSpace(_serializedData.Value))
+<br />
+<button class="btn btn-primary" @onclick="RunDuplicateClassQuery">Run Duplicate Request classes (only one server request will be executed)</button>
+<button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records (only one server request will be executed)</button>
+
+@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
 {
     <h4>Response</h4>
     <div>@_serializedReponse</div>
-    <h4>Data transfered from server</h4>
-    <div>@_serializedData</div>
 }
 
-@code{
+@code {
     private MarkupString _serializedReponse;
-    private MarkupString _serializedData;
     private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
-    {
-        WriteIndented = true
-    };
+        {
+            WriteIndented = true
+        };
     private async Task RunPassing()
     {
+        Loading();
         var response = await Mediator.Execute(new WeatherForecast.Request());
         ProcessRequestResponse(response);
     }
 
     private async Task RunFailing()
     {
+        Loading();
         var response = await Mediator.Execute(new Failing.Request());
         ProcessRequestResponse(response);
+    }
+    private async Task RunFailingUnhandled()
+    {
+        Loading();
+        var response = await Mediator.ExecuteUnhandled(new Failing.Request());
     }
 
     private async Task RunMessage(bool pass)
     {
+        Loading();
         var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
         ProcessMessageResponse(response);
     }
 
+    private async Task RunFailingUnhandledMessage()
+    {
+        Loading();
+        await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
+    }
+
+
     private async Task RunCascadingFailing()
     {
+        Loading();
         var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
         ProcessMessageResponse(response);
     }
 
-    private void ProcessMessageResponse(IMediatorResponse response)
+    private async Task RunDuplicateClassQuery()
     {
-        var converted = (IMediatorResponse<object>)response;
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
         _serializedReponse = Serialize(new
         {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
+    }
+
+    private async Task RunDuplicateRecordQuery()
+    {
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
+        _serializedReponse = Serialize(new
+        {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
+    }
+
+    private void ProcessMessageResponse(IMediatorResponse response)
+    {
+        _serializedReponse = Serialize(new
+        {
+            _Type = response.GetType().FullName,
             Success = response.Success,
             ErrorMessage = response.ErrorMessage
-        });
-        _serializedData = Serialize(new
-        {
-            Results = converted.Results,
-            ErrorMessages = converted.ErrorMessages
         });
     }
 
     private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
     {
-        _serializedReponse = Serialize(new
+        _serializedReponse = Serialize(Format(response));
+    }
+
+    private object Format<TResult>(IMediatorResponse<TResult> response)
+    {
+        return new
         {
+            _Type = response.GetType().FullName,
             Success = response.Success,
             Result = response.Result,
             ErrorMessage = response.ErrorMessage
-        });
-        _serializedData = Serialize(new
-        {
-            Results = response.Results,
-            ErrorMessages = response.ErrorMessages
-        });
+        };
     }
 
     private MarkupString Serialize(object value)
     {
-        var serialized =        JsonSerializer.Serialize(value, _serializerOptions)
-        .Replace(" \"","&nbsp; &nbsp;\"")
-        .Replace("\n","<br />");
+        var serialized = JsonSerializer.Serialize(value, _serializerOptions)
+        .Replace(" \"", "&nbsp; &nbsp;\"")
+        .Replace("\n", "<br />");
         return new MarkupString(serialized);
+    }
+
+    private void Loading()
+    {
+        _serializedReponse = new MarkupString("Loading");
     }
 }

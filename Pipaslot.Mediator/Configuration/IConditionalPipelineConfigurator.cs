@@ -1,6 +1,7 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Middlewares;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     /// <summary>
     /// Define single pipeline definition. Mulptiple pilepinec can be registered but only single one will be always applied.
@@ -10,6 +11,6 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Register middleware in pipeline for all actions
         /// </summary>
-        IConditionalPipelineConfigurator Use<TMiddleware>() where TMiddleware : IMediatorMiddleware;
+        IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware;
     }
 }

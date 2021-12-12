@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Services;
 using System;
 using System.Reflection;
 using System.Threading;
@@ -6,11 +7,22 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares
 {
-    public abstract class ExecutionMiddleware : IMediatorMiddleware, IExecutionMiddleware
+    /// <summary>
+    /// Marks middleare as final/last which executes handlers. Pipeline ends with this milleware evenf it some next middlewares are registered.
+    /// This interface was introduced to connect pipeline definitions and <see cref="Services.HandlerExistenceChecker"/>.
+    /// </summary>
+    public abstract class ExecutionMiddleware : IExecutionMiddleware
     {
         public abstract bool ExecuteMultipleHandlers { get; }
         protected abstract Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken);
         protected abstract Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken);
+
+        private readonly IServiceProvider _serviceProvider;
+
+        public ExecutionMiddleware(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
@@ -44,6 +56,7 @@ namespace Pipaslot.Mediator.Middlewares
                 {
                     await task;
                 }
+                context.ExecutedHandlers++;
                 await OnSuccessExecution(handler, message);
 
             }
@@ -87,6 +100,7 @@ namespace Pipaslot.Mediator.Middlewares
 
                     var resultProperty = task.GetType().GetProperty("Result");
                     var result = resultProperty?.GetValue(task);
+                    context.ExecutedHandlers++;
                     if (result != null)
                     {
                         await OnSuccessExecution(handler, request);
@@ -115,6 +129,23 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 await OnAfterHandlerExecution(handler, request);
             }
+        }
+
+        /// <summary>
+        /// Resolve message handlers from service collection
+        /// </summary>
+        protected object[] GetMessageHandlers(Type? messageType)
+        {
+            return _serviceProvider.GetMessageHandlers(messageType);
+        }
+
+        /// <summary>
+        /// Resolve request handlers from service collection
+        /// </summary>
+        protected object[] GetRequestHandlers(Type? requestType)
+        {
+            var resultType = RequestGenericHelpers.GetRequestResultType(requestType);
+            return _serviceProvider.GetRequestHandlers(requestType, resultType);
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Services
@@ -11,13 +12,13 @@ namespace Pipaslot.Mediator.Services
         /// <summary>
         /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
         /// </summary>
-        private readonly HashSet<Type> _alreadyVerified = new HashSet<Type>();
-        private readonly ServiceResolver _handlerResolver;
+        private readonly HashSet<Type> _alreadyVerified = new();
+        private readonly IServiceProvider _serviceProvider;
         private readonly PipelineConfigurator _configurator;
 
-        public HandlerExistenceChecker(ServiceResolver handlerResolver, PipelineConfigurator configurator)
+        public HandlerExistenceChecker(IServiceProvider serviceProvider, PipelineConfigurator configurator)
         {
-            _handlerResolver = handlerResolver;
+            _serviceProvider = serviceProvider;
             _configurator = configurator;
         }
 
@@ -26,9 +27,9 @@ namespace Pipaslot.Mediator.Services
             var assemblies = _configurator.ActionMarkerAssemblies;
             if (assemblies.Count == 0)
             {
-                throw new Exception($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
+                throw new MediatorException($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
             }
-            
+
             var types = assemblies.SelectMany(s => s.GetTypes());
             VerifyMessages(types);
             VerifyRequests(types);
@@ -45,9 +46,13 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
 
-                var handlers = _handlerResolver.GetMessageHandlers(subject).ToArray();
-                var middleware = _handlerResolver.GetExecutiveMiddleware(subject);
-                VerifyHandlerCount(middleware, handlers, subject, subjectName);
+                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
+                if (middleware is ExecutionMiddleware handlerExecution)
+                {
+                    var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
+                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                }
+
                 _alreadyVerified.Add(subject);
             }
         }
@@ -63,21 +68,24 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
-                var handlers = _handlerResolver.GetRequestHandlers(subject, resultType);
-                var middleware = _handlerResolver.GetExecutiveMiddleware(subject);
-                VerifyHandlerCount(middleware, handlers, subject, subjectName);
+                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
+                if (middleware is ExecutionMiddleware handlerExecution)
+                {
+                    var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
+                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                }
                 _alreadyVerified.Add(subject);
             }
         }
-        private void VerifyHandlerCount(IExecutionMiddleware middleware, object[] handlers, Type subject, string subjectName)
+        private void VerifyHandlerCount(ExecutionMiddleware middleware, object[] handlers, Type subject, string subjectName)
         {
             if (handlers.Count() == 0)
             {
-                throw new Exception($"No handler was registered for {subjectName} type: {subject}");
+                throw new MediatorException($"No handler was registered for {subjectName} type: {subject}");
             }
             if (!middleware.ExecuteMultipleHandlers && handlers.Count() > 1)
             {
-                throw new Exception($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
+                throw new MediatorException($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
             }
         }
 

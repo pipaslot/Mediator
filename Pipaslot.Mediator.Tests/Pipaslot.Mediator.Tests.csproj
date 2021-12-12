@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pipaslot.Mediator.Client\Pipaslot.Mediator.Client.csproj" />
     <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
     <ProjectReference Include="..\Sample\Server\Sample.Server.csproj" />
   </ItemGroup>

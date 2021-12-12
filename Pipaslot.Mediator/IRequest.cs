@@ -6,7 +6,7 @@ namespace Pipaslot.Mediator
     /// Action which returns data. All derived types can have own specific pipelines and handlers.
     /// </summary>
     /// <typeparam name="TResponse">Result data returned from handler execution</typeparam>
-    public interface IRequest<out TResponse> : IMediatorAction<TResponse>
+    public interface IRequest<out TResponse> : IRequest, IMediatorAction<TResponse>
     {
 
     }

@@ -1,26 +1,64 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Pipaslot.Mediator.Http;
+using Sample.Server.Handlers;
+using Sample.Server.MediatorMiddlewares;
+using Sample.Shared;
+using Sample.Shared.Requests;
 
-namespace Sample.Server
+var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+
+services.AddControllersWithViews();
+services.AddRazorPages();
+services.AddHttpContextAccessor();
+
+//////// Mediator implementation
+services.AddMediatorServer(o => {
+    o.Endpoint = Constants.CustomMediatorUrl;
+})
+    .AddActionsFromAssemblyOf<WeatherForecast.Request>()
+    .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
+    // Configure pipelines for own custom action types. This is CQRS implementaiton sample 
+    //.AddPipeline<IQuery>()                // Pipeline specified only for queries
+    //    .UseExceptionLogging()           // Log all unhalded exception via ILogger
+    //    .Use<QuerySpecificMiddleware>()   // Middleare which should be applied only to Queries
+    //    .Use<CommonMiddleware>()          // Middleware which should be used for all action types
+
+    //.AddPipeline<ICommand>()              // Pipeline specified only for commands
+    //    .UseExceptionLogging()           // Log all unhalded exception via ILogger
+    //    .Use<CommandSpecificMiddleware>() // Middleare which should be applied only to Commands
+    //    .Use<CommonMiddleware>()          // Middleware which should be used for all action types
+    //    .UseSequenceMultiHandler()        // This allow to define and executie multiple action handlers. Must be defined as last middleware in pipeline. 
+
+    // Use default pipelin if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution
+    .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
+        .UseExceptionLogging()             // Log all unhalded exception via ILogger
+        .Use<MediatorCallStackLoggerMiddleware>()
+        .Use<ValidatorMiddleware>()
+        .Use<CommonMiddleware>();
+////////
+
+var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+    app.UseDeveloperExceptionPage();
+    app.UseWebAssemblyDebugging();
 }
+else
+{
+    app.UseExceptionHandler("/Error");
+}
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+//////// Mediator implementation
+app.UseMediator(app.Environment.IsDevelopment());
+////////
+app.UseRouting();
+
+app.MapRazorPages();
+app.MapControllers();
+app.MapFallbackToFile("index.html");
+
+app.Run();

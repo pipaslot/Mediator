@@ -1,22 +1,20 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using System;
-using System.Collections.Generic;
 
 namespace Pipaslot.Mediator
 {
-    public class MediatorExecutionException : Exception
+    public class MediatorExecutionException : MediatorException
     {
         /// <summary>
         /// Response containing all information gathered from Mediator execution
         /// </summary>
         public IMediatorResponse Response { get; }
 
-        public MediatorExecutionException(string message, MediatorContext context) : base(message)
+        public MediatorExecutionException(string message, MediatorContext context) : base($"{message} Errors: ['{string.Join("; ", context.UniqueErrorMessages)}']")
         {
-            Response = new MediatorResponse(false, context.Results, context.ErrorMessagesDistincted);
+            Response = new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
         }
 
-        public MediatorExecutionException(string message, IMediatorResponse response) : base(message)
+        public MediatorExecutionException(string message, IMediatorResponse response) : base($"{message} Errors: ['{string.Join("; ", response.ErrorMessages)}']")
         {
             Response = response;
         }
@@ -26,14 +24,9 @@ namespace Pipaslot.Mediator
             Response = response;
         }
 
-        [Obsolete("Will be removed in version 4.0.0")]
-        public MediatorExecutionException(string message) : base(message)
+        public static MediatorExecutionException CreateForUnhandledError(MediatorContext context)
         {
-        }
-
-        [Obsolete("Will be removed in version 4.0.0")]
-        public MediatorExecutionException(ICollection<string> messages) : base(string.Join("; ", messages))
-        {
+            return new MediatorExecutionException("An error occurred during processing.", context);
         }
     }
 }

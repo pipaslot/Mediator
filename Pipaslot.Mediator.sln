@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31402.337
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator", "Pipaslot.Mediator\Pipaslot.Mediator.csproj", "{ACD45FD7-A381-4B61-937F-9E21A3D5564C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Client", "Pipaslot.Mediator.Client\Pipaslot.Mediator.Client.csproj", "{9901C957-FDD0-4B3B-80D6-0AB5446D4890}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Server", "Pipaslot.Mediator.Server\Pipaslot.Mediator.Server.csproj", "{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Server", "Sample\Server\Sample.Server.csproj", "{D2631D13-F985-44F6-9392-5D75B855D5BA}"
 EndProject
@@ -23,7 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipaslot.Mediator.Tests", "Pipaslot.Mediator.Tests\Pipaslot.Mediator.Tests.csproj", "{05E0E0B6-D629-43E1-A99D-50D40700E127}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests", "Pipaslot.Mediator.Tests\Pipaslot.Mediator.Tests.csproj", "{05E0E0B6-D629-43E1-A99D-50D40700E127}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Http", "Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj", "{9F153BDC-D07B-4876-BDC9-949F569FCE00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,14 +33,6 @@ Global
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACD45FD7-A381-4B61-937F-9E21A3D5564C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9901C957-FDD0-4B3B-80D6-0AB5446D4890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9901C957-FDD0-4B3B-80D6-0AB5446D4890}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9901C957-FDD0-4B3B-80D6-0AB5446D4890}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9901C957-FDD0-4B3B-80D6-0AB5446D4890}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A481AFA-B90E-4C2D-A459-B4F737EF23B1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2631D13-F985-44F6-9392-5D75B855D5BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,6 +49,10 @@ Global
 		{05E0E0B6-D629-43E1-A99D-50D40700E127}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05E0E0B6-D629-43E1-A99D-50D40700E127}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05E0E0B6-D629-43E1-A99D-50D40700E127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F153BDC-D07B-4876-BDC9-949F569FCE00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F153BDC-D07B-4876-BDC9-949F569FCE00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F153BDC-D07B-4876-BDC9-949F569FCE00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F153BDC-D07B-4876-BDC9-949F569FCE00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Middlewares;
-using System;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
@@ -19,7 +17,7 @@ namespace Pipaslot.Mediator.Configuration
         /// Will scan for action handlers from the assembly of type <typeparamref name="T"/> and register them.
         /// </summary>
         /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
-        IPipelineConfigurator AddHandlersFromAssemblyOf<T>();
+        IPipelineConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
 
         /// <summary>
         /// Will scan for action markers from the passed assemblies and register them.

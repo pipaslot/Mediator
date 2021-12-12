@@ -1,4 +1,5 @@
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Services;
 using System.Linq;
 using Xunit;
 
@@ -9,20 +10,20 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void AddPipeline_NoPipeline_Pass()
         {
-            Factory.CreateServiceResolver(c => { });
+            Factory.CreateServiceProvider(c => { });
         }
 
         [Fact]
         public void AddPipeline_StandardPipelineOnly_Pass()
         {
-            Factory.CreateServiceResolver(c => c
+            Factory.CreateServiceProvider(c => c
                 .AddPipeline<IRequest>());
         }
 
         [Fact]
         public void AddPipeline_MultipleStandardPipelines_OnlyTheLastOneIsUsed()
         {
-            var sr = Factory.CreateServiceResolver(c => c
+            var sr = Factory.CreateServiceProvider(c => c
                 .AddPipeline<IRequest>()
                     .UseConcurrentMultiHandler()
                 .AddPipeline<IRequest>()
@@ -36,22 +37,22 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void AddDefaultPipeline_DefaultPipelineOnly_Pass()
         {
-            Factory.CreateServiceResolver(c => c
+            Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline());
         }
 
         [Fact]
         public void AddDefaultPipeline_SingleAsLast_Pass()
         {
-            Factory.CreateServiceResolver(c => c
+            Factory.CreateServiceProvider(c => c
                 .AddPipeline<IRequest>()
                 .AddDefaultPipeline());
         }
 
         [Fact]
-        public void AddDefaultPipeline_MultipleDefaultPipelines_ThrowException()
+        public void AddDefaultPipeline_MultipleDefaultPipelines_OnlyTheLastOneIsUsed()
         {
-            var sr = Factory.CreateServiceResolver(c => c
+            var sr = Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
                     .UseConcurrentMultiHandler()
                 .AddDefaultPipeline()

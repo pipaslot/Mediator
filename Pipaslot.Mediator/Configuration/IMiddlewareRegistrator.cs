@@ -1,6 +1,6 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     public interface IMiddlewareRegistrator
     {

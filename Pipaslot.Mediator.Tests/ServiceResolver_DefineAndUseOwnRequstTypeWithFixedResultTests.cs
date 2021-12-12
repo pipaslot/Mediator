@@ -2,6 +2,7 @@ using Xunit;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -10,8 +11,8 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void ShouldResolve()
         {
-            var sut = Factory.CreateServiceResolver(c => c.AddHandlersFromAssembly(this.GetType().Assembly));
-            var handlers = sut.GetRequestHandlers<FakeFixedResponse>(typeof(FakeFixedRequest));
+            var sut = Factory.CreateServiceProvider(c => c.AddHandlersFromAssembly(this.GetType().Assembly));
+            var handlers = sut.GetRequestHandlers(typeof(FakeFixedRequest), typeof(FakeFixedResponse));
 
             Assert.Single(handlers);
             Assert.Equal(typeof(FakeFixedRequestHandler), handlers.First().GetType());

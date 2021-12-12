@@ -1,13 +1,14 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     internal class DefaultPipelineDefinition : IConditionalPipelineConfigurator
     {
         private readonly PipelineConfigurator _configurator;
-        private List<Type> _middlewares = new List<Type>();
+        private readonly List<Type> _middlewares = new();
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
 
@@ -16,11 +17,11 @@ namespace Pipaslot.Mediator
             _configurator = configurator;
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>() where TMiddleware : IMediatorMiddleware
+        public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             var type = typeof(TMiddleware);
             _middlewares.Add(type);
-            _configurator.RegisterMiddleware(type);
+            _configurator.RegisterMiddleware(type, lifetime);
             return this;
         }
 

@@ -1,0 +1,15 @@
+﻿@if (Show)
+{
+    <div class="spinner">
+        <div class="overlay"></div>
+        <div class="wrapper">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+}

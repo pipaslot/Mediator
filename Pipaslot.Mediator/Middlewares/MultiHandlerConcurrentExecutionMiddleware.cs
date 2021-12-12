@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -12,21 +11,18 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class MultiHandlerConcurrentExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly ServiceResolver _handlerResolver;
-
-        public MultiHandlerConcurrentExecutionMiddleware(ServiceResolver handlerResolver)
+        public MultiHandlerConcurrentExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _handlerResolver = handlerResolver;
         }
 
         public override bool ExecuteMultipleHandlers => true;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + message?.GetType());
+                throw MediatorException.CreateForNoHandler(message?.GetType());
             }
 
             var tasks = handlers
@@ -36,11 +32,10 @@ namespace Pipaslot.Mediator.Middlewares
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + request?.GetType());
+                throw MediatorException.CreateForNoHandler(request?.GetType());
             }
 
             var tasks = handlers

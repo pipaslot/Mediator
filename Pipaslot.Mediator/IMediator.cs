@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +10,16 @@ namespace Pipaslot.Mediator
     /// </summary>
     public interface IMediator
     {
+        /// <summary>
+        /// Event fired when Action is getting executed or dispatched
+        /// </summary>
+        event EventHandler<ActionStartedEventArgs> ActionStarted;
+
+        /// <summary>
+        /// Event fired after the action completes 
+        /// </summary>
+        event EventHandler<ActionCompletedEventArgs> ActionCompleted;
+
         /// <summary>
         /// Execute action and wait for response data
         /// </summary>

@@ -2,13 +2,25 @@ name: publish to nuget
 on:
   push:
     branches:
-      - main
+      - release/1.0.x
+      - release/2.x
+      - release/3.x
+      - release/4.x
 jobs:
   publish:
     name: build, pack & publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: '6.0.x'
+    
+      - name: Run tests
+        run: |
+          cd ./Pipaslot.Mediator.Tests/
+          dotnet test
       
       # Publish
       - name: publish Pipaslot.Mediator
@@ -19,18 +31,10 @@ jobs:
           PACKAGE_NAME: Pipaslot.Mediator
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
-      - name: publish Pipaslot.Mediator.Client
-        id: publish_nuget_client
+      - name: publish Pipaslot.Mediator.Http
+        id: publish_nuget_http
         uses: rohith/publish-nuget@v2
         with:
-          PROJECT_FILE_PATH: Pipaslot.Mediator.Client/Pipaslot.Mediator.Client.csproj          
-          PACKAGE_NAME: Pipaslot.Mediator.Client
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}      
-      
-      - name: publish Pipaslot.Mediator.Server
-        id: publish_nuget_server
-        uses: rohith/publish-nuget@v2
-        with:
-          PROJECT_FILE_PATH: Pipaslot.Mediator.Server/Pipaslot.Mediator.Server.csproj          
-          PACKAGE_NAME: Pipaslot.Mediator.Server
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+          PROJECT_FILE_PATH: Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj          
+          PACKAGE_NAME: Pipaslot.Mediator.Http
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}} 

@@ -3,31 +3,27 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Middlewares
 {
     /// <summary>
     /// Pipeline executing multiple handlers implementing TMarker type. Handlers are executed in row, once previous execution finished.
-    /// For order specification see <see cref="ISequenceHandler"/>
+    /// For order specification <see cref="ISequenceHandler"/>
     /// </summary>
     public class MultiHandlerSequenceExecutionMiddleware : ExecutionMiddleware
     {
-        private readonly ServiceResolver _handlerResolver;
-
-        public MultiHandlerSequenceExecutionMiddleware(ServiceResolver handlerResolver)
+        public MultiHandlerSequenceExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _handlerResolver = handlerResolver;
         }
 
         public override bool ExecuteMultipleHandlers => true;
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = _handlerResolver.GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(message?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + message?.GetType());
+                throw MediatorException.CreateForNoHandler(message?.GetType());
             }
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
@@ -37,11 +33,10 @@ namespace Pipaslot.Mediator.Middlewares
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(request?.GetType());
-            var handlers = _handlerResolver.GetRequestHandlers(request?.GetType(), resultType);
+            var handlers = GetRequestHandlers(request?.GetType());
             if (handlers.Length == 0)
             {
-                throw new Exception("No handler was found for " + request?.GetType());
+                throw MediatorException.CreateForNoHandler(request?.GetType());
             }
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)

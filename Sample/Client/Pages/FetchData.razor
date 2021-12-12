@@ -35,8 +35,8 @@ else
  <p>@(commonResult?.Description ?? "Status message will be provided from server as well")</p>
 
 @code {
-    private WeatherForecast.Result[] forecasts;
-    private CommonResult commonResult;
+    private WeatherForecast.Result[]? forecasts;
+    private CommonResult? commonResult;
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,7 +46,7 @@ else
         {
             forecasts = result.Result;
         }
-        commonResult = (CommonResult)result.Results.FirstOrDefault(r => r is CommonResult);
+        commonResult = (CommonResult?)result.Results.FirstOrDefault(r => r is CommonResult);
     }
 
 }

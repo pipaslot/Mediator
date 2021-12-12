@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Pipaslot.Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Configuration;
 
-namespace Pipaslot.Mediator
+namespace Pipaslot.Mediator.Configuration
 {
     public class PipelineConfigurator : IPipelineConfigurator
     {
@@ -29,12 +28,17 @@ namespace Pipaslot.Mediator
             return this;
         }
 
-        public IPipelineConfigurator AddHandlersFromAssemblyOf<T>()
+        public IPipelineConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
-            return AddHandlersFromAssembly(typeof(T).Assembly);
+            return RegisterHandlersFromAssembly(new[] { typeof(T).Assembly }, serviceLifetime);
         }
 
         public IPipelineConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)
+        {
+            return RegisterHandlersFromAssembly(assemblies);
+        }
+
+        private IPipelineConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var handlerTypes = new[]
             {
@@ -55,7 +59,8 @@ namespace Pipaslot.Mediator
             {
                 foreach (var iface in pair.Interfaces)
                 {
-                    _services.AddTransient(iface, pair.Type);
+                    var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
+                    _services.Add(item);
                 }
             }
             return this;
@@ -66,7 +71,7 @@ namespace Pipaslot.Mediator
             var markerType = typeof(TActionMarker);
             var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
             var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(ActionSpecificPipelineDefinition) && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == markerType);
-            if(existingPipelineDescriptor != null)
+            if (existingPipelineDescriptor != null)
             {
                 _services.Remove(existingPipelineDescriptor);
             }
@@ -88,9 +93,20 @@ namespace Pipaslot.Mediator
             return pipeline;
         }
 
-        internal void RegisterMiddleware(Type middlewareType)
+        internal void RegisterMiddleware(Type middlewareType, ServiceLifetime lifetime)
         {
-            _services.AddScoped(middlewareType);
+            var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
+            if (existingDescriptor != null)
+            { 
+                if(existingDescriptor.Lifetime != lifetime)
+                {
+                    throw new MediatorException($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
+                }
+            }
+            else
+            {
+                _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+            }
         }
     }
 }
