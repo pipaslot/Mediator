@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 using Sample.Client;
 using Sample.Shared;
-using System;
-using System.Net.Http;
+using Sample.Shared.Requests;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,6 +15,7 @@ builder.Services.AddMediatorClient(o =>
 {
     o.Endpoint = Constants.CustomMediatorUrl;
 })
+    .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipeline<IRequest>()
         .UseReduceDuplicateProcessing();
 ////////
