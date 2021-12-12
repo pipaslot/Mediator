@@ -15,6 +15,7 @@ namespace Pipaslot.Mediator.Services
         private readonly HashSet<Type> _alreadyVerified = new();
         private readonly IServiceProvider _serviceProvider;
         private readonly PipelineConfigurator _configurator;
+        private readonly List<string> _errors = new();
 
         public HandlerExistenceChecker(IServiceProvider serviceProvider, PipelineConfigurator configurator)
         {
@@ -27,17 +28,20 @@ namespace Pipaslot.Mediator.Services
             var assemblies = _configurator.ActionMarkerAssemblies;
             if (assemblies.Count == 0)
             {
-                throw new MediatorException($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
+                throw MediatorException.CreateForNoActionRegistered();
             }
 
             var types = assemblies.SelectMany(s => s.GetTypes());
             VerifyMessages(types);
             VerifyRequests(types);
+            if (_errors.Any())
+            {
+                throw MediatorException.CreateForInvalidHandlers(_errors.ToArray());
+            }
         }
 
         private void VerifyMessages(IEnumerable<Type> types)
         {
-            var subjectName = typeof(IMediatorAction).Name;
             var queryTypes = FilterAssignableToMessage(types);
             foreach (var subject in queryTypes)
             {
@@ -50,7 +54,7 @@ namespace Pipaslot.Mediator.Services
                 if (middleware is ExecutionMiddleware handlerExecution)
                 {
                     var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
-                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                    VerifyHandlerCount(handlerExecution, handlers, subject);
                 }
 
                 _alreadyVerified.Add(subject);
@@ -59,7 +63,6 @@ namespace Pipaslot.Mediator.Services
 
         private void VerifyRequests(IEnumerable<Type> types)
         {
-            var subjectName = typeof(IMediatorAction<>).Name;
             var queryTypes = FilterAssignableToRequest(types);
             foreach (var subject in queryTypes)
             {
@@ -72,21 +75,30 @@ namespace Pipaslot.Mediator.Services
                 if (middleware is ExecutionMiddleware handlerExecution)
                 {
                     var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
-                    VerifyHandlerCount(handlerExecution, handlers, subject, subjectName);
+                    VerifyHandlerCount(handlerExecution, handlers, subject);
                 }
                 _alreadyVerified.Add(subject);
             }
         }
-        private void VerifyHandlerCount(ExecutionMiddleware middleware, object[] handlers, Type subject, string subjectName)
+        private void VerifyHandlerCount(ExecutionMiddleware middleware, object[] handlers, Type subject)
         {
             if (handlers.Count() == 0)
             {
-                throw new MediatorException($"No handler was registered for {subjectName} type: {subject}");
+                _errors.Add(FormatNoHandlerError(subject));
             }
             if (!middleware.ExecuteMultipleHandlers && handlers.Count() > 1)
             {
-                throw new MediatorException($"Multiple {subjectName} handlers were registered for one {subjectName} type: {subject} with classes {string.Join(" AND ", handlers)}");
+                var handlerNames = handlers.Select(h => h.GetType().ToString()).ToArray();
+                _errors.Add(FormatTooManyHandlersError(subject, handlerNames));
             }
+        }
+        internal static string FormatNoHandlerError(Type subject)
+        {
+            return $"No handler was registered for action: {subject}.";
+        }
+        internal static string FormatTooManyHandlersError(Type subject, string[] handlers)
+        {
+            return $"Multiple handlers were registered for one action type: {subject} with classes [{string.Join(", ", handlers)}].";
         }
 
 

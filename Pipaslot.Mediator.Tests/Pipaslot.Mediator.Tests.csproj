@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pipaslot.Mediator.Tests.InvalidActions\Pipaslot.Mediator.Tests.InvalidActions.csproj" />
+    <ProjectReference Include="..\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj" />
     <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
     <ProjectReference Include="..\Sample\Server\Sample.Server.csproj" />
   </ItemGroup>
