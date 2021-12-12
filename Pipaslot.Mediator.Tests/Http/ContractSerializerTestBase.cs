@@ -164,6 +164,22 @@ namespace Pipaslot.Mediator.Tests.Http
 
         #endregion
 
+        #region Response deserialization
+
+        public void DeserializeResponse_ResultTypeIsInterface_WillKeepTheResultType()
+        {
+            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
+            var result = new Result();
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] {result}, new string[0]));
+            var deserialized = sut.DeserializeResponse<IResult>(responseString);
+            Assert.Equal(result.GetType(), deserialized.Result.GetType());
+        }
+
+        public interface IResult { }
+        public class Result : IResult { }
+
+        #endregion
+
         private IContractSerializer CreateSerializer()
         {
             return CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
