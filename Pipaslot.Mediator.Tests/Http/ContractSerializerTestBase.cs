@@ -15,22 +15,22 @@ namespace Pipaslot.Mediator.Tests.Http
         private const string _name = "JSON name";
         private const int _number = 6;
 
-        #region Request serialization
+        #region Serialize Request
 
         [Fact]
-        public void Request_PublicPropertyGettersAndSetters_WillPass()
+        public void SerializeRequest_PublicPropertyGettersAndSetters_WillPass()
         {
             RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void SerializeRequest_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
             RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void SerializeRequest_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -40,13 +40,13 @@ namespace Pipaslot.Mediator.Tests.Http
         }
 
         [Fact]
-        public void Request_PublicPropertyGetterAndInitSetter_WillPass()
+        public void SerializeRequest_PublicPropertyGetterAndInitSetter_WillPass()
         {
             RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Request_PositionalRecord_WillPass()
+        public void SerializeRequest_PositionalRecord_WillPass()
         {
             RunRequestTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
@@ -63,22 +63,22 @@ namespace Pipaslot.Mediator.Tests.Http
 
         #endregion
 
-        #region Response serialization
+        #region Deserialize Response
 
         [Fact]
-        public void Response_PublicPropertyGettersAndSetters_WillPass()
+        public void DeserializeResponse_PublicPropertyGettersAndSetters_WillPass()
         {
             RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Response_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void DeserializeResponse_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
             RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Response_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void DeserializeResponse_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -88,13 +88,13 @@ namespace Pipaslot.Mediator.Tests.Http
         }
 
         [Fact]
-        public void Response_PublicPropertyGetterAndInitSetter_WillPass()
+        public void DeserializeResponse_PublicPropertyGetterAndInitSetter_WillPass()
         {
             RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void Response_PositionalRecord_WillPass()
+        public void DeserializeResponse_PositionalRecord_WillPass()
         {
             RunResponseTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
@@ -114,10 +114,32 @@ namespace Pipaslot.Mediator.Tests.Http
             Assert.True(match(deserialized.Result));
         }
 
+        [Fact]
+        public void DeserializeResponse_ResultTypeIsInterface_WillKeepTheResultType()
+        {
+            var sut = CreateSerializer();
+            var result = new Result();
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
+            var deserialized = sut.DeserializeResponse<IResult>(responseString);
+            Assert.Equal(result.GetType(), deserialized.Result.GetType());
+        }
+
+        //[Fact]
+        //public void DeserializeResponse_ResultTypeIsInterfaceCollection_WillKeepTheResultType()
+        //{
+        //    var sut = CreateSerializer();
+        //    var result = new List<Result>();
+        //    var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
+        //    var deserialized = sut.DeserializeResponse<List<IResult>>(responseString);
+        //    Assert.Equal(result.GetType(), deserialized.Result.GetType());
+        //}
+
+        public interface IResult { }
+        public class Result : IResult { }
 
         #endregion
 
-        #region Request deserialization validation
+        #region Deserialize Request - validation
 
         [Fact]
         public void DeserializeRequest_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
@@ -161,22 +183,6 @@ namespace Pipaslot.Mediator.Tests.Http
         {
 
         }
-
-        #endregion
-
-        #region Response deserialization
-
-        public void DeserializeResponse_ResultTypeIsInterface_WillKeepTheResultType()
-        {
-            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
-            var result = new Result();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] {result}, new string[0]));
-            var deserialized = sut.DeserializeResponse<IResult>(responseString);
-            Assert.Equal(result.GetType(), deserialized.Result.GetType());
-        }
-
-        public interface IResult { }
-        public class Result : IResult { }
 
         #endregion
 
