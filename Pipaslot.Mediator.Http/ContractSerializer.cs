@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Http
             }
             if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
             {
-                throw MediatorHttpException.CreateForUnregisteredType(actionType);
+                throw MediatorHttpException.CreateForUnregisteredActionType(actionType);
             }
             if (!typeof(IMediatorAction).IsAssignableFrom(actionType))
             {

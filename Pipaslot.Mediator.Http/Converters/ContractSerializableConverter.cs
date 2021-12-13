@@ -55,7 +55,7 @@ namespace Pipaslot.Mediator.Http.Converters
             var queryType = ContractSerializerTypeHelper.GetType(type);
             if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
             {
-                throw MediatorHttpException.CreateForUnregisteredType(queryType);
+                throw MediatorHttpException.CreateForUnregisteredActionType(queryType);
             }
 
             var result = JsonSerializer.Deserialize(content, queryType);
