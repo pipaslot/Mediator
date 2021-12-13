@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator.Http
             {
                 throw MediatorHttpException.CreateForUnrecognizedType(contract.ObjectName);
             }
-            if (!_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
+            if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
             {
                 throw MediatorHttpException.CreateForUnregisteredType(actionType);
             }
