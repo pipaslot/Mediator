@@ -150,7 +150,7 @@ namespace Pipaslot.Mediator.Tests.Http
             {
                 sut.DeserializeRequest(request);
             });
-            Assert.Equal(MediatorHttpException.CreateForUnregisteredType(typeof(FakeContract)).Message, exception.Message);
+            Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
         }
 
         [Fact]
