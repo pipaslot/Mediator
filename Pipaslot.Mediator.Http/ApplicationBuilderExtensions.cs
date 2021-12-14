@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Http.Options;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator.Http

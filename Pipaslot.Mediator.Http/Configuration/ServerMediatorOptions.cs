@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Http.Options
+﻿namespace Pipaslot.Mediator.Http.Configuration
 {
     public class ServerMediatorOptions
     {

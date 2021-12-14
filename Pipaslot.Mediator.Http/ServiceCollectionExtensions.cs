@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
-using Pipaslot.Mediator.Http.Options;
+using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Linq;
 

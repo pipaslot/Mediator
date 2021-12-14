@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
-using Pipaslot.Mediator.Http.Options;
+using Pipaslot.Mediator.Http.Configuration;
 
 namespace Pipaslot.Mediator.Http
 {

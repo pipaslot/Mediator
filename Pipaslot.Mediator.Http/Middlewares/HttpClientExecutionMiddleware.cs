@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Http.Options;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Net.Http;
