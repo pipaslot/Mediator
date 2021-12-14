@@ -6,9 +6,9 @@ using System;
 using System.Linq;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http
+namespace Pipaslot.Mediator.Http.Serialization
 {
-    public class FullJsonContractSerializer : IContractSerializer
+    internal class FullJsonContractSerializer : IContractSerializer
     {
         private readonly JsonSerializerOptions _serializationOptions;
         internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()

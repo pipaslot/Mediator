@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http
+namespace Pipaslot.Mediator.Http.Serialization
 {
-    public class ContractSerializer : IContractSerializer
+    internal class ContractSerializer : IContractSerializer
     {
         private readonly PipelineConfigurator _configurator;
 

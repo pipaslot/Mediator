@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Http.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Pipaslot.Mediator.Http.FullJsonContractSerializer;
+using static Pipaslot.Mediator.Http.Serialization.FullJsonContractSerializer;
 
 namespace Pipaslot.Mediator.Http.Converters
 {

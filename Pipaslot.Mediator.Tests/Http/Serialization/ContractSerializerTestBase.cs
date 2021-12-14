@@ -3,12 +3,13 @@ using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Http
+namespace Pipaslot.Mediator.Tests.Http.Serialization
 {
     public abstract class ContractSerializerTestBase
     {

@@ -33,4 +33,8 @@
 			<_Parameter1>Pipaslot.Mediator.Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Serialization\" />
+	</ItemGroup>
 </Project>

@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Sample\Server\Sample.Server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Http\Serialization\" />
+  </ItemGroup>
+
 </Project>

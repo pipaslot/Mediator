@@ -1,6 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 
-namespace Pipaslot.Mediator.Http
+namespace Pipaslot.Mediator.Http.Serialization
 {
     public interface IContractSerializer
     {

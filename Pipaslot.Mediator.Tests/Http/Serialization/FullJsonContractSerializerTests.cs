@@ -1,7 +1,8 @@
 ﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Serialization;
 
-namespace Pipaslot.Mediator.Tests.Http
+namespace Pipaslot.Mediator.Tests.Http.Serialization
 {
     public class FullJsonContractSerializerTests : ContractSerializerTestBase
     {
