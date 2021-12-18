@@ -1,0 +1,159 @@
+﻿@page "/playground"
+@using System.Text.Json;
+
+<h1>Playground</h1>
+<p>Test actions executed from client and their behaviour.</p>
+
+<h5>Requests</h5>
+<p>
+    <button class="btn btn-primary" @onclick="RunPassing">Run Passing</button>
+    <button class="btn btn-primary" @onclick="RunFailing">Run Failing</button>
+    <button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled</button>
+</p>
+
+<h5>Messages</h5>
+<p>
+    <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing</button>
+    <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing</button>
+    <button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled</button>
+</p>
+
+<h5>Chaining by handlers</h5>
+<p>
+    <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
+</p>
+
+<h5>UseReduceDuplicateProcessin middleware</h5>
+<p>Reduce fuplicate calls. Only one server request will be executed at the same time</p>
+<p>
+    <button class="btn btn-primary" @onclick="RunDuplicateClassQuery">Run Duplicate Request classes</button>
+    <button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records</button>
+</p>
+
+<h4>HTTP Response</h4>
+<code>
+    @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
+    {
+        <div>@_serializedReponse</div>
+    }
+    else
+    {
+        <div>Execute any action</div>
+    }
+</code>
+
+@code {
+    private MarkupString _serializedReponse;
+    private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+    private async Task RunPassing()
+    {
+        Loading();
+        var response = await Mediator.Execute(new WeatherForecast.Request());
+        ProcessRequestResponse(response);
+    }
+
+    private async Task RunFailing()
+    {
+        Loading();
+        var response = await Mediator.Execute(new Failing.Request());
+        ProcessRequestResponse(response);
+    }
+    private async Task RunFailingUnhandled()
+    {
+        Loading("Infinite loading because exception will be thrown");
+        var response = await Mediator.ExecuteUnhandled(new Failing.Request());
+    }
+
+    private async Task RunMessage(bool pass)
+    {
+        Loading();
+        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
+        ProcessMessageResponse(response);
+    }
+
+    private async Task RunFailingUnhandledMessage()
+    {
+        Loading("Infinite loading because exception will be thrown");
+        await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
+    }
+
+
+    private async Task RunCascadingFailing()
+    {
+        Loading();
+        var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
+        ProcessMessageResponse(response);
+    }
+
+    private async Task RunDuplicateClassQuery()
+    {
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
+        _serializedReponse = Serialize(new
+        {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
+    }
+
+    private async Task RunDuplicateRecordQuery()
+    {
+        var date = DateTime.Now;
+        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        await Task.WhenAll(task1, task2, task3);
+        _serializedReponse = Serialize(new
+        {
+            Task1 = Format(task1.Result),
+            Task2 = Format(task2.Result),
+            Task3 = Format(task3.Result),
+        });
+    }
+
+    private void ProcessMessageResponse(IMediatorResponse response)
+    {
+        _serializedReponse = Serialize(new
+        {
+            _Type = response.GetType().FullName,
+            Success = response.Success,
+            ErrorMessage = response.ErrorMessage
+        });
+    }
+
+    private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
+    {
+        _serializedReponse = Serialize(Format(response));
+    }
+
+    private object Format<TResult>(IMediatorResponse<TResult> response)
+    {
+        return new
+        {
+            _Type = response.GetType().FullName,
+            Success = response.Success,
+            Result = response.Result,
+            ErrorMessage = response.ErrorMessage
+        };
+    }
+
+    private MarkupString Serialize(object value)
+    {
+        var serialized = JsonSerializer.Serialize(value, _serializerOptions)
+        .Replace(" \"", "&nbsp; &nbsp;\"")
+        .Replace("\n", "<br />");
+        return new MarkupString(serialized);
+    }
+
+    private void Loading(string message = "Loading")
+    {
+        _serializedReponse = new MarkupString(message);
+    }
+}

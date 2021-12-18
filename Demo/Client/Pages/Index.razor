@@ -1,139 +1,52 @@
 ﻿@page "/"
-@using System.Text.Json;
 
-<h1>Mediator Demo</h1>
+<h1>Weather forecast</h1>
 
-<button class="btn btn-primary" @onclick="RunPassing">Run Passing request</button>
-<button class="btn btn-primary" @onclick="RunFailing">Run Failing request</button>
-<button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled request</button>
-<br />
-<button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing message</button>
-<button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing message</button>
-<button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled message</button>
-<br />
-<button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
-<br />
-<button class="btn btn-primary" @onclick="RunDuplicateClassQuery">Run Duplicate Request classes (only one server request will be executed)</button>
-<button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records (only one server request will be executed)</button>
+<p>This component demonstrates fetching data from the server.</p>
 
-@if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
+@if (forecasts == null)
 {
-    <h4>Response</h4>
-    <div>@_serializedReponse</div>
+    <p><em>Loading...</em></p>
 }
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+ <p>@(commonResult?.Description ?? "Status message will be provided from server as well")</p>
 
 @code {
-    private MarkupString _serializedReponse;
-    private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
+    private WeatherForecast.Result[]? forecasts;
+    private CommonResult? commonResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Execute(new WeatherForecast.Request());
+        
+        if (result.Success)
         {
-            WriteIndented = true
-        };
-    private async Task RunPassing()
-    {
-        Loading();
-        var response = await Mediator.Execute(new WeatherForecast.Request());
-        ProcessRequestResponse(response);
+            forecasts = result.Result;
+        }
+        commonResult = (CommonResult?)result.Results.FirstOrDefault(r => r is CommonResult);
     }
 
-    private async Task RunFailing()
-    {
-        Loading();
-        var response = await Mediator.Execute(new Failing.Request());
-        ProcessRequestResponse(response);
-    }
-    private async Task RunFailingUnhandled()
-    {
-        Loading();
-        var response = await Mediator.ExecuteUnhandled(new Failing.Request());
-    }
-
-    private async Task RunMessage(bool pass)
-    {
-        Loading();
-        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
-        ProcessMessageResponse(response);
-    }
-
-    private async Task RunFailingUnhandledMessage()
-    {
-        Loading();
-        await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
-    }
-
-
-    private async Task RunCascadingFailing()
-    {
-        Loading();
-        var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
-        ProcessMessageResponse(response);
-    }
-
-    private async Task RunDuplicateClassQuery()
-    {
-        var date = DateTime.Now;
-        var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
-        var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
-        var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
-        await Task.WhenAll(task1, task2, task3);
-        _serializedReponse = Serialize(new
-        {
-            Task1 = Format(task1.Result),
-            Task2 = Format(task2.Result),
-            Task3 = Format(task3.Result),
-        });
-    }
-
-    private async Task RunDuplicateRecordQuery()
-    {
-        var date = DateTime.Now;
-        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
-        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
-        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
-        await Task.WhenAll(task1, task2, task3);
-        _serializedReponse = Serialize(new
-        {
-            Task1 = Format(task1.Result),
-            Task2 = Format(task2.Result),
-            Task3 = Format(task3.Result),
-        });
-    }
-
-    private void ProcessMessageResponse(IMediatorResponse response)
-    {
-        _serializedReponse = Serialize(new
-        {
-            _Type = response.GetType().FullName,
-            Success = response.Success,
-            ErrorMessage = response.ErrorMessage
-        });
-    }
-
-    private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
-    {
-        _serializedReponse = Serialize(Format(response));
-    }
-
-    private object Format<TResult>(IMediatorResponse<TResult> response)
-    {
-        return new
-        {
-            _Type = response.GetType().FullName,
-            Success = response.Success,
-            Result = response.Result,
-            ErrorMessage = response.ErrorMessage
-        };
-    }
-
-    private MarkupString Serialize(object value)
-    {
-        var serialized = JsonSerializer.Serialize(value, _serializerOptions)
-        .Replace(" \"", "&nbsp; &nbsp;\"")
-        .Replace("\n", "<br />");
-        return new MarkupString(serialized);
-    }
-
-    private void Loading()
-    {
-        _serializedReponse = new MarkupString("Loading");
-    }
 }
