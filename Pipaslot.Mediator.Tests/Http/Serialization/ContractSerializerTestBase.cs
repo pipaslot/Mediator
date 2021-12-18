@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
+﻿using Moq;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Http.Serialization
@@ -16,22 +13,25 @@ namespace Pipaslot.Mediator.Tests.Http.Serialization
         private const string _name = "JSON name";
         private const int _number = 6;
 
-        #region Serialize Request
+        protected Mock<ICredibleActionProvider> ActionProviderMock = new();
+        protected Mock<ICredibleResultProvider> ResultProviderMock = new();
+
+        #region Serialize and deserialize Request
 
         [Fact]
-        public void SerializeRequest_PublicPropertyGettersAndSetters_WillPass()
+        public void Request_PublicPropertyGettersAndSetters_WillPass()
         {
             RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void SerializeRequest_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
             RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void SerializeRequest_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -41,13 +41,13 @@ namespace Pipaslot.Mediator.Tests.Http.Serialization
         }
 
         [Fact]
-        public void SerializeRequest_PublicPropertyGetterAndInitSetter_WillPass()
+        public void Request_PublicPropertyGetterAndInitSetter_WillPass()
         {
             RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
         }
 
         [Fact]
-        public void SerializeRequest_PositionalRecord_WillPass()
+        public void Request_PositionalRecord_WillPass()
         {
             RunRequestTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
         }
@@ -64,7 +64,7 @@ namespace Pipaslot.Mediator.Tests.Http.Serialization
 
         #endregion
 
-        #region Deserialize Response
+        #region Serialize and Deserialize Response
 
         [Fact]
         public void DeserializeResponse_PublicPropertyGettersAndSetters_WillPass()
@@ -125,82 +125,13 @@ namespace Pipaslot.Mediator.Tests.Http.Serialization
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
 
-        //[Fact]
-        //public void DeserializeResponse_ResultTypeIsInterfaceCollection_WillKeepTheResultType()
-        //{
-        //    var sut = CreateSerializer();
-        //    var result = new List<Result>();
-        //    var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
-        //    var deserialized = sut.DeserializeResponse<List<IResult>>(responseString);
-        //    Assert.Equal(result.GetType(), deserialized.Result.GetType());
-        //}
-
         public interface IResult { }
         public class Result : IResult { }
 
         #endregion
+                
 
-        #region Deserialize Request - validation
-
-        [Fact]
-        public void DeserializeRequest_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
-        {
-            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<Mediator>());
-            var request = sut.SerializeRequest(new FakeContract());
-            var exception = Assert.Throws<MediatorHttpException>(() =>
-            {
-                sut.DeserializeRequest(request);
-            });
-            Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
-        }
-
-        [Fact]
-        public void DeserializeRequest_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
-        {
-            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
-            var request = sut.SerializeRequest(new FakeNonContract());
-            var exception = Assert.Throws<MediatorHttpException>(() =>
-            {
-                sut.DeserializeRequest(request);
-            });
-            Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
-        }
-
-        [Fact]
-        public void DeserializeRequest_ContractTypeIsFromRegisteredAssembly_Pass()
-        {
-            var sut = CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
-            var request = sut.SerializeRequest(new FakeContract());
-            var deserialized = sut.DeserializeRequest(request);
-            Assert.NotNull(deserialized);
-        }
-
-        public class FakeContract : IMessage
-        {
-
-        }
-
-        public class FakeNonContract
-        {
-
-        }
-
-        #endregion
-
-        private IContractSerializer CreateSerializer()
-        {
-            return CreateSerializer(c => c.AddActionsFromAssemblyOf<FakeContract>());
-        }
-
-        private IContractSerializer CreateSerializer(Action<PipelineConfigurator> setup)
-        {
-            var serviceCollctionMock = new Mock<IServiceCollection>();
-            var configurator = new PipelineConfigurator(serviceCollctionMock.Object);
-            setup(configurator);
-            return CreateSerializer(configurator);
-        }
-
-        protected abstract IContractSerializer CreateSerializer(PipelineConfigurator configurator);
+        protected abstract IContractSerializer CreateSerializer();
 
         #region Actions
 

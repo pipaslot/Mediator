@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Linq;
@@ -11,11 +10,11 @@ namespace Pipaslot.Mediator.Http.Converters
 {
     internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
     {
-        private readonly PipelineConfigurator _configurator;
+        private readonly ICredibleActionProvider _credibleActions;
 
-        public ContractSerializableConverter(PipelineConfigurator configurator)
+        public ContractSerializableConverter(ICredibleActionProvider credibleActions)
         {
-            _configurator = configurator;
+            _credibleActions = credibleActions;
         }
 
         public override ContractSerializable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -53,13 +52,10 @@ namespace Pipaslot.Mediator.Http.Converters
 
         private ContractSerializable CreateObject(string content, string type)
         {
-            var queryType = ContractSerializerTypeHelper.GetType(type);
-            if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(queryType.Assembly))
-            {
-                throw MediatorHttpException.CreateForUnregisteredActionType(queryType);
-            }
+            var actionType = ContractSerializerTypeHelper.GetType(type);
+            _credibleActions.VerifyCredibility(actionType);
 
-            var result = JsonSerializer.Deserialize(content, queryType);
+            var result = JsonSerializer.Deserialize(content, actionType);
             if (result == null)
             {
                 throw new Exception($"Can not deserialize contract as type {type} received from server");

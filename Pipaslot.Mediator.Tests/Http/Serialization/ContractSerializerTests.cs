@@ -1,14 +1,12 @@
-﻿using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Http;
-using Pipaslot.Mediator.Http.Serialization;
+﻿using Pipaslot.Mediator.Http.Serialization;
 
 namespace Pipaslot.Mediator.Tests.Http.Serialization
 {
     public class ContractSerializerTests : ContractSerializerTestBase
     {
-        protected override IContractSerializer CreateSerializer(PipelineConfigurator configurator)
+        protected override IContractSerializer CreateSerializer()
         {
-            return new ContractSerializer(configurator);
+            return new ContractSerializer(ActionProviderMock.Object);
         }
     }
 }

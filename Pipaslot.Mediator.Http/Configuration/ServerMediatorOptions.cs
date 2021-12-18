@@ -12,5 +12,11 @@
                 _endpoint = notNulValue.StartsWith("/") ? notNulValue : $"/{notNulValue}";
             }
         }
+
+        /// <summary>
+        /// Protect deserialization process by check whether target type is credible. 
+        /// Prevents agains exploiting this feature by attackers.Enabled by default.
+        /// </summary>
+        public bool DeserializeOnlyCredibleActionTypes { get; set; } = true;
     }
 }

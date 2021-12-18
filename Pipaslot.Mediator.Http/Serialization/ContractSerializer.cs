@@ -1,5 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -8,17 +8,16 @@ namespace Pipaslot.Mediator.Http.Serialization
 {
     internal class ContractSerializer : IContractSerializer
     {
-        private readonly PipelineConfigurator _configurator;
-
-        public ContractSerializer(PipelineConfigurator configurator)
+        public ContractSerializer(ICredibleActionProvider credibleActions)
         {
-            _configurator = configurator;
+            _credibleActions = credibleActions;
         }
 
         private readonly static JsonSerializerOptions _serializationOptions = new()
         {
             PropertyNamingPolicy = null
         };
+        private readonly ICredibleActionProvider _credibleActions;
 
         public string SerializeRequest(object request)
         {
@@ -47,14 +46,8 @@ namespace Pipaslot.Mediator.Http.Serialization
             {
                 throw MediatorHttpException.CreateForUnrecognizedType(contract.ObjectName);
             }
-            if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
-            {
-                throw MediatorHttpException.CreateForUnregisteredActionType(actionType);
-            }
-            if (!typeof(IMediatorAction).IsAssignableFrom(actionType))
-            {
-                throw MediatorHttpException.CreateForNonContractType(actionType);
-            }
+            _credibleActions.VerifyCredibility(actionType);
+            
             var content = JsonSerializer.Deserialize(contract.Json, actionType);
             if (content == null)
             {

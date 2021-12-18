@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Converters;
 using System;
 using System.Linq;
@@ -16,23 +15,17 @@ namespace Pipaslot.Mediator.Http.Serialization
             PropertyNamingPolicy = null
         };
 
-        public FullJsonContractSerializer(PipelineConfigurator configurator/*, ILogger<FullJsonContractSerializer> logger*/)
+        public FullJsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
         {
             _serializationOptions = new()
             {
                 PropertyNamingPolicy = null,
                 Converters =
                 {
-                    new ContractSerializableConverter(configurator),
-                    new ResponseDeserializedConverter()
+                    new ContractSerializableConverter(credibleActions),
+                    new ResponseDeserializedConverter(credibleResults)
                 }
             };
-
-            if (!configurator.ActionMarkerAssemblies.Any())
-            {
-                //TODO uncomment once we will be able to whitelist result types
-                //logger.LogWarning($"Can not verify if deserialized action types are not faked by attackers. We strongly recommend you register all actions in mediator configuration via {nameof(IPipelineConfigurator.AddActionsFromAssembly)} or {nameof(IPipelineConfigurator.AddActionsFromAssemblyOf)}");
-            }
         }
 
         public string SerializeRequest(object request)

@@ -1,7 +1,7 @@
-﻿using Pipaslot.Mediator.Http.Serialization;
+﻿using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Pipaslot.Mediator.Http.Serialization.FullJsonContractSerializer;
@@ -10,6 +10,13 @@ namespace Pipaslot.Mediator.Http.Converters
 {
     internal class ResponseDeserializedConverter : JsonConverter<ResponseDeserialized>
     {
+        private ICredibleResultProvider _credibleResults;
+
+        public ResponseDeserializedConverter(ICredibleResultProvider credibleResults)
+        {
+            _credibleResults = credibleResults;
+        }
+
         public override ResponseDeserialized? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var success = false;
@@ -93,8 +100,9 @@ namespace Pipaslot.Mediator.Http.Converters
                     }
                 }
             }
-            var queryType = ContractSerializerTypeHelper.GetType(type);
-            return JsonSerializer.Deserialize(content, queryType) ?? throw new MediatorException($"Can not deserialize json {content} to type {queryType}");
+            var resultType = ContractSerializerTypeHelper.GetType(type);
+            _credibleResults.VerifyCredibility(resultType);
+            return JsonSerializer.Deserialize(content, resultType) ?? throw new MediatorException($"Can not deserialize json {content} to type {resultType}");
         }
 
         public override void Write(Utf8JsonWriter writer, ResponseDeserialized value, JsonSerializerOptions options)
