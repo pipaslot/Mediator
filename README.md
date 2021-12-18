@@ -7,7 +7,7 @@ This package was designed for fast and flexible development of simultaneously de
 Documentation:
  - [Wiki](https://github.com/pipaslot/Mediator/wiki)
  - [Release notes and breaking changes](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes)
- - [Basic sample for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/2.-Basic-usage:-client-server-application-(Blazor-WASM))
+ - [Basic Demo for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/2.-Basic-usage:-client-server-application-(Blazor-WASM))
 
 Nuget packages:
  - [Pipaslot.Mediator](https://www.nuget.org/packages/Pipaslot.Mediator/) - Core logic for in-process usage
