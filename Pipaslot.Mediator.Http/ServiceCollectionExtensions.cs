@@ -50,7 +50,11 @@ namespace Pipaslot.Mediator.Http
             services.AddSingleton<ICredibleActionProvider, NopCredibleActionProvider>();
             if (options.DeserializeOnlyCredibleResultTypes)
             {
-                services.AddSingleton<ICredibleResultProvider, CredibleResultProvider>();
+                services.AddSingleton<ICredibleResultProvider>(s =>
+                {
+                    var pipConf = s.GetRequiredService<PipelineConfigurator>();
+                    return new CredibleResultProvider(pipConf, options.CredibleResultTypes ?? new Type[0]);
+                });
             }
             else
             {

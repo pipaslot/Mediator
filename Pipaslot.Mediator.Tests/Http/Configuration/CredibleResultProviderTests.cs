@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests.Http.Configuration
         [Fact]
         public void VerifyCredibility_RegisteredCustomResultType_Pass()
         {
-            var sut = Create(c => { /* TODO register */ });
+            var sut = Create(c => { }, typeof(CustomResult));
             sut.VerifyCredibility(typeof(CustomResult));
         }
 
@@ -46,12 +46,12 @@ namespace Pipaslot.Mediator.Tests.Http.Configuration
             sut.VerifyCredibility(typeof(Result));
         }
 
-        private CredibleResultProvider Create(Action<PipelineConfigurator> setup)
+        private CredibleResultProvider Create(Action<PipelineConfigurator> setup, params Type[] customTypes)
         {
-            var serviceCollctionMock = new Mock<IServiceCollection>();
-            var configurator = new PipelineConfigurator(serviceCollctionMock.Object);
+            var serviceCollectionMock = new Mock<IServiceCollection>();
+            var configurator = new PipelineConfigurator(serviceCollectionMock.Object);
             setup(configurator);
-            return new CredibleResultProvider(configurator);
+            return new CredibleResultProvider(configurator, customTypes);
         }
 
         private class CustomResult

@@ -1,4 +1,6 @@
-﻿namespace Pipaslot.Mediator.Http.Configuration
+﻿using System;
+
+namespace Pipaslot.Mediator.Http.Configuration
 {
     public class ClientMediatorOptions
     {
@@ -8,5 +10,11 @@
         /// Prevents agains exploiting this feature by attackers. Disabled by default.
         /// </summary>
         public bool DeserializeOnlyCredibleResultTypes { get; set; } = false;
+
+        /// <summary>
+        /// Define extra types returned by server as credible. 
+        /// For action result type refistrations use mediator methods AddActionsFromAssemblyOf or AddActionsFromAssembly
+        /// </summary>
+        public Type[] CredibleResultTypes { get; set; } = new Type[0];
     }
 }

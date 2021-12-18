@@ -14,6 +14,11 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddMediatorClient(o =>
 {
     o.Endpoint = Constants.CustomMediatorUrl;
+    o.DeserializeOnlyCredibleResultTypes = true;
+    o.CredibleResultTypes = new Type[]
+    {
+        typeof(CommonResult)
+    };
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipeline<IRequest>()
