@@ -17,7 +17,7 @@ namespace Pipaslot.Mediator.Tests.Services
                 c.AddActionsFromAssemblyOf<NopMessage>();
                 c.AddHandlersFromAssemblyOf<NopMesageHandler>();
             });
-            var sut = sp.GetRequiredService<HandlerExistenceChecker>();
+            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
             sut.Verify();
         }
 
@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Tests.Services
         public void Verify_NoActionRegistered_ThrowExceptions()
         {
             var sp = Factory.CreateServiceProvider(c => { });
-            var sut = sp.GetRequiredService<HandlerExistenceChecker>();
+            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
             var ex = Assert.Throws<MediatorException>(() =>
             {
                 sut.Verify();
@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Tests.Services
                 c.AddActionsFromAssemblyOf<MessageWithoutHandler>();
                 c.AddHandlersFromAssemblyOf<MessageWithoutHandler>();
             });
-            var sut = sp.GetRequiredService<HandlerExistenceChecker>();
+            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
             var ex = Assert.Throws<MediatorException>(() =>
             {
                 sut.Verify();

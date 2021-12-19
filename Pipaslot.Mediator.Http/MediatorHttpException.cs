@@ -6,23 +6,23 @@ namespace Pipaslot.Mediator.Http
 {
     public class MediatorHttpException : Exception
     {
-        public MediatorHttpException(string message) : base(message)
+        public MediatorHttpException(string message, Exception? innerException = null) : base(message, innerException)
         {
         }
 
-        internal static MediatorHttpException CreateForEmptyBody()
+        internal static MediatorHttpException CreateForInvalidRequest(string content, Exception? innerException = null)
         {
-            return new MediatorHttpException("Request body has empty body. JSON was expected.");
+            return new MediatorHttpException($"Request body '{content}' is not valid JSON contract expected by the mediator.", innerException);
+        }
+
+        internal static MediatorHttpException CreateForInvalidResponse(string content, Exception? innerException = null)
+        {
+            return new MediatorHttpException($"Response body '{content}' is not valid JSON contract expected by the mediator.", innerException);
         }
 
         internal static MediatorHttpException CreateForUnregisteredService(Type serviceType)
         {
             return new MediatorHttpException($"Service {serviceType.FullName} was not registered in service collection.");
-        }
-
-        internal static MediatorHttpException CreateForUnparsedContract()
-        {
-            return new MediatorHttpException($"Can not parse contract object from request body.");
         }
 
         internal static MediatorHttpException CreateForUnrecognizedType(string objectName)

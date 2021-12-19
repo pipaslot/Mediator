@@ -17,6 +17,18 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         protected Mock<ICredibleResultProvider> ResultProviderMock = new();
 
         #region Serialize and deserialize Request
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("{}")]
+        [InlineData(@"{""Content"":"" "",""Type"":"" ""}")]
+        public void DeserializeRequest_InvalidContent_ThrowException(string body)
+        {
+            var sut = CreateSerializer();
+            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body));
+            Assert.Equal(MediatorHttpException.CreateForInvalidRequest(body).Message, ex.Message);
+        }
 
         [Fact]
         public void Request_PublicPropertyGettersAndSetters_WillPass()
@@ -33,7 +45,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
-            var exception = Assert.Throws<InvalidOperationException>(() =>
+            var exception = Assert.Throws<MediatorHttpException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
                 RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);
@@ -66,6 +78,25 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         #region Serialize and Deserialize Response
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void DeserializeResponse_InvalidContent_ThrowException(string body)
+        {
+            var sut = CreateSerializer();
+            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body));
+            Assert.Equal(MediatorHttpException.CreateForInvalidResponse(body).Message, ex.Message);
+        }
+
+        [Fact]
+        public void DeserializeResponse_EmptyObject_ReturnsResponseWithFailureStatus()
+        {
+            var sut = CreateSerializer();
+            var res = sut.DeserializeResponse<Result>(@"{""Content"":"" "",""Type"":"" ""}");
+            Assert.False(res.Success);
+        }
+
         [Fact]
         public void DeserializeResponse_PublicPropertyGettersAndSetters_WillPass()
         {
@@ -81,7 +112,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void DeserializeResponse_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
-            var exception = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<MediatorHttpException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
                 RunResponseTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);

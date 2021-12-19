@@ -62,7 +62,7 @@ namespace Pipaslot.Mediator.Http
             var body = await reader.ReadToEndAsync();
             if (string.IsNullOrWhiteSpace(body))
             {
-                throw MediatorHttpException.CreateForEmptyBody();
+                throw MediatorHttpException.CreateForInvalidRequest(body);
             }
             return body;
         }

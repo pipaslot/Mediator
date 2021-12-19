@@ -30,30 +30,39 @@ namespace Pipaslot.Mediator.Http.Serialization
             return JsonSerializer.Serialize(contract, typeof(MediatorRequestSerializable), _serializationOptions);
         }
 
-        public IMediatorAction DeserializeRequest(string requestBody)
+        public IMediatorAction DeserializeRequest(string body)
         {
-            if (string.IsNullOrWhiteSpace(requestBody))
+            if (!string.IsNullOrWhiteSpace(body))
             {
-                throw MediatorHttpException.CreateForEmptyBody();
+                try
+                {
+                    var contract = JsonSerializer.Deserialize<MediatorRequestSerializable>(body);
+                    if (contract != null)
+                    {
+                        var actionType = Type.GetType(contract.ObjectName);
+                        if (actionType == null)
+                        {
+                            throw MediatorHttpException.CreateForUnrecognizedType(contract.ObjectName);
+                        }
+                        _credibleActions.VerifyCredibility(actionType);
+
+                        var content = JsonSerializer.Deserialize(contract.Json, actionType);
+                        if (content != null)
+                        {
+                            return (IMediatorAction)content;
+                        }
+                    }
+                }
+                catch (MediatorException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    throw MediatorHttpException.CreateForInvalidRequest(body, e);
+                }
             }
-            var contract = JsonSerializer.Deserialize<MediatorRequestSerializable>(requestBody);
-            if (contract == null)
-            {
-                throw MediatorHttpException.CreateForUnparsedContract();
-            }
-            var actionType = Type.GetType(contract.ObjectName);
-            if (actionType == null)
-            {
-                throw MediatorHttpException.CreateForUnrecognizedType(contract.ObjectName);
-            }
-            _credibleActions.VerifyCredibility(actionType);
-            
-            var content = JsonSerializer.Deserialize(contract.Json, actionType);
-            if (content == null)
-            {
-                throw MediatorHttpException.CreateForUnparsedContract();
-            }
-            return (IMediatorAction)content;
+            throw MediatorHttpException.CreateForInvalidRequest(body);
         }
 
         public string SerializeResponse(IMediatorResponse response)
@@ -80,18 +89,27 @@ namespace Pipaslot.Mediator.Http.Serialization
 
         public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
         {
-            var serializedResult = JsonSerializer.Deserialize<MediatorResponseSerializable>(response);
-            if (serializedResult == null)
+            if (!string.IsNullOrWhiteSpace(response))
             {
-                throw new Exception("Can not deserialize server response. Please check if Pipaslot.Mediator.Client and Pipaslot.Mediator.Server have the same version or if response is valid JSON.");
+                try
+                {
+                    var serializedResult = JsonSerializer.Deserialize<MediatorResponseSerializable>(response);
+                    if (serializedResult != null)
+                    {
+                        return new ResponseDeserialized<TResult>
+                        {
+                            Success = serializedResult.Success,
+                            ErrorMessages = serializedResult.ErrorMessages,
+                            Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
+                        };
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw MediatorHttpException.CreateForInvalidResponse(response, e);
+                }
             }
-
-            return new ResponseDeserialized<TResult>
-            {
-                Success = serializedResult.Success,
-                ErrorMessages = serializedResult.ErrorMessages,
-                Results = serializedResult.Results.Select(r => DeserializeResult(r)).ToArray()
-            };
+            throw MediatorHttpException.CreateForInvalidResponse(response);
         }
 
         private object DeserializeResult(MediatorResponseSerializable.SerializedResult serializedResult)

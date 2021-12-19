@@ -35,24 +35,29 @@ namespace Pipaslot.Mediator.Http.Serialization
             return JsonSerializer.Serialize(contract, typeof(ContractSerializable), _serializationOptions);
         }
 
-        public IMediatorAction DeserializeRequest(string requestBody)
+        public IMediatorAction DeserializeRequest(string body)
         {
-            var contract = JsonSerializer.Deserialize<ContractSerializable>(requestBody, _serializationOptions);
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    var contract = JsonSerializer.Deserialize<ContractSerializable>(body, _serializationOptions);
 
-            if (contract == null)
-            {
-                throw MediatorHttpException.CreateForUnparsedContract();
+                    if (contract != null)
+                    {
+                        return (IMediatorAction)contract.Content;
+                    }
+                }
+                catch (MediatorException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    throw MediatorHttpException.CreateForInvalidRequest(body, e);
+                }
             }
-            if (string.IsNullOrWhiteSpace(contract.Type))
-            {
-                throw MediatorHttpException.CreateForUnrecognizedType(contract.Type);
-            }
-            var actionType = contract.Content.GetType();
-            if (!typeof(IMediatorAction).IsAssignableFrom(actionType))
-            {
-                throw MediatorHttpException.CreateForNonContractType(actionType);
-            }
-            return (IMediatorAction)contract.Content;
+            throw MediatorHttpException.CreateForInvalidRequest(body);
         }
 
         public string SerializeResponse(IMediatorResponse response)
@@ -70,17 +75,27 @@ namespace Pipaslot.Mediator.Http.Serialization
 
         public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
         {
-            var serializedResult = JsonSerializer.Deserialize<ResponseDeserialized>(response, _serializationOptions);
-            if (serializedResult == null)
+            if (!string.IsNullOrWhiteSpace(response))
             {
-                throw new Exception("Can not deserialize server response. Please check if Pipaslot.Mediator.Client and Pipaslot.Mediator.Server have the same version or if response is valid JSON.");
+                try
+                {
+                    var serializedResult = JsonSerializer.Deserialize<ResponseDeserialized>(response, _serializationOptions);
+                    if (serializedResult != null)
+                    {
+                        return new ResponseDeserialized<TResult>
+                        {
+                            Success = serializedResult.Success,
+                            ErrorMessages = serializedResult.ErrorMessages,
+                            Results = serializedResult.Results
+                        };
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw MediatorHttpException.CreateForInvalidResponse(response, e);
+                }
             }
-            return new ResponseDeserialized<TResult>
-            {
-                Success = serializedResult.Success,
-                ErrorMessages = serializedResult.ErrorMessages,
-                Results = serializedResult.Results
-            };
+            throw MediatorHttpException.CreateForInvalidResponse(response);
         }
 
         #region Contracts

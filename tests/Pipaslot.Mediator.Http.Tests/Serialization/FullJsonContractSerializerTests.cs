@@ -16,9 +16,9 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
             var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result() }, new string[0]));
-            var expectedException = Assert.Throws<Exception>(() => sut.DeserializeResponse<Result>(responseString));
+            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
 
-            Assert.Equal(exception, expectedException);
+            Assert.Equal(exception, actualException.InnerException);
         }
 
         protected override IContractSerializer CreateSerializer()
