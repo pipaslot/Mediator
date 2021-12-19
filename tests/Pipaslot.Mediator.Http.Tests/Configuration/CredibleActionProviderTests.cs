@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
 using Xunit;
@@ -14,10 +13,7 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         public void VerifyCredibility_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
         {
             var sut = Create(c => c.AddActionsFromAssemblyOf<Mediator>());
-            var exception = Assert.Throws<MediatorHttpException>(() =>
-            {
-                sut.VerifyCredibility(typeof(FakeContract));
-            });
+            var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeContract)));
             Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
         }
 
@@ -25,10 +21,7 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         public void VerifyCredibility_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
         {
             var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
-            var exception = Assert.Throws<MediatorHttpException>(() =>
-            {
-                sut.VerifyCredibility(typeof(FakeNonContract));
-            });
+            var exception = Assert.Throws<MediatorHttpException>(() =>  sut.VerifyCredibility(typeof(FakeNonContract)));
             Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
         }
 

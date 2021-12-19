@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Http
             if (checkMatchingHandlers)
             {
                 using var scope = app.ApplicationServices.CreateScope();
-                var checker = scope.ServiceProvider.GetRequiredService<HandlerExistenceChecker>();
+                var checker = scope.ServiceProvider.GetRequiredService<IHandlerExistenceChecker>();
                 checker.Verify();
             }
             return app;

@@ -7,7 +7,7 @@ using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Services
 {
-    public class HandlerExistenceChecker
+    public class HandlerExistenceChecker : IHandlerExistenceChecker
     {
         /// <summary>
         /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
