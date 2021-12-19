@@ -19,7 +19,7 @@ jobs:
     
       - name: Run tests
         run: |
-          cd ./Pipaslot.Mediator.Tests/
+          cd ./tests/Pipaslot.Mediator.Tests/
           dotnet test
       
       # Publish
