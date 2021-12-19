@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,9 @@ namespace Pipaslot.Mediator.Tests
             var services = CreateServiceProvider(c =>
             {
                 c.AddActionsFromAssemblyOf<Factory>()
-                .AddHandlersFromAssemblyOf<Factory>();
+                .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                .AddHandlersFromAssemblyOf<Factory>()
+                .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
                 setup(c);
             }
             );

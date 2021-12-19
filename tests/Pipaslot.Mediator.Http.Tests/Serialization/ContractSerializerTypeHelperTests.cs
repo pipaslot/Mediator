@@ -1,7 +1,7 @@
 ﻿using Pipaslot.Mediator.Http.Serialization;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Http.Serialization
+namespace Pipaslot.Mediator.Http.Tests.Serialization
 {
     public class ContractSerializerTypeHelperTests
     {

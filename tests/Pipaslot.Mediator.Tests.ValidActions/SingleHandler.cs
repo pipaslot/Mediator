@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.FakeActions
+namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public static class SingleHandler
     {

@@ -1,9 +1,9 @@
 ﻿using Pipaslot.Mediator.Http;
-using Pipaslot.Mediator.Tests.FakeActions;
+using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Http
+namespace Pipaslot.Mediator.Http.Tests
 {
     public class MediatorExceptionLoggingMiddlewareTests
     {

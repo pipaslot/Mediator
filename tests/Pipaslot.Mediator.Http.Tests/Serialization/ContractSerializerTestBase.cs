@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Http.Serialization
+namespace Pipaslot.Mediator.Http.Tests.Serialization
 {
     public abstract class ContractSerializerTestBase
     {

@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests.Inv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests.ValidActions", "tests\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj", "{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipaslot.Mediator.Http.Tests", "tests\Pipaslot.Mediator.Http.Tests\Pipaslot.Mediator.Http.Tests.csproj", "{C7602E28-3147-4611-B68C-A015117D0F43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7602E28-3147-4611-B68C-A015117D0F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7602E28-3147-4611-B68C-A015117D0F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7602E28-3147-4611-B68C-A015117D0F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7602E28-3147-4611-B68C-A015117D0F43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{05E0E0B6-D629-43E1-A99D-50D40700E127} = {2C9898EF-47A6-4F70-AEA4-D4393020B2CC}
 		{197DF039-F09B-4C9E-9969-9840607C1F8F} = {2C9898EF-47A6-4F70-AEA4-D4393020B2CC}
 		{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2} = {2C9898EF-47A6-4F70-AEA4-D4393020B2CC}
+		{C7602E28-3147-4611-B68C-A015117D0F43} = {2C9898EF-47A6-4F70-AEA4-D4393020B2CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02B7F392-9774-43BE-B416-C7BD562849CB}

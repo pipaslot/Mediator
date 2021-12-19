@@ -6,7 +6,7 @@ using Pipaslot.Mediator.Http.Configuration;
 using System;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Http.Configuration
+namespace Pipaslot.Mediator.Http.Tests.Configuration
 {
     public class CredibleResultProviderTests
     {
