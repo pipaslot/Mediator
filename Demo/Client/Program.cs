@@ -4,6 +4,7 @@ using Pipaslot.Mediator.Http;
 using Demo.Client;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Demo.Client.Middlewares;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -22,7 +23,10 @@ builder.Services.AddMediatorClient(o =>
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipeline<IRequest>()
-        .UseReduceDuplicateProcessing();
+        .UseReduceDuplicateProcessing()
+        .Use<NotificationMiddleware>()
+    .AddDefaultPipeline()
+        .Use<NotificationMiddleware>();
 ////////
 
 await builder.Build().RunAsync();

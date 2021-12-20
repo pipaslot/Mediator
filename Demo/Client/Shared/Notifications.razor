@@ -1,0 +1,35 @@
+﻿<div class="toast-container position-fixed top-0 end-0" style="z-index: 11">
+    @foreach (var message in NotificationMiddleware.Messages)
+    {
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger row mx-0">
+                <div class="row px-0">
+                    <small class="col text-white">@message.Time</small>
+                    <button type="button" class="btn-close" @onclick="()=>{ NotificationMiddleware.Remove(message); }"></button>
+                </div>
+                <strong class="text-white px-0">@message.Title</strong>
+            </div>
+            <div class="toast-body">
+                @message.Content
+            </div>
+        </div>
+    }
+</div>
+
+@inject Demo.Client.Middlewares.NotificationMiddleware NotificationMiddleware
+@implements IDisposable
+@code {
+    protected override void OnInitialized()
+    {
+        NotificationMiddleware.MessagesHasChanged += OnMessagesChanged;
+    }
+    public void Dispose()
+    {
+        NotificationMiddleware.MessagesHasChanged -= OnMessagesChanged;
+    }
+
+    private void OnMessagesChanged(object? sender, EventArgs args)
+    {
+        StateHasChanged();
+    }
+}

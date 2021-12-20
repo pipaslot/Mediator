@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests.Inv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests.ValidActions", "tests\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj", "{0F58EBF6-1FBA-4BDE-B930-DDA6533196B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipaslot.Mediator.Http.Tests", "tests\Pipaslot.Mediator.Http.Tests\Pipaslot.Mediator.Http.Tests.csproj", "{C7602E28-3147-4611-B68C-A015117D0F43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Http.Tests", "tests\Pipaslot.Mediator.Http.Tests\Pipaslot.Mediator.Http.Tests.csproj", "{C7602E28-3147-4611-B68C-A015117D0F43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
