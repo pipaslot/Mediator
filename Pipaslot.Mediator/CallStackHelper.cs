@@ -17,6 +17,7 @@ namespace Pipaslot.Mediator
             var requestHanderType = typeof(IMediatorHandler<,>);
             return stack.GetFrames()
                 .Select(f => f.GetMethod().DeclaringType)
+                .Where(t => t != null)
                 .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && (i.GetGenericTypeDefinition() == messageHanderType || i.GetGenericTypeDefinition() == requestHanderType)))
                 .ToArray();
         }
