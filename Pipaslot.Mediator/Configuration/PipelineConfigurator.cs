@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator.Configuration
 {
-    public class PipelineConfigurator : IPipelineConfigurator
+    public class PipelineConfigurator : IPipelineConfigurator, IActionTypeProvider
     {
         private readonly IServiceCollection _services;
         public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
@@ -107,6 +107,48 @@ namespace Pipaslot.Mediator.Configuration
             {
                 _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
             }
+        }
+
+        public Type[] GetMessageActionTypes()
+        {
+            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
+            return FilterAssignableToMessage(types);
+        }
+
+        public Type[] GetRequestActionTypes()
+        {
+            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
+            return FilterAssignableToRequest(types);
+        }
+
+        internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
+        {
+            var genericRequestType = typeof(IMediatorAction<>);
+            return types
+                .Where(t => t.IsClass
+                        && !t.IsAbstract
+                        && !t.IsInterface
+                        && t.GetInterfaces()
+                            .Any(i => i.IsGenericType
+                                    && i.GetGenericTypeDefinition() == genericRequestType)
+                )
+                .ToArray();
+        }
+
+        internal static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
+        {
+            var genericRequestType = typeof(IMediatorAction<>);
+            var type = typeof(IMediatorAction);
+            return types
+                .Where(p => p.IsClass
+                            && !p.IsAbstract
+                            && !p.IsInterface
+                            && p.GetInterfaces().Any(i => i == type)
+                            && !p.GetInterfaces()
+                            .Any(i => i.IsGenericType
+                                    && i.GetGenericTypeDefinition() == genericRequestType)
+                 )
+                .ToArray();
         }
     }
 }

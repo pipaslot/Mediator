@@ -29,6 +29,7 @@ namespace Pipaslot.Mediator
             services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
             var configurator = new PipelineConfigurator(services);
             services.AddSingleton(configurator);
+            services.AddSingleton<IActionTypeProvider>(configurator);
             services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
 
             return configurator;

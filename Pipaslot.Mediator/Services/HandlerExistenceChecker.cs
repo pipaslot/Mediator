@@ -14,35 +14,35 @@ namespace Pipaslot.Mediator.Services
         /// </summary>
         private readonly HashSet<Type> _alreadyVerified = new();
         private readonly IServiceProvider _serviceProvider;
-        private readonly PipelineConfigurator _configurator;
+        private readonly IActionTypeProvider _actionTypeProvider;
         private readonly List<string> _errors = new();
 
-        public HandlerExistenceChecker(IServiceProvider serviceProvider, PipelineConfigurator configurator)
+        public HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTypeProvider actionTypeProvider)
         {
             _serviceProvider = serviceProvider;
-            _configurator = configurator;
+            _actionTypeProvider = actionTypeProvider;
         }
 
         public void Verify()
         {
-            var assemblies = _configurator.ActionMarkerAssemblies;
-            if (assemblies.Count == 0)
+            var messageTypes = _actionTypeProvider.GetMessageActionTypes();
+            var requestTypes = _actionTypeProvider.GetRequestActionTypes();
+            var typeCount = messageTypes.Count() + requestTypes.Count();
+            if (typeCount == 0)
             {
                 throw MediatorException.CreateForNoActionRegistered();
             }
 
-            var types = assemblies.SelectMany(s => s.GetTypes());
-            VerifyMessages(types);
-            VerifyRequests(types);
+            VerifyMessages(messageTypes);
+            VerifyRequests(requestTypes);
             if (_errors.Any())
             {
                 throw MediatorException.CreateForInvalidHandlers(_errors.ToArray());
             }
         }
 
-        private void VerifyMessages(IEnumerable<Type> types)
+        private void VerifyMessages(IEnumerable<Type> queryTypes)
         {
-            var queryTypes = FilterAssignableToMessage(types);
             foreach (var subject in queryTypes)
             {
                 if (_alreadyVerified.Contains(subject))
@@ -63,8 +63,7 @@ namespace Pipaslot.Mediator.Services
 
         private void VerifyRequests(IEnumerable<Type> types)
         {
-            var queryTypes = FilterAssignableToRequest(types);
-            foreach (var subject in queryTypes)
+            foreach (var subject in types)
             {
                 if (_alreadyVerified.Contains(subject))
                 {
@@ -92,44 +91,15 @@ namespace Pipaslot.Mediator.Services
                 _errors.Add(FormatTooManyHandlersError(subject, handlerNames));
             }
         }
+
         internal static string FormatNoHandlerError(Type subject)
         {
             return $"No handler was registered for action: {subject}.";
         }
+
         internal static string FormatTooManyHandlersError(Type subject, string[] handlers)
         {
             return $"Multiple handlers were registered for one action type: {subject} with classes [{string.Join(", ", handlers)}].";
-        }
-
-
-        internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
-        {
-            var genericRequestType = typeof(IMediatorAction<>);
-            return types
-                .Where(t => t.IsClass
-                        && !t.IsAbstract
-                        && !t.IsInterface
-                        && t.GetInterfaces()
-                            .Any(i => i.IsGenericType
-                                    && i.GetGenericTypeDefinition() == genericRequestType)
-                )
-                .ToArray();
-        }
-
-        internal static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
-        {
-            var genericRequestType = typeof(IMediatorAction<>);
-            var type = typeof(IMediatorAction);
-            return types
-                .Where(p => p.IsClass
-                            && !p.IsAbstract
-                            && !p.IsInterface
-                            && p.GetInterfaces().Any(i => i == type)
-                            && !p.GetInterfaces()
-                            .Any(i => i.IsGenericType
-                                    && i.GetGenericTypeDefinition() == genericRequestType)
-                 )
-                .ToArray();
         }
     }
 }

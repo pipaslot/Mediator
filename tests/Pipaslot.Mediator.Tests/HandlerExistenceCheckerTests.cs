@@ -1,4 +1,4 @@
-﻿using Pipaslot.Mediator.Services;
+﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Tests.ValidActions;
 using Xunit;
 
@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Tests
                 expected,
                 typeof(HandlerExistenceCheckerTests)
             };
-            var result = HandlerExistenceChecker.FilterAssignableToRequest(types);
+            var result = PipelineConfigurator.FilterAssignableToRequest(types);
 
             Assert.Contains(expected, result);
             Assert.Single(result);
@@ -33,7 +33,7 @@ namespace Pipaslot.Mediator.Tests
                 expected,
                 typeof(HandlerExistenceCheckerTests)
             };
-            var result = HandlerExistenceChecker.FilterAssignableToMessage(types);
+            var result = PipelineConfigurator.FilterAssignableToMessage(types);
 
             Assert.Contains(expected, result);
             Assert.Single(result);
