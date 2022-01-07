@@ -135,7 +135,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var results = new System.Collections.Generic.List<object>
             {
-                seed
+                seed!
             };
             var response = new MediatorResponse(true, results, new string[0]);
             var sut = CreateSerializer();
@@ -168,7 +168,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         public class PublicPropertyGettersAndSettersContract : IMessage
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = "";
             public int Number { get; set; }
         }
 
@@ -198,7 +198,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         public class PublicPropertyGetterAndInitSetterContract : IMessage
         {
-            public string Name { get; init; }
+            public string Name { get; init; } = "";
             public int Number { get; init; }
         }
 
