@@ -9,6 +9,7 @@ var services = builder.Services;
 
 services.AddControllersWithViews();
 services.AddRazorPages();
+services.AddResponseCompression();
 services.AddHttpContextAccessor();
 
 //////// Mediator implementation
@@ -49,6 +50,7 @@ else
 {
     app.UseExceptionHandler("/Error");
 }
+app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
