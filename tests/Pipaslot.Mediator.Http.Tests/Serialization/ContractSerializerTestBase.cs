@@ -137,7 +137,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             {
                 seed!
             };
-            var response = new MediatorResponse(true, results, new string[0]);
+            var response = new MediatorResponse(true, results, Array.Empty<string>());
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -151,7 +151,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var sut = CreateSerializer();
             var result = new Result();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, Array.Empty<string>()));
             var deserialized = sut.DeserializeResponse<IResult>(responseString);
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }

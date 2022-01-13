@@ -12,8 +12,8 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
     {
-        private static Dictionary<Type, Dictionary<int, Task>> _running = new();
-        private object _lock = new();
+        private readonly static Dictionary<Type, Dictionary<int, Task>> _running = new();
+        private readonly object _lock = new();
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
