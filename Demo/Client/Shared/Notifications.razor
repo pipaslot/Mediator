@@ -28,10 +28,10 @@
     public Dictionary<NotificationType, double> Durations = new Dictionary<NotificationType, double>()
         {
             {NotificationType.ActionError, 5000 },
-            {NotificationType.Information, 5000 },
+            {NotificationType.Information, 4000 },
             {NotificationType.Error, 5000 },
-            {NotificationType.Warning, 5000 },
-            {NotificationType.Success, 5000 }
+            {NotificationType.Warning, 4000 },
+            {NotificationType.Success, 3000 }
         };
 
     protected override void OnInitialized()
@@ -55,6 +55,7 @@
                 {
                     _notifications.Remove(notification);
                     timer.Dispose();
+                    StateHasChanged();
                 };
                 timer.AutoReset = false;
                 timer.Start();
