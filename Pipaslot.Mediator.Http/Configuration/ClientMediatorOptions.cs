@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Notifications;
+using System;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
@@ -15,6 +16,6 @@ namespace Pipaslot.Mediator.Http.Configuration
         /// Define extra types returned by server as credible. 
         /// For action result type refistrations use mediator methods AddActionsFromAssemblyOf or AddActionsFromAssembly
         /// </summary>
-        public Type[] CredibleResultTypes { get; set; } = new Type[0];
+        public Type[] CredibleResultTypes { get; set; } = new Type[] { typeof(Notification) };
     }
 }
