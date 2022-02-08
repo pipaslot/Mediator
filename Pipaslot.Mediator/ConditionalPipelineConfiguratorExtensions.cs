@@ -1,6 +1,8 @@
 ﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator
 {
@@ -42,19 +44,25 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
-        /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="NotificationReceiverMiddleware.NotificationsHasChanged"/>
+        /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
         /// </summary>
         public static IConditionalPipelineConfigurator UseNotificationReceiver(this IConditionalPipelineConfigurator config)
         {
-            return config.Use<NotificationReceiverMiddleware>();
+            return config.Use<NotificationReceiverMiddleware>(services =>
+            {
+                services.TryAddScoped<INotificationReceiver>(s => s.GetService<NotificationReceiverMiddleware>());
+            });
         }
 
         /// <summary>
-        /// Middleware attaching <see cref="Notification"/> to action results when new notification was added viat <see cref="NotificationSenderMiddleware.Add(Notification[])"/>
+        /// Middleware attaching <see cref="Notification"/> to action results when new notification was added vit <see cref="INotificationProvider.Add(Notification)"/>
         /// </summary>
-        public static IConditionalPipelineConfigurator UseNotificationSender(this IConditionalPipelineConfigurator config)
+        public static IConditionalPipelineConfigurator UseNotificationProvider(this IConditionalPipelineConfigurator config)
         {
-            return config.Use<NotificationSenderMiddleware>();
+            return config.Use<NotificationProviderMiddleware>(services =>
+            {
+                services.TryAddScoped<INotificationProvider>(s => s.GetService<NotificationProviderMiddleware>());
+            });
         }
     }
 }

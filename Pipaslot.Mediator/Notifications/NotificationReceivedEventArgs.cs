@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Notifications
 {
-    public class NotificationEventArgs : EventArgs
+    public class NotificationReceivedEventArgs : EventArgs
     {
         public IReadOnlyCollection<Notification> Notifications { get; }
 
-        public NotificationEventArgs(IReadOnlyCollection<Notification> notifications)
+        public NotificationReceivedEventArgs(IReadOnlyCollection<Notification> notifications)
         {
             Notifications = notifications;
         }

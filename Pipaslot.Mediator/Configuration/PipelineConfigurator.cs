@@ -9,12 +9,12 @@ namespace Pipaslot.Mediator.Configuration
 {
     public class PipelineConfigurator : IPipelineConfigurator, IActionTypeProvider
     {
-        private readonly IServiceCollection _services;
+        internal readonly IServiceCollection Services;
         public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
 
         public PipelineConfigurator(IServiceCollection services)
         {
-            _services = services;
+            Services = services;
         }
 
         public IPipelineConfigurator AddActionsFromAssemblyOf<T>()
@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator.Configuration
                 foreach (var iface in pair.Interfaces)
                 {
                     var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
-                    _services.Add(item);
+                    Services.Add(item);
                 }
             }
             return this;
@@ -74,34 +74,34 @@ namespace Pipaslot.Mediator.Configuration
         public IConditionalPipelineConfigurator AddPipeline(string identifier, Func<Type, bool> actionCondition)
         {
             var pipeline = new ActionSpecificPipelineDefinition(this, identifier, actionCondition);
-            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) =>
+            var existingPipelineDescriptor = Services.FirstOrDefault((ServiceDescriptor d) =>
                     d.ServiceType == typeof(ActionSpecificPipelineDefinition)
                 && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).Identifier == identifier);
             if (existingPipelineDescriptor != null)
             {
-                _services.Remove(existingPipelineDescriptor);
+                Services.Remove(existingPipelineDescriptor);
             }
-            _services.AddSingleton(pipeline);
+            Services.AddSingleton(pipeline);
             return pipeline;
         }
 
         public IConditionalPipelineConfigurator AddDefaultPipeline()
         {
             var pipeline = new DefaultPipelineDefinition(this);
-            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(DefaultPipelineDefinition));
+            var existingPipelineDescriptor = Services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(DefaultPipelineDefinition));
             if (existingPipelineDescriptor != null)
             {
-                _services.Remove(existingPipelineDescriptor);
+                Services.Remove(existingPipelineDescriptor);
             }
 
-            _services.AddSingleton(pipeline);
+            Services.AddSingleton(pipeline);
 
             return pipeline;
         }
 
         internal void RegisterMiddleware(Type middlewareType, ServiceLifetime lifetime)
         {
-            var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
+            var existingDescriptor = Services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
             if (existingDescriptor != null)
             {
                 if (existingDescriptor.Lifetime != lifetime)
@@ -111,7 +111,7 @@ namespace Pipaslot.Mediator.Configuration
             }
             else
             {
-                _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+                Services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
             }
         }
 

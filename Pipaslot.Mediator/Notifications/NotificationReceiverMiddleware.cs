@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Notifications
 {
-    public class NotificationReceiverMiddleware : IMediatorMiddleware
+    public class NotificationReceiverMiddleware : IMediatorMiddleware, INotificationReceiver
     {
-        public event EventHandler<NotificationEventArgs>? NotificationsHasChanged;
+        public event EventHandler<NotificationReceivedEventArgs>? NotificationReceived;
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Notifications
             var ordered = errors.Concat(notifications).OrderBy(m => m.Time).ToArray();
             if (ordered.Any())
             {
-                NotificationsHasChanged?.Invoke(this, new NotificationEventArgs(ordered));
+                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(ordered));
             }
         }
     }

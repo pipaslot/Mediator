@@ -6,11 +6,11 @@ namespace Demo.Server.Handlers
 {
     public class WheatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.Result[]>
     {
-        private readonly NotificationSenderMiddleware _notificationSenderMiddleware;
+        private readonly INotificationProvider _notificationProvider;
 
-        public WheatherForecastRequestHandler(NotificationSenderMiddleware notificationSenderMiddleware)
+        public WheatherForecastRequestHandler(INotificationProvider notificationProvider)
         {
-            _notificationSenderMiddleware = notificationSenderMiddleware;
+            _notificationProvider = notificationProvider;
         }
 
         private static readonly string[] _summaries = new[]
@@ -30,12 +30,7 @@ namespace Demo.Server.Handlers
             .ToArray();
             if (request.AttachNotification)
             {
-                _notificationSenderMiddleware.Add(new Notification
-                {
-                    Source = "Forecast",
-                    Content = "Enjoy the beautifull days",
-                    Type = NotificationType.Success
-                });
+                _notificationProvider.AddSuccess("Enjoy the beautifull days", "Forecast");
             }
             return Task.FromResult(forecast);
         }
@@ -43,11 +38,11 @@ namespace Demo.Server.Handlers
 
     public class WheatherForecastRequestRecordHandler : IRequestHandler<WeatherForecast.RequestRecord, WeatherForecast.Result[]>
     {
-        private readonly NotificationSenderMiddleware _notificationSenderMiddleware;
+        private readonly INotificationProvider _notificationProvider;
 
-        public WheatherForecastRequestRecordHandler(NotificationSenderMiddleware notificationSenderMiddleware)
+        public WheatherForecastRequestRecordHandler(INotificationProvider notificationProvider)
         {
-            _notificationSenderMiddleware = notificationSenderMiddleware;
+            _notificationProvider = notificationProvider;
         }
         private static readonly string[] _summaries = new[]
         {
@@ -67,12 +62,7 @@ namespace Demo.Server.Handlers
 
             if (request.AttachNotification)
             {
-                _notificationSenderMiddleware.Add(new Notification
-                {
-                    Source = "Forecast",
-                    Content = "Enjoy the beautifull days",
-                    Type = NotificationType.Success
-                });
+                _notificationProvider.AddSuccess("Enjoy the beautifull days", "Forecast");
             }
             return Task.FromResult(forecast);
         }

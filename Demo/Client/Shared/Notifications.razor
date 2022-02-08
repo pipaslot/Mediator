@@ -17,7 +17,7 @@
     }
 </div>
 
-@inject NotificationReceiverMiddleware NotificationMiddleware
+@inject INotificationReceiver NotificationMiddleware
 @implements IDisposable
 @code {
     private readonly List<Notification> _notifications = new List<Notification>();
@@ -36,14 +36,14 @@
 
     protected override void OnInitialized()
     {
-        NotificationMiddleware.NotificationsHasChanged += OnMessagesChanged;
+        NotificationMiddleware.NotificationReceived += OnNotificationReceived;
     }
     public void Dispose()
     {
-        NotificationMiddleware.NotificationsHasChanged -= OnMessagesChanged;
+        NotificationMiddleware.NotificationReceived -= OnNotificationReceived;
     }
 
-    private void OnMessagesChanged(object? sender, NotificationEventArgs args)
+    private void OnNotificationReceived(object? sender, NotificationReceivedEventArgs args)
     {
         foreach (var notification in args.Notifications)
         {

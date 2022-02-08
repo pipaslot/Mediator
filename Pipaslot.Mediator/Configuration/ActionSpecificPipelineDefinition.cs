@@ -28,6 +28,12 @@ namespace Pipaslot.Mediator.Configuration
             Condition = contition;
         }
 
+        public IConditionalPipelineConfigurator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        {
+            setupDependencies(_configurator.Services);
+            return Use<TMiddleware>(lifetime);
+        }
+
         public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             var type = typeof(TMiddleware);

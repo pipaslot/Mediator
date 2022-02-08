@@ -1,9 +1,9 @@
-﻿using Pipaslot.Mediator.Http;
+﻿using Pipaslot.Mediator;
+using Pipaslot.Mediator.Http;
 using Demo.Server.Handlers;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
-using Pipaslot.Mediator.Notifications;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -31,11 +31,11 @@ services.AddMediatorServer(o => {
     //    .Use<CommonMiddleware>()          // Middleware which should be used for all action types
     //    .UseSequenceMultiHandler()        // This allow to define and executie multiple action handlers. Must be defined as last middleware in pipeline. 
 
-    // Use default pipelin if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution
+    // Use default pipeline if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution
     .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
         .UseExceptionLogging()             // Log all unhalded exception via ILogger
         .Use<MediatorCallStackLoggerMiddleware>()
-        .Use<NotificationSenderMiddleware>()
+        .UseNotificationProvider()
         .Use<ValidatorMiddleware>()
         .Use<CommonMiddleware>();
 ////////
