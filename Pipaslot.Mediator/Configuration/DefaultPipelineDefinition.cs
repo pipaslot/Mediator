@@ -30,6 +30,11 @@ namespace Pipaslot.Mediator.Configuration
             return _configurator.AddPipeline<TActionMarker>();
         }
 
+        public IConditionalPipelineConfigurator AddPipeline(string identifier, Func<Type, bool> actionCondition)
+        {
+            return _configurator.AddPipeline(identifier, actionCondition);
+        }
+
         public IConditionalPipelineConfigurator AddDefaultPipeline()
         {
             return _configurator.AddDefaultPipeline();

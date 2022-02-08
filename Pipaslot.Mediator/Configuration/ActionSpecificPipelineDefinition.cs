@@ -12,14 +12,20 @@ namespace Pipaslot.Mediator.Configuration
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
         /// <summary>
-        /// Class or interface which needs to be implemented by Request object to be apply the pipeline for. Will be applied always if is null.
+        /// Unique pipeline identifier
         /// </summary>
-        public Type MarkerType { get; }
+        public string Identifier { get; }
 
-        public ActionSpecificPipelineDefinition(PipelineConfigurator configurator, Type markerType)
+        /// <summary>
+        /// Condition deciding wheather the pipeline will be applied or not
+        /// </summary>
+        public Func<Type, bool> Condition { get; }
+
+        public ActionSpecificPipelineDefinition(PipelineConfigurator configurator, string identifier, Func<Type, bool> contition)
         {
             _configurator = configurator;
-            MarkerType = markerType;
+            Identifier = identifier;
+            Condition = contition;
         }
 
         public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
@@ -28,6 +34,11 @@ namespace Pipaslot.Mediator.Configuration
             _middlewares.Add(type);
             _configurator.RegisterMiddleware(type, lifetime);
             return this;
+        }
+
+        public IConditionalPipelineConfigurator AddPipeline(string identifier, Func<Type, bool> actionCondition)
+        {
+            return _configurator.AddPipeline(identifier, actionCondition);
         }
 
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()

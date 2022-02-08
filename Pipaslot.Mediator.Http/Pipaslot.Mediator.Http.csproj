@@ -8,7 +8,7 @@
 		<AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
-			Provide serializers for communication between Pipaslot.Mediator.Client and Pipaslot.Mediator.Server
+			Extends Pipaslot.Mediator to communicate over HTTP
 		</Description>
 		<NoWarn>1591</NoWarn>
 		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>

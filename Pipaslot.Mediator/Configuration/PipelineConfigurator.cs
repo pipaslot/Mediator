@@ -65,12 +65,18 @@ namespace Pipaslot.Mediator.Configuration
             }
             return this;
         }
-
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
         {
             var markerType = typeof(TActionMarker);
-            var pipeline = new ActionSpecificPipelineDefinition(this, markerType);
-            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(ActionSpecificPipelineDefinition) && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).MarkerType == markerType);
+            return AddPipeline(markerType.ToString(), actionType => markerType.IsAssignableFrom(actionType));
+        }
+
+        public IConditionalPipelineConfigurator AddPipeline(string identifier, Func<Type, bool> actionCondition)
+        {
+            var pipeline = new ActionSpecificPipelineDefinition(this, identifier, actionCondition);
+            var existingPipelineDescriptor = _services.FirstOrDefault((ServiceDescriptor d) =>
+                    d.ServiceType == typeof(ActionSpecificPipelineDefinition)
+                && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).Identifier == identifier);
             if (existingPipelineDescriptor != null)
             {
                 _services.Remove(existingPipelineDescriptor);
@@ -97,8 +103,8 @@ namespace Pipaslot.Mediator.Configuration
         {
             var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
             if (existingDescriptor != null)
-            { 
-                if(existingDescriptor.Lifetime != lifetime)
+            {
+                if (existingDescriptor.Lifetime != lifetime)
                 {
                     throw new MediatorException($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
                 }

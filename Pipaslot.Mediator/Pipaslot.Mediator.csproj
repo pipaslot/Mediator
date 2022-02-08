@@ -5,21 +5,12 @@
 		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>4.0.0</Version>
+		<Version>4.1.0</Version>
 		<PackageId>Pipaslot.Mediator</PackageId>
 		<AssemblyName>Pipaslot.Mediator</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares).
-			It is alternative for REST API. Designed for applications like Blazor, which shares their data contracts.
-
-			Updates:
-			3.2.0 - Propagate result data into MediatorExecutionException
-			3.0.0 - IMessage and IRequest were abstracted to IMediatorAction
-			2.1.0 - Provide IMediator.DispatchUnhandled and IMediator.ExecuteUnhandled
-			2.0.0 - Fix: IMediator.Execute returns Success as false if Result is null
-			- Support for building independent pipelines via API .AddPipeline() and .AddDefaultPipeline()
-			- Automatic mediator response deserialization into the exact type
 		</Description>
 		<NoWarn>1591</NoWarn>
 		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
