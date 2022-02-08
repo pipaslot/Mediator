@@ -1,13 +1,14 @@
-﻿<div class="toast-container position-fixed top-0 end-0" style="z-index: 11">
-    @foreach (var message in NotificationMiddleware.Messages)
+﻿@using Pipaslot.Mediator.Notifications
+<div class="toast-container position-fixed top-0 end-0" style="z-index: 11">
+    @foreach (var message in _notifications)
     {
         <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-danger row mx-0">
+            <div class="toast-header @GetTypeClass(message) row mx-0">
                 <div class="row px-0">
                     <small class="col text-white">@message.Time</small>
-                    <button type="button" class="btn-close" @onclick="()=>{ NotificationMiddleware.Remove(message); }"></button>
+                    <button type="button" class="btn-close" @onclick="()=>{ _notifications.Remove(message); }"></button>
                 </div>
-                <strong class="text-white px-0">@message.Title</strong>
+                <strong class="text-white px-0">@message.Source</strong>
             </div>
             <div class="toast-body">
                 @message.Content
@@ -16,20 +17,73 @@
     }
 </div>
 
-@inject Demo.Client.Middlewares.NotificationMiddleware NotificationMiddleware
+@inject NotificationReceiverMiddleware NotificationMiddleware
 @implements IDisposable
 @code {
+    private readonly List<Notification> _notifications = new List<Notification>();
+
+    /// <summary>
+    /// Define durations for notification types in miliseconds
+    /// </summary>
+    public Dictionary<NotificationType, double> Durations = new Dictionary<NotificationType, double>()
+        {
+            {NotificationType.ActionError, 5000 },
+            {NotificationType.Information, 5000 },
+            {NotificationType.Error, 5000 },
+            {NotificationType.Warning, 5000 },
+            {NotificationType.Success, 5000 }
+        };
+
     protected override void OnInitialized()
     {
-        NotificationMiddleware.MessagesHasChanged += OnMessagesChanged;
+        NotificationMiddleware.NotificationsHasChanged += OnMessagesChanged;
     }
     public void Dispose()
     {
-        NotificationMiddleware.MessagesHasChanged -= OnMessagesChanged;
+        NotificationMiddleware.NotificationsHasChanged -= OnMessagesChanged;
     }
 
-    private void OnMessagesChanged(object? sender, EventArgs args)
+    private void OnMessagesChanged(object? sender, NotificationEventArgs args)
     {
+        foreach (var notification in args.Notifications)
+        {
+            _notifications.Add(notification);
+            var timer = GetTimer(notification.Type);
+            if (timer != null)
+            {
+                timer.Elapsed += (sender, args) =>
+                {
+                    _notifications.Remove(notification);
+                    timer.Dispose();
+                };
+                timer.AutoReset = false;
+                timer.Start();
+            }
+        }
         StateHasChanged();
+    }
+
+    private System.Timers.Timer? GetTimer(NotificationType type)
+    {
+        if (Durations.TryGetValue(type, out var timeout) && timeout > 0)
+        {
+            return new System.Timers.Timer(timeout);
+        }
+        return null;
+    }
+
+    private string GetTypeClass(Notification notification)
+    {
+        switch (notification.Type)
+        {
+            case NotificationType.Success:
+                return "bg-success";
+            case NotificationType.Information:
+                return "bg-info";
+            case NotificationType.Warning:
+                return "bg-warning";
+            default:
+                return "bg-danger";
+        }
     }
 }

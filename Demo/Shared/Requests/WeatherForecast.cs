@@ -9,6 +9,8 @@ namespace Demo.Shared.Requests
         {
             public DateTime Date { get; set; } = DateTime.Now;
 
+            public bool AttachNotification { get; set; }
+
             public override int GetHashCode()
             {
                 return Date.GetHashCode();
@@ -17,6 +19,7 @@ namespace Demo.Shared.Requests
         public record RequestRecord : IRequest<Result[]>
         {
             public DateTime Date { get; set; } = DateTime.Now;
+            public bool AttachNotification { get; set; }
 
             //Hash code do not need to be provided
         }

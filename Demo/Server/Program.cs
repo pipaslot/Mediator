@@ -3,6 +3,7 @@ using Demo.Server.Handlers;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Pipaslot.Mediator.Notifications;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -34,6 +35,7 @@ services.AddMediatorServer(o => {
     .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
         .UseExceptionLogging()             // Log all unhalded exception via ILogger
         .Use<MediatorCallStackLoggerMiddleware>()
+        .Use<NotificationSenderMiddleware>()
         .Use<ValidatorMiddleware>()
         .Use<CommonMiddleware>();
 ////////

@@ -1,5 +1,6 @@
 ﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Notifications;
 
 namespace Pipaslot.Mediator
 {
@@ -38,6 +39,22 @@ namespace Pipaslot.Mediator
         public static IConditionalPipelineConfigurator UseReduceDuplicateProcessing(this IConditionalPipelineConfigurator config)
         {
             return config.Use<ReduceDuplicateProcessingMiddleware>();
+        }
+
+        /// <summary>
+        /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="NotificationReceiverMiddleware.NotificationsHasChanged"/>
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseNotificationReceiver(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<NotificationReceiverMiddleware>();
+        }
+
+        /// <summary>
+        /// Middleware attaching <see cref="Notification"/> to action results when new notification was added viat <see cref="NotificationSenderMiddleware.Add(Notification[])"/>
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseNotificationSender(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<NotificationSenderMiddleware>();
         }
     }
 }
