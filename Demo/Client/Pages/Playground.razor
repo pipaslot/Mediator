@@ -1,42 +1,42 @@
 ﻿@page "/playground"
 @using System.Text.Json;
+@using Pipaslot.Mediator.Abstractions
 
 <h1>Playground</h1>
 <p>Test actions executed from client and their behaviour.</p>
 
-<h5>Requests</h5>
+<h5>Execute and Dispatch</h5>
 <p>
-    <button class="btn btn-primary" @onclick="RunPassing">Run Passing</button>
-    <button class="btn btn-primary" @onclick="RunFailing">Run Failing</button>
-    <button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled</button><i>Infinite loading because exception will be thrown</i>
+    Requests:<br />
+    <button class="btn btn-primary btn-sm" @onclick="() => Execute(new WeatherForecast.Request())">Run Passing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Execute(new Failing.Request())">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Mediator.ExecuteUnhandled(new Failing.Request())">Run Failing unhandled</button>
+</p>
+<p>
+    Messages:<br />
+    <button class="btn btn-primary btn-sm" @onclick="()=>Dispatch(new DemoMessage() { Fail = false })">Run Passing</button>
+    <button class="btn btn-primary btn-sm" @onclick="()=>Dispatch(new DemoMessage() { Fail = true })">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="()=>Mediator.ExecuteUnhandled(new Failing.Request())">Run Failing unhandled</button>
+</p>
+<p>
+    Message with cascading calling of another failed message:<br />
+    <button class="btn btn-primary btn-sm" @onclick="()=>Dispatch(new CascadingToAnotherFailingRequestMessage())">Run Failing cascading message</button>
 </p>
 
-<h5>Messages</h5>
+<h5>UseReduceDuplicateProcessing middleware</h5>
 <p>
-    <button class="btn btn-primary" @onclick="()=>RunMessage(true)">Run Passing</button>
-    <button class="btn btn-primary" @onclick="()=>RunMessage(false)">Run Failing</button>
-    <button class="btn btn-primary" @onclick="RunFailingUnhandledMessage">Run Failing unhandled</button>
+    Reduce fuplicate calls by middleware. Only one server request will be executed at the same time.<br />
+    <button class="btn btn-primary btn-sm" @onclick="RunDuplicateClassQuery">With class types</button>
+    <button class="btn btn-primary btn-sm" @onclick="RunDuplicateRecordQuery">With record types</button>
 </p>
 
-<h5>Chaining by handlers</h5>
+<h5>Notifications from handlers or services</h5>
 <p>
-    <button class="btn btn-primary" @onclick="()=>RunCascadingFailing()">Run Failing cascading message</button>
-</p>
-
-<h5>UseReduceDuplicateProcessin middleware</h5>
-<p>Reduce fuplicate calls. Only one server request will be executed at the same time</p>
-<p>
-    <button class="btn btn-primary" @onclick="RunDuplicateClassQuery">Run Duplicate Request classes</button>
-    <button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records</button>
-</p>
-
-<h5>Notifications from handlers and services</h5>
-<p>
-    <button class="btn btn-primary" @onclick="async () => await Mediator.Execute(new WeatherForecast.Request())">Run</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification())">Run</button>
 </p>
 
 
-<h4>HTTP Response</h4>
+<h4>Result Data</h4>
 <code>
     @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
     {
@@ -55,40 +55,18 @@
         {
             WriteIndented = true
         };
-    private async Task RunPassing()
+    private async Task Dispatch(IMediatorAction action)
     {
-        var response = await Mediator.Execute(new WeatherForecast.Request());
-        ProcessRequestResponse(response);
+        _serializedReponse = new MarkupString("");
+        var result = await Mediator.Dispatch(action);
+        _serializedReponse = Serialize(result.Results);
     }
-
-    private async Task RunFailing()
+    private async Task Execute<TResult>(IMediatorAction<TResult> action)
     {
-        var response = await Mediator.Execute(new Failing.Request());
-        ProcessRequestResponse(response);
+        _serializedReponse = new MarkupString("");
+        var result = await Mediator.Execute(action);
+        _serializedReponse = Serialize(result.Results);
     }
-    private async Task RunFailingUnhandled()
-    {
-        var response = await Mediator.ExecuteUnhandled(new Failing.Request());
-    }
-
-    private async Task RunMessage(bool pass)
-    {
-        var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
-        ProcessMessageResponse(response);
-    }
-
-    private async Task RunFailingUnhandledMessage()
-    {
-        await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
-    }
-
-
-    private async Task RunCascadingFailing()
-    {
-        var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
-        ProcessMessageResponse(response);
-    }
-
     private async Task RunDuplicateClassQuery()
     {
         var date = DateTime.Now;
@@ -96,12 +74,7 @@
         var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
         var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
         await Task.WhenAll(task1, task2, task3);
-        _serializedReponse = Serialize(new
-        {
-            Task1 = Format(task1.Result),
-            Task2 = Format(task2.Result),
-            Task3 = Format(task3.Result),
-        });
+        _serializedReponse = Serialize(task1.Result);
     }
 
     private async Task RunDuplicateRecordQuery()
@@ -111,38 +84,7 @@
         var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
         var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
         await Task.WhenAll(task1, task2, task3);
-        _serializedReponse = Serialize(new
-        {
-            Task1 = Format(task1.Result),
-            Task2 = Format(task2.Result),
-            Task3 = Format(task3.Result),
-        });
-    }
-
-    private void ProcessMessageResponse(IMediatorResponse response)
-    {
-        _serializedReponse = Serialize(new
-        {
-            _Type = response.GetType().FullName,
-            Success = response.Success,
-            ErrorMessage = response.ErrorMessage
-        });
-    }
-
-    private void ProcessRequestResponse<TResult>(IMediatorResponse<TResult> response)
-    {
-        _serializedReponse = Serialize(Format(response));
-    }
-
-    private object Format<TResult>(IMediatorResponse<TResult> response)
-    {
-        return new
-        {
-            _Type = response.GetType().FullName,
-            Success = response.Success,
-            Result = response.Result,
-            ErrorMessage = response.ErrorMessage
-        };
+        _serializedReponse = Serialize(task1.Result);
     }
 
     private MarkupString Serialize(object value)
