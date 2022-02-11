@@ -9,8 +9,6 @@ namespace Demo.Shared.Requests
         {
             public DateTime Date { get; set; } = DateTime.Now;
 
-            public bool AttachNotification { get; set; }
-
             public override int GetHashCode()
             {
                 return Date.GetHashCode();

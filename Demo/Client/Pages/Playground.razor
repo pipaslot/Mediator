@@ -8,7 +8,7 @@
 <p>
     <button class="btn btn-primary" @onclick="RunPassing">Run Passing</button>
     <button class="btn btn-primary" @onclick="RunFailing">Run Failing</button>
-    <button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled</button>
+    <button class="btn btn-primary" @onclick="RunFailingUnhandled">Run Failing unhandled</button><i>Infinite loading because exception will be thrown</i>
 </p>
 
 <h5>Messages</h5>
@@ -30,6 +30,12 @@
     <button class="btn btn-primary" @onclick="RunDuplicateRecordQuery">Run Duplicate Request records</button>
 </p>
 
+<h5>Notifications from handlers and services</h5>
+<p>
+    <button class="btn btn-primary" @onclick="async () => await Mediator.Execute(new WeatherForecast.Request())">Run</button>
+</p>
+
+
 <h4>HTTP Response</h4>
 <code>
     @if (!string.IsNullOrWhiteSpace(_serializedReponse.Value))
@@ -42,6 +48,7 @@
     }
 </code>
 
+
 @code {
     private MarkupString _serializedReponse;
     private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
@@ -50,43 +57,34 @@
         };
     private async Task RunPassing()
     {
-        Loading();
-        var response = await Mediator.Execute(new WeatherForecast.Request
-        {
-            AttachNotification = true
-        });
+        var response = await Mediator.Execute(new WeatherForecast.Request());
         ProcessRequestResponse(response);
     }
 
     private async Task RunFailing()
     {
-        Loading();
         var response = await Mediator.Execute(new Failing.Request());
         ProcessRequestResponse(response);
     }
     private async Task RunFailingUnhandled()
     {
-        Loading("Infinite loading because exception will be thrown");
         var response = await Mediator.ExecuteUnhandled(new Failing.Request());
     }
 
     private async Task RunMessage(bool pass)
     {
-        Loading();
         var response = await Mediator.Dispatch(new DemoMessage() { Fail = !pass });
         ProcessMessageResponse(response);
     }
 
     private async Task RunFailingUnhandledMessage()
     {
-        Loading("Infinite loading because exception will be thrown");
         await Mediator.DispatchUnhandled(new DemoMessage() { Fail = true });
     }
 
 
     private async Task RunCascadingFailing()
     {
-        Loading();
         var response = await Mediator.Dispatch(new CascadingToAnotherFailingRequestMessage());
         ProcessMessageResponse(response);
     }
@@ -153,10 +151,5 @@
         .Replace(" \"", "&nbsp; &nbsp;\"")
         .Replace("\n", "<br />");
         return new MarkupString(serialized);
-    }
-
-    private void Loading(string message = "Loading")
-    {
-        _serializedReponse = new MarkupString(message);
     }
 }

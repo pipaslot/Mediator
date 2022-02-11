@@ -4,14 +4,23 @@ using Pipaslot.Mediator.Notifications;
 
 namespace Demo.Server.Handlers
 {
-    public class WheatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.Result[]>
+    public class MessageWithNotificationHandler : IMessageHandler<MessageWithNotification>
     {
         private readonly INotificationProvider _notificationProvider;
 
-        public WheatherForecastRequestHandler(INotificationProvider notificationProvider)
+        public MessageWithNotificationHandler(INotificationProvider notificationProvider)
         {
             _notificationProvider = notificationProvider;
         }
+
+        public Task Handle(MessageWithNotification action, CancellationToken cancellationToken)
+        {
+            _notificationProvider.AddSuccess("Message was accepted.", "Hi there");
+            return Task.CompletedTask;
+        }
+    }
+    public class WheatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.Result[]>
+    {
 
         private static readonly string[] _summaries = new[]
         {
@@ -28,22 +37,12 @@ namespace Demo.Server.Handlers
                 Summary = _summaries[rng.Next(_summaries.Length)]
             })
             .ToArray();
-            if (request.AttachNotification)
-            {
-                _notificationProvider.AddSuccess("Enjoy the beautifull days", "Forecast");
-            }
             return Task.FromResult(forecast);
         }
     }
 
     public class WheatherForecastRequestRecordHandler : IRequestHandler<WeatherForecast.RequestRecord, WeatherForecast.Result[]>
     {
-        private readonly INotificationProvider _notificationProvider;
-
-        public WheatherForecastRequestRecordHandler(INotificationProvider notificationProvider)
-        {
-            _notificationProvider = notificationProvider;
-        }
         private static readonly string[] _summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -59,11 +58,6 @@ namespace Demo.Server.Handlers
                 Summary = _summaries[rng.Next(_summaries.Length)]
             })
             .ToArray();
-
-            if (request.AttachNotification)
-            {
-                _notificationProvider.AddSuccess("Enjoy the beautifull days", "Forecast");
-            }
             return Task.FromResult(forecast);
         }
     }
