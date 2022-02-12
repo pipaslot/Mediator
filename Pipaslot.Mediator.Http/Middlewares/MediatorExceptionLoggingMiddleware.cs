@@ -28,14 +28,14 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
             catch(OperationCanceledException oce)
             {
-                var serializedData = Serialize(action);
-                _logger.LogWarning(oce, $"Action {action?.GetType()} was canceled. Action content: {serializedData}");
+                var serializedData = Serialize(context.Action);
+                _logger.LogWarning(oce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
                 throw;
             }
             catch(Exception e)
             {
-                var serializedData = Serialize(action);
-                _logger.LogError(e, @$"Exception occured during Mediator execution for action '{action?.GetType()}' with message: '{e.Message}'. Action content: {serializedData}");
+                var serializedData = Serialize(context.Action);
+                _logger.LogError(e, @$"Exception occured during Mediator execution for action '{context.ActionIdentifier}' with message: '{e.Message}'. Action content: {serializedData}");
                 throw;
             }
         }

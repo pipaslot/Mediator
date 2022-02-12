@@ -26,18 +26,13 @@ namespace Pipaslot.Mediator.Middlewares
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-
-            }
-            if (action is IMediatorActionProvidingData e)
+            if (context.Action is IMediatorActionProvidingData e)
             {
                 await HandleRequest(e, context, cancellationToken);
             }
             else
             {
-                await HandleMessage((IMediatorAction)action, context, cancellationToken);
+                await HandleMessage(context.Action, context, cancellationToken);
             }
         }
 
@@ -46,23 +41,22 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         protected async Task ExecuteMessage<TMessage>(object handler, TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
             var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction>.Handle));
             try
             {
-                await OnBeforeHandlerExecution(handler, message);
-                var task = (Task?)method!.Invoke(handler, new object[] { message, cancellationToken })!;
+                await OnBeforeHandlerExecution(handler, context.Action);
+                var task = (Task?)method!.Invoke(handler, new object[] { context.Action, cancellationToken })!;
                 if (task != null)
                 {
                     await task;
                 }
                 context.ExecutedHandlers++;
-                await OnSuccessExecution(handler, message);
+                await OnSuccessExecution(handler, context.Action);
 
             }
             catch (TargetInvocationException e)
             {
-                await OnFailedExecution(handler, message, e.InnerException ?? e);
+                await OnFailedExecution(handler, context.Action, e.InnerException ?? e);
                 if (e.InnerException != null)
                 {
                     // Unwrap exception
@@ -79,7 +73,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
             finally
             {
-                await OnAfterHandlerExecution(handler, message);
+                await OnAfterHandlerExecution(handler, context.Action);
             }
         }
 
@@ -88,12 +82,11 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         protected async Task ExecuteRequest<TRequest>(object handler, TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
             var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
             try
             {
-                await OnBeforeHandlerExecution(handler, request);
-                var task = (Task?)method!.Invoke(handler, new object[] { request, cancellationToken })!;
+                await OnBeforeHandlerExecution(handler, context.Action);
+                var task = (Task?)method!.Invoke(handler, new object[] { context.Action, cancellationToken })!;
                 if (task != null)
                 {
                     await task.ConfigureAwait(false);
@@ -103,14 +96,14 @@ namespace Pipaslot.Mediator.Middlewares
                     context.ExecutedHandlers++;
                     if (result != null)
                     {
-                        await OnSuccessExecution(handler, request);
+                        await OnSuccessExecution(handler, context.Action);
                         context.Results.Add(result);
                     }
                 }
             }
             catch (TargetInvocationException e)
             {
-                await OnFailedExecution(handler, request, e.InnerException ?? e);
+                await OnFailedExecution(handler, context.Action, e.InnerException ?? e);
                 if (e.InnerException != null)
                 {
                     context.ErrorMessages.Add(e.InnerException.Message);
@@ -127,7 +120,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
             finally
             {
-                await OnAfterHandlerExecution(handler, request);
+                await OnAfterHandlerExecution(handler, context.Action);
             }
         }
 

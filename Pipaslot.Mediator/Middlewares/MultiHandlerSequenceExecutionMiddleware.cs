@@ -20,28 +20,28 @@ namespace Pipaslot.Mediator.Middlewares
 
         protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = GetMessageHandlers(message?.GetType());
+            var handlers = GetMessageHandlers(context.Action.GetType());
             if (handlers.Length == 0)
             {
-                throw MediatorException.CreateForNoHandler(message?.GetType());
+                throw MediatorException.CreateForNoHandler(context.Action.GetType());
             }
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
             {
-                await ExecuteMessage(handler, message, context, cancellationToken);
+                await ExecuteMessage(handler, context.Action, context, cancellationToken);
             }
         }
         protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
         {
-            var handlers = GetRequestHandlers(request?.GetType());
+            var handlers = GetRequestHandlers(context.Action.GetType());
             if (handlers.Length == 0)
             {
-                throw MediatorException.CreateForNoHandler(request?.GetType());
+                throw MediatorException.CreateForNoHandler(context.Action.GetType());
             }
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
             {
-                await ExecuteRequest(handler, request, context, cancellationToken);
+                await ExecuteRequest(handler, context.Action, context, cancellationToken);
             }
         }
 

@@ -17,12 +17,8 @@ namespace Pipaslot.Mediator.Middlewares
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-            var type = action.GetType();
-            var hashCode = action.GetHashCode();
+            var type = context.Action.GetType();
+            var hashCode = context.Action.GetHashCode();
             Task task;
             lock (_lock)
             {

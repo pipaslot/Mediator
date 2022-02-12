@@ -30,11 +30,11 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(message.GetType());
-            var context = CreateContext();
+            var context = CreateContext(message, cancellationToken);
             var guid = AddToQueue(message);
             try
             {
-                await ProcessPipeline(pipeline, message, context, cancellationToken);
+                await ProcessPipeline(pipeline, context);
 
                 var success = context.ErrorMessages.Count == 0;
                 return new MediatorResponse(success, context.Results, context.UniqueErrorMessages);
@@ -53,11 +53,11 @@ namespace Pipaslot.Mediator
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(message.GetType());
-            var context = CreateContext();
+            var context = CreateContext(message, cancellationToken);
             var guid = AddToQueue(message);
             try
             {
-                await ProcessPipeline(pipeline, message, context, cancellationToken);
+                await ProcessPipeline(pipeline, context);
 
                 if (context.ErrorMessages.Any())
                 {
@@ -73,11 +73,11 @@ namespace Pipaslot.Mediator
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(request.GetType());
-            var context = CreateContext();
+            var context = CreateContext(request, cancellationToken);
             var guid = AddToQueue(request);
             try
             {
-                await ProcessPipeline(pipeline, request, context, cancellationToken);
+                await ProcessPipeline(pipeline, context);
 
                 var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
                 return new MediatorResponse<TResult>(success, context.Results, context.UniqueErrorMessages);
@@ -96,11 +96,11 @@ namespace Pipaslot.Mediator
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var pipeline = _serviceProvider.GetPipeline(request.GetType());
-            var context = CreateContext();
+            var context = CreateContext(request, cancellationToken);
             var guid = AddToQueue(request);
             try
             {
-                await ProcessPipeline(pipeline, request, context, cancellationToken);
+                await ProcessPipeline(pipeline, context);
 
                 var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
                 if (context.ErrorMessages.Any())
@@ -123,19 +123,19 @@ namespace Pipaslot.Mediator
             }
         }
 
-        private async Task ProcessPipeline<TAction>(IEnumerable<IMediatorMiddleware> pipeline, TAction request, MediatorContext context, CancellationToken cancellationToken)
+        private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
         {
             static Task Seed(MediatorContext res) => Task.CompletedTask;
 
             await pipeline
                 .Reverse()
                 .Aggregate((MiddlewareDelegate)Seed,
-                    (next, middleware) => (res) => middleware.Invoke(request, res, next, cancellationToken))(context);
+                    (next, middleware) => (res) => middleware.Invoke(res.Action, res, next, res.CancellationToken))(context);
         }
 
-        private MediatorContext CreateContext()
+        private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
         {
-            return new MediatorContext();
+            return new MediatorContext(action, cancellationToken);
         }
 
         private Guid AddToQueue(IMediatorAction action)

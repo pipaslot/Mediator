@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
@@ -71,18 +72,19 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             var action = new SingleHandler.Request(true);
             return await Run(services, action);
         }
+
         private async Task<MediatorContext> RunMessage(IServiceProvider services)
         {
             var action = new SingleHandler.Message(true);
             return await Run(services, action);
         }
 
-        private async Task<MediatorContext> Run<TAction>(IServiceProvider services, TAction action)
+        private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
         {
             var sut = new SingleHandlerExecutionMiddleware(services);
-            var context = new MediatorContext();
+            var context = new MediatorContext(action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
-            await sut.Invoke(action, context, next, CancellationToken.None);
+            await sut.Invoke(context.Action, context, next, context.CancellationToken);
             return context;
         }
     }

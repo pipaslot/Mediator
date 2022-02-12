@@ -27,25 +27,14 @@ namespace Pipaslot.Mediator.Http.Middlewares
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            if (action is null)
+            try
             {
-                throw new ArgumentNullException(nameof(action));
+                var response = await SendRequest<object>(context.Action, cancellationToken);
+                context.Append(response);
             }
-            if (action is IMediatorAction a)
+            catch (Exception e)
             {
-                try
-                {
-                    var response = await SendRequest<object>(a, cancellationToken);
-                    context.Append(response);
-                }
-                catch (Exception e)
-                {
-                    context.ErrorMessages.Add(e.Message);
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Must implement interface " + nameof(IMediatorAction), nameof(action));
+                context.ErrorMessages.Add(e.Message);
             }
         }
 
