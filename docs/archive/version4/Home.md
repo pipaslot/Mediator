@@ -49,10 +49,10 @@ This library was since version 4 split into two NuGet packages.
 ### In-process only
 NuGet package `Pipaslot.Mediator` can be used internally by applications without the need to communicate over HTTP. The action execution and handling are described below:
 
-![Use of mediator in-process](../img/mediator-in-process.png)
+![Use of mediator in-process](./img/mediator-in-process.png)
 
 In the easiest scenario, you can use a mediator without pipeline specification. In that case, the default pipeline will be applied containing only the middleware executing handler.
 
 ### Over Http
 By registering mediator via `.AddMediatorClient()` on client-side and `.AddMediatorServer()` on server-side. All actions will be automatically transferred from client to server where are handlers defined. You can specify pipelines for the client as well as for the server which is useful for example for global error handling end-user notifications.
-![Use of mediator over HTTP](../img/mediator-over-http.png)
+![Use of mediator over HTTP](./img/mediator-over-http.png)
