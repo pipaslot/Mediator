@@ -61,6 +61,7 @@ namespace Pipaslot.Mediator.Http
                 services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
             }
             services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+            services.AddScoped<IMediatorUrlFormatter, THttpClientExecutionMiddleware>();
             return services.AddMediator<THttpClientExecutionMiddleware>();
         }
 

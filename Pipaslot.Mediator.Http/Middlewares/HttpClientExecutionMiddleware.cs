@@ -1,15 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Middlewares;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares
 {
-    public class HttpClientExecutionMiddleware : IExecutionMiddleware
+    public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlFormatter
     {
         private readonly HttpClient _httpClient;
         private readonly ClientMediatorOptions _options;
@@ -28,6 +30,13 @@ namespace Pipaslot.Mediator.Http.Middlewares
         {
             var response = await SendRequest<object>(context, cancellationToken);
             context.Append(response);
+        }
+
+        public string FormatHttpGet(IMediatorAction action)
+        {
+            var serialized = _serializer.SerializeRequest(action);
+            var decoded = WebUtility.UrlDecode(serialized);
+            return $"{_options.Endpoint}?type={action.GetType()}&action={decoded}";
         }
 
         protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context, CancellationToken cancellationToken = default)

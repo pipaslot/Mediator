@@ -27,10 +27,14 @@ namespace Pipaslot.Mediator.Http
         public async Task Invoke(HttpContext context)
         {
             var method = context.Request.Method.ToUpper();
-            if (context.Request.Path == _option.Endpoint && method == "POST")
+            if (context.Request.Path == _option.Endpoint && (method == "POST" || method == "GET"))
             {
                 var mediator = CreateMediator(context);
-                var body = await GetBody(context);
+                var body = method == "POST"
+                    ? await GetBody(context)
+                    : context.Request.Query.TryGetValue("action", out var actionQuery)
+                        ? actionQuery.ToString()
+                        : "";
 
                 var action = _serializer.DeserializeRequest(body);
                 var mediatorResponse = action is IMediatorActionProvidingData req
@@ -39,12 +43,15 @@ namespace Pipaslot.Mediator.Http
 
                 var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
                 // Change status code only if has default value (200: OK)
-                if(context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
+                if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
                 {
                     context.Response.StatusCode = _option.ErrorHttpStatusCode;
                 }
-                context.Response.ContentType = "application/json; charset=utf-8";                
-                await context.Response.WriteAsync(serializedResponse);
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.ContentType = "application/json; charset=utf-8";
+                    await context.Response.WriteAsync(serializedResponse);
+                }
             }
             else
             {

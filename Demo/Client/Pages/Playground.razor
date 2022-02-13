@@ -23,6 +23,11 @@
     <button class="btn btn-primary btn-sm" @onclick="()=>Dispatch(new CascadingToAnotherFailingRequestMessage())">Run Failing cascading message</button>
 </p>
 
+<h5>File download through HTTP GET</h5>
+<p>
+    <a class="btn btn-primary btn-sm" href="@_mediatorUrlFormatter.FormatHttpGet(new DemoDownload("DemoFile"))">Download without authentication</a>
+</p>
+
 <h5>UseReduceDuplicateProcessing middleware</h5>
 <p>
     Reduce fuplicate calls by middleware. Only one server request will be executed at the same time.<br />
@@ -49,7 +54,7 @@
     }
 </code>
 
-
+@inject Pipaslot.Mediator.Http.IMediatorUrlFormatter _mediatorUrlFormatter
 @code {
     private MarkupString _serializedReponse;
     private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
