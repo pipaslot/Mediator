@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Tests
         {
             return CreateMediator(c => { });
         }
-        public static IMediator CreateMediator(Action<IPipelineConfigurator> setup)
+        public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
         {
             var services = CreateServiceProvider(c =>
             {
@@ -34,7 +34,7 @@ namespace Pipaslot.Mediator.Tests
             return CreateServiceProvider(_ => { });
         }
 
-        public static IServiceProvider CreateServiceProvider(Action<IPipelineConfigurator> setup)
+        public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator> setup)
         {
             var collection = new ServiceCollection();
             collection.AddLogging();

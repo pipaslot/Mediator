@@ -32,12 +32,12 @@ namespace Pipaslot.Mediator.Http
 
         internal static MediatorHttpException CreateForUnregisteredActionType(Type queryType)
         {
-            return new MediatorHttpException($"Received action type {queryType.FullName} does not belongs into trusted Marker Assemblies registered in mediator configuration via {nameof(IPipelineConfigurator.AddActionsFromAssembly)} or {nameof(IPipelineConfigurator.AddActionsFromAssemblyOf)}.");
+            return new MediatorHttpException($"Received action type {queryType.FullName} does not belongs into trusted Marker Assemblies registered in mediator configuration via {nameof(IMediatorConfigurator.AddActionsFromAssembly)} or {nameof(IMediatorConfigurator.AddActionsFromAssemblyOf)}.");
         }
 
         internal static MediatorHttpException CreateForUnregisteredResultType(Type resultType)
         {
-            return new MediatorHttpException($"Received result type {resultType.FullName} does not belongs into trusted Action results registered in mediator configuration via {nameof(IPipelineConfigurator.AddActionsFromAssembly)} or {nameof(IPipelineConfigurator.AddActionsFromAssemblyOf)} or .AddMediatorClient(o => o.CredibleResultTypes = new Type[]{{...}}).");
+            return new MediatorHttpException($"Received result type {resultType.FullName} does not belongs into trusted Action results registered in mediator configuration via {nameof(IMediatorConfigurator.AddActionsFromAssembly)} or {nameof(IMediatorConfigurator.AddActionsFromAssemblyOf)} or .AddMediatorClient(o => o.CredibleResultTypes = new Type[]{{...}}).");
         }
 
         internal static MediatorHttpException CreateForNonContractType(Type queryType)

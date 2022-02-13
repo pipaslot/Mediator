@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator.Configuration
 {
-    public class PipelineConfigurator : IPipelineConfigurator, IActionTypeProvider
+    public class PipelineConfigurator : IMediatorConfigurator, IActionTypeProvider
     {
         internal readonly IServiceCollection Services;
         public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
@@ -17,28 +17,28 @@ namespace Pipaslot.Mediator.Configuration
             Services = services;
         }
 
-        public IPipelineConfigurator AddActionsFromAssemblyOf<T>()
+        public IMediatorConfigurator AddActionsFromAssemblyOf<T>()
         {
             return AddActionsFromAssembly(typeof(T).Assembly);
         }
 
-        public IPipelineConfigurator AddActionsFromAssembly(params Assembly[] assemblies)
+        public IMediatorConfigurator AddActionsFromAssembly(params Assembly[] assemblies)
         {
             ActionMarkerAssemblies.AddRange(assemblies);
             return this;
         }
 
-        public IPipelineConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             return RegisterHandlersFromAssembly(new[] { typeof(T).Assembly }, serviceLifetime);
         }
 
-        public IPipelineConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)
+        public IMediatorConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)
         {
             return RegisterHandlersFromAssembly(assemblies);
         }
 
-        private IPipelineConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var handlerTypes = new[]
             {

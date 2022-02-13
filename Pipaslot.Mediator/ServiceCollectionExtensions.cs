@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator
         /// Every Request/Message is configured to have exactly one handler by default.
         /// </summary>
         /// <param name="services"></param>
-        public static IPipelineConfigurator AddMediator(this IServiceCollection services)
+        public static IMediatorConfigurator AddMediator(this IServiceCollection services)
         {
             return services.AddMediator<SingleHandlerExecutionMiddleware>();
         }
@@ -23,7 +23,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         /// <typeparam name="TDefaultExecutionMiddleware">Default handler executive middleware ised in case when no other middleware is registered</typeparam>
         /// <param name="services"></param>
-        public static IPipelineConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services) where TDefaultExecutionMiddleware : class, IExecutionMiddleware
+        public static IMediatorConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services) where TDefaultExecutionMiddleware : class, IExecutionMiddleware
         {
             services.AddScoped<IMediator, Mediator>();
             services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();

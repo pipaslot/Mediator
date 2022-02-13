@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Http
         /// Register Mediator sending messages and requests over HTTPClient
         /// </summary>
         /// <param name="services">Service collection</param>
-        public static IPipelineConfigurator AddMediatorClient(this IServiceCollection services)
+        public static IMediatorConfigurator AddMediatorClient(this IServiceCollection services)
         {
             return services.AddMediatorClient<HttpClientExecutionMiddleware>(o => { });
         }
@@ -23,7 +23,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <param name="configure">Mediator configuration</param>
-        public static IPipelineConfigurator AddMediatorClient(this IServiceCollection services, Action<ClientMediatorOptions> configure)
+        public static IMediatorConfigurator AddMediatorClient(this IServiceCollection services, Action<ClientMediatorOptions> configure)
         {
             return services.AddMediatorClient<HttpClientExecutionMiddleware>(configure);
         }
@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Http
         /// Register Custom Mediator sending messages and requests over HTTPClient
         /// </summary>
         /// <param name="services">Service collection</param>
-        public static IPipelineConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
+        public static IMediatorConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
             return services.AddMediatorClient<THttpClientExecutionMiddleware>(o => { });
         }
@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <param name="configure">Mediator configuration</param>
-        public static IPipelineConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
+        public static IMediatorConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services, Action<ClientMediatorOptions> configure) where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
             var options = new ClientMediatorOptions();
             configure(options);
@@ -70,7 +70,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IPipelineConfigurator AddMediatorServer(this IServiceCollection services)
+        public static IMediatorConfigurator AddMediatorServer(this IServiceCollection services)
         {
             return services.AddMediatorServer(o => { });
         }
@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator.Http
         /// <param name="services"></param>
         /// <param name="configure">Mediator configuration</param>
         /// <returns></returns>
-        public static IPipelineConfigurator AddMediatorServer(this IServiceCollection services, Action<ServerMediatorOptions> configure)
+        public static IMediatorConfigurator AddMediatorServer(this IServiceCollection services, Action<ServerMediatorOptions> configure)
         {
             var options = new ServerMediatorOptions();
             configure(options);
