@@ -1,4 +1,6 @@
-# Motivation
+# Home
+
+## Motivation
 This library was built to achieve the following goals:
 - Decouple service references (define actions and handlers).
 - Monitor activities executed through the mediator (via middlewares)
@@ -14,7 +16,7 @@ This library was built to achieve the following goals:
 - Executing operations as async but with the ability to await for at least status type or for the result
 - Provide result collection in mediator response to provide additional data from middleware execution (Usefull for user notifications or validation errors processed by the client as side effects)
 
-# Library structure
+## Library structure
 This library was since version 4 split into two NuGet packages.
 **Pipaslot.Mediator** 
 - Core logic and interfaces defining mediator as service, actions, handlers, middlewares 
@@ -26,7 +28,7 @@ This library was since version 4 split into two NuGet packages.
 - Provide mediator overload `.AddMediatorServer()` which converts HTTP content back to mediator action execute Server-side mediator and handler execution
 - `IApplicationBuilder` extension `.UseMediator() registering mediator as middleware for ASP.NET Core request pipeline
 
-# Glossary
+## Glossary
 - **Mediator** - Service represented by interface `IMediator` executing Actions and providing a response with status and results.
 - **Action** - Top-level abstraction for data incoming into the mediator and describing expected results after successful processing. We can logically split the actions into two concepts with more specific names _Request_ and _Message_. We can define our own custom action types and name them by our preferences, but they will have to use either concept of Request or Message
 - **Message** - Implementation of `IMessage` or `IMediatorAction` action type processed by a handler where no result is expected in the mediator response. The mediator will provide an only status whether the handler was processed successfully.
@@ -42,15 +44,15 @@ This library was since version 4 split into two NuGet packages.
 - **Middleware** - Class wrapping handler executions similarly to ASP.NET Core middleware wrapping request execution. Provide the ability to define multiple pre-processing and post-processing actions applicable for multiple pipelines. Middleware is not Action specific.
 - **Context** - Data structure handed over across middlewares aggregating results in Result collection and all errors occurred or handled in the pipeline.
 
-# Scope of mediator usage
+## Scope of mediator usage
 
-## In-process only
+### In-process only
 NuGet package `Pipaslot.Mediator` can be used internally by applications without the need to communicate over HTTP. The action execution and handling are described below:
 
 ![Use of mediator in-process](../img/mediator-in-process.png)
 
 In the easiest scenario, you can use a mediator without pipeline specification. In that case, the default pipeline will be applied containing only the middleware executing handler.
 
-## Over Http
+### Over Http
 By registering mediator via `.AddMediatorClient()` on client-side and `.AddMediatorServer()` on server-side. All actions will be automatically transferred from client to server where are handlers defined. You can specify pipelines for the client as well as for the server which is useful for example for global error handling end-user notifications.
 ![Use of mediator over HTTP](../img/mediator-over-http.png)
