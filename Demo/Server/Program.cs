@@ -16,6 +16,7 @@ services.AddHttpContextAccessor();
 //////// Mediator implementation
 services.AddMediatorServer(o => {
     o.Endpoint = Constants.CustomMediatorUrl;
+    o.ErrorHttpStatusCode = 500;
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()

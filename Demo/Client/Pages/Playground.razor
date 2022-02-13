@@ -32,7 +32,8 @@
 
 <h5>Notifications from handlers or services</h5>
 <p>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification())">Run</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification())">Run Passing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification{Fail = true})">Run Failing</button>
 </p>
 
 

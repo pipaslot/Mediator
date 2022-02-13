@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
+using System.Net;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -34,10 +35,14 @@ namespace Pipaslot.Mediator.Http
                 var action = _serializer.DeserializeRequest(body);
                 var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted)
-                : await ExecuteMessage(mediator, (IMediatorAction)action, context.RequestAborted);
+                : await ExecuteMessage(mediator, action, context.RequestAborted);
 
                 var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
-
+                // Change status code only if has default value (200: OK)
+                if(context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
+                {
+                    context.Response.StatusCode = _option.ErrorHttpStatusCode;
+                }
                 context.Response.ContentType = "application/json; charset=utf-8";                
                 await context.Response.WriteAsync(serializedResponse);
             }

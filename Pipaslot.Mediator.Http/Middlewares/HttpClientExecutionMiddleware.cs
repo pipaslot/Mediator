@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Middlewares;
@@ -27,71 +26,52 @@ namespace Pipaslot.Mediator.Http.Middlewares
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            try
-            {
-                var response = await SendRequest<object>(context.Action, cancellationToken);
-                context.Append(response);
-            }
-            catch (Exception e)
-            {
-                context.ErrorMessages.Add(e.Message);
-            }
+            var response = await SendRequest<object>(context, cancellationToken);
+            context.Append(response);
         }
 
-        protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(IMediatorAction action, CancellationToken cancellationToken = default)
+        protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context, CancellationToken cancellationToken = default)
         {
-            var actionName = action.GetType().ToString();
+            HttpResponseMessage response;
             try
             {
-                var url = _options.Endpoint + $"?type={actionName}";
-                var json = _serializer.SerializeRequest(action);
+                var url = _options.Endpoint + $"?type={context.ActionIdentifier}";
+                var json = _serializer.SerializeRequest(context.Action);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(url, content, cancellationToken);
-                if (response.IsSuccessStatusCode)
-                {
-                    IMediatorResponse<TResult> result;
-                    try
-                    {
-                        var serializedResult = await response.Content.ReadAsStringAsync();
-                        result = _serializer.DeserializeResponse<TResult>(serializedResult);
-                    }
-                    catch (Exception e)
-                    {
-                        return await ProcessParsingError<TResult>(action, actionName, response, e);
-                    }
-                    return await ProcessSuccessfullResult(action, actionName, response, result);
-                }
-                else
-                {
-                    return await ProcessUnsuccessfullStatusCode<TResult>(action, actionName, response);
-                }
+                response = await _httpClient.PostAsync(url, content, cancellationToken);
             }
             catch (Exception e)
             {
-                return await ProcessRuntimeError<TResult>(action, actionName, e);
+                return await ProcessRuntimeError<TResult>(context, e);
             }
+            IMediatorResponse<TResult> result;
+            try
+            {
+                var serializedResult = await response.Content.ReadAsStringAsync();
+                result = _serializer.DeserializeResponse<TResult>(serializedResult);
+            }
+            catch (Exception e)
+            {
+                return await ProcessParsingError<TResult>(context, response, e);
+            }
+            return await ProcessSuccessfullResult(context, response, result);
         }
 
-        protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(IMediatorAction action, string actionName, HttpResponseMessage response, IMediatorResponse<TResult> result)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorContext context, HttpResponseMessage response, IMediatorResponse<TResult> result)
         {
             return result != null
                 ? Task.FromResult(result)
-                : CreateErrorResponse<TResult>($"No data received for action {actionName}");
+                : CreateErrorResponse<TResult>($"No data received for action {context.ActionIdentifier}");
         }
 
-        protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(IMediatorAction action, string actionName, HttpResponseMessage response, Exception exception)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorContext context, HttpResponseMessage response, Exception exception)
         {
-            return CreateErrorResponse<TResult>($"Can not deserialize response for action {actionName}. ERROR: {exception.Message}", exception);
+            return CreateErrorResponse<TResult>($"Can not deserialize response for action {context.ActionIdentifier}. ERROR: {exception.Message}, STATUS CODE: {(int)response.StatusCode} ({response.StatusCode})", exception);
         }
 
-        protected virtual Task<IMediatorResponse<TResult>> ProcessUnsuccessfullStatusCode<TResult>(IMediatorAction action, string actionName, HttpResponseMessage response)
+        protected virtual Task<IMediatorResponse<TResult>> ProcessRuntimeError<TResult>(MediatorContext context, Exception exception)
         {
-            return CreateErrorResponse<TResult>($"Request for action {actionName} failed with status code {((int)response.StatusCode)} ({response.StatusCode})");
-        }
-
-        protected virtual Task<IMediatorResponse<TResult>> ProcessRuntimeError<TResult>(IMediatorAction action, string actionName, Exception exception)
-        {
-            return CreateErrorResponse<TResult>($"Error occured when executed action {actionName}. ERROR: {exception.Message}", exception);
+            return CreateErrorResponse<TResult>($"Error occured when executed action {context.ActionIdentifier}. ERROR: {exception.Message}", exception);
         }
 
         private Task<IMediatorResponse<TResult>> CreateErrorResponse<TResult>(string errorMessage, Exception? e = null)
