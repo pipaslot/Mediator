@@ -18,18 +18,24 @@ namespace Pipaslot.Mediator.Notifications
                 throw new ArgumentNullException(nameof(notification));
             }
 
-            _notifications.Add(notification);            
+            _notifications.Add(notification);
         }
 
         public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
         {
-            await next(context);
-            if (_notifications.Any())
+            try
             {
-                context.Results.AddRange(_notifications);
-                while (!_notifications.IsEmpty)
+                await next(context);
+            }
+            finally
+            {
+                if (_notifications.Any())
                 {
-                    _notifications.TryTake(out var _);
+                    context.Results.AddRange(_notifications);
+                    while (!_notifications.IsEmpty)
+                    {
+                        _notifications.TryTake(out var _);
+                    }
                 }
             }
         }
