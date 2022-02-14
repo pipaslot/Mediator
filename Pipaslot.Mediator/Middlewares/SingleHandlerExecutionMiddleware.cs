@@ -1,7 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares
@@ -17,7 +15,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => false;
 
-        protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
+        protected override async Task HandleMessage(MediatorContext context)
         {
             var handlers = GetMessageHandlers(context.Action.GetType());
             if (handlers.Length > 1)
@@ -30,10 +28,10 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 throw MediatorException.CreateForNoHandler(context.Action.GetType());
             }
-            await ExecuteMessage(handler, message, context, cancellationToken);
+            await ExecuteMessage(handler, context);
         }
 
-        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
+        protected override async Task HandleRequest(MediatorContext context)
         {
             var handlers = GetRequestHandlers(context.Action.GetType());
             if (handlers.Length > 1)
@@ -46,7 +44,7 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 throw MediatorException.CreateForNoHandler(context.Action.GetType());
             }
-            await ExecuteRequest(handler, request, context, cancellationToken);
+            await ExecuteRequest(handler, context);
         }
     }
 }

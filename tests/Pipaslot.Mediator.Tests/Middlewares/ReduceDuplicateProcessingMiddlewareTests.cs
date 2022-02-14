@@ -99,7 +99,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         {
             context = new MediatorContext(action, CancellationToken.None);
             var sut = new ReduceDuplicateProcessingMiddleware();
-            return sut.Invoke(context.Action, context, _next, context.CancellationToken);
+            return sut.Invoke(context, _next);
         }
 
         public class FakeAction : IMediatorAction

@@ -130,7 +130,7 @@ namespace Pipaslot.Mediator
             {
                 if (enumerator.MoveNext())
                 {
-                    return enumerator.Current.Invoke(ctx.Action, ctx, next, ctx.CancellationToken);
+                    return enumerator.Current.Invoke(ctx, next);
                 }
                 return Task.CompletedTask;
             };

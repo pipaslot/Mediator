@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,7 +25,7 @@ namespace Pipaslot.Mediator.Tests
 
         public class BlockingMiddleware : IMediatorMiddleware
         {
-            public Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+            public Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 //do not execute next middleware
                 return Task.CompletedTask;
@@ -42,7 +41,7 @@ namespace Pipaslot.Mediator.Tests
                 WasConstructed = true;
             }
 
-            public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+            public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 await next(context);
             }

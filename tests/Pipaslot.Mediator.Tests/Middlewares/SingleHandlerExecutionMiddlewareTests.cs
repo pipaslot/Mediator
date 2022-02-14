@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             var sut = new SingleHandlerExecutionMiddleware(services);
             var context = new MediatorContext(action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
-            await sut.Invoke(context.Action, context, next, context.CancellationToken);
+            await sut.Invoke(context, next);
             return context;
         }
     }

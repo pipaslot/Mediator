@@ -6,7 +6,6 @@ using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares
@@ -26,9 +25,9 @@ namespace Pipaslot.Mediator.Http.Middlewares
             _logger = logger;
         }
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            var response = await SendRequest<object>(context, cancellationToken);
+            var response = await SendRequest<object>(context);
             context.Append(response);
         }
 
@@ -39,7 +38,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             return $"{_options.Endpoint}?type={action.GetType()}&action={decoded}";
         }
 
-        protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context, CancellationToken cancellationToken = default)
+        protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context)
         {
             HttpResponseMessage response;
             try
@@ -47,7 +46,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
                 var url = _options.Endpoint + $"?type={context.ActionIdentifier}";
                 var json = _serializer.SerializeRequest(context.Action);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                response = await _httpClient.PostAsync(url, content, cancellationToken);
+                response = await _httpClient.PostAsync(url, content, context.CancellationToken);
             }
             catch (Exception e)
             {

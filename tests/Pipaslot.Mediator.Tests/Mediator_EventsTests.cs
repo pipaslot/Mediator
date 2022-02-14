@@ -91,6 +91,7 @@ namespace Pipaslot.Mediator.Tests
             var task2 = sut.Dispatch(action);
             Assert.Equal(2, _started.Count);
             _handlerSemaphore.Release(2);
+            await Task.Delay(10); // Wait for event propagation
             await Task.WhenAll(task1, task2);
         }
         [Fact]
@@ -102,6 +103,7 @@ namespace Pipaslot.Mediator.Tests
             var task2 = sut.Dispatch(action);
             _handlerSemaphore.Release(2);
             await Task.WhenAll(task1, task2);
+            await Task.Delay(10); // Wait for event propagation
             Assert.Equal(2, _completed.Count);
         }
 

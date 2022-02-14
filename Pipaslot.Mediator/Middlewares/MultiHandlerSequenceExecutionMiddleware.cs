@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
 
 namespace Pipaslot.Mediator.Middlewares
 {
@@ -18,7 +16,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public override bool ExecuteMultipleHandlers => true;
 
-        protected override async Task HandleMessage<TMessage>(TMessage message, MediatorContext context, CancellationToken cancellationToken)
+        protected override async Task HandleMessage(MediatorContext context)
         {
             var handlers = GetMessageHandlers(context.Action.GetType());
             if (handlers.Length == 0)
@@ -28,10 +26,10 @@ namespace Pipaslot.Mediator.Middlewares
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
             {
-                await ExecuteMessage(handler, context.Action, context, cancellationToken);
+                await ExecuteMessage(handler, context);
             }
         }
-        protected override async Task HandleRequest<TRequest>(TRequest request, MediatorContext context, CancellationToken cancellationToken)
+        protected override async Task HandleRequest(MediatorContext context)
         {
             var handlers = GetRequestHandlers(context.Action.GetType());
             if (handlers.Length == 0)
@@ -41,7 +39,7 @@ namespace Pipaslot.Mediator.Middlewares
             var sortedHandlers = Sort(handlers);
             foreach (var handler in sortedHandlers)
             {
-                await ExecuteRequest(handler, context.Action, context, cancellationToken);
+                await ExecuteRequest(handler, context);
             }
         }
 

@@ -13,9 +13,9 @@ namespace Demo.Server.MediatorMiddlewares
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            if(action is IValidable validable)
+            if(context.Action is IValidable validable)
             {
                 var errors = validable.Validate();
                 if (errors != null && errors.Any())

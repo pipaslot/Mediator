@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares
@@ -20,7 +19,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             _logger = logger;
         }
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             try
             {

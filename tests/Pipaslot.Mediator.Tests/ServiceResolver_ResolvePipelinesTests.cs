@@ -101,7 +101,7 @@ namespace Pipaslot.Mediator.Tests
 
         public class QueryMiddleware : IMediatorMiddleware
         {
-            public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+            public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 await next(context);
             }
@@ -109,7 +109,7 @@ namespace Pipaslot.Mediator.Tests
 
         public class CommandMiddleware : IMediatorMiddleware
         {
-            public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+            public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 await next(context);
             }
@@ -117,7 +117,7 @@ namespace Pipaslot.Mediator.Tests
 
         public class SharedMiddleware : IMediatorMiddleware
         {
-            public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+            public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 await next(context);
             }

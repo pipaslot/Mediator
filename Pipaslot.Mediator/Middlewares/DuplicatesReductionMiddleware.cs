@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares
@@ -15,7 +14,7 @@ namespace Pipaslot.Mediator.Middlewares
         private readonly static Dictionary<Type, Dictionary<int, Task>> _running = new();
         private readonly object _lock = new();
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             var type = context.Action.GetType();
             var hashCode = context.Action.GetHashCode();

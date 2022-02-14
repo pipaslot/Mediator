@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Notifications
@@ -10,13 +9,13 @@ namespace Pipaslot.Mediator.Notifications
     {
         public event EventHandler<NotificationReceivedEventArgs>? NotificationReceived;
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             await next(context);
             var errors = context.ErrorMessages
                 .Select(message => new Notification
                 {
-                    Source = action?.GetType()?.ToString() ?? "",
+                    Source = context.Action?.GetType()?.ToString() ?? "",
                     Content = message,
                     Type = NotificationType.ActionError
                 })

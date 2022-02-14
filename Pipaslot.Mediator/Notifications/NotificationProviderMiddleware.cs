@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Notifications
@@ -21,7 +20,7 @@ namespace Pipaslot.Mediator.Notifications
             _notifications.Add(notification);
         }
 
-        public async Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             try
             {
