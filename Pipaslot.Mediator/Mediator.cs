@@ -125,12 +125,16 @@ namespace Pipaslot.Mediator
 
         private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
         {
-            static Task Seed(MediatorContext res) => Task.CompletedTask;
-
-            await pipeline
-                .Reverse()
-                .Aggregate((MiddlewareDelegate)Seed,
-                    (next, middleware) => (res) => middleware.Invoke(res.Action, res, next, res.CancellationToken))(context);
+            var enumerator = pipeline.GetEnumerator();
+            Task next (MediatorContext ctx) 
+            {
+                if (enumerator.MoveNext())
+                {
+                    return enumerator.Current.Invoke(ctx.Action, ctx, next, ctx.CancellationToken);
+                }
+                return Task.CompletedTask;
+            };
+            await next(context);
         }
 
         private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
@@ -146,6 +150,7 @@ namespace Pipaslot.Mediator
             ActionStarted?.Invoke(this, new ActionStartedEventArgs(action, runningActions));
             return guid;
         }
+
         private void RemoveFromQueue(Guid guid)
         {
             _runningActions.TryRemove(guid, out var action);
