@@ -160,7 +160,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// Hook called only after successful handler execution. Is omitted if exception is thrown
         /// </summary>
         /// <param name="handler">Request handler</param>
-        /// <param name="request">Handler input data</param>
+        /// <param name="context">Handler input data</param>
         /// <returns></returns>
         protected virtual Task OnSuccessExecution(object handler, MediatorContext context)
         {
@@ -171,7 +171,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// Hook called only if exception is thrown during handler execution
         /// </summary>
         /// <param name="handler"></param>
-        /// <param name="request"></param>
+        /// <param name="context"></param>
         /// <param name="e"></param>
         /// <returns></returns>
         protected virtual Task OnFailedExecution(object handler, MediatorContext context, Exception e)
