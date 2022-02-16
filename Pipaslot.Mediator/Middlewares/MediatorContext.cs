@@ -56,16 +56,6 @@ namespace Pipaslot.Mediator.Middlewares
         }
 
         /// <summary>
-        /// Copy context without result data and custom action
-        /// </summary>
-        /// <returns></returns>
-        public MediatorContext CopyWith(IMediatorAction action)
-        {
-            var copy = new MediatorContext(action, CancellationToken);
-            return copy;
-        }
-
-        /// <summary>
         /// Append result properties from context
         /// </summary>
         /// <param name="context"></param>
