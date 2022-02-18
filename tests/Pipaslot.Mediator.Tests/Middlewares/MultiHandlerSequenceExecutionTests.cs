@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests.Middlewares
+namespace Pipaslot.Mediator.Tests
 {
-    public class MultiHandlerConcurrentExecutionMiddlewareTests
+    public class MultiHandlerSequenceExecutionTests
     {
         [Fact]
         public async Task RequestWithoutHandler_ThrowException()
@@ -23,7 +23,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async Task RequestWithSingleHandler_ExecuteHandler()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
+            var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.RequestHandler1>();
             var context = await RunRequest(services);
             Assert.Equal(1, context.ExecutedHandlers);
         }
@@ -31,7 +31,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async Task RequestWithMultipleHandlers_ThrowException()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler, SingleHandler.RequestHandler>();
+            var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.RequestHandler1, SequenceHandler.RequestHandler2>();
             var context = await RunRequest(services);
             Assert.Equal(2, context.ExecutedHandlers);
         }
@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async Task MessageWithSingleHandler_ExecuteHandler()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler>();
+            var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.MessageHandler1>();
             var context = await RunMessage(services);
             Assert.Equal(1, context.ExecutedHandlers);
         }
@@ -58,25 +58,27 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async Task MessageWithMultipleHandlers_ThrowException()
         {
-            var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler, SingleHandler.MessageHandler>();
+            var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.MessageHandler1, SequenceHandler.MessageHandler2>();
             var context = await RunMessage(services);
             Assert.Equal(2, context.ExecutedHandlers);
         }
 
+        //TODO Tests for ISequenceHandler.Order
+
         private async Task<MediatorContext> RunRequest(IServiceProvider services)
         {
-            var action = new SingleHandler.Request(true);
+            var action = new SequenceHandler.Request(true);
             return await Run(services, action);
         }
         private async Task<MediatorContext> RunMessage(IServiceProvider services)
         {
-            var action = new SingleHandler.Message(true);
+            var action = new SequenceHandler.Message(true);
             return await Run(services, action);
         }
 
         private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
         {
-            var sut = new MultiHandlerConcurrentExecutionMiddleware(services);
+            var sut = new HandlerExecutionMiddleware(services);
             var context = new MediatorContext(action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(context, next);

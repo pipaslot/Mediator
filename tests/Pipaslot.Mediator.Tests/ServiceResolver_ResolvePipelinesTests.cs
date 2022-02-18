@@ -1,6 +1,5 @@
 using Xunit;
 using System.Threading.Tasks;
-using System.Threading;
 using System.Linq;
 using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Middlewares;
@@ -19,7 +18,7 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
             Assert.Equal(typeof(QueryMiddleware), middlewares.Skip(1).First().GetType());
-            Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
         }
         [Fact]
         public void DirectUse_ResolveActionSpecificPipelineWithMiltiHandler()
@@ -30,7 +29,7 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
             Assert.Equal(typeof(CommandMiddleware), middlewares.Skip(1).First().GetType());
-            Assert.Equal(typeof(MultiHandlerConcurrentExecutionMiddleware), middlewares.Skip(2).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
         }
         [Fact]
         public void DirectUse_ResolveDefaultPipeline()
@@ -40,7 +39,7 @@ namespace Pipaslot.Mediator.Tests
 
             Assert.Equal(2, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
-            Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
         }
 
         [Fact]
@@ -52,7 +51,7 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
             Assert.Equal(typeof(QueryMiddleware), middlewares.Skip(1).First().GetType());
-            Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
         }
         [Fact]
         public void AddPipeline_ResolveActionSpecificPipelineWithMiltiHandlerAndRegisteredViaFluentInterface()
@@ -63,7 +62,7 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
             Assert.Equal(typeof(CommandMiddleware), middlewares.Skip(1).First().GetType());
-            Assert.Equal(typeof(MultiHandlerConcurrentExecutionMiddleware), middlewares.Skip(2).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(2).First().GetType());
         }
 
         [Fact]
@@ -74,7 +73,7 @@ namespace Pipaslot.Mediator.Tests
 
             Assert.Equal(2, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
-            Assert.Equal(typeof(SingleHandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
+            Assert.Equal(typeof(HandlerExecutionMiddleware), middlewares.Skip(1).First().GetType());
         }
 
         private static IServiceProvider CreateServiceResolver()
@@ -86,7 +85,6 @@ namespace Pipaslot.Mediator.Tests
                 .AddPipeline<ICommand>()
                     .Use<SharedMiddleware>()
                     .Use<CommandMiddleware>()
-                    .UseConcurrentMultiHandler()
                 .AddDefaultPipeline()
                     .Use<SharedMiddleware>());
         }

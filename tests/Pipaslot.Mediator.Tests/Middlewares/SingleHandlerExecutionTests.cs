@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Middlewares
 {
-    public class SingleHandlerExecutionMiddlewareTests
+    public class SingleHandlerExecutionTests
     {
 
         [Fact]
@@ -81,7 +81,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 
         private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
         {
-            var sut = new SingleHandlerExecutionMiddleware(services);
+            var sut = new HandlerExecutionMiddleware(services);
             var context = new MediatorContext(action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(context, next);

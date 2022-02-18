@@ -1,6 +1,7 @@
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Services;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Tests
@@ -25,13 +26,13 @@ namespace Pipaslot.Mediator.Tests
         {
             var sr = Factory.CreateServiceProvider(c => c
                 .AddPipeline<IRequest>()
-                    .UseConcurrentMultiHandler()
+                    .Use<FakeMiddleware1>()
                 .AddPipeline<IRequest>()
-                    .Use<MultiHandlerSequenceExecutionMiddleware>()
+                    .Use<FakeMiddleware2>()
                     );
             var pipeline = sr.GetPipeline(typeof(IRequest));
             var middleware = pipeline.FirstOrDefault();
-            Assert.Equal(typeof(MultiHandlerSequenceExecutionMiddleware), middleware.GetType());
+            Assert.Equal(typeof(FakeMiddleware2), middleware.GetType());
         }
 
         [Fact]
@@ -54,14 +55,29 @@ namespace Pipaslot.Mediator.Tests
         {
             var sr = Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
-                    .UseConcurrentMultiHandler()
+                    .Use<FakeMiddleware1>()
                 .AddDefaultPipeline()
-                    .Use<MultiHandlerSequenceExecutionMiddleware>()
+                    .Use<FakeMiddleware2>()
                     );
             var pipeline = sr.GetPipeline(typeof(IRequest));
             var middleware = pipeline.FirstOrDefault();
-            Assert.Equal(typeof(MultiHandlerSequenceExecutionMiddleware), middleware.GetType());
+            Assert.Equal(typeof(FakeMiddleware2), middleware.GetType());
         }
 
+        private class FakeMiddleware1 : IMediatorMiddleware
+        {
+            public Task Invoke(MediatorContext context, MiddlewareDelegate next)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        private class FakeMiddleware2 : IMediatorMiddleware
+        {
+            public Task Invoke(MediatorContext context, MiddlewareDelegate next)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator
         /// <param name="services"></param>
         public static IMediatorConfigurator AddMediator(this IServiceCollection services)
         {
-            return services.AddMediator<SingleHandlerExecutionMiddleware>();
+            return services.AddMediator<HandlerExecutionMiddleware>();
         }
 
         /// <summary>

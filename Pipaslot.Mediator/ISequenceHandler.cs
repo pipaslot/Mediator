@@ -1,11 +1,11 @@
 ﻿namespace Pipaslot.Mediator
 {
     /// <summary>
-    /// Provide handler prioritization in case of using <see cref="Middlewares.MultiHandlerSequenceExecutionMiddleware"/>.
-    /// If combined with handler without this interface, then ISequenceHandler will be prioritized because sequence/order value of unordered handlers will be int.MaxValue / 2
+    /// Enables executing of multiple handlers in sequence defined by Order. Handler with lover Order has higher priority during execution.
     /// </summary>
     public interface ISequenceHandler
     {
+
         int Order { get; }
     }
 }

@@ -1,9 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.ValidActions
 {
-    public static class SingleHandler
+    public static class ConcurrentHandler
     {
         public class Request : IRequest<Response>
         {
@@ -47,7 +50,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
             }
         }
 
-        public class RequestHandler : IRequestHandler<Request, Response>
+        public class RequestHandler1 : IRequestHandler<Request, Response>, IConcurrentHandler
         {
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
@@ -59,7 +62,31 @@ namespace Pipaslot.Mediator.Tests.ValidActions
             }
         }
 
-        public class MessageHandler : IMessageHandler<SingleHandler.Message>
+        public class RequestHandler2 : IRequestHandler<Request, Response>, IConcurrentHandler
+        {
+            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
+            {
+                if (!request.Pass)
+                {
+                    throw new RequestException();
+                }
+                return Task.FromResult(Response.Instance);
+            }
+        }
+
+        public class MessageHandler1 : IMessageHandler<Message>, IConcurrentHandler
+        {
+            public Task Handle(Message request, CancellationToken cancellationToken)
+            {
+                if (!request.Pass)
+                {
+                    throw new MessageException();
+                }
+                return Task.CompletedTask;
+            }
+        }
+
+        public class MessageHandler2 : IMessageHandler<Message>, IConcurrentHandler
         {
             public Task Handle(Message request, CancellationToken cancellationToken)
             {

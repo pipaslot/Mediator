@@ -1,7 +1,7 @@
 using Pipaslot.Mediator.Middlewares;
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -14,8 +14,8 @@ namespace Pipaslot.Mediator.Tests
             {
                 Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
-                    .Use<MultiHandlerSequenceExecutionMiddleware>(ServiceLifetime.Scoped)
-                    .Use<MultiHandlerSequenceExecutionMiddleware>(ServiceLifetime.Transient)
+                    .Use<FakeMiddleware>(ServiceLifetime.Scoped)
+                    .Use<FakeMiddleware>(ServiceLifetime.Transient)
                 );
             });
         }
@@ -26,11 +26,19 @@ namespace Pipaslot.Mediator.Tests
             {
                 Factory.CreateServiceProvider(c => c
                 .AddDefaultPipeline()
-                    .Use<MultiHandlerSequenceExecutionMiddleware>(ServiceLifetime.Scoped)
+                    .Use<FakeMiddleware>(ServiceLifetime.Scoped)
                 .AddPipeline<IMessage>()
-                    .Use<MultiHandlerSequenceExecutionMiddleware>(ServiceLifetime.Transient)
+                    .Use<FakeMiddleware>(ServiceLifetime.Transient)
                 );
             });
+        }
+
+        private class FakeMiddleware : IMediatorMiddleware
+        {
+            public Task Invoke(MediatorContext context, MiddlewareDelegate next)
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }
