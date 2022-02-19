@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         public static IConditionalPipelineConfigurator UseExceptionLogging(this IConditionalPipelineConfigurator configurator, ServiceLifetime lifetime = ServiceLifetime.Scoped)
         {
-            configurator.Use<MediatorExceptionLoggingMiddleware>(lifetime);
+            configurator.Use<ExceptionLoggingMiddleware>(lifetime);
             return configurator;
         }
 

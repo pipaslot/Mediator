@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares
 {
-    public class MediatorExceptionLoggingMiddleware : IMediatorMiddleware
+    public class ExceptionLoggingMiddleware : IMediatorMiddleware
     {
         private readonly ILogger _logger;
         private readonly static JsonSerializerOptions _serializationOptions = new()
@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             PropertyNamingPolicy = null
         };
 
-        public MediatorExceptionLoggingMiddleware(ILogger<MediatorExceptionLoggingMiddleware> logger)
+        public ExceptionLoggingMiddleware(ILogger<ExceptionLoggingMiddleware> logger)
         {
             _logger = logger;
         }
