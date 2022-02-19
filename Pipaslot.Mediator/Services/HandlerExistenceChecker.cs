@@ -51,7 +51,7 @@ namespace Pipaslot.Mediator.Services
                 }
 
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                if (middleware is ExecutionMiddleware handlerExecution)
+                if (middleware is IExecutionMiddleware handlerExecution)
                 {
                     var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
                     VerifyHandlerCount(handlerExecution, handlers, subject);
@@ -71,7 +71,7 @@ namespace Pipaslot.Mediator.Services
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
                 var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                if (middleware is ExecutionMiddleware handlerExecution)
+                if (middleware is IExecutionMiddleware handlerExecution)
                 {
                     var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
                     VerifyHandlerCount(handlerExecution, handlers, subject);
@@ -79,13 +79,32 @@ namespace Pipaslot.Mediator.Services
                 _alreadyVerified.Add(subject);
             }
         }
-        private void VerifyHandlerCount(ExecutionMiddleware middleware, object[] handlers, Type subject)
+        private void VerifyHandlerCount(IExecutionMiddleware middleware, object[] handlers, Type subject)
         {
             if (handlers.Count() == 0)
             {
                 _errors.Add(FormatNoHandlerError(subject));
             }
-            if (!middleware.ExecuteMultipleHandlers && handlers.Count() > 1)
+            var anyIsSequence = false;
+            var anyIsConcurrent = false;
+            var anyIsSingle = false;
+            foreach (var handler in handlers)
+            {
+                var isSequence = handler is ISequenceHandler;
+                var isConcurrent = handler is IConcurrentHandler;
+                var isSingle = !isSequence && !isConcurrent;
+                anyIsSequence = anyIsSequence || isSequence;
+                anyIsConcurrent = anyIsConcurrent || isConcurrent;
+                anyIsSingle = anyIsSingle || isSingle;
+            }
+            if ((anyIsConcurrent && anyIsSequence)
+                || (anyIsConcurrent && anyIsSingle)
+                || (anyIsSequence && anyIsSingle))
+            {
+                var handlerNames = handlers.Select(h => h.GetType().ToString()).ToArray();
+                _errors.Add(FormatCombinedHandlersError(subject, handlerNames));
+            }
+            if (anyIsSingle && handlers.Length > 1)
             {
                 var handlerNames = handlers.Select(h => h.GetType().ToString()).ToArray();
                 _errors.Add(FormatTooManyHandlersError(subject, handlerNames));
@@ -95,6 +114,11 @@ namespace Pipaslot.Mediator.Services
         internal static string FormatNoHandlerError(Type subject)
         {
             return $"No handler was registered for action: {subject}.";
+        }
+
+        internal static string FormatCombinedHandlersError(Type subject, string[] handlers)
+        {
+            return $"Multiple handlers were registered for one action type: {subject}. Can not combine handlers with interfaces {nameof(ISequenceHandler)} or {nameof(IConcurrentHandler)} or without if any if these two interfaces. Please check handlers: {string.Join(", ", handlers)}";
         }
 
         internal static string FormatTooManyHandlersError(Type subject, string[] handlers)

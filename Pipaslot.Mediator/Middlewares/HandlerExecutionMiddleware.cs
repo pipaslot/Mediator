@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Services;
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares
@@ -7,18 +10,105 @@ namespace Pipaslot.Mediator.Middlewares
     /// <summary>
     /// Pipeline executing one handler for request implementing TMarker type
     /// </summary>
-    public class HandlerExecutionMiddleware : ExecutionMiddleware
+    public class HandlerExecutionMiddleware : IExecutionMiddleware
     {
-        public HandlerExecutionMiddleware(IServiceProvider serviceProvider) : base(serviceProvider)
-        {
-        }
-        [Obsolete]
-        public override bool ExecuteMultipleHandlers => true;
+        private readonly IServiceProvider _serviceProvider;
 
-        protected override async Task HandleMessage(MediatorContext context)
+        public HandlerExecutionMiddleware(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
+        {
+            if (context.Action is IMediatorActionProvidingData)
+            {
+                await HandleRequest(context);
+            }
+            else
+            {
+                await HandleMessage(context);
+            }
+        }
+
+        /// <summary>
+        /// Execute handler
+        /// </summary>
+        protected async Task ExecuteMessage(object handler, MediatorContext context)
+        {
+            var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction>.Handle));
+            try
+            {
+                var task = (Task?)method!.Invoke(handler, new object[] { context.Action, context.CancellationToken })!;
+                if (task != null)
+                {
+                    await task;
+                }
+                context.ExecutedHandlers++;
+
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                {
+                    // Unwrap exception
+                    context.ErrorMessages.Add(e.InnerException.Message);
+                    throw e.InnerException;
+                }
+
+                throw;
+            }
+            catch (Exception e)
+            {
+                context.ErrorMessages.Add(e.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Execute handler
+        /// </summary>
+        protected async Task ExecuteRequest(object handler, MediatorContext context)
+        {
+            var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
+            try
+            {
+                var task = (Task?)method!.Invoke(handler, new object[] { context.Action, context.CancellationToken })!;
+                if (task != null)
+                {
+                    await task.ConfigureAwait(false);
+
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    var result = resultProperty?.GetValue(task);
+                    context.ExecutedHandlers++;
+                    if (result != null)
+                    {
+                        context.Results.Add(result);
+                    }
+                }
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                {
+                    context.ErrorMessages.Add(e.InnerException.Message);
+                    // Unwrap exception
+                    throw e.InnerException;
+                }
+
+                throw;
+            }
+            catch (Exception e)
+            {
+                context.ErrorMessages.Add(e.Message);
+                throw;
+            }
+        }
+
+        private async Task HandleMessage(MediatorContext context)
         {
             var actionType = context.Action.GetType();
-            var handlers = GetMessageHandlers(actionType);
+            var handlers = _serviceProvider.GetMessageHandlers(actionType);
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
@@ -37,10 +127,11 @@ namespace Pipaslot.Mediator.Middlewares
             }
         }
 
-        protected override async Task HandleRequest(MediatorContext context)
+        private async Task HandleRequest(MediatorContext context)
         {
             var actionType = context.Action.GetType();
-            var handlers = GetRequestHandlers(actionType);
+            var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
+            var handlers = _serviceProvider.GetRequestHandlers(actionType, resultType);
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
@@ -101,6 +192,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
             return anyIsConcurrent;
         }
+
         private object[] Sort(object[] handlers)
         {
             return handlers

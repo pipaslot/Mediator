@@ -38,5 +38,7 @@ namespace Pipaslot.Mediator.Tests
             Assert.Contains(expected, result);
             Assert.Single(result);
         }
+
+        //TODO Test combined handler types
     }
 }
