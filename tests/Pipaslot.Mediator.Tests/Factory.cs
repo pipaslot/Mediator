@@ -50,12 +50,15 @@ namespace Pipaslot.Mediator.Tests
         {
             return CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
         }
+        /// <summary>
+        /// Simulate handler registration in service provider
+        /// </summary>
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
             var services = (ICollection<ServiceDescriptor>)collection;
             var handlerTypes = new[]
-           {
+            {
                 typeof(IMediatorHandler<,>),
                 typeof(IMediatorHandler<>)
             };

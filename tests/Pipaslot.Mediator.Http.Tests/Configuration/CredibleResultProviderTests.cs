@@ -46,10 +46,10 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
             sut.VerifyCredibility(typeof(Result));
         }
 
-        private CredibleResultProvider Create(Action<PipelineConfigurator> setup, params Type[] customTypes)
+        private CredibleResultProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
         {
             var serviceCollectionMock = new Mock<IServiceCollection>();
-            var configurator = new PipelineConfigurator(serviceCollectionMock.Object);
+            var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
             setup(configurator);
             return new CredibleResultProvider(configurator, customTypes);
         }

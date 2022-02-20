@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Http
             {
                 services.AddSingleton<ICredibleResultProvider>(s =>
                 {
-                    var pipConf = s.GetRequiredService<PipelineConfigurator>();
+                    var pipConf = s.GetRequiredService<MediatorConfigurator>();
                     return new CredibleResultProvider(pipConf, options.CredibleResultTypes ?? new Type[0]);
                 });
             }

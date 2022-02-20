@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Configuration
 {
     internal class ActionSpecificPipelineDefinition : IConditionalPipelineConfigurator
     {
-        private readonly PipelineConfigurator _configurator;
+        private readonly MediatorConfigurator _configurator;
         private readonly List<Type> _middlewares = new ();
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         public Func<Type, bool> Condition { get; }
 
-        public ActionSpecificPipelineDefinition(PipelineConfigurator configurator, string identifier, Func<Type, bool> contition)
+        public ActionSpecificPipelineDefinition(MediatorConfigurator configurator, string identifier, Func<Type, bool> contition)
         {
             _configurator = configurator;
             Identifier = identifier;

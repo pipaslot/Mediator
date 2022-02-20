@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator.Configuration
 {
-    public class PipelineConfigurator : IMediatorConfigurator, IActionTypeProvider
+    public class MediatorConfigurator : IMediatorConfigurator, IActionTypeProvider
     {
         internal readonly IServiceCollection Services;
         public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
 
-        public PipelineConfigurator(IServiceCollection services)
+        public MediatorConfigurator(IServiceCollection services)
         {
             Services = services;
         }

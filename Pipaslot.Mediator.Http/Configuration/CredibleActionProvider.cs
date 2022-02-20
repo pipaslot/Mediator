@@ -7,9 +7,9 @@ namespace Pipaslot.Mediator.Http.Configuration
 {
     internal class CredibleActionProvider : ICredibleActionProvider
     {
-        private readonly PipelineConfigurator _configurator;
+        private readonly MediatorConfigurator _configurator;
 
-        public CredibleActionProvider(PipelineConfigurator configurator)
+        public CredibleActionProvider(MediatorConfigurator configurator)
         {
             _configurator = configurator;
         }

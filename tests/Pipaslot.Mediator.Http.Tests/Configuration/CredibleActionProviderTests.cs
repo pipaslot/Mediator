@@ -32,10 +32,10 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
             sut.VerifyCredibility(typeof(FakeContract));
         }
 
-        private CredibleActionProvider Create(Action<PipelineConfigurator> setup)
+        private CredibleActionProvider Create(Action<MediatorConfigurator> setup)
         {
             var serviceCollctionMock = new Mock<IServiceCollection>();
-            var configurator = new PipelineConfigurator(serviceCollctionMock.Object);
+            var configurator = new MediatorConfigurator(serviceCollctionMock.Object);
             setup(configurator);
             return new CredibleActionProvider(configurator);
         }

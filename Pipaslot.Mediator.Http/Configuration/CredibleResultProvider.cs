@@ -8,11 +8,11 @@ namespace Pipaslot.Mediator.Http.Configuration
 {
     internal class CredibleResultProvider : ICredibleResultProvider
     {
-        private readonly PipelineConfigurator _configurator;
+        private readonly MediatorConfigurator _configurator;
         private readonly HashSet<Type> _trustedTypes;
         private HashSet<Type>? _actionResultTypes = null;
 
-        public CredibleResultProvider(PipelineConfigurator configurator, Type[] trustedTypes)
+        public CredibleResultProvider(MediatorConfigurator configurator, Type[] trustedTypes)
         {
             _configurator = configurator;
             _trustedTypes = new HashSet<Type>(trustedTypes);

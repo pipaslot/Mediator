@@ -26,7 +26,7 @@ namespace Pipaslot.Mediator
 
         public static MediatorException CreateForNoActionRegistered()
         {
-            return new MediatorException($"No action marker assembly was registered. Use {nameof(PipelineConfigurator.AddActionsFromAssembly)} during pipeline setup");
+            return new MediatorException($"No action marker assembly was registered. Use {nameof(MediatorConfigurator.AddActionsFromAssembly)} during pipeline setup");
         }
 
         public static MediatorException CreateForInvalidHandlers(params string[] errors)
