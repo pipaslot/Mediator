@@ -40,13 +40,19 @@ namespace Pipaslot.Mediator.Configuration
 
         private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
+            var types = assemblies.SelectMany(a => a.GetTypes());
+            RegisterHandlers(Services, types, serviceLifetime);
+            return this;
+        }
+
+        internal static void RegisterHandlers(IServiceCollection services, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        {
             var handlerTypes = new[]
             {
                 typeof(IMediatorHandler<,>),
                 typeof(IMediatorHandler<>)
             };
-            var types = assemblies
-                .SelectMany(a => a.GetTypes())
+            var types = allTypes
                 .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
                 .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
                 .Select(t => new
@@ -60,11 +66,11 @@ namespace Pipaslot.Mediator.Configuration
                 foreach (var iface in pair.Interfaces)
                 {
                     var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
-                    Services.Add(item);
+                    services.Add(item);
                 }
             }
-            return this;
         }
+
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
         {
             var markerType = typeof(TActionMarker);

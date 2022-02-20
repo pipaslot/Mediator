@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {
-    public class HandlerExistenceCheckerTests
+    public class HandlerExistenceChecker_InternalTests
     {
         [Fact]
         public void FilterAssignableToRequest_RemoveMessage()
@@ -14,9 +14,9 @@ namespace Pipaslot.Mediator.Tests
             {
                 typeof(SingleHandler.Message),
                 expected,
-                typeof(HandlerExistenceCheckerTests)
+                typeof(HandlerExistenceChecker_InternalTests)
             };
-            var result = PipelineConfigurator.FilterAssignableToRequest(types);
+            var result = MediatorConfigurator.FilterAssignableToRequest(types);
 
             Assert.Contains(expected, result);
             Assert.Single(result);
@@ -31,14 +31,12 @@ namespace Pipaslot.Mediator.Tests
             {
                 typeof(SingleHandler.Request),
                 expected,
-                typeof(HandlerExistenceCheckerTests)
+                typeof(HandlerExistenceChecker_InternalTests)
             };
-            var result = PipelineConfigurator.FilterAssignableToMessage(types);
+            var result = MediatorConfigurator.FilterAssignableToMessage(types);
 
             Assert.Contains(expected, result);
             Assert.Single(result);
         }
-
-        //TODO Test combined handler types
     }
 }

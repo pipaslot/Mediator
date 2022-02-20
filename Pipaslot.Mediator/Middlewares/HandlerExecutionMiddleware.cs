@@ -184,11 +184,11 @@ namespace Pipaslot.Mediator.Middlewares
                 || (anyIsConcurrent && anyIsSingle)
                 || (anyIsSequence && anyIsSingle))
             {
-                throw MediatorException.CreateForCanNotCombineHandlers(handlers);
+                throw MediatorException.CreateForCanNotCombineHandlers(actionType, handlers);
             }
             if (anyIsSingle && handlers.Length > 1)
             {
-                throw MediatorException.CreateForDuplicateHandlers(handlers);
+                throw MediatorException.CreateForDuplicateHandlers(actionType, handlers);
             }
             return anyIsConcurrent;
         }

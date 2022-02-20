@@ -83,7 +83,7 @@ namespace Pipaslot.Mediator.Services
         {
             if (handlers.Count() == 0)
             {
-                _errors.Add(FormatNoHandlerError(subject));
+                _errors.Add(MediatorException.CreateForNoHandler(subject).Message);
             }
             var anyIsSequence = false;
             var anyIsConcurrent = false;
@@ -101,29 +101,12 @@ namespace Pipaslot.Mediator.Services
                 || (anyIsConcurrent && anyIsSingle)
                 || (anyIsSequence && anyIsSingle))
             {
-                var handlerNames = handlers.Select(h => h.GetType().ToString()).ToArray();
-                _errors.Add(FormatCombinedHandlersError(subject, handlerNames));
+                _errors.Add(MediatorException.CreateForCanNotCombineHandlers(subject, handlers).Message);
             }
-            if (anyIsSingle && handlers.Length > 1)
+            else if (anyIsSingle && handlers.Length > 1)
             {
-                var handlerNames = handlers.Select(h => h.GetType().ToString()).ToArray();
-                _errors.Add(FormatTooManyHandlersError(subject, handlerNames));
+                _errors.Add(MediatorException.CreateForDuplicateHandlers(subject, handlers).Message);
             }
-        }
-
-        internal static string FormatNoHandlerError(Type subject)
-        {
-            return $"No handler was registered for action: {subject}.";
-        }
-
-        internal static string FormatCombinedHandlersError(Type subject, string[] handlers)
-        {
-            return $"Multiple handlers were registered for one action type: {subject}. Can not combine handlers with interfaces {nameof(ISequenceHandler)} or {nameof(IConcurrentHandler)} or without if any if these two interfaces. Please check handlers: {string.Join(", ", handlers)}";
-        }
-
-        internal static string FormatTooManyHandlersError(Type subject, string[] handlers)
-        {
-            return $"Multiple handlers were registered for one action type: {subject} with classes [{string.Join(", ", handlers)}].";
         }
     }
 }

@@ -36,13 +36,13 @@ namespace Pipaslot.Mediator.Tests.Services
         [Fact]
         public void Verify_MessageWithoutHandler_ThrowExceptions()
         {
-            ShouldThrow(HandlerExistenceChecker.FormatNoHandlerError(typeof(MessageWithoutHandler)));
+            ShouldThrow(MediatorException.CreateForNoHandler(typeof(MessageWithoutHandler)).Message);
         }
 
         [Fact]
         public void Verify_RequestWithoutHandler_ThrowExceptions()
         {
-            ShouldThrow(HandlerExistenceChecker.FormatNoHandlerError(typeof(RequestWithoutHandler)));
+            ShouldThrow(MediatorException.CreateForNoHandler(typeof(RequestWithoutHandler)).Message);
         }
 
         private void ShouldThrow(string expectedError)
