@@ -50,13 +50,8 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
 
-                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                if (middleware is IExecutionMiddleware handlerExecution)
-                {
-                    var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
-                    VerifyHandlerCount(handlerExecution, handlers, subject);
-                }
-
+                var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
+                VerifyHandlerCount(handlers, subject);
                 _alreadyVerified.Add(subject);
             }
         }
@@ -70,16 +65,12 @@ namespace Pipaslot.Mediator.Services
                     continue;
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
-                var middleware = _serviceProvider.GetExecutiveMiddleware(subject);
-                if (middleware is IExecutionMiddleware handlerExecution)
-                {
-                    var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
-                    VerifyHandlerCount(handlerExecution, handlers, subject);
-                }
+                var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
+                VerifyHandlerCount(handlers, subject);
                 _alreadyVerified.Add(subject);
             }
         }
-        private void VerifyHandlerCount(IExecutionMiddleware middleware, object[] handlers, Type subject)
+        private void VerifyHandlerCount(object[] handlers, Type subject)
         {
             if (handlers.Count() == 0)
             {
