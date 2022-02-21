@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Services;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator
 {
@@ -126,7 +126,7 @@ namespace Pipaslot.Mediator
         private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
         {
             var enumerator = pipeline.GetEnumerator();
-            Task next (MediatorContext ctx) 
+            Task next(MediatorContext ctx)
             {
                 if (enumerator.MoveNext())
                 {

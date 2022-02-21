@@ -1,5 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
-using Demo.Shared;
+﻿using Demo.Shared;
+using Pipaslot.Mediator.Middlewares;
 using System.Net;
 
 namespace Demo.Server.MediatorMiddlewares
@@ -15,7 +15,7 @@ namespace Demo.Server.MediatorMiddlewares
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            if(context.Action is IValidable validable)
+            if (context.Action is IValidable validable)
             {
                 var errors = validable.Validate();
                 if (errors != null && errors.Any())

@@ -1,9 +1,9 @@
-using Xunit;
-using System.Threading.Tasks;
-using System.Linq;
-using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Services;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {

@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         public void VerifyCredibility_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
         {
             var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
-            var exception = Assert.Throws<MediatorHttpException>(() =>  sut.VerifyCredibility(typeof(FakeNonContract)));
+            var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeNonContract)));
             Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
         }
 

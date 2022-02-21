@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Http;
-using Pipaslot.Mediator.Tests.ValidActions;
+﻿using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 using Xunit;
 

@@ -1,7 +1,5 @@
-﻿using Pipaslot.Mediator;
-using Demo.Shared.Requests;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Demo.Shared.Requests;
+using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers
 {

@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using System.Collections.Generic;
-using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipaslot.Mediator.Services
 {

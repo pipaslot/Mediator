@@ -28,6 +28,6 @@ namespace Pipaslot.Mediator.Configuration
         /// Will scan for action markers from the assembly of type <typeparamref name="T"/> and register them.
         /// </summary>
         /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
-        IMediatorConfigurator AddActionsFromAssemblyOf<T>();        
+        IMediatorConfigurator AddActionsFromAssemblyOf<T>();
     }
 }

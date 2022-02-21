@@ -1,7 +1,7 @@
-using Pipaslot.Mediator.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+using Pipaslot.Mediator.Middlewares;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {

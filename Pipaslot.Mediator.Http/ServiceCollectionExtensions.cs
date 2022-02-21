@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Http.Middlewares;
 using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Middlewares;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Linq;
-using Pipaslot.Mediator.Http.Serialization;
 
 namespace Pipaslot.Mediator.Http
 {

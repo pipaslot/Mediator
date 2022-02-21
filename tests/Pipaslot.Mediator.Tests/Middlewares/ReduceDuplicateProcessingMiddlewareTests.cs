@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -84,7 +83,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
         {
-            var task1 = Run(new FakeAction() { Value = 1 },out var ctx1);
+            var task1 = Run(new FakeAction() { Value = 1 }, out var ctx1);
             var task2 = Run(new FakeAction2() { Value = 2 }, out var ctx2);
             _semaphore.Release(2);
 

@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Http.Serialization
                 }
             }
             return queryType;
-        } 
+        }
 
         /// <summary>
         /// This method converst type Definition like "System.Collections.Generic.List`1[[MyType, MyAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=none"

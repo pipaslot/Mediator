@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Pipaslot.Mediator;
-using Pipaslot.Mediator.Http;
 using Demo.Client;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Pipaslot.Mediator;
+using Pipaslot.Mediator.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

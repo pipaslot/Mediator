@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Pipaslot.Mediator.Abstractions
+﻿namespace Pipaslot.Mediator.Abstractions
 {
     /// <summary>
     /// Top level action marker for action without returning data. Connects actions returning result with those not not returning data to be processed by Mediator.

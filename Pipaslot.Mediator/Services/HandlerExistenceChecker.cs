@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Services
 {

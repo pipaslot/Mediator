@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator;
-using System;
 
 namespace Demo.Shared.Requests
 {

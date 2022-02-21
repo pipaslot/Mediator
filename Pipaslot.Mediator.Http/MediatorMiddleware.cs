@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Pipaslot.Mediator.Abstractions;
-using System;
-using System.Threading;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
+using System;
+using System.IO;
 using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http
 {

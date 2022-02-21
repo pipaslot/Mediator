@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         /// <typeparam name="TResult">Action result type</typeparam>
         /// <returns>Action result type of its defaut implementation</returns>
-        public static async Task<TResult?> ExecuteOrDefault<TResult>(this IMediator mediator ,IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public static async Task<TResult?> ExecuteOrDefault<TResult>(this IMediator mediator, IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             var response = await mediator.Execute(request, cancellationToken);
             return response.Success ? response.Result : default;

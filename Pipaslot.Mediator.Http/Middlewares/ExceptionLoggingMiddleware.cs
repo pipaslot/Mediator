@@ -25,13 +25,13 @@ namespace Pipaslot.Mediator.Http.Middlewares
             {
                 await next(context);
             }
-            catch(OperationCanceledException oce)
+            catch (OperationCanceledException oce)
             {
                 var serializedData = Serialize(context.Action);
                 _logger.LogWarning(oce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
                 throw;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var serializedData = Serialize(context.Action);
                 _logger.LogError(e, @$"Exception occured during Mediator execution for action '{context.ActionIdentifier}' with message: '{e.Message}'. Action content: {serializedData}");
@@ -41,7 +41,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
 
         private string Serialize(object? obj)
         {
-            if(obj == null)
+            if (obj == null)
             {
                 return "NULL";
             }

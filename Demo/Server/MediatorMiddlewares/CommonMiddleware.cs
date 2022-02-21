@@ -1,5 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
-using Demo.Shared;
+﻿using Demo.Shared;
+using Pipaslot.Mediator.Middlewares;
 
 namespace Demo.Server.MediatorMiddlewares
 {

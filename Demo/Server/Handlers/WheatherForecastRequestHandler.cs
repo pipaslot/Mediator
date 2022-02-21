@@ -1,5 +1,5 @@
-﻿using Pipaslot.Mediator;
-using Demo.Shared.Requests;
+﻿using Demo.Shared.Requests;
+using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers
 {

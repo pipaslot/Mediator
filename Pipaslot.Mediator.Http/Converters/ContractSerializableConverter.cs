@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Pipaslot.Mediator.Http.Serialization.FullJsonContractSerializer;

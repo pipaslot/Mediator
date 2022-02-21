@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
@@ -160,7 +159,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         public class Result : IResult { }
 
         #endregion
-                
+
 
         protected abstract IContractSerializer CreateSerializer();
 

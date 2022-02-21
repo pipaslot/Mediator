@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Configuration
     internal class ActionSpecificPipelineDefinition : IConditionalPipelineConfigurator
     {
         private readonly MediatorConfigurator _configurator;
-        private readonly List<Type> _middlewares = new ();
+        private readonly List<Type> _middlewares = new();
 
         public IReadOnlyList<Type> MiddlewareTypes => _middlewares;
         /// <summary>

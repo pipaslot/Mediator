@@ -1,9 +1,9 @@
-﻿using Pipaslot.Mediator;
-using Pipaslot.Mediator.Http;
-using Demo.Server.Handlers;
+﻿using Demo.Server.Handlers;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Pipaslot.Mediator;
+using Pipaslot.Mediator.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -14,7 +14,8 @@ services.AddResponseCompression();
 services.AddHttpContextAccessor();
 
 //////// Mediator implementation
-services.AddMediatorServer(o => {
+services.AddMediatorServer(o =>
+{
     o.Endpoint = Constants.CustomMediatorUrl;
     o.ErrorHttpStatusCode = 500;
 })

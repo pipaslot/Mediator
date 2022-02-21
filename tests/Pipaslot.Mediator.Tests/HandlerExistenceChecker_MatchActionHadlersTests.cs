@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
