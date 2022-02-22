@@ -5,6 +5,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public static class SingleHandler
     {
+        public static int ExecutedCount { get; set; }
         public class Request : IRequest<Response>
         {
             public bool Pass { get; }
@@ -51,6 +52,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
         {
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
+                ExecutedCount++;
                 if (!request.Pass)
                 {
                     throw new RequestException();
@@ -63,6 +65,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
         {
             public Task Handle(Message request, CancellationToken cancellationToken)
             {
+                ExecutedCount++;
                 if (!request.Pass)
                 {
                     throw new MessageException();

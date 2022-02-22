@@ -44,7 +44,6 @@ namespace Pipaslot.Mediator.Middlewares
                 {
                     await task;
                 }
-                context.ExecutedHandlers++;
 
             }
             catch (TargetInvocationException e)
@@ -80,7 +79,6 @@ namespace Pipaslot.Mediator.Middlewares
 
                     var resultProperty = task.GetType().GetProperty("Result");
                     var result = resultProperty?.GetValue(task);
-                    context.ExecutedHandlers++;
                     if (result != null)
                     {
                         context.AddResult(result);

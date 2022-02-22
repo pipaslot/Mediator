@@ -10,13 +10,17 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 {
     public class SingleHandlerExecutionTests
     {
+        public SingleHandlerExecutionTests()
+        {
+            SingleHandler.ExecutedCount = 0;
+        }
 
         [Fact]
         public async Task RequestWithSingleHandler_ExecuteHandler()
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
             var context = await RunRequest(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, SingleHandler.ExecutedCount);
         }
 
         [Fact]
@@ -44,7 +48,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler>();
             var context = await RunMessage(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, SingleHandler.ExecutedCount);
         }
 
         [Fact]

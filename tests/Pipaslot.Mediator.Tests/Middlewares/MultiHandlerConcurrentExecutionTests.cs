@@ -10,6 +10,11 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 {
     public class MultiHandlerConcurrentExecutionTests
     {
+        public MultiHandlerConcurrentExecutionTests()
+        {
+            ConcurrentHandler.ExecutedCount = 0;
+        }
+
         [Fact]
         public async Task RequestWithoutHandler_ThrowException()
         {
@@ -25,15 +30,15 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         {
             var services = Factory.CreateServiceProviderWithHandlers<ConcurrentHandler.RequestHandler1>();
             var context = await RunRequest(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, ConcurrentHandler.ExecutedCount);
         }
 
         [Fact]
-        public async Task RequestWithMultipleHandlers_ThrowException()
+        public async Task RequestWithMultipleHandlers_Pass()
         {
             var services = Factory.CreateServiceProviderWithHandlers<ConcurrentHandler.RequestHandler1, ConcurrentHandler.RequestHandler2>();
             var context = await RunRequest(services);
-            Assert.Equal(2, context.ExecutedHandlers);
+            Assert.Equal(2, ConcurrentHandler.ExecutedCount);
         }
 
         [Fact]
@@ -51,16 +56,16 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         {
             var services = Factory.CreateServiceProviderWithHandlers<ConcurrentHandler.MessageHandler1>();
             var context = await RunMessage(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, ConcurrentHandler.ExecutedCount);
         }
 
 
         [Fact]
-        public async Task MessageWithMultipleHandlers_ThrowException()
+        public async Task MessageWithMultipleHandlers_Pass()
         {
             var services = Factory.CreateServiceProviderWithHandlers<ConcurrentHandler.MessageHandler1, ConcurrentHandler.MessageHandler2>();
             var context = await RunMessage(services);
-            Assert.Equal(2, context.ExecutedHandlers);
+            Assert.Equal(2, ConcurrentHandler.ExecutedCount);
         }
 
         private async Task<MediatorContext> RunRequest(IServiceProvider services)

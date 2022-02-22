@@ -10,6 +10,10 @@ namespace Pipaslot.Mediator.Tests
 {
     public class MultiHandlerSequenceExecutionTests
     {
+        public MultiHandlerSequenceExecutionTests()
+        {
+            SequenceHandler.ExecutedCount = 0;
+        }
         [Fact]
         public async Task RequestWithoutHandler_ThrowException()
         {
@@ -25,7 +29,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.RequestHandler1>();
             var context = await RunRequest(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, SequenceHandler.ExecutedCount);
         }
 
         [Fact]
@@ -33,7 +37,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.RequestHandler1, SequenceHandler.RequestHandler2>();
             var context = await RunRequest(services);
-            Assert.Equal(2, context.ExecutedHandlers);
+            Assert.Equal(2, SequenceHandler.ExecutedCount);
         }
 
         [Fact]
@@ -51,7 +55,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.MessageHandler1>();
             var context = await RunMessage(services);
-            Assert.Equal(1, context.ExecutedHandlers);
+            Assert.Equal(1, SequenceHandler.ExecutedCount);
         }
 
 
@@ -60,7 +64,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var services = Factory.CreateServiceProviderWithHandlers<SequenceHandler.MessageHandler1, SequenceHandler.MessageHandler2>();
             var context = await RunMessage(services);
-            Assert.Equal(2, context.ExecutedHandlers);
+            Assert.Equal(2, SequenceHandler.ExecutedCount);
         }
 
         //TODO Tests for ISequenceHandler.Order
