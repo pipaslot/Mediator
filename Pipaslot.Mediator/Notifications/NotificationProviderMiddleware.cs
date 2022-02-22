@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Notifications
             {
                 if (_notifications.Any())
                 {
-                    context.Results.AddRange(_notifications);
+                    context.AddResults(_notifications);
                     while (!_notifications.IsEmpty)
                     {
                         _notifications.TryTake(out var _);

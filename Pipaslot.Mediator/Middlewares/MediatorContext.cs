@@ -61,8 +61,8 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="context"></param>
         public void Append(MediatorContext context)
         {
-            ErrorMessages.AddRange(context.ErrorMessages);
-            Results.AddRange(context.Results);
+            AddErrors(context.ErrorMessages);
+            AddResults(context.Results);
             ExecutedHandlers += context.ExecutedHandlers;
         }
 
@@ -72,8 +72,52 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="response"></param>
         public void Append(IMediatorResponse response)
         {
-            ErrorMessages.AddRange(response.ErrorMessages);
-            Results.AddRange(response.Results);
+            AddErrors(response.ErrorMessages);
+            AddResults(response.Results);
+        }
+
+        public bool HasError()
+        {
+            return ErrorMessages.Any();
+        }
+
+        /// <summary>
+        /// Register processing errors
+        /// </summary>
+        /// <param name="messages"></param>
+        public void AddErrors(IEnumerable<string> messages)
+        {
+            foreach (var message in messages)
+            {
+                AddError(message);
+            }
+        }
+
+        /// <summary>
+        /// Register processing error
+        /// </summary>
+        /// <param name="message"></param>
+        public void AddError(string message)
+        {
+            ErrorMessages.Add(message);
+        }
+
+        /// <summary>
+        /// Register processing results
+        /// </summary>
+        /// <param name="result"></param>
+        public void AddResults(IEnumerable<object> result)
+        {
+            Results.AddRange(result);
+        }
+
+        /// <summary>
+        /// Register processing result
+        /// </summary>
+        /// <param name="result"></param>
+        public void AddResult(object result)
+        {
+            Results.Add(result);
         }
     }
 }

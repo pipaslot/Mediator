@@ -36,12 +36,12 @@ namespace Pipaslot.Mediator
             {
                 await ProcessPipeline(pipeline, context);
 
-                var success = context.ErrorMessages.Count == 0;
+                var success = !context.HasError();
                 return new MediatorResponse(success, context.Results, context.UniqueErrorMessages);
             }
             catch (Exception e)
             {
-                context.ErrorMessages.Add(e.Message);
+                context.AddError(e.Message);
                 return new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
             }
             finally
@@ -59,7 +59,7 @@ namespace Pipaslot.Mediator
             {
                 await ProcessPipeline(pipeline, context);
 
-                if (context.ErrorMessages.Any())
+                if (context.HasError())
                 {
                     throw MediatorExecutionException.CreateForUnhandledError(context);
                 }
@@ -79,12 +79,12 @@ namespace Pipaslot.Mediator
             {
                 await ProcessPipeline(pipeline, context);
 
-                var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
+                var success = !context.HasError() && context.Results.Any(r => r is TResult);
                 return new MediatorResponse<TResult>(success, context.Results, context.UniqueErrorMessages);
             }
             catch (Exception e)
             {
-                context.ErrorMessages.Add(e.Message);
+                context.AddError(e.Message);
                 return new MediatorResponse<TResult>(false, context.Results, context.UniqueErrorMessages);
             }
             finally
@@ -101,11 +101,13 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-
-                var success = context.ErrorMessages.Count == 0 && context.Results.Any(r => r is TResult);
-                if (context.ErrorMessages.Any())
+                if (context.HasError())
                 {
                     throw MediatorExecutionException.CreateForUnhandledError(context);
+                }
+                if(!context.Results.Any(r => r is TResult))
+                {
+                    throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
                 }
                 var result = context.Results
                     .Where(r => r is TResult)

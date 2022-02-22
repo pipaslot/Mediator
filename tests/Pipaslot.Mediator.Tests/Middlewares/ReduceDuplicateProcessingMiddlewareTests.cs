@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         async Task _next(MediatorContext res)
         {
             await _semaphore.WaitAsync();
-            res.Results.Add(new object());
+            res.AddResult(new object());
         }
 
         [Fact]

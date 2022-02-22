@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Middlewares;
+using System;
 
 namespace Pipaslot.Mediator
 {
@@ -27,6 +28,11 @@ namespace Pipaslot.Mediator
         public static MediatorExecutionException CreateForUnhandledError(MediatorContext context)
         {
             return new MediatorExecutionException("An error occurred during processing.", context);
+        }
+
+        internal static Exception CreateForMissingResult(MediatorContext context, Type type)
+        {
+            return new MediatorExecutionException($"Extected result type '{type}' was missing in result collection.", context);
         }
     }
 }

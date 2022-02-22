@@ -20,7 +20,7 @@ namespace Demo.Server.MediatorMiddlewares
                 var errors = validable.Validate();
                 if (errors != null && errors.Any())
                 {
-                    context.ErrorMessages.AddRange(errors);
+                    context.AddErrors(errors);
                     // Optional:
                     // Notify the client via response status code to imporove logging and debugging experience
                     var httpContext = _httpContextAccessor.HttpContext;
