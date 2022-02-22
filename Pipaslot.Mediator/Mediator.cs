@@ -37,12 +37,12 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, context);
 
                 var success = !context.HasError();
-                return new MediatorResponse(success, context.Results, context.UniqueErrorMessages);
+                return new MediatorResponse(success, context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {
                 context.AddError(e.Message);
-                return new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
+                return new MediatorResponse(false, context.Results, context.ErrorMessages);
             }
             finally
             {
@@ -80,12 +80,12 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, context);
 
                 var success = !context.HasError() && context.Results.Any(r => r is TResult);
-                return new MediatorResponse<TResult>(success, context.Results, context.UniqueErrorMessages);
+                return new MediatorResponse<TResult>(success, context.Results, context.ErrorMessages);
             }
             catch (Exception e)
             {
                 context.AddError(e.Message);
-                return new MediatorResponse<TResult>(false, context.Results, context.UniqueErrorMessages);
+                return new MediatorResponse<TResult>(false, context.Results, context.ErrorMessages);
             }
             finally
             {

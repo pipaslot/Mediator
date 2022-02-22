@@ -12,17 +12,17 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         internal int ExecutedHandlers { get; set; }
 
-        internal string[] UniqueErrorMessages => ErrorMessages.Distinct().ToArray();
-
+        private  List<string> _errorMessages = new List<string>();
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
         /// </summary>
-        public List<string> ErrorMessages { get; } = new List<string>();
+        public IReadOnlyCollection<string> ErrorMessages => _errorMessages;
 
+        private List<object> _results = new List<object>(1);
         /// <summary>
         /// Handler result objects and object collected during middleware processing
         /// </summary>
-        public List<object> Results { get; } = new List<object>(1);
+        public IReadOnlyCollection<object> Results => _results;
 
         /// <summary>
         /// Executed/Dispatched action
@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator.Middlewares
         }
 
         /// <summary>
-        /// Register processing errors
+        /// Register processing errors. Ignores duplicate entries.
         /// </summary>
         /// <param name="messages"></param>
         public void AddErrors(IEnumerable<string> messages)
@@ -94,12 +94,15 @@ namespace Pipaslot.Mediator.Middlewares
         }
 
         /// <summary>
-        /// Register processing error
+        /// Register processing error. Ignores duplicate entries.
         /// </summary>
         /// <param name="message"></param>
         public void AddError(string message)
         {
-            ErrorMessages.Add(message);
+            if(!_errorMessages.Contains(message))
+            {
+                _errorMessages.Add(message);
+            }
         }
 
         /// <summary>
@@ -108,7 +111,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResults(IEnumerable<object> result)
         {
-            Results.AddRange(result);
+            _results.AddRange(result);
         }
 
         /// <summary>
@@ -117,7 +120,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResult(object result)
         {
-            Results.Add(result);
+            _results.Add(result);
         }
     }
 }

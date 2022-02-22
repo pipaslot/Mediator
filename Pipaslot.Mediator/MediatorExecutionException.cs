@@ -10,9 +10,9 @@ namespace Pipaslot.Mediator
         /// </summary>
         public IMediatorResponse Response { get; }
 
-        public MediatorExecutionException(string message, MediatorContext context) : base($"{message} Errors: ['{string.Join("; ", context.UniqueErrorMessages)}']")
+        public MediatorExecutionException(string message, MediatorContext context) : base($"{message} Errors: ['{string.Join("; ", context.ErrorMessages)}']")
         {
-            Response = new MediatorResponse(false, context.Results, context.UniqueErrorMessages);
+            Response = new MediatorResponse(false, context.Results, context.ErrorMessages);
         }
 
         public MediatorExecutionException(string message, IMediatorResponse response) : base($"{message} Errors: ['{string.Join("; ", response.ErrorMessages)}']")
