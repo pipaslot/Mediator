@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public Guid Guid { get; } = Guid.NewGuid();
 
-        private  List<string> _errorMessages = new List<string>();
+        private List<string> _errorMessages = new List<string>();
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
         /// </summary>
@@ -39,6 +39,8 @@ namespace Pipaslot.Mediator.Middlewares
         /// Cancellation token
         /// </summary>
         public CancellationToken CancellationToken { get; }
+
+        public IFeatureCollection Features { get; } = new FeatureCollection();
 
         internal MediatorContext(IMediatorAction action, CancellationToken cancellationToken)
         {
