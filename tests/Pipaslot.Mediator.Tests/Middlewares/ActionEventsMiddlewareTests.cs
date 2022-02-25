@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests
+namespace Pipaslot.Mediator.Tests.Middlewares
 {
-    public class Mediator_EventsTests
+    public class ActionEventsMiddlewareTests
     {
         private readonly SemaphoreSlim _handlerSemaphore = new(0);
         private readonly List<ActionStartedEventArgs> _started = new();
