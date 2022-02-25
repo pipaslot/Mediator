@@ -1,19 +1,21 @@
 ﻿@using Demo.Client.Shared.Components
+@using Pipaslot.Mediator.Middlewares
 <Spinner Show="_show" />
 
 @implements IDisposable
+@inject ActionEventsMiddleware ActionEvents;
 @code {
     private bool _show;
 
     protected override void OnInitialized()
     {
-        Mediator.ActionStarted += OnStarted;
-        Mediator.ActionCompleted += OnFinished;
+        ActionEvents.ActionStarted += OnStarted;
+        ActionEvents.ActionCompleted += OnFinished;
     }
     public void Dispose()
     {
-        Mediator.ActionStarted -= OnStarted;
-        Mediator.ActionCompleted -= OnFinished;
+        ActionEvents.ActionStarted -= OnStarted;
+        ActionEvents.ActionCompleted -= OnFinished;
     }
 
     private void OnStarted(object? sender, ActionStartedEventArgs args)

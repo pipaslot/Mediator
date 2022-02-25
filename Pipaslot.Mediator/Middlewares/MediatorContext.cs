@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,11 @@ namespace Pipaslot.Mediator.Middlewares
 {
     public class MediatorContext
     {
+        /// <summary>
+        /// Unique context identifier
+        /// </summary>
+        public Guid Guid { get; } = Guid.NewGuid();
+
         private  List<string> _errorMessages = new List<string>();
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing

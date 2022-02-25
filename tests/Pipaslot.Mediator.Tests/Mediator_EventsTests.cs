@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -118,14 +119,16 @@ namespace Pipaslot.Mediator.Tests
             collection.AddLogging();
             collection.AddMediator()
                 .AddActionsFromAssemblyOf<Factory>()
-                .AddDefaultPipeline();
+                .AddDefaultPipeline()
+                .UseActionEvents();
             collection.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
             var services = collection.BuildServiceProvider();
 
             var mediator = services.GetRequiredService<IMediator>();
+            var middleware = services.GetRequiredService<ActionEventsMiddleware>();
 
-            mediator.ActionStarted += OnStarted;
-            mediator.ActionCompleted += OnCompleted;
+            middleware.ActionStarted += OnStarted;
+            middleware.ActionCompleted += OnCompleted;
             return mediator;
         }
 

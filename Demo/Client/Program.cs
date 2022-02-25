@@ -20,8 +20,10 @@ builder.Services.AddMediatorClient(o =>
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipeline<IRequest>()
         .UseReduceDuplicateProcessing()
+        .UseActionEvents()
         .UseNotificationReceiver()
     .AddDefaultPipeline()
+        .UseActionEvents()
         .UseNotificationReceiver();
 ////////
 

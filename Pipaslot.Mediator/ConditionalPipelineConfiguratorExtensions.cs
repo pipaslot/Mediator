@@ -19,6 +19,14 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
+        /// Track actions processed by middleware through exposed events
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseActionEvents(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<ActionEventsMiddleware>(ServiceLifetime.Singleton);
+        }
+
+        /// <summary>
         /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
         /// </summary>
         public static IConditionalPipelineConfigurator UseNotificationReceiver(this IConditionalPipelineConfigurator config)
