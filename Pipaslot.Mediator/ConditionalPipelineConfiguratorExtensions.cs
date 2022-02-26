@@ -36,16 +36,5 @@ namespace Pipaslot.Mediator
                 services.TryAddScoped<INotificationReceiver>(s => s.GetService<NotificationReceiverMiddleware>());
             });
         }
-
-        /// <summary>
-        /// Middleware attaching <see cref="Notification"/> to action results when new notification was added vit <see cref="INotificationProvider.Add(Notification)"/>
-        /// </summary>
-        public static IConditionalPipelineConfigurator UseNotificationProvider(this IConditionalPipelineConfigurator config)
-        {
-            return config.Use<NotificationProviderMiddleware>(services =>
-            {
-                services.TryAddScoped<INotificationProvider>(s => s.GetService<NotificationProviderMiddleware>());
-            });
-        }
     }
 }

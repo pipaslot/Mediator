@@ -37,7 +37,6 @@ services.AddMediatorServer(o =>
     .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
         .UseExceptionLogging()             // Log all unhalded exception via ILogger
         .Use<CallStackLoggerMiddleware>()
-        .UseNotificationProvider()
         .Use<ValidatorMiddleware>()
         .Use<CommonMiddleware>();
 ////////
