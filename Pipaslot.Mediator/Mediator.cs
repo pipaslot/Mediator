@@ -12,13 +12,15 @@ namespace Pipaslot.Mediator
     /// <summary>
     /// Mediator which wrapps handler execution into pipelines
     /// </summary>
-    public class Mediator : IMediator
+    internal class Mediator : IMediator
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly MediatorContextAccessor _mediatorContextAccessor;
 
-        public Mediator(IServiceProvider serviceProvider)
+        public Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor)
         {
             _serviceProvider = serviceProvider;
+            _mediatorContextAccessor = mediatorContextAccessor;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
@@ -96,16 +98,24 @@ namespace Pipaslot.Mediator
 
         private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
         {
-            var enumerator = pipeline.GetEnumerator();
-            Task next(MediatorContext ctx)
+            _mediatorContextAccessor.Push(context);
+            try
             {
-                if (enumerator.MoveNext())
+                var enumerator = pipeline.GetEnumerator();
+                Task next(MediatorContext ctx)
                 {
-                    return enumerator.Current.Invoke(ctx, next);
-                }
-                return Task.CompletedTask;
-            };
-            await next(context);
+                    if (enumerator.MoveNext())
+                    {
+                        return enumerator.Current.Invoke(ctx, next);
+                    }
+                    return Task.CompletedTask;
+                };
+                await next(context);
+            }
+            finally
+            {
+                _mediatorContextAccessor.Pop();
+            }
         }
 
         private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)

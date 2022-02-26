@@ -36,7 +36,6 @@ services.AddMediatorServer(o =>
     // Use default pipeline if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution
     .AddDefaultPipeline()                   // Pipeline for all action not handled by any of previous pipelines
         .UseExceptionLogging()             // Log all unhalded exception via ILogger
-        .UseContextStack()
         .Use<CallStackLoggerMiddleware>()
         .UseNotificationProvider()
         .Use<ValidatorMiddleware>()

@@ -40,8 +40,6 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public CancellationToken CancellationToken { get; }
 
-        public IFeatureCollection Features { get; } = new FeatureCollection();
-
         internal MediatorContext(IMediatorAction action, CancellationToken cancellationToken)
         {
             Action = action ?? throw new System.ArgumentNullException(nameof(action));

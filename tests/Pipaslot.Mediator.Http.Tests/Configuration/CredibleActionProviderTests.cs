@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         [Fact]
         public void VerifyCredibility_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
         {
-            var sut = Create(c => c.AddActionsFromAssemblyOf<Mediator>());
+            var sut = Create(c => c.AddActionsFromAssemblyOf<IMediator>());
             var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeContract)));
             Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
         }

@@ -26,11 +26,6 @@ namespace Pipaslot.Mediator
             return config.Use<ActionEventsMiddleware>(ServiceLifetime.Singleton);
         }
 
-        public static IConditionalPipelineConfigurator UseContextStack(this IConditionalPipelineConfigurator config)
-        {
-            return config.Use<ContextStackMiddleware>(ServiceLifetime.Singleton);
-        }
-
         /// <summary>
         /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
         /// </summary>

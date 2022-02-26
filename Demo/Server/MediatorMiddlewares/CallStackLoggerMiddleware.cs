@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator;
+using Pipaslot.Mediator.Middlewares;
 
 namespace Demo.Server.MediatorMiddlewares
 {
@@ -6,19 +7,21 @@ namespace Demo.Server.MediatorMiddlewares
     {
         private readonly ILogger<CallStackLoggerMiddleware> _logger;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IMediatorContextAccessor _mediatorContextAccessor;
 
-        public CallStackLoggerMiddleware(ILogger<CallStackLoggerMiddleware> logger, IHttpContextAccessor contextAccessor)
+        public CallStackLoggerMiddleware(ILogger<CallStackLoggerMiddleware> logger, IHttpContextAccessor contextAccessor, IMediatorContextAccessor mediatorContextAccessor)
         {
             _logger = logger;
             _contextAccessor = contextAccessor;
+            _mediatorContextAccessor = mediatorContextAccessor;
         }
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             var isRequest = _contextAccessor.HttpContext != null;
 
-            var stack = context.Features.Get<Stack<MediatorContext>?>();
-            if (stack != null && stack.Count > 0)
+            var stack = _mediatorContextAccessor.ContextStack;
+            if (stack.Count > 0)
             {
                 var calls = stack
                     .Select(s => s.Action.GetType().AssemblyQualifiedName)

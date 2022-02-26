@@ -26,6 +26,8 @@ namespace Pipaslot.Mediator
         public static IMediatorConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services) where TDefaultExecutionMiddleware : class, IExecutionMiddleware
         {
             services.AddScoped<IMediator, Mediator>();
+            services.AddScoped<MediatorContextAccessor>();
+            services.AddScoped<IMediatorContextAccessor>(s => s.GetRequiredService<MediatorContextAccessor>());
             services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
             var configurator = new MediatorConfigurator(services);
             services.AddSingleton(configurator);
