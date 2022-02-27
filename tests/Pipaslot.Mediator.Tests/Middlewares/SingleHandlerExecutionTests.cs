@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async Task RequestWithSingleHandler_ExecuteHandler()
         {
             var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
-            var context = await RunRequest(services);
+            await RunRequest(services);
             Assert.Equal(1, SingleHandler.ExecutedCount);
         }
 

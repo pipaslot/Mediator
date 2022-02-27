@@ -119,7 +119,6 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             collection.AddLogging();
             collection.AddMediator()
                 .AddActionsFromAssemblyOf<Factory>()
-                .AddDefaultPipeline()
                 .UseActionEvents();
             collection.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
             var services = collection.BuildServiceProvider();

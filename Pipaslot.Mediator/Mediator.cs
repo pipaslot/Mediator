@@ -1,6 +1,7 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +17,18 @@ namespace Pipaslot.Mediator
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly MediatorContextAccessor _mediatorContextAccessor;
+        private readonly MediatorConfigurator _configurator;
 
-        public Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor)
+        public Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
         {
             _serviceProvider = serviceProvider;
             _mediatorContextAccessor = mediatorContextAccessor;
+            _configurator = configurator;
         }
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(message);
+            var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
             try
             {
@@ -43,7 +46,7 @@ namespace Pipaslot.Mediator
 
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(message);
+            var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
 
             await ProcessPipeline(pipeline, context);
@@ -56,7 +59,7 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(request);
+            var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             try
             {
@@ -74,7 +77,7 @@ namespace Pipaslot.Mediator
 
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(request);
+            var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
             if (context.HasError())
@@ -94,6 +97,23 @@ namespace Pipaslot.Mediator
                 throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
             }
             return result;
+        }
+
+        internal IEnumerable<IMediatorMiddleware> GetPipeline(IMediatorAction action)
+        {
+            var middlewareTypes = _configurator.GetMiddlewares(action);
+            foreach (var middlewareType in middlewareTypes)
+            {
+                var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareType);
+                yield return middlewareInstance;
+                if (middlewareInstance is IExecutionMiddleware)
+                {
+                    yield break;
+                }
+            }
+
+            yield return _serviceProvider.GetRequiredService<IExecutionMiddleware>();
+
         }
 
         private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)

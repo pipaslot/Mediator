@@ -13,7 +13,6 @@ namespace Pipaslot.Mediator.Tests
             Assert.Throws<MediatorException>(() =>
             {
                 Factory.CreateServiceProvider(c => c
-                .AddDefaultPipeline()
                     .Use<FakeMiddleware>(ServiceLifetime.Scoped)
                     .Use<FakeMiddleware>(ServiceLifetime.Transient)
                 );
@@ -25,10 +24,8 @@ namespace Pipaslot.Mediator.Tests
             Assert.Throws<MediatorException>(() =>
             {
                 Factory.CreateServiceProvider(c => c
-                .AddDefaultPipeline()
                     .Use<FakeMiddleware>(ServiceLifetime.Scoped)
-                .AddPipeline<IMessage>()
-                    .Use<FakeMiddleware>(ServiceLifetime.Transient)
+                    .MapWhen<IMessage>(s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
                 );
             });
         }

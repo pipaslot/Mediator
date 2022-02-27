@@ -32,6 +32,12 @@ namespace Pipaslot.Mediator.Tests
             return CreateServiceProvider(_ => { });
         }
 
+        public static MediatorConfigurator CreateMediatorConfigurator(Action<IMediatorConfigurator> setup)
+        {
+            var sp = CreateServiceProvider(setup);
+            return sp.GetService<MediatorConfigurator>();
+        }
+
         public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator> setup)
         {
             var collection = new ServiceCollection();

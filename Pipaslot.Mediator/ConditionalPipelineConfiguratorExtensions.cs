@@ -3,11 +3,28 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
+using System;
 
 namespace Pipaslot.Mediator
 {
     public static class ConditionalPipelineConfiguratorExtensions
     {
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions implementing TActionMarker.
+        /// </summary>
+        public static IConditionalPipelineConfigurator MapWhen<TActionMarker>(this IConditionalPipelineConfigurator configurator, Action<IConditionalPipelineConfigurator> subMiddlewares)
+        {
+            return configurator.MapWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
+        }
+
+        /// <summary>
+        /// Execute handlers. No more middlewares will be executed.
+        /// </summary>
+        public static IConditionalPipelineConfigurator UseHandlerExecution(this IConditionalPipelineConfigurator config)
+        {
+            return config.Use<HandlerExecutionMiddleware>();
+        }
+
         /// <summary>
         /// Reduce action processing to only one at the same time for the same action type with the same properties.
         /// This is useful when you know that your application executes the same action multiple times but you want to reduce the server load. 

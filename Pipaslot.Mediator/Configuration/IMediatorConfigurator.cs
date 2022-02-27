@@ -6,7 +6,7 @@ namespace Pipaslot.Mediator.Configuration
     /// <summary>
     /// Commont configuration for all pipelines and for handler processing. Scans assemblies for action markers and their handlers. Pipeline is specified by registered middlewares by their order
     /// </summary>
-    public interface IMediatorConfigurator : IPipelineRegistrator
+    public interface IMediatorConfigurator : IConditionalPipelineConfigurator
     {
         /// <summary>
         /// Scan assemblies for action handler types

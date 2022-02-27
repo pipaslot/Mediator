@@ -18,13 +18,10 @@ builder.Services.AddMediatorClient(o =>
     o.AddCredibleResultType<CommonResult>();
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
-    .AddPipeline<IRequest>()
-        .UseReduceDuplicateProcessing()
-        .UseActionEvents()
-        .UseNotificationReceiver()
-    .AddDefaultPipeline()
-        .UseActionEvents()
-        .UseNotificationReceiver();
+    .MapWhen<IRequest>(s => s.UseReduceDuplicateProcessing())
+    .UseReduceDuplicateProcessing()
+    .UseActionEvents()
+    .UseNotificationReceiver();
 ////////
 
 await builder.Build().RunAsync();

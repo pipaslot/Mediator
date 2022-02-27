@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
-using Pipaslot.Mediator.Middlewares;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Services
@@ -44,53 +41,6 @@ namespace Pipaslot.Mediator.Services
                 // ReSharper disable once RedundantEnumerableCastCall
                 .Cast<object>()
                 .ToArray();
-        }
-
-        public static IExecutionMiddleware GetExecutiveMiddleware(this IServiceProvider serviceProvider, IMediatorAction action)
-        {
-            var pipeline = serviceProvider.GetPipeline(action).Last();
-            if (pipeline is IExecutionMiddleware ep)
-            {
-                return ep;
-            }
-            throw new MediatorException("Executive pipeline not found");//This should never happen as GetMessagePipelines always returns last pipeline as executive
-        }
-
-        public static IEnumerable<IMediatorMiddleware> GetPipeline(this IServiceProvider serviceProvider, IMediatorAction action)
-        {
-            var actionSpecificPipelineDefinitions = serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
-            var actionSpecificPipeline = actionSpecificPipelineDefinitions
-                .Where(p => p.Condition(action.GetType()))
-                .FirstOrDefault();
-            if (actionSpecificPipeline != null)
-            {
-                var actionSpecificPipelineMiddlewares = actionSpecificPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)serviceProvider.GetRequiredService(m));
-                return serviceProvider.GetMiddlewaresWithLastExecutive(actionSpecificPipelineMiddlewares);
-            }
-
-            var defaultPipeline = serviceProvider.GetServices<DefaultPipelineDefinition>()
-                .FirstOrDefault();
-            if (defaultPipeline != null)
-            {
-                var defaultPipelineMiddlewares = defaultPipeline.MiddlewareTypes.Select(m => (IMediatorMiddleware)serviceProvider.GetRequiredService(m));
-                return serviceProvider.GetMiddlewaresWithLastExecutive(defaultPipelineMiddlewares);
-            }
-
-            return serviceProvider.GetMiddlewaresWithLastExecutive(new IMediatorMiddleware[0]);
-        }
-
-        private static IEnumerable<IMediatorMiddleware> GetMiddlewaresWithLastExecutive(this IServiceProvider serviceProvider, IEnumerable<IMediatorMiddleware> pipeline)
-        {
-            foreach (var middleware in pipeline)
-            {
-                yield return middleware;
-                if (middleware is IExecutionMiddleware)
-                {
-                    yield break;
-                }
-            }
-
-            yield return serviceProvider.GetRequiredService<IExecutionMiddleware>();
         }
     }
 }

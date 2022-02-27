@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,16 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
 {
-    public class MediatorConfigurator : IMediatorConfigurator, IActionTypeProvider
+    public class MediatorConfigurator : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
     {
         internal readonly IServiceCollection Services;
         public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
+        private MiddlewareCollection _middlewares { get; }
 
         public MediatorConfigurator(IServiceCollection services)
         {
             Services = services;
+            _middlewares = new MiddlewareCollection(services);
         }
 
         public IMediatorConfigurator AddActionsFromAssemblyOf<T>()
@@ -71,54 +74,19 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
+        public IConditionalPipelineConfigurator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
-            var markerType = typeof(TActionMarker);
-            return AddPipeline(markerType.ToString(), actionType => markerType.IsAssignableFrom(actionType));
+            return _middlewares.Use<TMiddleware>(setupDependencies, lifetime);
         }
 
-        public IConditionalPipelineConfigurator AddPipeline(string identifier, Func<Type, bool> actionCondition)
+        public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
-            var pipeline = new ActionSpecificPipelineDefinition(this, identifier, actionCondition);
-            var existingPipelineDescriptor = Services.FirstOrDefault((ServiceDescriptor d) =>
-                    d.ServiceType == typeof(ActionSpecificPipelineDefinition)
-                && ((ActionSpecificPipelineDefinition)d.ImplementationInstance).Identifier == identifier);
-            if (existingPipelineDescriptor != null)
-            {
-                Services.Remove(existingPipelineDescriptor);
-            }
-            Services.AddSingleton(pipeline);
-            return pipeline;
+            return _middlewares.Use<TMiddleware>(lifetime);
         }
 
-        public IConditionalPipelineConfigurator AddDefaultPipeline()
+        public IConditionalPipelineConfigurator MapWhen(Func<IMediatorAction, bool> condition, Action<IConditionalPipelineConfigurator> subMiddlewares)
         {
-            var pipeline = new DefaultPipelineDefinition(this);
-            var existingPipelineDescriptor = Services.FirstOrDefault((ServiceDescriptor d) => d.ServiceType == typeof(DefaultPipelineDefinition));
-            if (existingPipelineDescriptor != null)
-            {
-                Services.Remove(existingPipelineDescriptor);
-            }
-
-            Services.AddSingleton(pipeline);
-
-            return pipeline;
-        }
-
-        internal void RegisterMiddleware(Type middlewareType, ServiceLifetime lifetime)
-        {
-            var existingDescriptor = Services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
-            if (existingDescriptor != null)
-            {
-                if (existingDescriptor.Lifetime != lifetime)
-                {
-                    throw new MediatorException($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
-                }
-            }
-            else
-            {
-                Services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
-            }
+            return _middlewares.MapWhen(condition, subMiddlewares);
         }
 
         public Type[] GetMessageActionTypes()
@@ -131,6 +99,11 @@ namespace Pipaslot.Mediator.Configuration
         {
             var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
             return FilterAssignableToRequest(types);
+        }
+
+        public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
+        {
+            return _middlewares.GetMiddlewares(action);
         }
 
         internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)

@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
         private static IMediator CreateMediator()
         {
-            return Factory.CreateMediator(c => c.AddDefaultPipeline().UseExceptionLogging());
+            return Factory.CreateMediator(c => c.UseExceptionLogging());
         }
     }
 }

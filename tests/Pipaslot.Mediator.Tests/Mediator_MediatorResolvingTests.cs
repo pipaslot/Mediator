@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Factory.CreateMediator(m =>
             {
-                m.AddDefaultPipeline()
+                m
                 .Use<BlockingMiddleware>()
                 .Use<TestedMiddleware>();
             });

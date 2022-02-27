@@ -1,5 +1,6 @@
-﻿using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,20 +12,27 @@ namespace Pipaslot.Mediator.Tests
     public class ServiceResolver_ResolveMiddlewaresTests
     {
         [Theory]
-        [InlineData(1, typeof(BeforeMiddleware))]
-        [InlineData(2, typeof(QueryMiddleware))]
-        [InlineData(3, typeof(HandlerExecutionMiddleware))]
-        public void QueryPath(int position, Type expectedMiddleware)
+        [InlineData(false, 1, typeof(BeforeMiddleware))]
+        [InlineData(false, 2, typeof(QueryMiddleware))]
+        [InlineData(false, 3, typeof(Query2Middleware))]
+        [InlineData(false, 4, typeof(DefaultMiddleware))]
+        [InlineData(false, 5, typeof(HandlerExecutionMiddleware))]
+
+        [InlineData(true, 1, typeof(BeforeMiddleware))]
+        [InlineData(true, 2, typeof(QueryMiddleware))]
+        [InlineData(true, 3, typeof(HandlerExecutionMiddleware))]
+        public void QueryPath(bool executeHanldersInFirstMap, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(new FakeQuery());
+            var middlewares = sut.GetPipeline(new FakeQuery { ExecuteHandlers = executeHanldersInFirstMap });
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
         [Theory]
         [InlineData(1, typeof(BeforeMiddleware))]
         [InlineData(2, typeof(CommandMiddleware))]
-        [InlineData(3, typeof(HandlerExecutionMiddleware))]
+        [InlineData(3, typeof(DefaultMiddleware))]
+        [InlineData(4, typeof(HandlerExecutionMiddleware))]
         public void CommandPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
@@ -36,22 +44,24 @@ namespace Pipaslot.Mediator.Tests
         [InlineData(true, 1, typeof(BeforeMiddleware))]
         [InlineData(true, 2, typeof(CommandMiddleware))]
         [InlineData(true, 3, typeof(CommandNestedMiddleware))]
-        [InlineData(true, 4, typeof(HandlerExecutionMiddleware))]
+        [InlineData(true, 4, typeof(DefaultMiddleware))]
+        [InlineData(true, 5, typeof(HandlerExecutionMiddleware))]
 
         [InlineData(false, 1, typeof(BeforeMiddleware))]
         [InlineData(false, 2, typeof(CommandMiddleware))]
-        [InlineData(false, 3, typeof(HandlerExecutionMiddleware))]
+        [InlineData(false, 3, typeof(DefaultMiddleware))]
+        [InlineData(false, 4, typeof(HandlerExecutionMiddleware))]
         public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(new FakeCommand());
+            var middlewares = sut.GetPipeline(new FakeCommand { ExecuteNested = enableNested });
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
         [Theory]
         [InlineData(1, typeof(BeforeMiddleware))]
         [InlineData(2, typeof(DefaultMiddleware))]
-        [InlineData(2, typeof(HandlerExecutionMiddleware))]
+        [InlineData(3, typeof(HandlerExecutionMiddleware))]
         public void DefaultPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
@@ -61,27 +71,35 @@ namespace Pipaslot.Mediator.Tests
 
         private void VerifyMiddleware(IEnumerable<IMediatorMiddleware> middlewares, int position, Type expectedMiddleware)
         {
-            var actual = middlewares.Skip(position - 1).First();
-            var actualType = actual.GetType();
-            Assert.Equal(expectedMiddleware, actualType);
+            var actual = middlewares.Skip(position - 1).First().GetType();
+            Assert.Equal(expectedMiddleware, actual);
         }
 
-        private static IServiceProvider CreateServiceResolver()
+        private static Mediator CreateServiceResolver()
         {
-            return Factory.CreateServiceProvider(/*c => c
+            var sp = Factory.CreateServiceProvider(c => c
                     .Use<BeforeMiddleware>()
-                    .MapWhen<IQuery>(x => x.Use<QueryMiddleware>())
+                    .MapWhen<IQuery>(x => x
+                        .Use<QueryMiddleware>()
+                        .MapWhen(a => a is FakeQuery c && c.ExecuteHandlers, y => y.UseHandlerExecution())
+                        )
                     .MapWhen<ICommand>(x => x
                         .Use<CommandMiddleware>()
-                        .MapWhen(a => a.ExecuteNested, y => y.Use<CommandNestedMiddleware>())
+                        .MapWhen(a => a is FakeCommand c && c.ExecuteNested, y => y.Use<CommandNestedMiddleware>())
                         )
-                    .Use<DefaultMiddleware>()*/
+
+                    .MapWhen<IQuery>(x => x.Use<Query2Middleware>())
+                    .Use<DefaultMiddleware>()
                 );
+            return (Mediator)sp.GetService<IMediator>();
         }
 
         public interface IQuery : IRequest { }
         public interface IQuery<out TResponse> : IRequest<TResponse>, IQuery { }
-        public class FakeQuery : IQuery<object> { }
+        public class FakeQuery : IQuery<object>
+        {
+            public bool ExecuteHandlers { get; set; }
+        }
         public interface ICommand : IMessage { }
         public class FakeCommand : ICommand
         {
@@ -99,6 +117,14 @@ namespace Pipaslot.Mediator.Tests
         }
 
         public class QueryMiddleware : IMediatorMiddleware
+        {
+            public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
+            {
+                await next(context);
+            }
+        }
+
+        public class Query2Middleware : IMediatorMiddleware
         {
             public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
