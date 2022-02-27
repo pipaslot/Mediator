@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(message.GetType());
+            var pipeline = _serviceProvider.GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
             try
             {
@@ -43,7 +43,7 @@ namespace Pipaslot.Mediator
 
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(message.GetType());
+            var pipeline = _serviceProvider.GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
 
             await ProcessPipeline(pipeline, context);
@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(request.GetType());
+            var pipeline = _serviceProvider.GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             try
             {
@@ -74,7 +74,7 @@ namespace Pipaslot.Mediator
 
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var pipeline = _serviceProvider.GetPipeline(request.GetType());
+            var pipeline = _serviceProvider.GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
             if (context.HasError())

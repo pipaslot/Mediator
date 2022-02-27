@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Tests
                 .AddPipeline<IRequest>()
                     .Use<FakeMiddleware2>()
                     );
-            var pipeline = sr.GetPipeline(typeof(IRequest));
+            var pipeline = sr.GetPipeline(new Request());
             var middleware = pipeline.FirstOrDefault();
             Assert.Equal(typeof(FakeMiddleware2), middleware.GetType());
         }
@@ -59,10 +59,11 @@ namespace Pipaslot.Mediator.Tests
                 .AddDefaultPipeline()
                     .Use<FakeMiddleware2>()
                     );
-            var pipeline = sr.GetPipeline(typeof(IRequest));
+            var pipeline = sr.GetPipeline(new Request());
             var middleware = pipeline.FirstOrDefault();
             Assert.Equal(typeof(FakeMiddleware2), middleware.GetType());
         }
+        public class Request : IRequest<int> { }
 
         private class FakeMiddleware1 : IMediatorMiddleware
         {

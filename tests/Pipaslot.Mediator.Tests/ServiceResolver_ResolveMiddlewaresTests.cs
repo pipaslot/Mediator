@@ -17,7 +17,7 @@ namespace Pipaslot.Mediator.Tests
         public void QueryPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeQuery));
+            var middlewares = sut.GetPipeline(new FakeQuery());
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
@@ -28,7 +28,7 @@ namespace Pipaslot.Mediator.Tests
         public void CommandPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeCommand));
+            var middlewares = sut.GetPipeline(new FakeCommand());
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
@@ -44,7 +44,7 @@ namespace Pipaslot.Mediator.Tests
         public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeCommand));
+            var middlewares = sut.GetPipeline(new FakeCommand());
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
@@ -55,7 +55,7 @@ namespace Pipaslot.Mediator.Tests
         public void DefaultPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeNotification));
+            var middlewares = sut.GetPipeline(new FakeNotification());
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 

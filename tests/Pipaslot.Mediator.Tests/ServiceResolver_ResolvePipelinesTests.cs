@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests
         public void DirectUse_ResolveActionSpecificPipeline()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeQuery));
+            var middlewares = sut.GetPipeline(new FakeQuery());
 
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
@@ -24,7 +24,7 @@ namespace Pipaslot.Mediator.Tests
         public void DirectUse_ResolveActionSpecificPipelineWithMiltiHandler()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeCommand));
+            var middlewares = sut.GetPipeline(new FakeCommand());
 
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Tests
         public void DirectUse_ResolveDefaultPipeline()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeNotification));
+            var middlewares = sut.GetPipeline(new FakeNotification());
 
             Assert.Equal(2, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
@@ -46,7 +46,7 @@ namespace Pipaslot.Mediator.Tests
         public void AddPipeline_ResolveActionSpecificPipeline()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeQuery));
+            var middlewares = sut.GetPipeline(new FakeQuery());
 
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Tests
         public void AddPipeline_ResolveActionSpecificPipelineWithMiltiHandlerAndRegisteredViaFluentInterface()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeCommand));
+            var middlewares = sut.GetPipeline(new FakeCommand());
 
             Assert.Equal(3, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());
@@ -69,7 +69,7 @@ namespace Pipaslot.Mediator.Tests
         public void AddPipeline_ResolveDefaultPipeline()
         {
             var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(typeof(FakeNotification));
+            var middlewares = sut.GetPipeline(new FakeNotification());
 
             Assert.Equal(2, middlewares.Count());
             Assert.Equal(typeof(SharedMiddleware), middlewares.First().GetType());

@@ -46,19 +46,9 @@ namespace Pipaslot.Mediator.Services
                 .ToArray();
         }
 
-        private static bool IsRequestInterface(Type type, Type responseType)
+        public static IExecutionMiddleware GetExecutiveMiddleware(this IServiceProvider serviceProvider, IMediatorAction action)
         {
-            if (type.IsInterface)
-            {
-                var mediatorActionType = typeof(IMediatorAction<>).MakeGenericType(responseType);
-                return mediatorActionType.IsAssignableFrom(type);
-            }
-            return false;
-        }
-
-        public static IExecutionMiddleware GetExecutiveMiddleware(this IServiceProvider serviceProvider, Type actionType)
-        {
-            var pipeline = serviceProvider.GetPipeline(actionType).Last();
+            var pipeline = serviceProvider.GetPipeline(action).Last();
             if (pipeline is IExecutionMiddleware ep)
             {
                 return ep;
@@ -66,11 +56,11 @@ namespace Pipaslot.Mediator.Services
             throw new MediatorException("Executive pipeline not found");//This should never happen as GetMessagePipelines always returns last pipeline as executive
         }
 
-        public static IEnumerable<IMediatorMiddleware> GetPipeline(this IServiceProvider serviceProvider, Type actionType)
+        public static IEnumerable<IMediatorMiddleware> GetPipeline(this IServiceProvider serviceProvider, IMediatorAction action)
         {
             var actionSpecificPipelineDefinitions = serviceProvider.GetServices<ActionSpecificPipelineDefinition>();
             var actionSpecificPipeline = actionSpecificPipelineDefinitions
-                .Where(p => p.Condition(actionType))
+                .Where(p => p.Condition(action.GetType()))
                 .FirstOrDefault();
             if (actionSpecificPipeline != null)
             {
