@@ -74,17 +74,17 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             return _middlewares.Use<TMiddleware>(setupDependencies, lifetime);
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             return _middlewares.Use<TMiddleware>(lifetime);
         }
 
-        public IConditionalPipelineConfigurator MapWhen(Func<IMediatorAction, bool> condition, Action<IConditionalPipelineConfigurator> subMiddlewares)
+        public IMiddlewareRegistrator MapWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return _middlewares.MapWhen(condition, subMiddlewares);
         }

@@ -7,12 +7,12 @@ using System;
 
 namespace Pipaslot.Mediator
 {
-    public static class ConditionalPipelineConfiguratorExtensions
+    public static class MiddlewareRegistratorExtensions
     {
         /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
         /// </summary>
-        public static IConditionalPipelineConfigurator MapWhen<TActionMarker>(this IConditionalPipelineConfigurator configurator, Action<IConditionalPipelineConfigurator> subMiddlewares)
+        public static IMiddlewareRegistrator MapWhen<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.MapWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
         }
@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Execute handlers. No more middlewares will be executed.
         /// </summary>
-        public static IConditionalPipelineConfigurator UseHandlerExecution(this IConditionalPipelineConfigurator config)
+        public static IMiddlewareRegistrator UseHandlerExecution(this IMiddlewareRegistrator config)
         {
             return config.Use<HandlerExecutionMiddleware>();
         }
@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator
         /// This is useful when you know that your application executes the same action multiple times but you want to reduce the server load. 
         /// IMPORTANT!: object method GetHashcode() is used for evaluating object similarities
         /// </summary>
-        public static IConditionalPipelineConfigurator UseReduceDuplicateProcessing(this IConditionalPipelineConfigurator config)
+        public static IMiddlewareRegistrator UseReduceDuplicateProcessing(this IMiddlewareRegistrator config)
         {
             return config.Use<ReduceDuplicateProcessingMiddleware>();
         }
@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Track actions processed by middleware through exposed events
         /// </summary>
-        public static IConditionalPipelineConfigurator UseActionEvents(this IConditionalPipelineConfigurator config)
+        public static IMiddlewareRegistrator UseActionEvents(this IMiddlewareRegistrator config)
         {
             return config.Use<ActionEventsMiddleware>(ServiceLifetime.Singleton);
         }
@@ -46,7 +46,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
         /// </summary>
-        public static IConditionalPipelineConfigurator UseNotificationReceiver(this IConditionalPipelineConfigurator config)
+        public static IMiddlewareRegistrator UseNotificationReceiver(this IMiddlewareRegistrator config)
         {
             return config.Use<NotificationReceiverMiddleware>(services =>
             {

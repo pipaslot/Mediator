@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Configuration
 {
-    internal class MiddlewareCollection : IMiddlewareResolver, IConditionalPipelineConfigurator
+    internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrator
     {
         private readonly List<IMiddlewareResolver> _middlewareTypes = new List<IMiddlewareResolver>();
         private readonly IServiceCollection _services;
@@ -53,20 +53,20 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             AddMiddleware(typeof(TMiddleware), lifetime);
             return this;
         }
 
-        public IConditionalPipelineConfigurator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
             setupDependencies(_services);
             AddMiddleware(typeof(TMiddleware), lifetime);
             return this;
         }
 
-        public IConditionalPipelineConfigurator MapWhen(Func<IMediatorAction, bool> condition, Action<IConditionalPipelineConfigurator> subMiddlewares)
+        public IMiddlewareRegistrator MapWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             var config = AddCondition(condition);
             subMiddlewares(config);
