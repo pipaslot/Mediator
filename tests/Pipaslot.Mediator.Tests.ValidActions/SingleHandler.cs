@@ -1,11 +1,13 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public static class SingleHandler
     {
-        public static int ExecutedCount { get; set; }
+        [ThreadStatic]
+        public static int ExecutedCount;
         public class Request : IRequest<Response>
         {
             public bool Pass { get; }

@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Tests.ValidActions;
+﻿using Pipaslot.Mediator.Tests.InvalidActions;
+using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -78,6 +79,16 @@ namespace Pipaslot.Mediator.Tests
             });
         }
 
+        [Fact]
+        public async Task ExecuteUnhandled_NoResult_ThrowException()
+        {
+            var sut = Factory.CreateMediator(c=>c.Use<NopMiddleware>());
+            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            {
+                await sut.ExecuteUnhandled(new SingleHandler.Request(true));
+            });
+        }
+
         #endregion
 
         #region Dispatch single handler
@@ -132,6 +143,17 @@ namespace Pipaslot.Mediator.Tests
             await Assert.ThrowsAsync<SingleHandler.MessageException>(async () =>
             {
                 await sut.DispatchUnhandled(new SingleHandler.Message(false));
+            });
+        }
+
+
+        [Fact]
+        public async Task ExecuteUnhandled_ReturnError_ThrowException()
+        {
+            var sut = Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
+            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            {
+                await sut.ExecuteUnhandled(new SingleHandler.Request(true));
             });
         }
 

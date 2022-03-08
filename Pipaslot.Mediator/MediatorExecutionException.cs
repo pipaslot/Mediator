@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator
             return new MediatorExecutionException("An error occurred during processing.", context);
         }
 
-        internal static Exception CreateForMissingResult(MediatorContext context, Type type)
+        internal static MediatorExecutionException CreateForMissingResult(MediatorContext context, Type type)
         {
             return new MediatorExecutionException($"Extected result type '{type}' was missing in result collection.", context);
         }
