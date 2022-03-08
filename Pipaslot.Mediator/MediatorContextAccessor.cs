@@ -31,7 +31,7 @@ namespace Pipaslot.Mediator
 
         public void Add(Notification notification)
         {
-            _asyncLocal.Value?.FirstOrDefault()?.AddResult(notification);
+            MediatorContext?.AddResult(notification);
         }
     }
 }
