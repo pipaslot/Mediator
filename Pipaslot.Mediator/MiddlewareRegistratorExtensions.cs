@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
@@ -10,9 +11,27 @@ namespace Pipaslot.Mediator
     public static class MiddlewareRegistratorExtensions
     {
         /// <summary>
+        /// Register middlewares applied only for actions passing the condition.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhen<TMiddleware>(this IMiddlewareRegistrator configurator, Func<IMediatorAction, bool> condition)
+             where TMiddleware : IMediatorMiddleware
+        {
+            return configurator.UseWhen(condition, m => m.Use<TMiddleware>());
+        }
+
+        /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator UseWhen<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
+             where TMiddleware : IMediatorMiddleware
+        {
+            return configurator.UseWhenAction<TActionMarker>(m => m.Use<TMiddleware>());
+        }
+
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions implementing TActionMarker.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
         }

@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Tests
             {
                 Factory.CreateServiceProvider(c => c
                     .Use<FakeMiddleware>(ServiceLifetime.Scoped)
-                    .UseWhen<IMessage>(s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
+                    .UseWhenAction<IMessage>(s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
                 );
             });
         }

@@ -79,16 +79,16 @@ namespace Pipaslot.Mediator.Tests
         {
             var sp = Factory.CreateServiceProvider(c => c
                     .Use<BeforeMiddleware>()
-                    .UseWhen<IQuery>(x => x
+                    .UseWhenAction<IQuery>(x => x
                         .Use<QueryMiddleware>()
                         .UseWhen(a => a is FakeQuery c && c.ExecuteHandlers, y => y.UseHandlerExecution())
                         )
-                    .UseWhen<ICommand>(x => x
+                    .UseWhenAction<ICommand>(x => x
                         .Use<CommandMiddleware>()
                         .UseWhen(a => a is FakeCommand c && c.ExecuteNested, y => y.Use<CommandNestedMiddleware>())
                         )
 
-                    .UseWhen<IQuery>(x => x.Use<Query2Middleware>())
+                    .UseWhenAction<IQuery>(x => x.Use<Query2Middleware>())
                     .Use<DefaultMiddleware>()
                 );
             return (Mediator)sp.GetService<IMediator>();
