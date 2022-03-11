@@ -84,9 +84,10 @@ namespace Pipaslot.Mediator.Configuration
             return _middlewares.Use<TMiddleware>(lifetime);
         }
 
-        public IMiddlewareRegistrator MapWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+        public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return _middlewares.MapWhen(condition, subMiddlewares);
+            _middlewares.UseWhen(condition, subMiddlewares);
+            return this;
         }
 
         public Type[] GetMessageActionTypes()

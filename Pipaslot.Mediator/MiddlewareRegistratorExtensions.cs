@@ -12,9 +12,9 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator MapWhen<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhen<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.MapWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
+            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
         }
 
         /// <summary>

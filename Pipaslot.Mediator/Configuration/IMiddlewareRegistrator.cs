@@ -31,6 +31,6 @@ namespace Pipaslot.Mediator.Configuration
         /// <param name="condition"></param>
         /// <param name="subMiddlewares"></param>
         /// <returns></returns>
-        IMiddlewareRegistrator MapWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
+        IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
     }
 }
