@@ -85,10 +85,10 @@ namespace Pipaslot.Mediator.Tests
                         )
                     .UseWhenAction<ICommand>(x => x
                         .Use<CommandMiddleware>()
-                        .UseWhen(a => a is FakeCommand c && c.ExecuteNested, y => y.Use<CommandNestedMiddleware>())
+                        .UseWhen<CommandNestedMiddleware>(a => a is FakeCommand c && c.ExecuteNested)
                         )
 
-                    .UseWhenAction<IQuery>(x => x.Use<Query2Middleware>())
+                    .UseWhenAction<IQuery, Query2Middleware>()
                     .Use<DefaultMiddleware>()
                 );
             return (Mediator)sp.GetService<IMediator>();
