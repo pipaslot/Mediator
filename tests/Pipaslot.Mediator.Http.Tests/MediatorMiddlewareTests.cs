@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
@@ -18,21 +19,56 @@ namespace Pipaslot.Mediator.Http.Tests
 {
     public class MediatorMiddlewareTests
     {
+        private const string Request = "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+        private const string Message = "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+
+        [Fact]
+        public async Task PostMessageWillBeProapgatedToMediator()
+        {
+            await ExecuteMessage(new PostRequest(Message));
+        }
         [Fact]
         public async Task PostRequestWillBeProapgatedToMediator()
         {
-            await Execute(new PostRequest());
+            await ExecuteRequest(new PostRequest(Request));
         }
-
+        [Fact]
+        public async Task GetMessageWillBeProapgatedToMediator()
+        {
+            await ExecuteMessage(new GetRequest(Message));
+        }
         [Fact]
         public async Task GetRequestWillBeProapgatedToMediator()
         {
-            await Execute(new GetRequest());
+            await ExecuteRequest(new GetRequest(Request));
         }
 
-        private async Task Execute(HttpRequest request)
+        private async Task ExecuteRequest(HttpRequest request)
         {
+            var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, new object[0], new string[0]));
             var mediatorMock = new Mock<IMediator>();
+            mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+            var collection = new ServiceCollection();
+            collection.AddLogging();
+            collection.AddMediatorServer();
+            collection.AddScoped<MediatorMiddleware>();
+            collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
+            collection.AddSingleton<IMediator>(mediatorMock.Object);
+            var services = collection.BuildServiceProvider();
+            var sut = services.GetRequiredService<MediatorMiddleware>();
+
+            var context = new FakeContext(request);
+            context.RequestServices = services;
+            await sut.Invoke(context);
+
+            mediatorMock.Verify(m => m.Execute(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>()));
+        }
+
+        private async Task ExecuteMessage(HttpRequest request)
+        {
+            var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, new object[0], new string[0]));
+            var mediatorMock = new Mock<IMediator>();
+            mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
             collection.AddMediatorServer();
@@ -81,13 +117,11 @@ namespace Pipaslot.Mediator.Http.Tests
             {
             }
         }
-
         private class PostRequest : HttpRequest
         {
-            public PostRequest()
+            public PostRequest(string action)
             {
-                var body = "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
-                Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+                Body = new MemoryStream(Encoding.UTF8.GetBytes(action));
             }
 
             public override HttpContext HttpContext => throw new NotImplementedException();
@@ -121,12 +155,39 @@ namespace Pipaslot.Mediator.Http.Tests
         private class GetRequest : PostRequest
         {
             public override string Method { get; set; } = "GET";
-            public override IQueryCollection Query { get; set; } = new QueryCollection();
+            public override IQueryCollection Query { get; set; }
             public override Stream Body { get; set; } = null;
 
-            private class QueryCollection : IQueryCollection
+            public GetRequest(string action) : base("")
             {
+                var query = new QueryCollection();
+                query.Add(new KeyValuePair<string, StringValues>("action",
+                    new StringValues(action)
+                    ));
+                Query = query;
+            }
+            private class QueryCollection : List<KeyValuePair<string, StringValues>>, IQueryCollection
+            {
+                public StringValues this[string key] => this.FirstOrDefault(v => v.Key == key).Value;
 
+                public ICollection<string> Keys => throw new NotImplementedException();
+
+                public bool ContainsKey(string key)
+                {
+                    return this.Any(v => v.Key == key);
+                }
+
+                public bool TryGetValue(string key, out StringValues value)
+                {
+                    var a = this.FirstOrDefault(v => v.Key == key);
+                    if (string.IsNullOrEmpty(a.Key))
+                    {
+                        value = default(StringValues);
+                        return false;
+                    }
+                    value = a.Value;
+                    return true;
+                }
             }
         }
         private class FakeResponse : HttpResponse
