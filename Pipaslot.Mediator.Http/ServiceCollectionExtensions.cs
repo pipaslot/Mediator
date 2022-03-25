@@ -101,17 +101,5 @@ namespace Pipaslot.Mediator.Http
 
             return services.AddMediator();
         }
-
-        /// <summary>
-        /// Replace mediator serializer used by Pipaslot.Mediator.Client and Pipaslot.Mediator.Server in versions 2.0 and 3.0
-        /// Register this service after AddMediatorClient() and AddMediatorServer()
-        /// </summary>
-        public static IServiceCollection UseMediatorSerializerV2(this IServiceCollection services)
-        {
-            var descriptor = services.First(d => d.ServiceType == typeof(IContractSerializer));
-            services.Remove(descriptor);
-            services.AddSingleton<IContractSerializer, ContractSerializer>();
-            return services;
-        }
     }
 }
