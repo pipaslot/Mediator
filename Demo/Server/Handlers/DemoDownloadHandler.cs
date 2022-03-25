@@ -19,7 +19,6 @@ namespace Demo.Server.Handlers
             {
                 throw new InvalidOperationException($"Action {nameof(DemoDownload)} can be used only for request over HTTP.");
             }
-            httpContext.Response.StatusCode = 200;
             httpContext.Response.ContentType = "text/plain";
             httpContext.Response.Headers["Content-Disposition"] = $"attachment;filename={action.FileName}.txt";
             await httpContext.Response.WriteAsync("Hello File!", cancellationToken);
