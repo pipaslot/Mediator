@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Http
                 var mediator = CreateMediator(context);
                 var body = method == "POST"
                     ? await GetBody(context)
-                    : context.Request.Query.TryGetValue("action", out var actionQuery)
+                    : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
                         ? actionQuery.ToString()
                         : "";
 
