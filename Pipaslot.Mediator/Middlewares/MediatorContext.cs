@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,10 +46,16 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public CancellationToken CancellationToken { get; }
 
-        internal MediatorContext(IMediatorAction action, CancellationToken cancellationToken)
+        private IServiceProvider _serviceProvider;
+
+        private object[]? _handlers = null;
+
+        internal MediatorContext(IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
         {
+            _serviceProvider = serviceProvider;
             Action = action ?? throw new System.ArgumentNullException(nameof(action));
             CancellationToken = cancellationToken;
+            _handlers = handlers;
         }
 
         /// <summary>
@@ -57,7 +64,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <returns></returns>
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext(Action, CancellationToken);
+            var copy = new MediatorContext(_serviceProvider, Action, CancellationToken, _handlers);
             return copy;
         }
 
@@ -126,6 +133,28 @@ namespace Pipaslot.Mediator.Middlewares
         public void AddResult(object result)
         {
             _results.Add(result);
+        }
+
+        /// <summary>
+        /// Resolve all handlers for action execution
+        /// </summary>
+        /// <returns></returns>
+        public object[] GetHandlers()
+        {
+            if (_handlers == null)
+            {
+                var actionType = Action.GetType();
+                if (HasActionReturnValue)
+                {
+                    var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
+                    _handlers = _serviceProvider.GetRequestHandlers(actionType, resultType);
+                }
+                else
+                {
+                    _handlers = _serviceProvider.GetMessageHandlers(actionType);
+                }
+            }
+            return _handlers;
         }
     }
 }

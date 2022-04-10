@@ -1,5 +1,7 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Moq;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -96,7 +98,8 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 
         private Task Run(IMediatorAction action, out MediatorContext context)
         {
-            context = new MediatorContext(action, CancellationToken.None);
+            var spMock = new Mock<IServiceProvider>();
+            context = new MediatorContext(spMock.Object, action, CancellationToken.None);
             var sut = new ReduceDuplicateProcessingMiddleware();
             return sut.Invoke(context, _next);
         }

@@ -106,7 +106,7 @@ namespace Pipaslot.Mediator.Middlewares
         private async Task HandleMessage(MediatorContext context)
         {
             var actionType = context.Action.GetType();
-            var handlers = _serviceProvider.GetMessageHandlers(actionType);
+            var handlers = context.GetHandlers();
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
@@ -128,8 +128,7 @@ namespace Pipaslot.Mediator.Middlewares
         private async Task HandleRequest(MediatorContext context)
         {
             var actionType = context.Action.GetType();
-            var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
-            var handlers = _serviceProvider.GetRequestHandlers(actionType, resultType);
+            var handlers = context.GetHandlers();
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {

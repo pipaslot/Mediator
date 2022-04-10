@@ -83,7 +83,7 @@ namespace Pipaslot.Mediator.Tests
         private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
         {
             var sut = new HandlerExecutionMiddleware(services);
-            var context = new MediatorContext(action, CancellationToken.None);
+            var context = new MediatorContext(services, action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(context, next);
             return context;
