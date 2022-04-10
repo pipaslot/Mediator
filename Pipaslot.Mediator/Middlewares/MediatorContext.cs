@@ -36,6 +36,11 @@ namespace Pipaslot.Mediator.Middlewares
         public string ActionIdentifier => Action.GetType().ToString();
 
         /// <summary>
+        /// Returns true for Request types and false for Message types
+        /// </summary>
+        public bool HasActionReturnValue => Action is IMediatorActionProvidingData;
+
+        /// <summary>
         /// Cancellation token
         /// </summary>
         public CancellationToken CancellationToken { get; }
@@ -99,7 +104,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="message"></param>
         public void AddError(string message)
         {
-            if(!_errorMessages.Contains(message))
+            if (!_errorMessages.Contains(message))
             {
                 _errorMessages.Add(message);
             }

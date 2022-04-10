@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            if (context.Action is IMediatorActionProvidingData)
+            if (context.HasActionReturnValue)
             {
                 await HandleRequest(context);
             }
