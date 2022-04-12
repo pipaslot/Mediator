@@ -8,6 +8,10 @@ namespace Demo.Shared.Requests
         {
 
         }
+        public class Message : IMessage
+        {
+
+        }
 
         public class Result
         {

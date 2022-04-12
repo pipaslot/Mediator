@@ -27,20 +27,11 @@ namespace Pipaslot.Mediator.Http
         public async Task Invoke(HttpContext context)
         {
             var method = context.Request.Method.ToUpper();
-            if (context.Request.Path == _option.Endpoint && (method == "POST" || method == "GET"))
+            var isPost = method == "POST";
+            var isGet = method == "GET";
+            if (context.Request.Path == _option.Endpoint && (isPost || isGet))
             {
-                var mediator = CreateMediator(context);
-                var body = method == "POST"
-                    ? await GetBody(context)
-                    : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
-                        ? actionQuery.ToString()
-                        : "";
-
-                var action = _serializer.DeserializeRequest(body);
-                var mediatorResponse = action is IMediatorActionProvidingData req
-                ? await ExecuteRequest(mediator, req, context.RequestAborted)
-                : await ExecuteMessage(mediator, action, context.RequestAborted);
-
+                var mediatorResponse = await SafeExecute(context, isPost);
                 var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
                 // Change status code only if has default value (200: OK)
                 if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
@@ -56,6 +47,28 @@ namespace Pipaslot.Mediator.Http
             else
             {
                 await _next(context);
+            }
+        }
+
+        private async Task<IMediatorResponse> SafeExecute(HttpContext context, bool isPost)
+        {
+            try
+            {
+                var body = isPost
+                    ? await GetBody(context)
+                    : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
+                        ? actionQuery.ToString()
+                        : "";
+                var mediator = CreateMediator(context);
+                var action = _serializer.DeserializeRequest(body);
+                var mediatorResponse = action is IMediatorActionProvidingData req
+                    ? await ExecuteRequest(mediator, req, context.RequestAborted)
+                    : await ExecuteMessage(mediator, action, context.RequestAborted);
+                return mediatorResponse;
+            }
+            catch (Exception ex)
+            {
+                return new MediatorResponse(ex.Message);
             }
         }
 

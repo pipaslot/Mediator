@@ -52,6 +52,10 @@ namespace Pipaslot.Mediator.Http.Serialization
                 {
                     throw;
                 }
+                catch (MediatorHttpException)
+                {
+                    throw;
+                }
                 catch (Exception e)
                 {
                     throw MediatorHttpException.CreateForInvalidRequest(body, e);
