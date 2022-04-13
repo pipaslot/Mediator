@@ -29,18 +29,6 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Theory]
-        [InlineData(1, typeof(BeforeMiddleware))]
-        [InlineData(2, typeof(CommandMiddleware))]
-        [InlineData(3, typeof(DefaultMiddleware))]
-        [InlineData(4, typeof(HandlerExecutionMiddleware))]
-        public void CommandPath(int position, Type expectedMiddleware)
-        {
-            var sut = CreateServiceResolver();
-            var middlewares = sut.GetPipeline(new FakeCommand());
-            VerifyMiddleware(middlewares, position, expectedMiddleware);
-        }
-
-        [Theory]
         [InlineData(true, 1, typeof(BeforeMiddleware))]
         [InlineData(true, 2, typeof(CommandMiddleware))]
         [InlineData(true, 3, typeof(CommandNestedMiddleware))]
@@ -51,7 +39,7 @@ namespace Pipaslot.Mediator.Tests
         [InlineData(false, 2, typeof(CommandMiddleware))]
         [InlineData(false, 3, typeof(DefaultMiddleware))]
         [InlineData(false, 4, typeof(HandlerExecutionMiddleware))]
-        public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
+        public void CommandPath(bool enableNested, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
             var middlewares = sut.GetPipeline(new FakeCommand { ExecuteNested = enableNested });
