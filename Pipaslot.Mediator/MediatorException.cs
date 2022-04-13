@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using System;
 
 namespace Pipaslot.Mediator
@@ -46,5 +47,11 @@ namespace Pipaslot.Mediator
             return ex;
         }
 
+        public static MediatorException TooManyPipelines(IMediatorAction action)
+        {
+            var ex = new MediatorException($"Too many pipelines met the condition for action execution. Please check your mediator configuration.");
+            ex.Data["action"] = action;
+            return ex;
+        }
     }
 }

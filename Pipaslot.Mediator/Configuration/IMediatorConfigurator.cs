@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
@@ -29,5 +31,12 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
         IMediatorConfigurator AddActionsFromAssemblyOf<T>();
+
+        /// <summary>
+        /// Register pipeline which middlewares will be executed independently
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
+        IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
     }
 }
