@@ -3,11 +3,10 @@ using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Pipaslot.Mediator.Http.Serialization.FullJsonContractSerializer;
 
 namespace Pipaslot.Mediator.Http.Converters
 {
-    internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
+    internal class ContractSerializableConverter : JsonConverter<FullJsonContractSerializer.ContractSerializable>
     {
         private readonly ICredibleActionProvider _credibleActions;
 
@@ -16,7 +15,7 @@ namespace Pipaslot.Mediator.Http.Converters
             _credibleActions = credibleActions;
         }
 
-        public override ContractSerializable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override FullJsonContractSerializer.ContractSerializable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var content = "";
             var type = "";
@@ -34,10 +33,10 @@ namespace Pipaslot.Mediator.Http.Converters
                     reader.Read();
                     switch (propertyName)
                     {
-                        case nameof(ContractSerializable.Type):
+                        case nameof(FullJsonContractSerializer.ContractSerializable.Type):
                             type = reader.GetString() ?? "";
                             break;
-                        case nameof(ContractSerializable.Content):
+                        case nameof(FullJsonContractSerializer.ContractSerializable.Content):
                             using (var jsonDoc = JsonDocument.ParseValue(ref reader))
                             {
                                 content = jsonDoc.RootElement.GetRawText();
@@ -49,7 +48,7 @@ namespace Pipaslot.Mediator.Http.Converters
             return CreateObject(content, type);
         }
 
-        private ContractSerializable CreateObject(string content, string type)
+        private FullJsonContractSerializer.ContractSerializable CreateObject(string content, string type)
         {
             var actionType = ContractSerializerTypeHelper.GetType(type);
             _credibleActions.VerifyCredibility(actionType);
@@ -59,12 +58,12 @@ namespace Pipaslot.Mediator.Http.Converters
             {
                 throw new Exception($"Can not deserialize contract as type {type} received from server");
             }
-            return new ContractSerializable(result, type);
+            return new FullJsonContractSerializer.ContractSerializable(result, type);
         }
 
-        public override void Write(Utf8JsonWriter writer, ContractSerializable value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, FullJsonContractSerializer.ContractSerializable value, JsonSerializerOptions options)
         {
-            JsonSerializer.Serialize(writer, value, value.GetType(), SerializationOptionsWithoutConverters);
+            JsonSerializer.Serialize(writer, value, value.GetType(), FullJsonContractSerializer.SerializationOptionsWithoutConverters);
         }
     }
 }
