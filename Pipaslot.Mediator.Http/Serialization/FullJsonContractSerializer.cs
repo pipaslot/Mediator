@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Converters;
+using Pipaslot.Mediator.Http.Serialization.Models;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -101,48 +102,5 @@ namespace Pipaslot.Mediator.Http.Serialization
             }
             throw MediatorHttpException.CreateForInvalidResponse(response);
         }
-
-        #region Contracts
-        internal class ContractSerializable
-        {
-            public ContractSerializable(object content, string type)
-            {
-                Content = content;
-                Type = type;
-            }
-
-            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-            public object Content { get; }
-
-            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-            public string Type { get; }
-        }
-
-        internal class ResponseSerializable
-        {
-            public bool Success { get; set; }
-            public ContractSerializable[] Results { get; set; } = new ContractSerializable[0];
-            public string[] ErrorMessages { get; set; } = new string[0];
-        }
-
-        internal class ResponseDeserialized
-        {
-            public bool Success { get; set; }
-            public object[] Results { get; set; } = new object[0];
-            public string[] ErrorMessages { get; set; } = new string[0];
-        }
-
-        internal class ResponseDeserialized<TResult> : IMediatorResponse<TResult>
-        {
-            public bool Success { get; set; }
-            public bool Failure => !Success;
-            public string ErrorMessage => string.Join(";", ErrorMessages);
-            public TResult Result => (TResult)Results.FirstOrDefault(r => r is TResult);
-            public object[] Results { get; set; } = new object[0];
-            public string[] ErrorMessages { get; set; } = new string[0];
-        }
-
-        #endregion
-
     }
 }

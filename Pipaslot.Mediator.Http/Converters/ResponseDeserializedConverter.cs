@@ -1,16 +1,16 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
+using Pipaslot.Mediator.Http.Serialization.Models;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Pipaslot.Mediator.Http.Serialization.FullJsonContractSerializer;
 
 namespace Pipaslot.Mediator.Http.Converters
 {
     internal class ResponseDeserializedConverter : JsonConverter<ResponseDeserialized>
     {
-        private ICredibleResultProvider _credibleResults;
+        private readonly ICredibleResultProvider _credibleResults;
 
         public ResponseDeserializedConverter(ICredibleResultProvider credibleResults)
         {
