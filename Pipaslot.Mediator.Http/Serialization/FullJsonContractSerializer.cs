@@ -1,6 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Converters;
+using Pipaslot.Mediator.Http.Serialization.Converters;
 using Pipaslot.Mediator.Http.Serialization.Models;
 using System;
 using System.Linq;

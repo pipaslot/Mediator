@@ -1,10 +1,10 @@
 ﻿using Moq;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Converters;
 using Pipaslot.Mediator.Http.Serialization;
+using Pipaslot.Mediator.Http.Serialization.Converters;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization
+namespace Pipaslot.Mediator.Http.Tests.Serialization.Converters
 {
     public class JsonInterfaceConverterTests 
     {

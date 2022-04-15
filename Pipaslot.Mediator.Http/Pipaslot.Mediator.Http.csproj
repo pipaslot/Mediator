@@ -39,4 +39,8 @@
 			<_Parameter1>Pipaslot.Mediator.Http.Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Serialization\Converters\" />
+	</ItemGroup>
 </Project>

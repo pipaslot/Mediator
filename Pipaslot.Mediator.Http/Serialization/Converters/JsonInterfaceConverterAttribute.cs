@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Converters
+namespace Pipaslot.Mediator.Http.Serialization.Converters
 {
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false)]
     internal class JsonInterfaceConverterAttribute : JsonConverterAttribute

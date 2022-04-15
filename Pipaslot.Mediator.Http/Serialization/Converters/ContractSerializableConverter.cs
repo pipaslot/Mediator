@@ -5,7 +5,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Converters
+namespace Pipaslot.Mediator.Http.Serialization.Converters
 {
     internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
     {
