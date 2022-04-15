@@ -14,6 +14,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         protected Mock<ICredibleActionProvider> ActionProviderMock = new();
         protected Mock<ICredibleResultProvider> ResultProviderMock = new();
+        private Func<IContract, bool> _match = c => c.Name == _name && c.Number == _number;
 
         #region Serialize and deserialize Request
         [Theory]
@@ -32,13 +33,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number }, _match);
         }
 
         [Fact]
         public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number), _match);
         }
 
         [Fact]
@@ -47,23 +48,23 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             var exception = Assert.Throws<MediatorHttpException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
-                RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), c => c.Name == _name && c.Number == _number);
+                RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number), _match);
             });
         }
 
         [Fact]
         public void Request_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number }, _match);
         }
 
         [Fact]
         public void Request_PositionalRecord_WillPass()
         {
-            RunRequestTest(new PositionalRecordContract(_name, _number), c => c.Name == _name && c.Number == _number);
+            RunRequestTest(new PositionalRecordContract(_name, _number), _match);
         }
 
-        private void RunRequestTest<TContract>(TContract seed, Func<TContract, bool> match) where TContract : IMediatorAction
+        private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
         {
             var sut = CreateSerializer();
 
@@ -165,13 +166,19 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         #region Actions
 
-        public class PublicPropertyGettersAndSettersContract : IMessage
+        public interface IContract
+        {
+            public string Name { get; }
+            public int Number { get; }
+        }
+
+        public class PublicPropertyGettersAndSettersContract : IMessage, IContract
         {
             public string Name { get; set; } = "";
             public int Number { get; set; }
         }
 
-        public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage
+        public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage, IContract
         {
             public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number)
             {
@@ -183,7 +190,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             public int Number { get; }
         }
 
-        public class ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract : IMessage
+        public class ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract : IMessage, IContract
         {
             public ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(string par1, int par2)
             {
@@ -195,13 +202,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             public int Number { get; }
         }
 
-        public class PublicPropertyGetterAndInitSetterContract : IMessage
+        public class PublicPropertyGetterAndInitSetterContract : IMessage, IContract
         {
             public string Name { get; init; } = "";
             public int Number { get; init; }
         }
 
-        public record PositionalRecordContract(string Name, int Number) : IMessage;
+        public record PositionalRecordContract(string Name, int Number) : IMessage, IContract;
 
         #endregion
 
