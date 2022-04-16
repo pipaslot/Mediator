@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
@@ -163,9 +164,33 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
 
-        public interface IResult { }
-        public class Result : IResult { }
+        [Fact]
+        public void DeserializeResponse_ResultTypeIsCollectioj_Deserialize()
+        {
+            var sut = CreateSerializer();
+            var result = new Result[]
+            {
+                new Result
+                {
+                   Index = 1,
+                },
+                new Result
+                {
+                   Index = 2,
+                }
+            };
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, Array.Empty<string>()));
+            var deserialized = sut.DeserializeResponse<Result[]>(responseString);
+            Assert.Equal(result.GetType(), deserialized.Result.GetType());
+            Assert.Equal(result.First().Index, deserialized.Result.First().Index);
+            Assert.Equal(result.Last().Index, deserialized.Result.Last().Index);
+        }
 
+        public interface IResult { }
+        public class Result : IResult
+        {
+            public int Index { get; set; }
+        }
         #endregion
 
         #region Test Credibility
