@@ -175,7 +175,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var sut = CreateSerializer();
 
-            var serialized = @"{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null""}";
+            var serialized = @"{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests""}";
             var deserialized = sut.DeserializeRequest(serialized);
 
             Assert.True(_match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
@@ -186,7 +186,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var sut = CreateSerializer();
 
-            var serialized = @"{""Success"":true,""Results"":[{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null""}],""ErrorMessages"":[]}";
+            var serialized = @"{""Success"":true,""Results"":[{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests""}],""ErrorMessages"":[]}";
             var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
 
             Assert.True(_match(deserialized.Result));

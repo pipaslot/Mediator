@@ -10,6 +10,7 @@ namespace Pipaslot.Mediator.Http.Serialization
 {
     internal class FullJsonContractSerializer : IContractSerializer
     {
+        private const string IgnoredTypeSuffix = ", Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
         private readonly JsonSerializerOptions _serializationOptions;
         internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()
         {
@@ -31,7 +32,7 @@ namespace Pipaslot.Mediator.Http.Serialization
 
         public string SerializeRequest(object request)
         {
-            var actionName = request.GetType().AssemblyQualifiedName;
+            var actionName = GetTypeString(request);
             var contract = new ContractSerializable(request, actionName);
             return JsonSerializer.Serialize(contract, typeof(ContractSerializable), _serializationOptions);
         }
@@ -71,7 +72,7 @@ namespace Pipaslot.Mediator.Http.Serialization
             {
                 ErrorMessages = response.ErrorMessages.ToArray(),
                 Results = response.Results
-                    .Select(request => new ContractSerializable(request, request.GetType().AssemblyQualifiedName))
+                    .Select(request => new ContractSerializable(request, GetTypeString(request)))
                     .ToArray(),
                 Success = response.Success
             };
@@ -101,6 +102,15 @@ namespace Pipaslot.Mediator.Http.Serialization
                 }
             }
             throw MediatorHttpException.CreateForInvalidResponse(response);
+        }
+        private string GetTypeString(object obj)
+        {
+            var strType = obj.GetType().AssemblyQualifiedName;
+            if (strType.EndsWith(IgnoredTypeSuffix))
+            {
+                return strType.Substring(0, strType.Length - IgnoredTypeSuffix.Length);
+            }
+            return strType;
         }
     }
 }
