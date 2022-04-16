@@ -60,7 +60,14 @@ namespace Pipaslot.Mediator.Http
             {
                 services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
             }
-            services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+            if(options.SerializerTyoe == SerializerType.V3)
+            {
+                services.AddSingleton<IContractSerializer, SimpleJsonContractSerializer>();
+            }
+            else
+            {
+                services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+            }
             services.AddScoped<IMediatorUrlFormatter, THttpClientExecutionMiddleware>();
             return services.AddMediator<THttpClientExecutionMiddleware>();
         }
@@ -97,7 +104,14 @@ namespace Pipaslot.Mediator.Http
                 services.AddSingleton<ICredibleActionProvider, NopCredibleActionProvider>();
             }
             services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
-            services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+            if (options.SerializerTyoe == SerializerType.V3)
+            {
+                services.AddSingleton<IContractSerializer, SimpleJsonContractSerializer>();
+            }
+            else
+            {
+                services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+            }
 
             return services.AddMediator();
         }
