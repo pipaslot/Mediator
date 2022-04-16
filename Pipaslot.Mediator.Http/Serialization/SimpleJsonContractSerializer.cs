@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization
 {
-    internal class FullJsonContractSerializer : IContractSerializer
+    internal class SimpleJsonContractSerializer : IContractSerializer
     {
         private readonly JsonSerializerOptions _serializationOptions;
         internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()
@@ -16,15 +16,15 @@ namespace Pipaslot.Mediator.Http.Serialization
             PropertyNamingPolicy = null
         };
 
-        public FullJsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
+        public SimpleJsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
         {
             _serializationOptions = new()
             {
                 PropertyNamingPolicy = null,
                 Converters =
                 {
-                    new ContractSerializableConverter(credibleActions),
-                    new ResponseDeserializedConverter(credibleResults)
+                    new SimpleContractSerializableConverter(credibleActions),
+                    new SimpleResponseDeserializedConverter(credibleResults)
                 }
             };
         }

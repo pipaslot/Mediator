@@ -4,6 +4,18 @@ namespace Pipaslot.Mediator.Http.Serialization
 {
     internal class ContractSerializerTypeHelper
     {
+        private const string IgnoredTypeSuffix = ", Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+        internal static string GetIdentifier(Type type)
+        {
+            var strType = type.AssemblyQualifiedName;
+            if (strType.EndsWith(IgnoredTypeSuffix))
+            {
+                return strType.Substring(0, strType.Length - IgnoredTypeSuffix.Length);
+            }
+            return strType;
+        }
+
         internal static Type GetType(string type)
         {
             var queryType = Type.GetType(type);

@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         protected Mock<ICredibleActionProvider> ActionProviderMock = new();
         protected Mock<ICredibleResultProvider> ResultProviderMock = new();
-        private Func<IContract, bool> _match = c =>
+        protected Func<IContract, bool> Match = c =>
             c.Name == _name &&
             c.Number == _number &&
             c.Nested.Value == _nested.Value &&
@@ -40,13 +40,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, _match);
+            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
         public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), _match);
+            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
         }
 
         [Fact]
@@ -55,20 +55,20 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             var exception = Assert.Throws<MediatorHttpException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
-                RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), _match);
+                RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), Match);
             });
         }
 
         [Fact]
         public void Request_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, _match);
+            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
         public void Request_PositionalRecord_WillPass()
         {
-            RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), _match);
+            RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
         }
 
         private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
@@ -107,13 +107,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void DeserializeResponse_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, _match);
+            RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
         public void DeserializeResponse_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), _match);
+            RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
         }
 
         [Fact]
@@ -122,20 +122,20 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Assert.Throws<MediatorHttpException>(() =>
             {
                 //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
-                RunResponseTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), _match);
+                RunResponseTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), Match);
             });
         }
 
         [Fact]
         public void DeserializeResponse_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, _match);
+            RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
         public void DeserializeResponse_PositionalRecord_WillPass()
         {
-            RunResponseTest(new PositionalRecordContract(_name, _number, _collection, _nested), _match);
+            RunResponseTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
         }
 
         private void RunResponseTest<TDto>(TDto seed, Func<TDto, bool> match)
@@ -165,32 +165,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         public interface IResult { }
         public class Result : IResult { }
-
-        #endregion
-
-        #region From Json
-
-        [Fact]
-        public void DeserializeRequest_FromJson()
-        {
-            var sut = CreateSerializer();
-
-            var serialized = @"{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests""}";
-            var deserialized = sut.DeserializeRequest(serialized);
-
-            Assert.True(_match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
-        }
-
-        [Fact]
-        public void DeserializeResponse_FromJson()
-        {
-            var sut = CreateSerializer();
-
-            var serialized = @"{""Success"":true,""Results"":[{""Content"":{""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}},""Type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests""}],""ErrorMessages"":[]}";
-            var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
-
-            Assert.True(_match(deserialized.Result));
-        }
 
         #endregion
 

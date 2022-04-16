@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.Models;
 using System;
 using System.Text.Json;
