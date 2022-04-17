@@ -58,7 +58,7 @@ namespace Pipaslot.Mediator.Http.Configuration
                 }
             }
 
-            if (type.GetInterfaces().Any(x => x == typeof(IEnumerable))) {
+            if (type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable))) {
                 var elTypes = type.GetGenericArguments();
                 if (elTypes.Length > 0)
                 {
