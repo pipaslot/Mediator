@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -165,10 +166,9 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_ResultTypeIsCollectioj_Deserialize()
+        public void DeserializeResponse_ResultTypeIsArray_Deserialize()
         {
-            var sut = CreateSerializer();
-            var result = new Result[]
+            var collection = new Result[]
             {
                 new Result
                 {
@@ -179,8 +179,31 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
                    Index = 2,
                 }
             };
+            DeserializeCollection(collection);
+        }
+
+        [Fact]
+        public void DeserializeResponse_ResultTypeIsList_Deserialize()
+        {
+            var collection = new List<Result>
+            {
+                new Result
+                {
+                   Index = 1,
+                },
+                new Result
+                {
+                   Index = 2,
+                }
+            };
+            DeserializeCollection(collection);
+        }
+
+        private void DeserializeCollection<T>(T result) where T : ICollection<Result>
+        {
+            var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, Array.Empty<string>()));
-            var deserialized = sut.DeserializeResponse<Result[]>(responseString);
+            var deserialized = sut.DeserializeResponse<T>(responseString);
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
             Assert.Equal(result.First().Index, deserialized.Result.First().Index);
             Assert.Equal(result.Last().Index, deserialized.Result.Last().Index);
@@ -196,7 +219,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         #region Test Credibility
 
         [Fact]
-        public void DeserializeResponse_ShouldCallVerifyCredibility()
+        public void DeserializeResponse_Object_ShouldCallVerifyCredibility()
         {
             var exception = new Exception();
             ResultProviderMock
@@ -205,6 +228,21 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
             var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result() }, new string[0]));
+            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
+
+            Assert.Equal(exception, actualException.InnerException);
+        }
+
+        [Fact]
+        public void DeserializeResponse_Array_ShouldCallVerifyCredibility()
+        {
+            var exception = new Exception();
+            ResultProviderMock
+                .Setup(p => p.VerifyCredibility(typeof(Result)))
+                .Throws(exception);
+
+            var sut = CreateSerializer();
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result[0] }, new string[0]));
             var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
 
             Assert.Equal(exception, actualException.InnerException);
