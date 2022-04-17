@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Http.Serialization;
+using System;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
@@ -25,6 +26,63 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
 
             Assert.True(Match(deserialized.Result));
+        }
+
+        [Fact]
+        public void Request_SerializePropertyInterface()
+        {
+            var contract = new Contract
+            {
+                Name = "Contract name"
+            };
+            var action = new MessageWithInterfaceProperty
+            {
+                Contract = contract
+            };
+            var sut = CreateSerializer();
+
+            var serialized = sut.SerializeRequest(action);
+            var deserialized = (MessageWithInterfaceProperty)sut.DeserializeRequest(serialized);
+            Assert.NotNull(deserialized);
+            Assert.Equal(deserialized.Contract.GetType(), contract.GetType());
+            Assert.Equal(((Contract)deserialized.Contract).Name, contract.Name);
+        }
+
+        [Fact]
+        public void Response_SerializePropertyInterface()
+        {
+            var contract = new Contract
+            {
+                Name = "Contract name"
+            };
+            var action = new MessageWithInterfaceProperty
+            {
+                Contract = contract
+            };
+            var response = new MediatorResponse(true, new object[] { action }, Array.Empty<string>());
+            var sut = CreateSerializer();
+
+            var serialized = sut.SerializeResponse(response);
+            var deserialized = sut.DeserializeResponse<MessageWithInterfaceProperty>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.NotNull(deserialized.Result);
+            Assert.Equal(deserialized.Result.Contract.GetType(), contract.GetType());
+            Assert.Equal(((Contract)deserialized.Result.Contract).Name, contract.Name);
+        }
+
+        public class MessageWithInterfaceProperty : IMessage
+        {
+            public IContract Contract { get; set; }
+        }
+
+        public interface IContract
+        {
+
+        }
+        public class Contract : IContract
+        {
+            public string Name { get; set; }
         }
 
         protected override IContractSerializer CreateSerializer()
