@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [InlineData(" ")]
         [InlineData("{}")]
         [InlineData(@"{""Content"":"" "",""Type"":"" ""}")]
-        public void DeserializeRequest_InvalidContent_ThrowException(string body)
+        public void Request_InvalidContent_ThrowException(string body)
         {
             var sut = CreateSerializer();
             var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body));
@@ -91,7 +91,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void DeserializeResponse_InvalidContent_ThrowException(string body)
+        public void Response_InvalidContent_ThrowException(string body)
         {
             var sut = CreateSerializer();
             var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body));
@@ -99,7 +99,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_EmptyObject_ReturnsResponseWithFailureStatus()
+        public void Response_EmptyObject_ReturnsResponseWithFailureStatus()
         {
             var sut = CreateSerializer();
             var res = sut.DeserializeResponse<Result>(@"{""Content"":"" "",""Type"":"" ""}");
@@ -107,19 +107,19 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_PublicPropertyGettersAndSetters_WillPass()
+        public void Response_PublicPropertyGettersAndSetters_WillPass()
         {
             RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
-        public void DeserializeResponse_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+        public void Response_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
             RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
         }
 
         [Fact]
-        public void DeserializeResponse_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+        public void Response_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
         {
             Assert.Throws<MediatorHttpException>(() =>
             {
@@ -129,13 +129,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_PublicPropertyGetterAndInitSetter_WillPass()
+        public void Response_PublicPropertyGetterAndInitSetter_WillPass()
         {
             RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
-        public void DeserializeResponse_PositionalRecord_WillPass()
+        public void Response_PositionalRecord_WillPass()
         {
             RunResponseTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
         }
@@ -156,7 +156,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_ResultTypeIsInterface_WillKeepTheResultType()
+        public void Response_ResultTypeIsInterface_WillKeepTheResultType()
         {
             var sut = CreateSerializer();
             var result = new Result();
@@ -166,7 +166,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_ResultTypeIsArray_Deserialize()
+        public void Response_ResultTypeIsArray_Deserialize()
         {
             var collection = new Result[]
             {
@@ -183,7 +183,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_ResultTypeIsList_Deserialize()
+        public void Response_ResultTypeIsList_Deserialize()
         {
             var collection = new List<Result>
             {
@@ -219,7 +219,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         #region Test Credibility
 
         [Fact]
-        public void DeserializeResponse_Object_ShouldCallVerifyCredibility()
+        public void Response_Object_ShouldCallVerifyCredibility()
         {
             var exception = new Exception();
             ResultProviderMock
@@ -234,7 +234,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void DeserializeResponse_Array_ShouldCallVerifyCredibility()
+        public void Response_Array_ShouldCallVerifyCredibility()
         {
             var exception = new Exception();
             ResultProviderMock
