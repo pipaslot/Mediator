@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
         }
-
+        
         private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
         {
             var sut = CreateSerializer();
@@ -219,7 +219,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         #region Test Credibility
 
         [Fact]
-        public void Response_Object_ShouldCallVerifyCredibility()
+        public void Response_ShouldCallVerifyCredibility()
         {
             var exception = new Exception();
             ResultProviderMock
@@ -228,21 +228,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
             var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result() }, new string[0]));
-            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
-
-            Assert.Equal(exception, actualException.InnerException);
-        }
-
-        [Fact]
-        public void Response_Array_ShouldCallVerifyCredibility()
-        {
-            var exception = new Exception();
-            ResultProviderMock
-                .Setup(p => p.VerifyCredibility(typeof(Result)))
-                .Throws(exception);
-
-            var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result[0] }, new string[0]));
             var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
 
             Assert.Equal(exception, actualException.InnerException);

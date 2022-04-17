@@ -2,8 +2,7 @@
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
-    public interface ICredibleActionProvider
+    public interface ICredibleActionProvider : ICredibleProvider
     {
-        void VerifyCredibility(Type actionType);
     }
 }

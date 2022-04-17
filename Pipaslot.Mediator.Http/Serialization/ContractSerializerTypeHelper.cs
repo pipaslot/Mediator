@@ -21,7 +21,7 @@ namespace Pipaslot.Mediator.Http.Serialization
             var queryType = Type.GetType(type);
             if (queryType == null)
             {
-                queryType = Type.GetType(ContractSerializerTypeHelper.GetTypeWithoutAssembly(type));
+                queryType = Type.GetType(GetTypeWithoutAssembly(type));
                 if (queryType == null)
                 {
                     throw new Exception($"Can not recognize type {type} from received response. Ensure that type returned and serialized on server is available/referenced on client as well.");

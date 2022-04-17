@@ -3,17 +3,21 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration
 {
     public class CredibleResultProviderTests
     {
-        [Fact]
-        public void VerifyCredibility_RegisteredCustomResultType_Pass()
+        [Theory]
+        [InlineData(typeof(CustomResult))]
+        [InlineData(typeof(CustomResult[]))]
+        [InlineData(typeof(List<CustomResult>))]
+        public void VerifyCredibility_RegisteredCustomResultType_Pass(Type tested)
         {
             var sut = Create(c => { }, typeof(CustomResult));
-            sut.VerifyCredibility(typeof(CustomResult));
+            sut.VerifyCredibility(tested);
         }
 
         [Fact]

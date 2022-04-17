@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,7 +21,8 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         public void VerifyCredibility(Type resultType)
         {
-            if (_trustedTypes.Contains(resultType))
+            var type = GetEnumeratedType(resultType);
+            if (_trustedTypes.Contains(type))
             {
                 return;
             }
@@ -28,11 +30,11 @@ namespace Pipaslot.Mediator.Http.Configuration
             {
                 _actionResultTypes = new HashSet<Type>(GetActionResultTypes());
             }
-            if (_actionResultTypes.Contains(resultType))
+            if (_actionResultTypes.Contains(type))
             {
                 return;
             }
-            throw MediatorHttpException.CreateForUnregisteredResultType(resultType);
+            throw MediatorHttpException.CreateForUnregisteredResultType(type);
         }
 
         private Type[] GetActionResultTypes()
@@ -43,6 +45,28 @@ namespace Pipaslot.Mediator.Http.Configuration
                 .Where(t => requestInterface.IsAssignableFrom(t))
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
                 .ToArray();
+        }
+
+        private Type GetEnumeratedType(Type type)
+        {
+            if (type.IsArray)
+            {
+                var elType = type.GetElementType();
+                if (null != elType)
+                {
+                    return elType;
+                }
+            }
+
+            if (type.GetInterfaces().Any(x => x == typeof(IEnumerable))) {
+                var elTypes = type.GetGenericArguments();
+                if (elTypes.Length > 0)
+                {
+                    return elTypes[0];
+                }
+            }
+
+            return type;
         }
     }
 }
