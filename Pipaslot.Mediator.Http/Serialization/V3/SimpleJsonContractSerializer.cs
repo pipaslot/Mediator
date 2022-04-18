@@ -24,7 +24,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                 Converters =
                 {
                     new JsonInterfaceConverter<IMediatorAction>(credibleActions),
-                    new SimpleContractSerializableConverter(credibleActions),
                     new SimpleResponseDeserializedConverter(credibleResults)
                 }
             };
@@ -65,12 +64,10 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
 
         public string SerializeResponse(IMediatorResponse response)
         {
-            var obj = new ResponseSerializable
+            var obj = new ResponseDeserialized
             {
                 ErrorMessages = response.ErrorMessages.ToArray(),
-                Results = response.Results
-                    .Select(result => new ContractSerializable(result, ContractSerializerTypeHelper.GetIdentifier(result.GetType())))
-                    .ToArray(),
+                Results = response.Results,
                 Success = response.Success
             };
             return JsonSerializer.Serialize(obj, _serializationOptions);

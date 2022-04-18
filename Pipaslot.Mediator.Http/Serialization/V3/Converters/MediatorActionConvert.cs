@@ -81,6 +81,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 default:
                     {
                         var type = value.GetType();
+                        //TODO Optimize
                         using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
 
                         writer.WriteStartObject();

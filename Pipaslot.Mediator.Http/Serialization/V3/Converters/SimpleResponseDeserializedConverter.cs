@@ -107,7 +107,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             }
             var resultType = ContractSerializerTypeHelper.GetType(typeValue);
             _credibleResults.VerifyCredibility(resultType);
-            if (resultType.IsArray || (resultType.IsClass && resultType.GetInterfaces().Any(x => x == typeof(IEnumerable))))
+            if (resultType.IsArray || ContractSerializerTypeHelper.IsEnumerable(resultType))
             {
                 readerClone.Read();
                 if (readerClone.TokenType != JsonTokenType.PropertyName)
@@ -127,15 +127,55 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             }
             else
             {
-                return JsonSerializer.Deserialize(ref reader, resultType, options)
+                return JsonSerializer.Deserialize(ref reader, resultType)
                     ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
-            
+
         }
 
         public override void Write(Utf8JsonWriter writer, ResponseDeserialized value, JsonSerializerOptions options)
         {
-            throw new NotSupportedException($"Object {nameof(ResponseDeserialized)} is not pupported to be serialized");
+            writer.WriteStartObject();
+            writer.WriteBoolean(nameof(IMediatorResponse.Success), value.Success);
+
+            writer.WritePropertyName(nameof(IMediatorResponse.ErrorMessages));
+            writer.WriteStartArray();
+            foreach (var message in value.ErrorMessages)
+            {
+                writer.WriteStringValue(message);
+            }
+            writer.WriteEndArray();
+
+            writer.WritePropertyName(nameof(IMediatorResponse.Results));
+            writer.WriteStartArray();
+            foreach (var result in value.Results)
+            {
+                writer.WriteStartObject();
+                var resultType = result.GetType();
+                writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(resultType));
+                if (ContractSerializerTypeHelper.IsEnumerable(resultType))
+                {
+                    writer.WritePropertyName("Items");
+                    JsonSerializer.Serialize(writer, result, resultType, options);
+                }
+                else
+                {
+                    //TODO Optimize
+                    using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(result, resultType, options));
+                    foreach (var element in jsonDocument.RootElement.EnumerateObject())
+                    {
+                        element.WriteTo(writer);
+                    }
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
+        }
+        private void WriteObjectProperties()
+        {
+
         }
     }
 }
