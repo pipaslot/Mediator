@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization
 {
@@ -69,6 +70,16 @@ namespace Pipaslot.Mediator.Http.Serialization
             return assemblyIndex >= 0
                 ? typeAsString.Substring(0, assemblyIndex)
                 : typeAsString;
+        }
+
+        internal static void WriteObjectProperties<T>(Utf8JsonWriter writer, T value, Type type, JsonSerializerOptions options)
+        {
+            using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
+            foreach (var element in jsonDocument.RootElement.EnumerateObject())
+            {
+                element.WriteTo(writer);
+            }
+
         }
     }
 }

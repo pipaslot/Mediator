@@ -58,16 +58,9 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 default:
                     {
                         var type = value.GetType();
-                        //TODO Get rid of parse
-                        using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
                         writer.WriteStartObject();
                         writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(type));
-
-                        foreach (var element in jsonDocument.RootElement.EnumerateObject())
-                        {
-                            element.WriteTo(writer);
-                        }
-
+                        ContractSerializerTypeHelper.WriteObjectProperties(writer, value, type, options);
                         writer.WriteEndObject();
                         break;
                     }

@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 {
                     continue;
                 }
-                results.Add(ReadResult(ref reader, options/*, _credibleResults, out var _*/));
+                results.Add(ReadResult(ref reader, options));
             }
             return results.ToArray();
         }
@@ -114,12 +114,12 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 reader.Read();
                 reader.Read();
                 reader.Read();
-                return JsonSerializer.Deserialize(ref reader, resultType)
+                return JsonSerializer.Deserialize(ref reader, resultType, options)
                     ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
             else
             {
-                return JsonSerializer.Deserialize(ref reader, resultType)
+                return JsonSerializer.Deserialize(ref reader, resultType, options)
                     ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
 
@@ -152,22 +152,13 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 }
                 else
                 {
-                    //TODO Optimize
-                    using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(result, resultType, options));
-                    foreach (var element in jsonDocument.RootElement.EnumerateObject())
-                    {
-                        element.WriteTo(writer);
-                    }
+                    ContractSerializerTypeHelper.WriteObjectProperties(writer, result, resultType, options);
                 }
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
 
             writer.WriteEndObject();
-        }
-        private void WriteObjectProperties()
-        {
-
         }
     }
 }
