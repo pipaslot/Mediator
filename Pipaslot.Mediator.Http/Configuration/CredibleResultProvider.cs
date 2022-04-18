@@ -1,7 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -58,7 +58,7 @@ namespace Pipaslot.Mediator.Http.Configuration
                 }
             }
 
-            if (type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable))) {
+            if (ContractSerializerTypeHelper.IsEnumerable(type)) {
                 var elTypes = type.GetGenericArguments();
                 if (elTypes.Length > 0)
                 {

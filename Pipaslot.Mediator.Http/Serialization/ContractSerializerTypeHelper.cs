@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Linq;
 
 namespace Pipaslot.Mediator.Http.Serialization
 {
@@ -14,6 +16,11 @@ namespace Pipaslot.Mediator.Http.Serialization
                 return strType.Substring(0, strType.Length - IgnoredTypeSuffix.Length);
             }
             return strType;
+        }
+
+        internal static bool IsEnumerable(Type type)
+        {
+            return type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
         }
 
         internal static Type GetType(string type)
