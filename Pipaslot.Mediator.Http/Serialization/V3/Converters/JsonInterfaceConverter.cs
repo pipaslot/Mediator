@@ -3,7 +3,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Serialization.Converters
+namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
     internal class JsonInterfaceConverter<T> : JsonConverter<T> where T : class
     {

@@ -1,4 +1,4 @@
-﻿namespace Pipaslot.Mediator.Http.Serialization.Models
+﻿namespace Pipaslot.Mediator.Http.Serialization.V2.Models
 {
     internal class ResponseSerializable
     {

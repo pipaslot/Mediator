@@ -1,10 +1,10 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization.Models;
+using Pipaslot.Mediator.Http.Serialization.V2.Models;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Serialization.Converters
+namespace Pipaslot.Mediator.Http.Serialization.V2.Converters
 {
     internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
     {

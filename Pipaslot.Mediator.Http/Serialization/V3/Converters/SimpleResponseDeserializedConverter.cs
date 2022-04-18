@@ -1,5 +1,5 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization.Models;
+using Pipaslot.Mediator.Http.Serialization.V3.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Serialization.Converters
+namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
     internal class SimpleResponseDeserializedConverter : JsonConverter<ResponseDeserialized>
     {

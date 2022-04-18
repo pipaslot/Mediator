@@ -1,7 +1,8 @@
 ﻿using Pipaslot.Mediator.Http.Serialization;
+using Pipaslot.Mediator.Http.Serialization.V2;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization
+namespace Pipaslot.Mediator.Http.Tests.Serialization.V2
 {
     public class FullJsonContractSerializerTests : ContractSerializerTestBase
     {

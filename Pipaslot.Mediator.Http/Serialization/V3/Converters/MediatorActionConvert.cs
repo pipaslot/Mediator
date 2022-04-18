@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http.Serialization.Converters
+namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
     internal static class MediatorActionConvert
     {

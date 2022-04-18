@@ -1,12 +1,12 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization.Converters;
-using Pipaslot.Mediator.Http.Serialization.Models;
+using Pipaslot.Mediator.Http.Serialization.V3.Converters;
+using Pipaslot.Mediator.Http.Serialization.V3.Models;
 using System;
 using System.Linq;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http.Serialization
+namespace Pipaslot.Mediator.Http.Serialization.V3
 {
     internal class SimpleJsonContractSerializer : IContractSerializer
     {

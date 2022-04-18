@@ -4,7 +4,6 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
-using System.Linq;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -62,11 +61,11 @@ namespace Pipaslot.Mediator.Http
             }
             if(options.SerializerTyoe == SerializerType.V3)
             {
-                services.AddSingleton<IContractSerializer, SimpleJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V3.SimpleJsonContractSerializer>();
             }
             else
             {
-                services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V2.FullJsonContractSerializer>();
             }
             services.AddScoped<IMediatorUrlFormatter, THttpClientExecutionMiddleware>();
             return services.AddMediator<THttpClientExecutionMiddleware>();
@@ -106,11 +105,11 @@ namespace Pipaslot.Mediator.Http
             services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
             if (options.SerializerTyoe == SerializerType.V3)
             {
-                services.AddSingleton<IContractSerializer, SimpleJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V3.SimpleJsonContractSerializer>();
             }
             else
             {
-                services.AddSingleton<IContractSerializer, FullJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V2.FullJsonContractSerializer>();
             }
 
             return services.AddMediator();
