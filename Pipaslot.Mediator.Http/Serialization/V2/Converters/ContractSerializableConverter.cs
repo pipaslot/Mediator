@@ -8,9 +8,9 @@ namespace Pipaslot.Mediator.Http.Serialization.V2.Converters
 {
     internal class ContractSerializableConverter : JsonConverter<ContractSerializable>
     {
-        private readonly ICredibleActionProvider _credibleActions;
+        private readonly ICredibleProvider _credibleActions;
 
-        public ContractSerializableConverter(ICredibleActionProvider credibleActions)
+        public ContractSerializableConverter(ICredibleProvider credibleActions)
         {
             _credibleActions = credibleActions;
         }

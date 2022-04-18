@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
-    internal class CredibleActionProvider : ICredibleActionProvider
+    internal class CredibleActionProvider : ICredibleProvider
     {
         private readonly MediatorConfigurator _configurator;
 

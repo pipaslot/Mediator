@@ -9,9 +9,9 @@ namespace Pipaslot.Mediator.Http.Serialization.V2.Converters
 {
     internal class ResponseDeserializedConverter : JsonConverter<ResponseDeserialized>
     {
-        private readonly ICredibleResultProvider _credibleResults;
+        private readonly ICredibleProvider _credibleResults;
 
-        public ResponseDeserializedConverter(ICredibleResultProvider credibleResults)
+        public ResponseDeserializedConverter(ICredibleProvider credibleResults)
         {
             _credibleResults = credibleResults;
         }

@@ -117,7 +117,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
         protected override IContractSerializer CreateSerializer()
         {
-            return new JsonContractSerializer(ActionProviderMock.Object, ResultProviderMock.Object);
+            return new JsonContractSerializer(CredibleProviderMock.Object);
         }
     }
 }

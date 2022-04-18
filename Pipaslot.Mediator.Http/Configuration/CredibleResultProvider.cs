@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
-    internal class CredibleResultProvider : ICredibleResultProvider
+    internal class CredibleResultProvider : ICredibleProvider
     {
         private readonly MediatorConfigurator _configurator;
         private readonly HashSet<Type> _trustedTypes;

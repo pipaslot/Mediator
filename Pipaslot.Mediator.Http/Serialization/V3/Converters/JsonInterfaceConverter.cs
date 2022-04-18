@@ -7,9 +7,9 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
     internal class JsonInterfaceConverter<T> : JsonConverter<T> where T : class
     {
-        private readonly ICredibleActionProvider _credibleActions;
+        private readonly ICredibleProvider _credibleActions;
 
-        public JsonInterfaceConverter(ICredibleActionProvider credibleActions)
+        public JsonInterfaceConverter(ICredibleProvider credibleActions)
         {
             _credibleActions = credibleActions;
         }

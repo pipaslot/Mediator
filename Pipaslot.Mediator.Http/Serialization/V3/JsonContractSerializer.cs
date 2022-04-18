@@ -14,15 +14,15 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
             PropertyNamingPolicy = null
         };
 
-        public JsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
+        public JsonContractSerializer(ICredibleProvider credibleProvider)
         {
             _serializationOptions = new()
             {
                 PropertyNamingPolicy = null,
                 Converters =
                 {
-                    new JsonInterfaceConverter<IMediatorAction>(credibleActions),
-                    new MediatorResponseConverter(credibleResults)
+                    new JsonInterfaceConverter<IMediatorAction>(credibleProvider),
+                    new MediatorResponseConverter(credibleProvider)
                 }
             };
         }

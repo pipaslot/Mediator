@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V2
 
         protected override IContractSerializer CreateSerializer()
         {
-            return new FullJsonContractSerializer(ActionProviderMock.Object, ResultProviderMock.Object);
+            return new FullJsonContractSerializer(CredibleProviderMock.Object);
         }
     }
 }

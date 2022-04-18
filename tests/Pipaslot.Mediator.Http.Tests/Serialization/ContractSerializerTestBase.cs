@@ -15,8 +15,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         private static string[] _collection = new string[] { "AAA", "BBB" };
         private static Nested _nested = new Nested { Value = 1.2m };
 
-        protected Mock<ICredibleActionProvider> ActionProviderMock = new();
-        protected Mock<ICredibleResultProvider> ResultProviderMock = new();
+        protected Mock<ICredibleProvider> CredibleProviderMock = new();
         protected Func<IContract, bool> Match = c =>
             c.Name == _name &&
             c.Number == _number &&
@@ -223,7 +222,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var action = new PositionalRecordContract(_name, _number, _collection, _nested);
             var exception = new Exception();
-            ActionProviderMock
+            CredibleProviderMock
                 .Setup(p => p.VerifyCredibility(action.GetType()))
                 .Throws(exception);
 
@@ -233,12 +232,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
             Assert.Equal(exception, actualException.InnerException);
         }
+
         [Fact]
         public void Response_ShouldCallVerifyCredibility()
         {
             var result = new Result();
             var exception = new Exception();
-            ResultProviderMock
+            CredibleProviderMock
                 .Setup(p => p.VerifyCredibility(result.GetType()))
                 .Throws(exception);
 

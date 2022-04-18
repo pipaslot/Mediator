@@ -46,10 +46,9 @@ namespace Pipaslot.Mediator.Http
             var options = new ClientMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            services.AddSingleton<ICredibleActionProvider, NopCredibleActionProvider>();
             if (options.DeserializeOnlyCredibleResultTypes)
             {
-                services.AddSingleton<ICredibleResultProvider>(s =>
+                services.AddSingleton<ICredibleProvider>(s =>
                 {
                     var pipConf = s.GetRequiredService<MediatorConfigurator>();
                     return new CredibleResultProvider(pipConf, options.CredibleResultTypes, options.CredibleResultAssemblies);
@@ -57,7 +56,7 @@ namespace Pipaslot.Mediator.Http
             }
             else
             {
-                services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
+                services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
             }
             if(options.SerializerTyoe == SerializerType.V3)
             {
@@ -96,13 +95,12 @@ namespace Pipaslot.Mediator.Http
             services.AddSingleton(options);
             if (options.DeserializeOnlyCredibleActionTypes)
             {
-                services.AddSingleton<ICredibleActionProvider, CredibleActionProvider>();
+                services.AddSingleton<ICredibleProvider, CredibleActionProvider>();
             }
             else
             {
-                services.AddSingleton<ICredibleActionProvider, NopCredibleActionProvider>();
+                services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
             }
-            services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
             if (options.SerializerTyoe == SerializerType.V3)
             {
                 services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
