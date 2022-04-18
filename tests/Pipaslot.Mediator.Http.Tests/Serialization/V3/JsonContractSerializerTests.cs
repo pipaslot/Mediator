@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 {
-    public class SimpleJsonContractSerializerTests : ContractSerializerTestBase
+    public class JsonContractSerializerTests : ContractSerializerTestBase
     {
         [Fact]
         public void DeserializeRequest_FromJsonWithShortFormat()
