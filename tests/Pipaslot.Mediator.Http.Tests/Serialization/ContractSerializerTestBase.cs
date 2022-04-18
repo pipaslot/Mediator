@@ -219,15 +219,31 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         #region Test Credibility
 
         [Fact]
-        public void Response_ShouldCallVerifyCredibility()
+        public void Request_ShouldCallVerifyCredibility()
         {
+            var action = new PositionalRecordContract(_name, _number, _collection, _nested);
             var exception = new Exception();
-            ResultProviderMock
-                .Setup(p => p.VerifyCredibility(typeof(Result)))
+            ActionProviderMock
+                .Setup(p => p.VerifyCredibility(action.GetType()))
                 .Throws(exception);
 
             var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { new Result() }, new string[0]));
+            var serialized = sut.SerializeRequest(action);
+            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(serialized));
+
+            Assert.Equal(exception, actualException.InnerException);
+        }
+        [Fact]
+        public void Response_ShouldCallVerifyCredibility()
+        {
+            var result = new Result();
+            var exception = new Exception();
+            ResultProviderMock
+                .Setup(p => p.VerifyCredibility(result.GetType()))
+                .Throws(exception);
+
+            var sut = CreateSerializer();
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
             var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
 
             Assert.Equal(exception, actualException.InnerException);

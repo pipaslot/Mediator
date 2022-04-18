@@ -18,8 +18,7 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
 
         public override ContractSerializable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var action = MediatorActionConvert.Read(ref reader, options, _credibleActions, out var typeValue);
-            return new ContractSerializable(action, typeValue);
+            throw new NotImplementedException();
         }
 
         public override void Write(Utf8JsonWriter writer, ContractSerializable value, JsonSerializerOptions options)

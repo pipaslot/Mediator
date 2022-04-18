@@ -1,5 +1,6 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
 using System;
+using System.Linq;
 using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization.Converters
@@ -9,7 +10,7 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
         internal static object Read(
             ref Utf8JsonReader reader,
             JsonSerializerOptions options,
-            ICredibleActionProvider credibleActions,
+            ICredibleProvider credibleActions,
             out string typeValue)
         {
             Utf8JsonReader readerClone = reader;
@@ -40,8 +41,28 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
                 throw new JsonException("Type value can not be null");
             }
             var actionType = ContractSerializerTypeHelper.GetType(typeValue);
-            credibleActions.VerifyCredibility(actionType);
+            if (actionType.IsArray)
+            {
+                readerClone.Read();
+                if (readerClone.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Property was expected");
+                }
 
+                propertyName = readerClone.GetString();
+                if (propertyName != "Items")
+                {
+                    throw new JsonException("Property with name Items was expected");
+                }
+                readerClone.Read();
+                return CreateObject(ref readerClone, options, credibleActions, typeValue, actionType);
+            }
+            return CreateObject(ref reader, options, credibleActions, typeValue, actionType);
+        }
+
+        private static object CreateObject(ref Utf8JsonReader reader, JsonSerializerOptions options, ICredibleProvider credibleActions, string typeValue, Type actionType)
+        {
+            credibleActions.VerifyCredibility(actionType);
             var result = JsonSerializer.Deserialize(ref reader, actionType, options);
             if (result == null)
             {
@@ -61,15 +82,28 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
                     {
                         var type = value.GetType();
                         using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
+
                         writer.WriteStartObject();
                         writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(type));
-
-                        foreach (var element in jsonDocument.RootElement.EnumerateObject())
+                        if (jsonDocument.RootElement.ValueKind == JsonValueKind.Array)
                         {
-                            element.WriteTo(writer);
+                            writer.WritePropertyName("Items");
+                            writer.WriteStartArray();
+                            foreach (var element in jsonDocument.RootElement.EnumerateArray())
+                            {
+                                element.WriteTo(writer);
+                            }
+                            writer.WriteEndArray();
                         }
-
+                        else
+                        {
+                            foreach (var element in jsonDocument.RootElement.EnumerateObject())
+                            {
+                                element.WriteTo(writer);
+                            }
+                        }
                         writer.WriteEndObject();
+
                         break;
                     }
             }

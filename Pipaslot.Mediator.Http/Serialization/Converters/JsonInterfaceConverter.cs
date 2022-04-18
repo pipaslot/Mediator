@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Http.Configuration;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -6,6 +7,13 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
 {
     internal class JsonInterfaceConverter<T> : JsonConverter<T> where T : class
     {
+        private readonly ICredibleActionProvider _credibleActions;
+
+        public JsonInterfaceConverter(ICredibleActionProvider credibleActions)
+        {
+            _credibleActions = credibleActions;
+        }
+
         public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             Utf8JsonReader readerClone = reader;
@@ -33,8 +41,8 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
             }
 
             string typeValue = readerClone.GetString();
-            var instance = Activator.CreateInstance(Type.GetType(typeValue));
-            var entityType = instance.GetType();
+            var entityType = ContractSerializerTypeHelper.GetType(typeValue);
+            _credibleActions.VerifyCredibility(entityType);
 
             var deserialized = JsonSerializer.Deserialize(ref reader, entityType, options);
             return (T)deserialized;
@@ -50,9 +58,10 @@ namespace Pipaslot.Mediator.Http.Serialization.Converters
                 default:
                     {
                         var type = value.GetType();
+                        //TODO Get rid of parse
                         using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
                         writer.WriteStartObject();
-                        writer.WriteString("$type", type.AssemblyQualifiedName);
+                        writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(type));
 
                         foreach (var element in jsonDocument.RootElement.EnumerateObject())
                         {

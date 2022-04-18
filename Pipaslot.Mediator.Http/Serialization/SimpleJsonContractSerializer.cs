@@ -23,6 +23,7 @@ namespace Pipaslot.Mediator.Http.Serialization
                 PropertyNamingPolicy = null,
                 Converters =
                 {
+                    new JsonInterfaceConverter<IMediatorAction>(credibleActions),
                     new SimpleContractSerializableConverter(credibleActions),
                     new SimpleResponseDeserializedConverter(credibleResults)
                 }
@@ -31,9 +32,7 @@ namespace Pipaslot.Mediator.Http.Serialization
 
         public string SerializeRequest(object request)
         {
-            var actionName = ContractSerializerTypeHelper.GetIdentifier(request.GetType());
-            var contract = new ContractSerializable(request, actionName);
-            return JsonSerializer.Serialize(contract, typeof(ContractSerializable), _serializationOptions);
+            return JsonSerializer.Serialize(request, typeof(IMediatorAction), _serializationOptions);
         }
 
         public IMediatorAction DeserializeRequest(string body)
@@ -42,11 +41,10 @@ namespace Pipaslot.Mediator.Http.Serialization
             {
                 try
                 {
-                    var contract = JsonSerializer.Deserialize<ContractSerializable>(body, _serializationOptions);
-
+                    var contract = JsonSerializer.Deserialize<IMediatorAction>(body, _serializationOptions);
                     if (contract != null)
                     {
-                        return (IMediatorAction)contract.Content;
+                        return contract;
                     }
                 }
                 catch (MediatorException)
@@ -71,7 +69,7 @@ namespace Pipaslot.Mediator.Http.Serialization
             {
                 ErrorMessages = response.ErrorMessages.ToArray(),
                 Results = response.Results
-                    .Select(request => new ContractSerializable(request, ContractSerializerTypeHelper.GetIdentifier(request.GetType())))
+                    .Select(result => new ContractSerializable(result, ContractSerializerTypeHelper.GetIdentifier(result.GetType())))
                     .ToArray(),
                 Success = response.Success
             };

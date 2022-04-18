@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Http.Serialization;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
 using Xunit;
 
@@ -49,6 +50,26 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
+        public void Request_SerializePropertyIMediatorction()
+        {
+            var subAction = new ChildMediatorAction
+            {
+                Name = "Contract name"
+            };
+            var action = new MessageWithIMediatorActionProperty
+            {
+                SubAction = subAction
+            };
+            var sut = CreateSerializer();
+
+            var serialized = sut.SerializeRequest(action);
+            var deserialized = (MessageWithIMediatorActionProperty)sut.DeserializeRequest(serialized);
+            Assert.NotNull(deserialized);
+            Assert.Equal(deserialized.SubAction.GetType(), subAction.GetType());
+            Assert.Equal(((ChildMediatorAction)deserialized.SubAction).Name, subAction.Name);
+        }
+
+        [Fact]
         public void Response_SerializePropertyInterface()
         {
             var contract = new Contract
@@ -81,6 +102,14 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         }
         public class Contract : IContract
+        {
+            public string Name { get; set; }
+        }
+        public class MessageWithIMediatorActionProperty : IMessage
+        {
+            public IMediatorAction SubAction { get; set; }
+        }
+        public class ChildMediatorAction : IMessage
         {
             public string Name { get; set; }
         }
