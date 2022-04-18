@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3
 {
-    internal class SimpleJsonContractSerializer : IContractSerializer
+    internal class JsonContractSerializer : IContractSerializer
     {
         private readonly JsonSerializerOptions _serializationOptions;
         internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()
@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
             PropertyNamingPolicy = null
         };
 
-        public SimpleJsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
+        public JsonContractSerializer(ICredibleActionProvider credibleActions, ICredibleResultProvider credibleResults)
         {
             _serializationOptions = new()
             {

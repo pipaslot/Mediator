@@ -61,7 +61,7 @@ namespace Pipaslot.Mediator.Http
             }
             if(options.SerializerTyoe == SerializerType.V3)
             {
-                services.AddSingleton<IContractSerializer, Serialization.V3.SimpleJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
             }
             else
             {
@@ -105,7 +105,7 @@ namespace Pipaslot.Mediator.Http
             services.AddSingleton<ICredibleResultProvider, NopCredibleResultProvider>();
             if (options.SerializerTyoe == SerializerType.V3)
             {
-                services.AddSingleton<IContractSerializer, Serialization.V3.SimpleJsonContractSerializer>();
+                services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
             }
             else
             {
