@@ -4,6 +4,7 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration
@@ -17,6 +18,16 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         public void VerifyCredibility_RegisteredCustomResultType_Pass(Type tested)
         {
             var sut = Create(c => { }, typeof(CustomResult));
+            sut.VerifyCredibility(tested);
+        }
+
+        [Theory]
+        [InlineData(typeof(CustomResult))]
+        [InlineData(typeof(CustomResult[]))]
+        [InlineData(typeof(List<CustomResult>))]
+        public void VerifyCredibility_RegisteredCustomResultTypeAssembly_Pass(Type tested)
+        {
+            var sut = CreateForAssembly(c => { }, typeof(CustomResult).Assembly);
             sut.VerifyCredibility(tested);
         }
 
@@ -57,7 +68,15 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
             var serviceCollectionMock = new Mock<IServiceCollection>();
             var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
             setup(configurator);
-            return new CredibleResultProvider(configurator, customTypes);
+            return new CredibleResultProvider(configurator, customTypes, new Assembly[0]);
+        }
+
+        private CredibleResultProvider CreateForAssembly(Action<MediatorConfigurator> setup, params Assembly[] customTypes)
+        {
+            var serviceCollectionMock = new Mock<IServiceCollection>();
+            var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
+            setup(configurator);
+            return new CredibleResultProvider(configurator, new Type[0], customTypes);
         }
 
         private class CustomResult

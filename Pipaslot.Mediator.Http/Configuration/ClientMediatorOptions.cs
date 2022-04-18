@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
@@ -11,6 +12,7 @@ namespace Pipaslot.Mediator.Http.Configuration
         {
             typeof(Notification)
         };
+        private List<Assembly> _credibleResultAssemblies = new List<Assembly>();
 
         public string Endpoint { get; set; } = MediatorConstants.Endpoint;
         /// <summary>
@@ -22,9 +24,10 @@ namespace Pipaslot.Mediator.Http.Configuration
         public SerializerType SerializerTyoe { get; set; } = SerializerType.V2;
 
         /// <summary>
-        /// Define extra types returned by server as credible. Setter does not replace existing values but append another ones.
+        /// Define extra types returned by server as credible.
         /// For action result type refistrations use mediator methods <see cref="IMediatorConfigurator.AddActionsFromAssemblyOf"/> or <see cref="IMediatorConfigurator.AddActionsFromAssembly"/>
         /// </summary>
+        //TODO Convert to IEnumerable
         public Type[] CredibleResultTypes
         {
             get => _credibleResultTypes.ToArray();
@@ -36,13 +39,39 @@ namespace Pipaslot.Mediator.Http.Configuration
         }
 
         /// <summary>
-        /// Define extra types returned by server as credible and set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
+        /// Define extra types returned by server as credible.
+        /// For action result type refistrations use mediator methods <see cref="IMediatorConfigurator.AddActionsFromAssemblyOf"/> or <see cref="IMediatorConfigurator.AddActionsFromAssembly"/>
+        /// </summary>
+        public IEnumerable<Assembly> CredibleResultAssemblies
+        {
+            get => _credibleResultAssemblies;
+            set
+            {
+                _credibleResultAssemblies.Clear();
+                _credibleResultAssemblies.AddRange(value);
+            }
+        }
+
+        /// <summary>
+        /// Define extra types as trusted for deserialization. Set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public ClientMediatorOptions AddCredibleResultType<T>()
         {
             _credibleResultTypes.Add(typeof(T));
+            DeserializeOnlyCredibleResultTypes = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Define extra assembly as trusted for deserialization. Set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public ClientMediatorOptions AddCredibleResultAssemblyOf<T>()
+        {
+            _credibleResultAssemblies.Add(typeof(T).Assembly);
             DeserializeOnlyCredibleResultTypes = true;
             return this;
         }

@@ -4,6 +4,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
@@ -11,22 +12,27 @@ namespace Pipaslot.Mediator.Http.Configuration
     {
         private readonly MediatorConfigurator _configurator;
         private readonly HashSet<Type> _trustedTypes;
+        private readonly HashSet<Assembly> _trustedAssemblies;
         private HashSet<Type>? _actionResultTypes = null;
 
-        public CredibleResultProvider(MediatorConfigurator configurator, Type[] trustedTypes)
+        public CredibleResultProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
         {
             _configurator = configurator;
             _trustedTypes = new HashSet<Type>(trustedTypes);
+            _trustedAssemblies = new HashSet<Assembly>(trustedAssemblies);
         }
 
         public void VerifyCredibility(Type resultType)
         {
-            if (_trustedTypes.Contains(resultType))
+            if (_trustedTypes.Contains(resultType)
+                || _trustedAssemblies.Contains(resultType.Assembly))
             {
                 return;
             }
             var collectionItem = GetEnumeratedType(resultType);
-            if (collectionItem != null && _trustedTypes.Contains(collectionItem))
+            if (collectionItem != null
+                && (_trustedTypes.Contains(collectionItem)
+                    || _trustedAssemblies.Contains(collectionItem.Assembly)))
             {
                 return;
             }
@@ -38,7 +44,8 @@ namespace Pipaslot.Mediator.Http.Configuration
             {
                 return;
             }
-            if (collectionItem != null && _actionResultTypes.Contains(collectionItem))
+            if (collectionItem != null
+                && _actionResultTypes.Contains(collectionItem))
             {
                 return;
             }
