@@ -1,9 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization.V3.Converters;
-using Pipaslot.Mediator.Http.Serialization.V3.Models;
 using System;
-using System.Linq;
 using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3
@@ -24,7 +22,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                 Converters =
                 {
                     new JsonInterfaceConverter<IMediatorAction>(credibleActions),
-                    new SimpleResponseDeserializedConverter(credibleResults)
+                    new MediatorResponseConverter(credibleResults)
                 }
             };
         }
@@ -64,13 +62,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
 
         public string SerializeResponse(IMediatorResponse response)
         {
-            var obj = new ResponseDeserialized
-            {
-                ErrorMessages = response.ErrorMessages.ToArray(),
-                Results = response.Results,
-                Success = response.Success
-            };
-            return JsonSerializer.Serialize(obj, _serializationOptions);
+            return JsonSerializer.Serialize(response, _serializationOptions);
         }
 
         public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
@@ -79,15 +71,10 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
             {
                 try
                 {
-                    var serializedResult = JsonSerializer.Deserialize<ResponseDeserialized>(response, _serializationOptions);
+                    var serializedResult = JsonSerializer.Deserialize<IMediatorResponse>(response, _serializationOptions);
                     if (serializedResult != null)
                     {
-                        return new ResponseDeserialized<TResult>
-                        {
-                            Success = serializedResult.Success,
-                            ErrorMessages = serializedResult.ErrorMessages,
-                            Results = serializedResult.Results
-                        };
+                        return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results, serializedResult.ErrorMessages);
                     }
                 }
                 catch (Exception e)

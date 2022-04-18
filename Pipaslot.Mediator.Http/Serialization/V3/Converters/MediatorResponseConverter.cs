@@ -1,24 +1,21 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization.V3.Models;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
-    internal class SimpleResponseDeserializedConverter : JsonConverter<ResponseDeserialized>
+    internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
     {
         private readonly ICredibleResultProvider _credibleResults;
 
-        public SimpleResponseDeserializedConverter(ICredibleResultProvider credibleResults)
+        public MediatorResponseConverter(ICredibleResultProvider credibleResults)
         {
             _credibleResults = credibleResults;
         }
 
-        public override ResponseDeserialized? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var success = false;
             var errorMessages = new string[0];
@@ -36,27 +33,22 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                     reader.Read();
                     switch (propertyName)
                     {
-                        case nameof(ResponseDeserialized.Success):
+                        case nameof(IMediatorResponse.Success):
                             success = reader.GetBoolean();
                             break;
-                        case nameof(ResponseDeserialized.ErrorMessages):
+                        case nameof(IMediatorResponse.ErrorMessages):
                             using (var jsonDoc = JsonDocument.ParseValue(ref reader))
                             {
                                 errorMessages = JsonSerializer.Deserialize<string[]>(jsonDoc.RootElement.GetRawText()) ?? new string[0];
                             }
                             break;
-                        case nameof(ResponseDeserialized.Results):
+                        case nameof(IMediatorResponse.Results):
                             results = ReadResults(ref reader, options);
                             break;
                     }
                 }
             }
-            return new ResponseDeserialized
-            {
-                Success = success,
-                ErrorMessages = errorMessages,
-                Results = results
-            };
+            return new MediatorResponse(success, results, errorMessages);
         }
         private object[] ReadResults(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
@@ -133,7 +125,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 
         }
 
-        public override void Write(Utf8JsonWriter writer, ResponseDeserialized value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, IMediatorResponse value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WriteBoolean(nameof(IMediatorResponse.Success), value.Success);
