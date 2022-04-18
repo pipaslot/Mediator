@@ -2,7 +2,6 @@
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
-using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 
 var builder = WebApplication.CreateBuilder(args);
