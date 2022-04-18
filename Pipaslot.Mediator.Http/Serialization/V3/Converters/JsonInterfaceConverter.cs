@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 {
-    internal class JsonInterfaceConverter<T> : JsonConverter<T> where T : class
+    internal class JsonInterfaceConverter : JsonConverter<object>
     {
         private readonly ICredibleProvider _credibleActions;
 
@@ -14,7 +14,12 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             _credibleActions = credibleActions;
         }
 
-        public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeToConvert.IsInterface;
+        }
+
+        public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             Utf8JsonReader readerClone = reader;
             if (readerClone.TokenType != JsonTokenType.StartObject)
@@ -45,15 +50,15 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             _credibleActions.VerifyCredibility(entityType);
 
             var deserialized = JsonSerializer.Deserialize(ref reader, entityType, options);
-            return (T)deserialized;
+            return deserialized;
         }
 
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             switch (value)
             {
                 case null:
-                    JsonSerializer.Serialize(writer, (T)null, options);
+                    JsonSerializer.Serialize(writer, (object)null, options);
                     break;
                 default:
                     {
