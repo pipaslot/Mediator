@@ -42,11 +42,14 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
             Assert.Equal(MediatorHttpException.CreateForUnregisteredResultType(typeof(Result)).Message, exception.Message);
         }
 
-        [Fact]
-        public void VerifyCredibility_RegisteredActionResultType_Pass()
+        [Theory]
+        [InlineData(typeof(Result))]
+        [InlineData(typeof(Result[]))]
+        [InlineData(typeof(List<Result>))]
+        public void VerifyCredibility_RegisteredActionResultType_Pass(Type testedType)
         {
             var sut = Create(c => c.AddActionsFromAssemblyOf<FakeRequest>());
-            sut.VerifyCredibility(typeof(Result));
+            sut.VerifyCredibility(testedType);
         }
 
         private CredibleResultProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
@@ -61,7 +64,7 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
         {
 
         }
-        private class FakeRequest : IRequest<Result>
+        private class FakeRequest : IRequest<Result[]>
         {
 
         }

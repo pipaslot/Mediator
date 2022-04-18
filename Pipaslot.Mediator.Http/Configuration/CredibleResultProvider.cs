@@ -21,8 +21,12 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         public void VerifyCredibility(Type resultType)
         {
-            var type = GetEnumeratedType(resultType);
-            if (_trustedTypes.Contains(type))
+            if (_trustedTypes.Contains(resultType))
+            {
+                return;
+            }
+            var collectionItem = GetEnumeratedType(resultType);
+            if (collectionItem != null && _trustedTypes.Contains(collectionItem))
             {
                 return;
             }
@@ -30,11 +34,15 @@ namespace Pipaslot.Mediator.Http.Configuration
             {
                 _actionResultTypes = new HashSet<Type>(GetActionResultTypes());
             }
-            if (_actionResultTypes.Contains(type))
+            if (_actionResultTypes.Contains(resultType))
             {
                 return;
             }
-            throw MediatorHttpException.CreateForUnregisteredResultType(type);
+            if (collectionItem != null && _actionResultTypes.Contains(collectionItem))
+            {
+                return;
+            }
+            throw MediatorHttpException.CreateForUnregisteredResultType(collectionItem ?? resultType);
         }
 
         private Type[] GetActionResultTypes()
@@ -44,10 +52,11 @@ namespace Pipaslot.Mediator.Http.Configuration
                 .SelectMany(a => a.GetTypes())
                 .Where(t => requestInterface.IsAssignableFrom(t))
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
+                .Select(t => GetEnumeratedType(t) ?? t)
                 .ToArray();
         }
 
-        private Type GetEnumeratedType(Type type)
+        private Type? GetEnumeratedType(Type type)
         {
             if (type.IsArray)
             {
@@ -58,15 +67,15 @@ namespace Pipaslot.Mediator.Http.Configuration
                 }
             }
 
-            if (ContractSerializerTypeHelper.IsEnumerable(type)) {
+            if (ContractSerializerTypeHelper.IsEnumerable(type))
+            {
                 var elTypes = type.GetGenericArguments();
                 if (elTypes.Length > 0)
                 {
                     return elTypes[0];
                 }
             }
-
-            return type;
+            return null;
         }
     }
 }
