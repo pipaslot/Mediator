@@ -21,8 +21,9 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                 PropertyNamingPolicy = null,
                 Converters =
                 {
+                    new InterfaceConverter<IMediatorAction>(credibleProvider),
                     new MediatorResponseConverter(credibleProvider),
-                    new JsonInterfaceConverter(credibleProvider)
+                    new InterfaceConverterFactory(credibleProvider)
                 }
             };
         }

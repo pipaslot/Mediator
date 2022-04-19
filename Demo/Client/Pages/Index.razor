@@ -35,7 +35,7 @@ else
  <p>@(commonResult?.Description ?? "Status message will be provided from server as well")</p>
 
 @code {
-    private WeatherForecast.Result[]? forecasts;
+    private WeatherForecast.IResult[]? forecasts;
     private CommonResult? commonResult;
 
     protected override async Task OnInitializedAsync()
