@@ -1,4 +1,6 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Moq;
+using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System;
@@ -198,16 +200,50 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Contracts = new IContract[] { contract }
             };
-            var exception = new Exception();
+            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
             CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(contract.GetType()))
-                .Throws(exception);
+                .Setup(p => p.VerifyCredibility(action.GetType()));
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(contract.GetType()));
 
             var sut = CreateSerializer();
             var serialized = sut.SerializeRequest(action);
-            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(serialized));
+            sut.DeserializeRequest(serialized);
 
-            Assert.Equal(exception, actualException.InnerException);
+            CredibleProviderMock.VerifyAll();
+        }
+
+        [Fact]
+        public void Request_InterfaceProperty_ShouldCallVerifyCredibility()
+        {
+            var contract = new Contract();
+            var action = new MessageWithInterfaceProperty
+            {
+                Contract = contract
+            };
+            VerifyRequestCredibility(action, action.GetType(), contract.GetType());
+        }
+
+        [Fact]
+        public void Response_InterfaceProperty_ShouldCallVerifyCredibility()
+        {
+            var contract = new Contract();
+            var result = new MessageWithInterfaceProperty
+            {
+                Contract = contract
+            };
+            VerifyResponseCredibility(result, result.GetType(), contract.GetType());
+        }
+
+        [Fact]
+        public void Response_InterfaceCollection_ShouldCallVerifyCredibility()
+        {
+            var contract = new Contract();
+            var result = new IContract[]
+            {
+                contract
+            };
+            VerifyResponseCredibility(result, contract.GetType());
         }
 
         public class MessageWithInterfaceProperty : IMessage

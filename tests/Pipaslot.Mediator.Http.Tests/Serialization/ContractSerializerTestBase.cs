@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
@@ -71,7 +72,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
         }
-        
+
         private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
         {
             var sut = CreateSerializer();
@@ -141,11 +142,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         private void RunResponseTest<TDto>(TDto seed, Func<TDto, bool> match)
         {
-            var results = new System.Collections.Generic.List<object>
-            {
-                seed!
-            };
-            var response = new MediatorResponse(true, results, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { seed! }, Array.Empty<string>());
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -220,33 +217,54 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_ShouldCallVerifyCredibility()
         {
-            var action = new PositionalRecordContract(_name, _number, _collection, _nested);
-            var exception = new Exception();
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(action.GetType()))
-                .Throws(exception);
+            var action = new PublicPropertyGetterAndInitSetterContract();
+            VerifyRequestCredibility(action, action.GetType());
+        }
+
+        protected void VerifyRequestCredibility(IMediatorAction action, params Type[] toBeVerified)
+        {
+            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
+            foreach (var type in toBeVerified)
+            {
+                CredibleProviderMock
+                    .Setup(p => p.VerifyCredibility(type));
+            }
 
             var sut = CreateSerializer();
             var serialized = sut.SerializeRequest(action);
-            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(serialized));
+            sut.DeserializeRequest(serialized);
 
-            Assert.Equal(exception, actualException.InnerException);
+            CredibleProviderMock.VerifyAll();
         }
 
         [Fact]
-        public void Response_ShouldCallVerifyCredibility()
+        public void Response_SingleObject_ShouldCallVerifyCredibility()
         {
             var result = new Result();
-            var exception = new Exception();
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(result.GetType()))
-                .Throws(exception);
+            VerifyResponseCredibility(result, result.GetType());
+        }
+
+        [Fact]
+        public void Response_Collection_ShouldCallVerifyCredibility()
+        {
+            var result = new Result[0];
+            VerifyResponseCredibility(result, result.GetType());
+        }
+
+        protected void VerifyResponseCredibility(object result, params Type[] toBeVerified)
+        {
+            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
+            foreach (var type in toBeVerified)
+            {
+                CredibleProviderMock
+                    .Setup(p => p.VerifyCredibility(type));
+            }
 
             var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
-            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(responseString));
+            sut.DeserializeResponse<Result>(responseString);
 
-            Assert.Equal(exception, actualException.InnerException);
+            CredibleProviderMock.VerifyAll();
         }
 
         #endregion
