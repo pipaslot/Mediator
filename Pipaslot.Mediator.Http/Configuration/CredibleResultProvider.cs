@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Http.Configuration
             {
                 return;
             }
-            var collectionItem = GetEnumeratedType(resultType);
+            var collectionItem = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
             if (collectionItem != null
                 && (_trustedTypes.Contains(collectionItem)
                     || _trustedAssemblies.Contains(collectionItem.Assembly)))
@@ -59,30 +59,8 @@ namespace Pipaslot.Mediator.Http.Configuration
                 .SelectMany(a => a.GetTypes())
                 .Where(t => requestInterface.IsAssignableFrom(t))
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
-                .Select(t => GetEnumeratedType(t) ?? t)
+                .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t)
                 .ToArray();
-        }
-
-        private Type? GetEnumeratedType(Type type)
-        {
-            if (type.IsArray)
-            {
-                var elType = type.GetElementType();
-                if (null != elType)
-                {
-                    return elType;
-                }
-            }
-
-            if (ContractSerializerTypeHelper.IsEnumerable(type))
-            {
-                var elTypes = type.GetGenericArguments();
-                if (elTypes.Length > 0)
-                {
-                    return elTypes[0];
-                }
-            }
-            return null;
         }
     }
 }

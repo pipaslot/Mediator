@@ -19,6 +19,28 @@ namespace Pipaslot.Mediator.Http.Serialization
             return strType;
         }
 
+        internal static Type? GetEnumeratedType(Type type)
+        {
+            if (type.IsArray)
+            {
+                var elType = type.GetElementType();
+                if (null != elType)
+                {
+                    return elType;
+                }
+            }
+
+            if (IsEnumerable(type))
+            {
+                var elTypes = type.GetGenericArguments();
+                if (elTypes.Length > 0)
+                {
+                    return elTypes[0];
+                }
+            }
+            return null;
+        }
+
         internal static bool IsEnumerable(Type type)
         {
             return type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable));

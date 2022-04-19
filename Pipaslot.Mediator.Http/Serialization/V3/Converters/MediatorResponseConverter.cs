@@ -98,9 +98,15 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 throw new JsonException("Type value can not be null");
             }
             var resultType = ContractSerializerTypeHelper.GetType(typeValue);
-            _credibleResults.VerifyCredibility(resultType);
-            if (resultType.IsArray || ContractSerializerTypeHelper.IsEnumerable(resultType))
+            var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
+            if (arrayItemType != null)
             {
+                if (!arrayItemType.IsInterface)
+                {
+                    // Ignored for arrays because interface array has type specfied for every member
+                    // and the type will be verified by interface converter
+                    _credibleResults.VerifyCredibility(resultType);
+                }
                 readerClone.Read();
                 if (readerClone.TokenType != JsonTokenType.PropertyName)
                 {
@@ -119,6 +125,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             }
             else
             {
+                _credibleResults.VerifyCredibility(resultType);
                 return JsonSerializer.Deserialize(ref reader, resultType, options)
                     ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
