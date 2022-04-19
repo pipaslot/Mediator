@@ -23,7 +23,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             };
             var sut = CreateSerializer();
             var serialized = sut.SerializeRequest(action);
-            
+
             Assert.Equal(expected, serialized);
         }
 
@@ -188,6 +188,26 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             Assert.NotNull(deserialized.Result);
             Assert.Equal(deserialized.Result.GetType(), typeof(IContract[]));
             Assert.Equal(((Contract)deserialized.Result.First()).Name, contract.Name);
+        }
+
+        [Fact]
+        public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
+        {
+            var contract = new Contract();
+            var action = new MessageWithInterfaceCollectionProperty
+            {
+                Contracts = new IContract[] { contract }
+            };
+            var exception = new Exception();
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(contract.GetType()))
+                .Throws(exception);
+
+            var sut = CreateSerializer();
+            var serialized = sut.SerializeRequest(action);
+            var actualException = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(serialized));
+
+            Assert.Equal(exception, actualException.InnerException);
         }
 
         public class MessageWithInterfaceProperty : IMessage
