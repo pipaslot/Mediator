@@ -55,8 +55,7 @@ namespace Pipaslot.Mediator.Http.Configuration
         /// <summary>
         /// Define extra types as trusted for deserialization. Set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">Seed type from target assembly</typeparam>
         public ClientMediatorOptions AddCredibleResultType<T>()
         {
             _credibleResultTypes.Add(typeof(T));
@@ -67,11 +66,21 @@ namespace Pipaslot.Mediator.Http.Configuration
         /// <summary>
         /// Define extra assembly as trusted for deserialization. Set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Seed type from target assembly</typeparam>
         /// <returns></returns>
         public ClientMediatorOptions AddCredibleResultAssemblyOf<T>()
         {
             _credibleResultAssemblies.Add(typeof(T).Assembly);
+            DeserializeOnlyCredibleResultTypes = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Define extra assembly as trusted for deserialization. Set <see cref="DeserializeOnlyCredibleResultTypes"/> to true
+        /// </summary>
+        public ClientMediatorOptions AddCredibleResultAssembly(params Assembly[] assemblies)
+        {
+            _credibleResultAssemblies.AddRange(assemblies);
             DeserializeOnlyCredibleResultTypes = true;
             return this;
         }
