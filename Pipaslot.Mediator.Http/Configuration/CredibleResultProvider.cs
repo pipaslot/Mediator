@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Http.Configuration
             var requestInterface = typeof(IMediatorActionProvidingData);
             return _configurator.ActionMarkerAssemblies
                 .SelectMany(a => a.GetTypes())
-                .Where(t => requestInterface.IsAssignableFrom(t))
+                .Where(t => requestInterface.IsAssignableFrom(t) && t != requestInterface)
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
                 .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t)
                 .ToArray();
