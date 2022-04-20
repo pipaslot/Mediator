@@ -58,7 +58,7 @@ namespace Pipaslot.Mediator.Http
             {
                 services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
             }
-            if(options.SerializerTyoe == SerializerType.V3)
+            if(options.SerializerType == SerializerType.V3)
             {
                 services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
             }
@@ -95,13 +95,18 @@ namespace Pipaslot.Mediator.Http
             services.AddSingleton(options);
             if (options.DeserializeOnlyCredibleActionTypes)
             {
-                services.AddSingleton<ICredibleProvider, CredibleActionProvider>();
+                services.AddSingleton<ICredibleProvider>(s =>
+                {
+                    var pipConf = s.GetRequiredService<MediatorConfigurator>();
+                    return new CredibleActionProvider(pipConf, options.CredibleResultTypes, options.CredibleResultAssemblies);
+
+                });
             }
             else
             {
                 services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
             }
-            if (options.SerializerTyoe == SerializerType.V3)
+            if (options.SerializerType == SerializerType.V3)
             {
                 services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
             }
