@@ -33,6 +33,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
             catch (Exception e)
             {
+                //TODO Log all actions in row via MediatorContextAccessor
                 var serializedData = Serialize(context.Action);
                 _logger.LogError(e, @$"Exception occured during Mediator execution for action '{context.ActionIdentifier}' with message: '{e.Message}'. Action content: {serializedData}");
                 throw;

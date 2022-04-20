@@ -45,15 +45,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                         return contract;
                     }
                 }
-                catch (MediatorException)
-                {
-                    throw;
-                }
-                catch (MediatorHttpException)
-                {
-                    throw;
-                }
-                catch (Exception e)
+                catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
                 {
                     throw MediatorHttpException.CreateForInvalidRequest(body, e);
                 }
@@ -78,7 +70,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                         return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results, serializedResult.ErrorMessages);
                     }
                 }
-                catch (Exception e)
+                catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
                 {
                     throw MediatorHttpException.CreateForInvalidResponse(response, e);
                 }
