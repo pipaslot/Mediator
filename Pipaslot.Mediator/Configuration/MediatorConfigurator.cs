@@ -101,14 +101,20 @@ namespace Pipaslot.Mediator.Configuration
 
         public Type[] GetMessageActionTypes()
         {
-            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
+            var types = GetAllPotentialActionTypes();
             return FilterAssignableToMessage(types);
         }
 
         public Type[] GetRequestActionTypes()
         {
-            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
+            var types = GetAllPotentialActionTypes();
             return FilterAssignableToRequest(types);
+        }
+
+        private IEnumerable<Type> GetAllPotentialActionTypes()
+        {
+            return ActionMarkerAssemblies
+                .SelectMany(s => s.GetTypes());
         }
 
         public IEnumerable<Type> GetMiddlewares(IMediatorAction action)

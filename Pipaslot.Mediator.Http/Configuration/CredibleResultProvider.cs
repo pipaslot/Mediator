@@ -52,15 +52,12 @@ namespace Pipaslot.Mediator.Http.Configuration
             throw MediatorHttpException.CreateForUnregisteredResultType(collectionItem ?? resultType);
         }
 
-        private Type[] GetActionResultTypes()
+        private IEnumerable<Type> GetActionResultTypes()
         {
             var requestInterface = typeof(IMediatorActionProvidingData);
-            return _configurator.ActionMarkerAssemblies
-                .SelectMany(a => a.GetTypes())
-                .Where(t => requestInterface.IsAssignableFrom(t) && t != requestInterface)
+            return _configurator.GetRequestActionTypes()
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
-                .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t)
-                .ToArray();
+                .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t);
         }
     }
 }
