@@ -54,7 +54,6 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         private IEnumerable<Type> GetActionResultTypes()
         {
-            var requestInterface = typeof(IMediatorActionProvidingData);
             return _configurator.GetRequestActionTypes()
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
                 .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t);
