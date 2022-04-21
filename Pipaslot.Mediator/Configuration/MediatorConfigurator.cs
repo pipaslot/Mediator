@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Pipaslot.Mediator.Configuration
     public class MediatorConfigurator : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
     {
         internal readonly IServiceCollection Services;
-        public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
+        internal List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
         private MiddlewareCollection _middlewares;
         private List<(Func<IMediatorAction, bool> Condition,MiddlewareCollection Middlewares)> _pipelines = new ();
 
@@ -45,35 +46,9 @@ namespace Pipaslot.Mediator.Configuration
         private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var types = assemblies.SelectMany(a => a.GetTypes());
-            RegisterHandlers(Services, types, serviceLifetime);
+            Services.RegisterHandlers(types, serviceLifetime);
             return this;
-        }
-
-        internal static void RegisterHandlers(IServiceCollection services, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
-        {
-            var handlerTypes = new[]
-            {
-                typeof(IMediatorHandler<,>),
-                typeof(IMediatorHandler<>)
-            };
-            var types = allTypes
-                .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
-                .Select(t => new
-                {
-                    Type = t,
-                    Interfaces = t.GetInterfaces()
-                        .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
-                });
-            foreach (var pair in types)
-            {
-                foreach (var iface in pair.Interfaces)
-                {
-                    var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
-                    services.Add(item);
-                }
-            }
-        }
+        } 
 
         public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {

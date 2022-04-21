@@ -22,18 +22,6 @@ namespace Pipaslot.Mediator.Tests.Services
         }
 
         [Fact]
-        public void Verify_NoActionRegistered_ThrowExceptions()
-        {
-            var sp = Factory.CreateServiceProvider(c => { });
-            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            var ex = Assert.Throws<MediatorException>(() =>
-            {
-                sut.Verify();
-            });
-            Assert.Equal(MediatorException.CreateForNoActionRegistered().Message, ex.Message);
-        }
-
-        [Fact]
         public void Verify_MessageWithoutHandler_ThrowExceptions()
         {
             ShouldThrow(MediatorException.CreateForNoHandler(typeof(MessageWithoutHandler)).Message);

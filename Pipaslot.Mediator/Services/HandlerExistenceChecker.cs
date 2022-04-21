@@ -26,12 +26,7 @@ namespace Pipaslot.Mediator.Services
         {
             var messageTypes = _actionTypeProvider.GetMessageActionTypes();
             var requestTypes = _actionTypeProvider.GetRequestActionTypes();
-            var typeCount = messageTypes.Count() + requestTypes.Count();
-            if (typeCount == 0)
-            {
-                throw MediatorException.CreateForNoActionRegistered();
-            }
-
+            
             VerifyMessages(messageTypes);
             VerifyRequests(requestTypes);
             if (_errors.Any())

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading.Tasks;
@@ -62,7 +63,7 @@ namespace Pipaslot.Mediator.Tests
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
-            MediatorConfigurator.RegisterHandlers(collection, handlers, ServiceLifetime.Scoped);
+            collection.RegisterHandlers(handlers, ServiceLifetime.Scoped);
             return collection.BuildServiceProvider();
         }
 

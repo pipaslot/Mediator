@@ -29,11 +29,6 @@ namespace Pipaslot.Mediator
             return new MediatorException($"Multiple handlers were registered for one action type: {subject}. Can not combine handlers with interfaces {nameof(ISequenceHandler)} or {nameof(IConcurrentHandler)} or without if any if these two interfaces. Please check handlers: {string.Join(", ", handlers)}");
         }
 
-        public static MediatorException CreateForNoActionRegistered()
-        {
-            return new MediatorException($"No action marker assembly was registered. Use {nameof(MediatorConfigurator.AddActionsFromAssembly)} during pipeline setup");
-        }
-
         public static MediatorException CreateForInvalidHandlers(params string[] errors)
         {
             var ex = new MediatorException($"Invalid handle configuration. For more details see Data property.");
