@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Moq;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
@@ -82,8 +83,9 @@ namespace Pipaslot.Mediator.Tests
 
         private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
         {
+            var mediator = new Mock<IMediator>();
             var sut = new HandlerExecutionMiddleware(services);
-            var context = new MediatorContext(services, action, CancellationToken.None);
+            var context = new MediatorContext(mediator.Object, services, action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(context, next);
             return context;

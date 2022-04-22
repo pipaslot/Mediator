@@ -98,8 +98,9 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 
         private Task Run(IMediatorAction action, out MediatorContext context)
         {
+            var mediator = new Mock<IMediator>();
             var spMock = new Mock<IServiceProvider>();
-            context = new MediatorContext(spMock.Object, action, CancellationToken.None);
+            context = new MediatorContext(mediator.Object, spMock.Object, action, CancellationToken.None);
             var sut = new ReduceDuplicateProcessingMiddleware();
             return sut.Invoke(context, _next);
         }
