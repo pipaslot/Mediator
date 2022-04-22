@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Configuration
         internal readonly IServiceCollection Services;
         internal List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
         private MiddlewareCollection _middlewares;
-        private List<(Func<IMediatorAction, bool> Condition,MiddlewareCollection Middlewares)> _pipelines = new ();
+        private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares)> _pipelines = new();
 
         public MediatorConfigurator(IServiceCollection services)
         {
@@ -48,7 +48,7 @@ namespace Pipaslot.Mediator.Configuration
             var types = assemblies.SelectMany(a => a.GetTypes());
             Services.RegisterHandlers(types, serviceLifetime);
             return this;
-        } 
+        }
 
         public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
         {
@@ -95,9 +95,9 @@ namespace Pipaslot.Mediator.Configuration
         public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
         {
             var pipelines = _pipelines
-                .Where(p=>p.Condition(action))
+                .Where(p => p.Condition(action))
                 .ToArray();
-            if(pipelines.Length > 1)
+            if (pipelines.Length > 1)
             {
                 throw MediatorException.TooManyPipelines(action);
             }

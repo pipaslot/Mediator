@@ -23,7 +23,8 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         public void VerifyCredibility(Type actionType)
         {
-            if (_configurator.ActionMarkerAssemblies.Any() && !_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
+            if (_configurator.ActionMarkerAssemblies.Any() 
+                && !_configurator.ActionMarkerAssemblies.Contains(actionType.Assembly))
             {
                 throw MediatorHttpException.CreateForUnregisteredActionType(actionType);
             }

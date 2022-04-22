@@ -24,7 +24,8 @@ namespace Pipaslot.Mediator
         /// </summary>
         /// <typeparam name="TDefaultExecutionMiddleware">Default handler executive middleware ised in case when no other middleware is registered</typeparam>
         /// <param name="services"></param>
-        public static IMediatorConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services) where TDefaultExecutionMiddleware : class, IExecutionMiddleware
+        public static IMediatorConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services)
+            where TDefaultExecutionMiddleware : class, IExecutionMiddleware
         {
             services.AddScoped<IMediator, Mediator>();
             services.AddScoped<MediatorContextAccessor>();
