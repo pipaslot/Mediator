@@ -68,8 +68,6 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(2, SequenceHandler.ExecutedCount);
         }
 
-        //TODO Tests for ISequenceHandler.Order
-
         private async Task<MediatorContext> RunRequest(IServiceProvider services)
         {
             var action = new SequenceHandler.Request(true);
