@@ -4,10 +4,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipaslot.Mediator.Services
+namespace Pipaslot.Mediator
 {
-    internal static class ServiceProviderExtensions
+    public static class ServiceProviderExtensions
     {
+        /// <summary>
+        /// Resolve all action handlers
+        /// </summary>
+        public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
+        {
+            var actionType = action.GetType();
+            if (action is IMediatorActionProvidingData)
+            {
+                var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
+                return serviceProvider.GetRequestHandlers(actionType, resultType);
+            }
+            else
+            {
+                return serviceProvider.GetMessageHandlers(actionType);
+            }
+        }
+
         /// <summary>
         /// Get all registered handlers from service provider
         /// </summary>

@@ -146,16 +146,7 @@ namespace Pipaslot.Mediator.Middlewares
         {
             if (_handlers == null)
             {
-                var actionType = Action.GetType();
-                if (HasActionReturnValue)
-                {
-                    var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
-                    _handlers = _serviceProvider.GetRequestHandlers(actionType, resultType);
-                }
-                else
-                {
-                    _handlers = _serviceProvider.GetMessageHandlers(actionType);
-                }
+                _handlers = _serviceProvider.GetActionHandlers(Action);
             }
             return _handlers;
         }
