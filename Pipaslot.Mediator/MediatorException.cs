@@ -31,7 +31,8 @@ namespace Pipaslot.Mediator
 
         public static MediatorException CreateForInvalidHandlers(params string[] errors)
         {
-            var ex = new MediatorException($"Invalid handle configuration. For more details see Data property.");
+            var joined = "[" + string.Join(", ", errors) + "]";
+            var ex = new MediatorException($"Invalid handle configuration. For more details see Data property. " + joined);
             var i = 1;
             foreach (var error in errors)
             {
