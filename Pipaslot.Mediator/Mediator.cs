@@ -140,7 +140,7 @@ namespace Pipaslot.Mediator
 
         private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
         {
-            return new MediatorContext(this, _serviceProvider, action, cancellationToken);
+            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken);
         }
     }
 }
