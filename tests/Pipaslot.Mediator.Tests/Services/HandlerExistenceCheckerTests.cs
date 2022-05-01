@@ -46,8 +46,7 @@ namespace Pipaslot.Mediator.Tests.Services
                 sut.Verify();
             });
 
-            Assert.Equal(MediatorException.CreateForInvalidHandlers().Message, ex.Message);
-            Assert.Contains(expectedError, ex.Data.Values.Cast<string>());
+            Assert.Contains(expectedError, ex.Message);
         }
     }
 }

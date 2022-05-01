@@ -83,7 +83,8 @@ namespace Pipaslot.Mediator.Tests
         {
             var mediator = new Mock<IMediator>();
             var sut = new HandlerExecutionMiddleware(services);
-            var context = new MediatorContext(mediator.Object, services, action, CancellationToken.None);
+            var mcaMock = new Mock<IMediatorContextAccessor>();
+            var context = new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None);
             var next = Factory.CreateMiddlewareDelegate();
             await sut.Invoke(context, next);
             return context;
