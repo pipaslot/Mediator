@@ -2,6 +2,7 @@
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,7 @@ services.AddMediatorServer(o =>
     //    .Use<CommandSpecificMiddleware>() // Middleare which should be applied only to Commands
     //    )
     // Use default pipeline if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution   
+    .UseAuthorization()
     .Use<CallStackLoggerMiddleware>()
     .Use<ValidatorMiddleware>()
     .Use<CommonMiddleware>();
