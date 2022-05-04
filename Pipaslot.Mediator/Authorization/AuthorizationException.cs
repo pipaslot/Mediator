@@ -33,10 +33,10 @@ namespace Pipaslot.Mediator.Authorization
             var notGrantedGroups = allRules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(g => $"{g.Key}: [{string.Join(", ", g.Select(r=>r.Value))}]");
+                .Select(FormatGroup);
             var notGranted = $"[{string.Join(", ", notGrantedGroups)}]";
 
-            var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules {notGranted} not matched for current user.");
+            var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules: {notGranted} not matched for current user.");
             var i = 1;
             foreach (var rule in allRules)
             {
@@ -44,6 +44,12 @@ namespace Pipaslot.Mediator.Authorization
                 i++;
             }
             return ex;
+        }
+        private static string FormatGroup(IGrouping<string, Rule> group)
+        {
+            return group.Count() > 1
+            ? $"'{group.Key}': [{string.Join(", ", group.Select(r => $"'{r.Value}'"))}]"
+            : $"'{group.Key}': '{group.FirstOrDefault()?.Value}'";
         }
     }
 }
