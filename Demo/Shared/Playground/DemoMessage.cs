@@ -1,8 +1,8 @@
 ﻿using Pipaslot.Mediator;
 
-namespace Demo.Shared.Requests
+namespace Demo.Shared.Playground
 {
-    public class MessageWithNotification : IMessage
+    public class DemoMessage : IMessage
     {
         public bool Fail { get; set; }
     }

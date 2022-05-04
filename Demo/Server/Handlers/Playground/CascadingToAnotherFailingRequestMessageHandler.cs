@@ -1,7 +1,7 @@
-﻿using Demo.Shared.Requests;
+﻿using Demo.Shared.Playground;
 using Pipaslot.Mediator;
 
-namespace Demo.Server.Handlers
+namespace Demo.Server.Handlers.Playground
 {
     public class CascadingToAnotherFailingRequestMessageHandler : IMessageHandler<CascadingToAnotherFailingRequestMessage>
     {

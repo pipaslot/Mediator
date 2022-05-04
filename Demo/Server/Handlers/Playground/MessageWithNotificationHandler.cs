@@ -1,8 +1,8 @@
-﻿using Demo.Shared.Requests;
+﻿using Demo.Shared.Playground;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Notifications;
 
-namespace Demo.Server.Handlers
+namespace Demo.Server.Handlers.Playground
 {
     public class MessageWithNotificationHandler : IMessageHandler<MessageWithNotification>
     {

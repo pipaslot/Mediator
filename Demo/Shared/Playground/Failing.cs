@@ -1,6 +1,6 @@
 ﻿using Pipaslot.Mediator;
 
-namespace Demo.Shared.Requests
+namespace Demo.Shared.Playground
 {
     public static class Failing
     {

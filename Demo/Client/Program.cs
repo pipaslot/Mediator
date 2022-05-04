@@ -2,7 +2,7 @@ using Blazored.LocalStorage;
 using Demo.Client;
 using Demo.Client.Services;
 using Demo.Shared;
-using Demo.Shared.Requests;
+using Demo.Shared.Playground;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Pipaslot.Mediator;

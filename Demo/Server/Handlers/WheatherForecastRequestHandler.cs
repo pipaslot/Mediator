@@ -1,4 +1,4 @@
-﻿using Demo.Shared.Requests;
+﻿using Demo.Shared;
 using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers
