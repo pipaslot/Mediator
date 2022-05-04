@@ -1,17 +1,24 @@
+using Blazored.LocalStorage;
 using Demo.Client;
+using Demo.Client.Services;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
-
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+var services = builder.Services;
+services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+services.AddBlazoredLocalStorage();
+services.AddAuthorizationCore();
+services.AddScoped<AuthService>();
+services.AddScoped<AuthenticationStateProvider, AuthService>(provider => provider.GetRequiredService<AuthService>());
 
 //////// Mediator implementation
-builder.Services.AddMediatorClient(o =>
+services.AddMediatorClient(o =>
 {
     o.Endpoint = Constants.CustomMediatorUrl;
     o.SerializerType = SerializerType.V3;

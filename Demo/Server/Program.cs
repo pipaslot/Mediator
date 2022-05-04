@@ -1,7 +1,10 @@
 ﻿using Demo.Server.Handlers;
+using Demo.Server.Handlers.Auth;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
 using Demo.Shared.Requests;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 
@@ -12,6 +15,27 @@ services.AddControllersWithViews();
 services.AddRazorPages();
 services.AddResponseCompression();
 services.AddHttpContextAccessor();
+
+//JWT
+var authSection = builder.Configuration.GetSection("Auth");
+services.Configure<LoginRequestHandler.AuthOptions>(authSection);
+var authOptions = new LoginRequestHandler.AuthOptions();
+authSection.Bind(authOptions);
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = authOptions.Issuer,
+                ValidAudience = authOptions.Audience,
+                IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey),
+            };
+    });
 
 //////// Mediator implementation
 services.AddMediatorServer(o =>
@@ -53,6 +77,7 @@ app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+app.UseAuthentication();
 
 //////// Mediator implementation
 app.UseMediator(app.Environment.IsDevelopment());

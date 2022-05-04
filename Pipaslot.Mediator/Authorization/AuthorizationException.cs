@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Authorization
 
         internal static AuthorizationException NoAuthorization(string actionIdentifier)
         {
-            return new AuthorizationException(NoAuthorizationCode, $"Authorization rules are missing for action {actionIdentifier}");
+            return new AuthorizationException(NoAuthorizationCode, $"Authorization policies are missing for action {actionIdentifier}");
         }
 
         internal static AuthorizationException UnauthorizedHandler(IEnumerable<object> handlers)
@@ -33,7 +33,7 @@ namespace Pipaslot.Mediator.Authorization
             var notGrantedGroups = allRules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(g => $"{g.Key}: [{string.Join(", ", g)}]");
+                .Select(g => $"{g.Key}: [{string.Join(", ", g.Select(r=>r.Value))}]");
             var notGranted = $"[{string.Join(", ", notGrantedGroups)}]";
 
             var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules {notGranted} not matched for current user.");

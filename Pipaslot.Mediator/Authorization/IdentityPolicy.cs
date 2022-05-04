@@ -70,12 +70,12 @@ namespace Pipaslot.Mediator.Authorization
         public Task<IEnumerable<Rule>> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = ClaimsPrincipal.Current;
-            var isAuthenticatedUser = principal.Identity?.IsAuthenticated ?? false;
+            var isAuthenticatedUser = principal?.Identity?.IsAuthenticated ?? false;
             var isAuthenticated = _anonymous || isAuthenticatedUser;
             var result = new List<Rule>();
             result.Add(new Rule("Authenticated", isAuthenticatedUser.ToString(), isAuthenticated));
 
-            var claims = principal.Claims;
+            var claims = principal?.Claims ?? new Claim[0];
             foreach (var required in _claims)
             {
                 var hasClaim = claims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
