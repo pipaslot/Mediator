@@ -31,5 +31,10 @@ namespace Pipaslot.Mediator.Notifications
                 NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(ordered));
             }
         }
+
+        internal void SendNotifications(params Notification[] notifications)
+        {
+            NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notifications));
+        }
     }
 }

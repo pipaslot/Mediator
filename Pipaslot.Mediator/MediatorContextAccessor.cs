@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,12 @@ namespace Pipaslot.Mediator
     internal class MediatorContextAccessor : IMediatorContextAccessor, INotificationProvider
     {
         private static AsyncLocal<Stack<MediatorContext>> _asyncLocal = new();
+        private readonly IServiceProvider _serviceProvider;
+
+        public MediatorContextAccessor(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         public MediatorContext? MediatorContext
         {
@@ -31,7 +38,20 @@ namespace Pipaslot.Mediator
 
         public void Add(Notification notification)
         {
-            MediatorContext?.AddResult(notification);
+            var context = MediatorContext;
+            if(context != null)
+            {
+                context.AddResult(notification);
+            }
+            else
+            {
+                var messageReceiver = _serviceProvider.GetService<NotificationReceiverMiddleware>();
+                if(messageReceiver != null)
+                {
+                    messageReceiver.SendNotifications(notification);
+                }
+            }
+            
         }
     }
 }
