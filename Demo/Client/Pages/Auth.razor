@@ -1,19 +1,43 @@
 ﻿@page "/auth"
 @using Demo.Shared.Auth
+@using Pipaslot.Mediator.Notifications
 @inject AuthService AuthService
+@inject INotificationProvider Notifications
 
 <AuthorizeView>
     <NotAuthorized>
         <button class="btn btn-primary btn-sm" @onclick="Login">Login</button>
     </NotAuthorized>
     <Authorized>
-        <strong>Hello, @context.User.Identity?.Name!</strong>
         <button class="btn btn-primary btn-sm" @onclick="Logout">Logout</button>
     </Authorized>
 </AuthorizeView>
+<hr />
+
+<h5>Action with conditional authorization</h5>
+
+<EditForm Model="@_model" OnValidSubmit="@Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            <InputCheckbox @bind-Value="_model.RunAsAdmin" /> Run as admin
+        </label>
+    </div>
+    <div>
+        <label>
+            Required role name:
+            <InputText @bind-Value="_model.RequiredRole" />
+        </label>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</EditForm>
 
 
 @code {
+    private ConditionalAuthenticationMessage _model = new();
     private async Task Login()
     {
         await AuthService.SignIn("Demo", "haha");
@@ -21,6 +45,14 @@
     private async Task Logout()
     {
         await AuthService.SignOut();
+    }
+    private async Task Submit()
+    {
+        var result = await Mediator.Dispatch(_model);
+        if (result.Success)
+        {
+            Notifications.AddSuccess("Validation passed");
+        }
     }
 
 }
