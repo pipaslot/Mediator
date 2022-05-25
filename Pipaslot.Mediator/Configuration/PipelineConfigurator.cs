@@ -70,7 +70,7 @@ namespace Pipaslot.Mediator.Configuration
                     throw MediatorException.CreateForNoHandlerType(handlerType);
                 }
             }
-            return RegisterHandlers(handlerTypes, serviceLifetime);
+            return RegisterHandlers(handlers, serviceLifetime);
         }
 
         public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
