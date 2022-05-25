@@ -19,14 +19,20 @@ jobs:
         with:
             dotnet-version: '6.0.x'
     
-      - name: Run tests
+      - name: Run tests for Core
         run: |
           cd ./tests/Pipaslot.Mediator.Tests/
+          dotnet test
+    
+      - name: Run tests for HTTP
+        run: |
+          cd ./tests/Pipaslot.Mediator.Http.Tests/
           dotnet test
       
       # Publish
       - name: publish Pipaslot.Mediator
         id: publish_nuget_core
+        continue-on-error: true
         uses: brandedoutcast/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator/Pipaslot.Mediator.csproj          
