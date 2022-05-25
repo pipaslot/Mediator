@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -95,12 +96,17 @@ namespace Pipaslot.Mediator.Tests
                 _types = types;
             }
 
-            public Type[] GetMessageActionTypes()
+            public ICollection<Type> GetActionTypes()
+            {
+                return _types;
+            }
+
+            public ICollection<Type> GetMessageActionTypes()
             {
                 return MediatorConfigurator.FilterAssignableToMessage(_types);
             }
 
-            public Type[] GetRequestActionTypes()
+            public ICollection<Type> GetRequestActionTypes()
             {
                 return MediatorConfigurator.FilterAssignableToRequest(_types);
             }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Configuration
 {
     public interface IActionTypeProvider
     {
-        Type[] GetMessageActionTypes();
-        Type[] GetRequestActionTypes();
+        ICollection<Type> GetActionTypes();
+        ICollection<Type> GetMessageActionTypes();
+        ICollection<Type> GetRequestActionTypes();
     }
 }
