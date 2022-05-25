@@ -32,10 +32,10 @@ jobs:
       # Publish      
 
       - name: Pack Core
-        run: dotnet pack Pipaslot.Mediator/Pipaslot.Mediator.csproj -c Release
+        run: dotnet pack Pipaslot.Mediator/Pipaslot.Mediator.csproj -c Release -o ./packed/
 
       - name: Pack Http
-        run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release
+        run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release -o ./packed/
 
       - name: Publish
-        run: dotnet nuget push *.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./packed/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
