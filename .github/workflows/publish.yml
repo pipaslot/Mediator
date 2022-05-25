@@ -27,7 +27,7 @@ jobs:
       # Publish
       - name: publish Pipaslot.Mediator
         id: publish_nuget_core
-        uses: rohith/publish-nuget@v2
+        uses: brandedoutcast/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator/Pipaslot.Mediator.csproj          
           PACKAGE_NAME: Pipaslot.Mediator
@@ -35,7 +35,7 @@ jobs:
 
       - name: publish Pipaslot.Mediator.Http
         id: publish_nuget_http
-        uses: rohith/publish-nuget@v2
+        uses: brandedoutcast/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj          
           PACKAGE_NAME: Pipaslot.Mediator.Http
