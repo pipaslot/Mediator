@@ -29,20 +29,13 @@ jobs:
           cd ./tests/Pipaslot.Mediator.Http.Tests/
           dotnet test
       
-      # Publish
-      - name: publish Pipaslot.Mediator
-        id: publish_nuget_core
-        continue-on-error: true
-        uses: brandedoutcast/publish-nuget@v2
-        with:
-          PROJECT_FILE_PATH: Pipaslot.Mediator/Pipaslot.Mediator.csproj          
-          PACKAGE_NAME: Pipaslot.Mediator
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+      # Publish      
 
-      - name: publish Pipaslot.Mediator.Http
-        id: publish_nuget_http
-        uses: brandedoutcast/publish-nuget@v2
-        with:
-          PROJECT_FILE_PATH: Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj          
-          PACKAGE_NAME: Pipaslot.Mediator.Http
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}} 
+      - name: Pack Core
+        run: dotnet pack Pipaslot.Mediator/Pipaslot.Mediator.csproj -c Release
+
+      - name: Pack Http
+        run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release
+
+      - name: Publish
+        run: dotnet nuget push *.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
