@@ -37,10 +37,7 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         private Type[] GetActionResultTypes()
         {
-            var requestInterface = typeof(IMediatorActionProvidingData);
-            return _configurator.ActionMarkerAssemblies
-                .SelectMany(a => a.GetTypes())
-                .Where(t => requestInterface.IsAssignableFrom(t))
+            return _configurator.GetRequestActionTypes()
                 .Select(t => RequestGenericHelpers.GetRequestResultType(t))
                 .ToArray();
         }

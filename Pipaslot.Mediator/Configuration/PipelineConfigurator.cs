@@ -10,11 +10,27 @@ namespace Pipaslot.Mediator.Configuration
     public class PipelineConfigurator : IMediatorConfigurator, IActionTypeProvider
     {
         internal readonly IServiceCollection Services;
-        public List<Assembly> ActionMarkerAssemblies { get; } = new List<Assembly>();
+        public HashSet<Assembly> TrustedAssemblies { get; set; } = new HashSet<Assembly>();
+        private List<Type> _actionMarkerTypes { get; } = new();
 
         public PipelineConfigurator(IServiceCollection services)
         {
             Services = services;
+        }
+
+        public IMediatorConfigurator AddActions(IEnumerable<Type> actionTypes)
+        {
+            var mediatorActionType = typeof(IMediatorAction);
+            foreach (var actionType in actionTypes)
+            {
+                if (!mediatorActionType.IsAssignableFrom(actionType))
+                {
+                    throw MediatorException.CreateForNoActionType(actionType);
+                }
+            }
+            _actionMarkerTypes.AddRange(actionTypes);
+            TrustedAssemblies.UnionWith(actionTypes.Select(t => t.Assembly));
+            return this;
         }
 
         public IMediatorConfigurator AddActionsFromAssemblyOf<T>()
@@ -24,8 +40,37 @@ namespace Pipaslot.Mediator.Configuration
 
         public IMediatorConfigurator AddActionsFromAssembly(params Assembly[] assemblies)
         {
-            ActionMarkerAssemblies.AddRange(assemblies);
+            var type = typeof(IMediatorAction);
+            var actionTypes = assemblies
+                .SelectMany(s => s.GetTypes())
+                .Where(p => p.IsClass
+                            && !p.IsAbstract
+                            && !p.IsInterface
+                            && p.GetInterfaces().Any(i => i == type)
+                 )
+                .ToArray();
+            _actionMarkerTypes.AddRange(actionTypes);
+            TrustedAssemblies.UnionWith(assemblies);
             return this;
+        }
+
+        public IMediatorConfigurator AddHandlers(IEnumerable<Type> handlers, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        {
+            var handlerTypes = new[]
+            {
+                typeof(IMediatorHandler<,>),
+                typeof(IMediatorHandler<>)
+            };
+            foreach (var handlerType in handlers)
+            {
+                var isHandler = handlerType.GetInterfaces()
+                    .Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()));
+                if (!isHandler)
+                {
+                    throw MediatorException.CreateForNoHandlerType(handlerType);
+                }
+            }
+            return RegisterHandlers(handlerTypes, serviceLifetime);
         }
 
         public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
@@ -40,13 +85,17 @@ namespace Pipaslot.Mediator.Configuration
 
         private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
+            return RegisterHandlers(assemblies.SelectMany(a => a.GetTypes()), serviceLifetime);
+        }
+
+        private IMediatorConfigurator RegisterHandlers(IEnumerable<Type> handlers, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        {
             var handlerTypes = new[]
             {
                 typeof(IMediatorHandler<,>),
                 typeof(IMediatorHandler<>)
             };
-            var types = assemblies
-                .SelectMany(a => a.GetTypes())
+            var types = handlers
                 .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
                 .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
                 .Select(t => new
@@ -65,6 +114,7 @@ namespace Pipaslot.Mediator.Configuration
             }
             return this;
         }
+
         public IConditionalPipelineConfigurator AddPipeline<TActionMarker>()
         {
             var markerType = typeof(TActionMarker);
@@ -115,16 +165,19 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public Type[] GetMessageActionTypes()
+        public ICollection<Type> GetActionTypes()
         {
-            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
-            return FilterAssignableToMessage(types);
+            return _actionMarkerTypes;
         }
 
-        public Type[] GetRequestActionTypes()
+        public ICollection<Type> GetMessageActionTypes()
         {
-            var types = ActionMarkerAssemblies.SelectMany(s => s.GetTypes());
-            return FilterAssignableToRequest(types);
+            return FilterAssignableToMessage(_actionMarkerTypes);
+        }
+
+        public ICollection<Type> GetRequestActionTypes()
+        {
+            return FilterAssignableToRequest(_actionMarkerTypes);
         }
 
         internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)

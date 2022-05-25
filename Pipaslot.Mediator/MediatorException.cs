@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using System;
 
 namespace Pipaslot.Mediator
@@ -35,6 +36,16 @@ namespace Pipaslot.Mediator
             }
 
             return ex;
+        }
+
+        public static MediatorException CreateForNoActionType(Type type)
+        {
+            return new MediatorException($"Type {type} does not implements {nameof(IMediatorAction)} interface");
+        }
+
+        public static MediatorException CreateForNoHandlerType(Type type)
+        {
+            return new MediatorException($"Type {type} does not implements {nameof(IMediatorHandler<IMediatorAction>)} interface");
         }
 
     }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration
@@ -9,6 +11,11 @@ namespace Pipaslot.Mediator.Configuration
     public interface IMediatorConfigurator : IPipelineRegistrator
     {
         /// <summary>
+        /// Register action handler types
+        /// </summary>
+        IMediatorConfigurator AddHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+
+        /// <summary>
         /// Scan assemblies for action handler types
         /// </summary>
         IMediatorConfigurator AddHandlersFromAssembly(params Assembly[] assemblies);
@@ -18,6 +25,11 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
         IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+
+        /// <summary>
+        /// Register action types
+        /// </summary>
+        IMediatorConfigurator AddActions(IEnumerable<Type> actionTypes);
 
         /// <summary>
         /// Will scan for action markers from the passed assemblies and register them.
