@@ -43,6 +43,16 @@ namespace Pipaslot.Mediator
             return ex;
         }
 
+        public static MediatorException CreateForNoActionType(Type type)
+        {
+            return new MediatorException($"Type {type} does not implements {nameof(IMediatorAction)} interface");
+        }
+
+        public static MediatorException CreateForNoHandlerType(Type type)
+        {
+            return new MediatorException($"Type {type} does not implements {nameof(IMediatorHandler<IMediatorAction>)} interface");
+        }
+
         public static MediatorException TooManyPipelines(IMediatorAction action)
         {
             var ex = new MediatorException($"Too many pipelines met the condition for action execution. Please check your mediator configuration.");
