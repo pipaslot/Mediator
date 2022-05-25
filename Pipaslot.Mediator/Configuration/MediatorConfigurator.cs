@@ -74,7 +74,7 @@ namespace Pipaslot.Mediator.Configuration
                     throw MediatorException.CreateForNoHandlerType(handlerType);
                 }
             }
-            Services.RegisterHandlers(handlerTypes, serviceLifetime);
+            Services.RegisterHandlers(handlers, serviceLifetime);
             return this;
         }
 
