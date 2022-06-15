@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace Pipaslot.Mediator.Tests
     {
         public static IMediator CreateMediator()
         {
-            return CreateMediator(c => { });
+            return CreateMediator(c => {});
         }
 
         public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
