@@ -50,6 +50,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
             catch (Exception e)
             {
+                context.Status = ExecutionStatus.Failed;
                 return await ProcessRuntimeError<TResult>(context, e);
             }
             IMediatorResponse<TResult> result;
@@ -57,9 +58,12 @@ namespace Pipaslot.Mediator.Http.Middlewares
             {
                 var serializedResult = await response.Content.ReadAsStringAsync();
                 result = _serializer.DeserializeResponse<TResult>(serializedResult);
+
+                context.Status = result.Success ? ExecutionStatus.Succeeded : ExecutionStatus.Failed;
             }
             catch (Exception e)
             {
+                context.Status = ExecutionStatus.Failed;
                 return await ProcessParsingError<TResult>(context, response, e);
             }
             return await ProcessSuccessfullResult(context, response, result);

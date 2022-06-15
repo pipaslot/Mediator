@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +13,13 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public Guid Guid { get; } = Guid.NewGuid();
 
+        public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
+        [Obsolete]
         private List<string> _errorMessages = new List<string>();
         /// <summary>
         /// Handler error message and error messages colelcted during middleware processing
         /// </summary>
+        [Obsolete("Will be replaced by Notifications. For error detection use Status property")]
         public IReadOnlyCollection<string> ErrorMessages => _errorMessages;
 
         private List<object> _results = new List<object>(1);
@@ -102,7 +104,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public bool HasError()
         {
-            return ErrorMessages.Any();
+            return Status != ExecutionStatus.Succeeded;
         }
 
         /// <summary>
@@ -123,6 +125,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="message"></param>
         public void AddError(string message)
         {
+            Status = ExecutionStatus.Failed;
             if (!_errorMessages.Contains(message))
             {
                 _errorMessages.Add(message);

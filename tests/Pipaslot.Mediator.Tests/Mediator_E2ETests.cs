@@ -42,6 +42,16 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Fact]
+        public async Task Execute_FailingHandlerWithMiddlewareCatchingAllExceptions_SuccessAsFalse()
+        {
+            var sut = Factory.CreateMediator(c => {
+                c.Use<ExceptionConsumingMiddleware>();
+            });
+            var result = await sut.Execute(new SingleHandler.Request(false));
+            Assert.False(result.Success);
+        }
+
+        [Fact]
         public async Task Execute_FailingHandler_NotEmptyErrorMessage()
         {
             var sut = Factory.CreateMediator();
@@ -113,6 +123,16 @@ namespace Pipaslot.Mediator.Tests
         public async Task Dispatch_FailingHandler_SuccessAsFalse()
         {
             var sut = Factory.CreateMediator();
+            var result = await sut.Dispatch(new SingleHandler.Message(false));
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public async Task Dispatch_FailingHandlerWithMiddlewareCatchingAllExceptions_SuccessAsFalse()
+        {
+            var sut = Factory.CreateMediator(c => {
+                c.Use<ExceptionConsumingMiddleware>();
+            });
             var result = await sut.Dispatch(new SingleHandler.Message(false));
             Assert.False(result.Success);
         }
