@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -69,7 +70,7 @@ namespace Pipaslot.Mediator.Authorization
 
         public Task<IEnumerable<Rule>> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var principal = ClaimsPrincipal.Current;
+            var principal = ClaimsPrincipal.Current; //?? services.GetService<IHttpContextAccessor>()?.H;
             var isAuthenticated = _anonymous || (principal?.Identity?.IsAuthenticated ?? false);
             var shouldBeAuthenticated = !_anonymous;
             var result = new List<Rule>();

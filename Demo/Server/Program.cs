@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -21,6 +23,8 @@ var authSection = builder.Configuration.GetSection("Auth");
 services.Configure<LoginRequestHandler.AuthOptions>(authSection);
 var authOptions = new LoginRequestHandler.AuthOptions();
 authSection.Bind(authOptions);
+//Configure JWT claim binding to Identity claims 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap["role"] = ClaimTypes.Role;
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -34,6 +38,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidIssuer = authOptions.Issuer,
                 ValidAudience = authOptions.Audience,
                 IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey),
+                
             };
     });
 

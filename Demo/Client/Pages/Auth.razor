@@ -9,7 +9,7 @@
         <button class="btn btn-primary btn-sm" @onclick="Login">Login</button>
     </NotAuthorized>
     <Authorized>
-        <button class="btn btn-primary btn-sm" @onclick="Logout">Logout</button>
+        <button class="btn btn-primary btn-sm" @onclick="Logout">Logout</button> Your role is: visitor
     </Authorized>
 </AuthorizeView>
 <hr />
@@ -21,7 +21,7 @@
     <ValidationSummary />
     <div>
         <label>
-            <InputCheckbox @bind-Value="_model.RunAsAdmin" /> Run as admin
+            <InputCheckbox @bind-Value="_model.RequireAuthentication" /> Require authenticated user
         </label>
     </div>
     <div>

@@ -24,7 +24,8 @@ namespace Demo.Server.Handlers.Auth
             var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, action.Login),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("role", "visitor")
                 };
 
             var jwtToken = new JwtSecurityToken(

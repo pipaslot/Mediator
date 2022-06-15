@@ -8,7 +8,7 @@ namespace Demo.Server.Handlers.Auth
     {
         public IPolicy Authorize(ConditionalAuthenticationMessage action)
         {
-            var policy = action.RunAsAdmin
+            var policy = action.RequireAuthentication
                 ? IdentityPolicy.Authenticated()
                 : IdentityPolicy.Anonymous();
             if (!string.IsNullOrWhiteSpace(action.RequiredRole))
