@@ -70,7 +70,7 @@ namespace Pipaslot.Mediator.Authorization
 
         public Task<IEnumerable<Rule>> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var principal = ClaimsPrincipal.Current; //?? services.GetService<IHttpContextAccessor>()?.H;
+            var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
             var isAuthenticated = _anonymous || (principal?.Identity?.IsAuthenticated ?? false);
             var shouldBeAuthenticated = !_anonymous;
             var result = new List<Rule>();

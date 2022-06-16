@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
@@ -58,7 +59,7 @@ namespace Pipaslot.Mediator.Http
             {
                 services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
             }
-            if(options.SerializerType == SerializerType.V3)
+            if (options.SerializerType == SerializerType.V3)
             {
                 services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
             }
@@ -93,6 +94,7 @@ namespace Pipaslot.Mediator.Http
             var options = new ServerMediatorOptions();
             configure(options);
             services.AddSingleton(options);
+            services.AddSingleton<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
             if (options.DeserializeOnlyCredibleActionTypes)
             {
                 services.AddSingleton<ICredibleProvider>(s =>
