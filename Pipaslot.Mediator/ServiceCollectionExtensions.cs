@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
@@ -36,6 +37,7 @@ namespace Pipaslot.Mediator
             services.AddSingleton<IActionTypeProvider>(configurator);
             services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
+            services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
 
             return configurator;
         }

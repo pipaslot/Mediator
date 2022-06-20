@@ -5,6 +5,7 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
+using System.Linq;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -94,7 +95,6 @@ namespace Pipaslot.Mediator.Http
             var options = new ServerMediatorOptions();
             configure(options);
             services.AddSingleton(options);
-            services.AddSingleton<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
             if (options.DeserializeOnlyCredibleActionTypes)
             {
                 services.AddSingleton<ICredibleProvider>(s =>
@@ -117,7 +117,15 @@ namespace Pipaslot.Mediator.Http
                 services.AddSingleton<IContractSerializer, Serialization.V2.FullJsonContractSerializer>();
             }
 
-            return services.AddMediator();
+            var config = services.AddMediator();
+
+            var existingClaimPrincipalAccessors = services.Where(s => s.ImplementationType == typeof(IClaimPrincipalAccessor));
+            foreach (var existingClaimPrincipalAccessor in existingClaimPrincipalAccessors)
+            {
+                services.Remove(existingClaimPrincipalAccessor);
+            }
+            services.AddSingleton<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
+            return config;
         }
     }
 }
