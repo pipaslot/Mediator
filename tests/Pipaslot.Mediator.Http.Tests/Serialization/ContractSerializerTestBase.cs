@@ -326,7 +326,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             public string Name { get; init; } = "";
             public int Number { get; init; }
             public string[] Collection { get; init; } = new string[0];
-            public Nested Nested { get; init; }
+            public Nested Nested { get; init; } = new();
         }
 
         public record PositionalRecordContract(string Name, int Number, string[] Collection, Nested Nested) : IMessage, IContract;

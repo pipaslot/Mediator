@@ -200,7 +200,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
             public override Stream Body { get; set; }
             public override long? ContentLength { get; set; }
-            public override string ContentType { get; set; }
+            public override string ContentType { get; set; } = string.Empty;
 
             public override IResponseCookies Cookies => throw new NotImplementedException();
 
