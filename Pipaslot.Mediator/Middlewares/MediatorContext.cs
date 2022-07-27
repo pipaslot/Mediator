@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,6 @@ namespace Pipaslot.Mediator.Middlewares
         public Guid Guid { get; } = Guid.NewGuid();
 
         public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
-        [Obsolete]
-        private List<string> _errorMessages = new List<string>();
-        /// <summary>
-        /// Handler error message and error messages colelcted during middleware processing
-        /// </summary>
-        [Obsolete("Will be replaced by Notifications. For error detection use Status property")]
-        public IReadOnlyCollection<string> ErrorMessages => _errorMessages;
 
         private List<object> _results = new List<object>(1);
         /// <summary>
@@ -89,7 +83,6 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="context"></param>
         public void Append(MediatorContext context)
         {
-            AddErrors(context.ErrorMessages);
             AddResults(context.Results);
         }
 
@@ -99,7 +92,6 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="response"></param>
         public void Append(IMediatorResponse response)
         {
-            AddErrors(response.ErrorMessages);
             AddResults(response.Results);
         }
 
@@ -127,9 +119,19 @@ namespace Pipaslot.Mediator.Middlewares
         public void AddError(string message)
         {
             Status = ExecutionStatus.Failed;
-            if (!_errorMessages.Contains(message))
+            var notification = Notification.Error(message, Action);
+            var contains = false;
+            foreach(var result in Results)
             {
-                _errorMessages.Add(message);
+                if(result is Notification n && n.Equals(notification))
+                {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains)
+            {
+                _results.Add(notification);
             }
         }
 

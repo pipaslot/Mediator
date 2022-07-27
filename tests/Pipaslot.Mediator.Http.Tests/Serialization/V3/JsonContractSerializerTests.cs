@@ -32,12 +32,12 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         [Fact]
         public void SerializeResponse_InterfaceCollection_SerializeAsSpecificType()
         {
-            var expected = @"{""Success"":true,""ErrorMessages"":[],""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
+            var expected = @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
             var contract = new Contract
             {
                 Name = "Contract name"
             };
-            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -138,7 +138,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Contract = contract
             };
-            var response = new MediatorResponse(true, new object[] { action }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { action });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -161,7 +161,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Contracts = new IContract[] { contract }
             };
-            var response = new MediatorResponse(true, new object[] { action }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { action });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -180,7 +180,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Name = "Contract name"
             };
-            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);

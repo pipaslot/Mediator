@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Notifications;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator
@@ -8,8 +10,11 @@ namespace Pipaslot.Mediator
         public MediatorResponse(string errorMessage) : base(errorMessage)
         {
         }
+        public MediatorResponse(string errorMessage, IMediatorAction action) : base(errorMessage, action)
+        {
+        }
 
-        public MediatorResponse(bool success, IEnumerable<object> results, IEnumerable<string> errorMessages) : base(success, results, errorMessages)
+        public MediatorResponse(bool success, IEnumerable<object> results) : base(success, results)
         {
         }
 
@@ -20,27 +25,30 @@ namespace Pipaslot.Mediator
     {
         public MediatorResponse(string errorMessage)
         {
-            ErrorMessages.Add(errorMessage);
             Success = false;
+            Results.Add(Notification.Error(errorMessage));
         }
-        public MediatorResponse(bool success, IEnumerable<object> results, IEnumerable<string> errorMessages)
+
+        public MediatorResponse(string errorMessage, IMediatorAction action)
         {
-            Results.AddRange(results);
-            ErrorMessages.AddRange(errorMessages);
+            Success = false;
+            Results.Add(Notification.Error(errorMessage, action));
+        }
+
+        public MediatorResponse(bool success, IEnumerable<object> results)
+        {
             Success = success;
+            Results.AddRange(results);
         }
 
         public bool Success { get; }
         public bool Failure => !Success;
 
-        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
-        public string ErrorMessage => string.Join(";", ErrorMessages);
-        public List<string> ErrorMessages { get; } = new List<string>();
-        string[] IMediatorResponse.ErrorMessages => ErrorMessages.ToArray();
+        public string ErrorMessage => this.GetErrorMessage();
+        public string[] ErrorMessages => this.GetErrorMessages().ToArray();
 
         public object? Result => Results.FirstOrDefault();
         public List<object> Results { get; } = new List<object>(1);
         object[] IMediatorResponse.Results => Results.ToArray();
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Notifications
@@ -30,6 +31,21 @@ namespace Pipaslot.Mediator.Notifications
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Content);
             hashCode = hashCode * -1521134295 + Type.GetHashCode();
             return hashCode;
+        }
+
+        internal static Notification Error(string content, IMediatorAction action)
+        {
+            return Error(content, action?.GetType()?.ToString() ?? "");
+        }
+
+        public static Notification Error(string content, string source = "")
+        {
+            return new Notification
+            {
+                Type = NotificationType.Error,
+                Content = content,
+                Source = source
+            };
         }
     }
 }

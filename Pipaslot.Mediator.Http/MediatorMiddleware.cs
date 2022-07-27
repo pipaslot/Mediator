@@ -101,7 +101,7 @@ namespace Pipaslot.Mediator.Http
             catch (Exception e)
             {
                 // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
-                return new MediatorResponse(e.Message);
+                return new MediatorResponse(e.Message, message);
             }
         }
 

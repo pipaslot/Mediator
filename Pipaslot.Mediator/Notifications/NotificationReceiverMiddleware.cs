@@ -12,23 +12,15 @@ namespace Pipaslot.Mediator.Notifications
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             await next(context);
-            var errors = context.ErrorMessages
-                .Select(message => new Notification
-                {
-                    Source = context.Action?.GetType()?.ToString() ?? "",
-                    Content = message,
-                    Type = NotificationType.ActionError
-                })
-                .ToArray();
 
             var notifications = context.Results
                 .Where(r => r is Notification)
                 .Cast<Notification>()
+                .OrderBy(m => m.Time)
                 .ToArray();
-            var ordered = errors.Concat(notifications).OrderBy(m => m.Time).ToArray();
-            if (ordered.Any())
+            if (notifications.Any())
             {
-                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(ordered));
+                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notifications));
             }
         }
     }

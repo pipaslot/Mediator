@@ -37,12 +37,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V2.Converters
                         case nameof(ResponseDeserialized.Success):
                             success = reader.GetBoolean();
                             break;
-                        case nameof(ResponseDeserialized.ErrorMessages):
-                            using (var jsonDoc = JsonDocument.ParseValue(ref reader))
-                            {
-                                errorMessages = JsonSerializer.Deserialize<string[]>(jsonDoc.RootElement.GetRawText()) ?? new string[0];
-                            }
-                            break;
                         case nameof(ResponseDeserialized.Results):
                             results = ReadResults(ref reader);
                             break;
@@ -52,7 +46,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V2.Converters
             return new ResponseDeserialized
             {
                 Success = success,
-                ErrorMessages = errorMessages,
                 Results = results
             };
         }

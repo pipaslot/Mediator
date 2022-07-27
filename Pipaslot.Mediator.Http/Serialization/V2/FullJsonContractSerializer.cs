@@ -69,7 +69,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V2
         {
             var obj = new ResponseSerializable
             {
-                ErrorMessages = response.ErrorMessages.ToArray(),
                 Results = response.Results
                     .Select(request => new ContractSerializable(request, ContractSerializerTypeHelper.GetIdentifier(request.GetType())))
                     .ToArray(),
@@ -90,7 +89,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V2
                         return new ResponseDeserialized<TResult>
                         {
                             Success = serializedResult.Success,
-                            ErrorMessages = serializedResult.ErrorMessages,
                             Results = serializedResult.Results
                         };
                     }

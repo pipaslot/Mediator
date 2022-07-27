@@ -67,7 +67,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
                     var serializedResult = JsonSerializer.Deserialize<IMediatorResponse>(response, _serializationOptions);
                     if (serializedResult != null)
                     {
-                        return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results, serializedResult.ErrorMessages);
+                        return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results);
                     }
                 }
                 catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)

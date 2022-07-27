@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
         private async Task ExecuteRequest(HttpRequest request)
         {
-            var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, new object[0], new string[0]));
+            var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, new object[0]));
             var mediatorMock = new Mock<IMediator>();
             mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
@@ -66,7 +66,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
         private async Task ExecuteMessage(HttpRequest request)
         {
-            var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, new object[0], new string[0]));
+            var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, new object[0]));
             var mediatorMock = new Mock<IMediator>();
             mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
