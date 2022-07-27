@@ -47,6 +47,10 @@ namespace Pipaslot.Mediator.Http.Middlewares
                 var json = _serializer.SerializeRequest(context.Action);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
                 response = await _httpClient.PostAsync(url, content, context.CancellationToken);
+                // We do not check for successfull status code.
+                // It is completelly up to server configuration what status code will be sent when action processing failed on server.
+                // We just expect that server will return JSON in Mediator response format
+                // Use ProcessParsingError for handling custom server responses and status codes 
             }
             catch (Exception e)
             {
@@ -76,11 +80,19 @@ namespace Pipaslot.Mediator.Http.Middlewares
                 : CreateErrorResponse<TResult>($"No data received for action {context.ActionIdentifier}");
         }
 
+        /// <summary>
+        /// Error ocurred due to unexpected server response. Expected was JSON response with MediatorResponse structure.
+        /// </summary>
         protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorContext context, HttpResponseMessage response, Exception exception)
         {
             return CreateErrorResponse<TResult>($"Can not deserialize response for action {context.ActionIdentifier}. ERROR: {exception.Message}, STATUS CODE: {(int)response.StatusCode} ({response.StatusCode})", exception);
         }
 
+        /// <summary>
+        /// Unexpected exception thrown during request sending. 
+        /// Client was not able to receive response. 
+        /// Can be caused by DNS issue, server timeout, network connection issue.
+        /// </summary>
         protected virtual Task<IMediatorResponse<TResult>> ProcessRuntimeError<TResult>(MediatorContext context, Exception exception)
         {
             return CreateErrorResponse<TResult>($"Error occured when executed action {context.ActionIdentifier}. ERROR: {exception.Message}", exception);
