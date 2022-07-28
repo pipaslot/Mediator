@@ -118,21 +118,8 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="message"></param>
         public void AddError(string message)
         {
-            Status = ExecutionStatus.Failed;
             var notification = Notification.Error(message, Action);
-            var contains = false;
-            foreach(var result in Results)
-            {
-                if(result is Notification n && n.Equals(notification))
-                {
-                    contains = true;
-                    break;
-                }
-            }
-            if (!contains)
-            {
-                _results.Add(notification);
-            }
+            AddResult(notification);
         }
 
         /// <summary>
@@ -141,7 +128,10 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResults(IEnumerable<object> result)
         {
-            _results.AddRange(result);
+            foreach(var res in result)
+            {
+                AddResult(res);
+            }
         }
 
         /// <summary>
@@ -150,7 +140,33 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResult(object result)
         {
-            _results.Add(result);
+            if (result is Notification notification)
+            {
+                if (notification.Type.IsError())
+                {
+                    Status = ExecutionStatus.Failed;
+                }
+                if (!ContainsNotification(notification))
+                {
+                    _results.Add(notification);
+                }
+            }
+            else
+            {
+                _results.Add(result);
+            }
+        }
+
+        private bool ContainsNotification(Notification notification)
+        {
+            foreach (var res in Results)
+            {
+                if (res is Notification n && n.Equals(notification))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

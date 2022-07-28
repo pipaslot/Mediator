@@ -48,7 +48,7 @@ namespace Pipaslot.Mediator
         public static IEnumerable<string> GetErrorMessages(this IMediatorResponse response)
         {
             return response.GetNotifications()
-                .Where(n => n.Type == NotificationType.ActionError || n.Type == NotificationType.Error)
+                .Where(n => n.Type.IsError())
                 .Select(n => n.Content);
         }
 

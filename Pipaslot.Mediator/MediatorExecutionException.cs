@@ -33,7 +33,7 @@ namespace Pipaslot.Mediator
             var errors = results
                     .Where(r => r is Notification)
                     .Cast<Notification>()
-                    .Where(n => n.Type == NotificationType.ActionError || n.Type == NotificationType.Error)
+                    .Where(n => n.Type.IsError())
                     .Select(n => n.Content);
             return string.Join("; ", errors);
         }
