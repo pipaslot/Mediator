@@ -38,23 +38,44 @@ namespace Pipaslot.Mediator
 
     public static class MediatorResponseExtensions
     {
-        public static IEnumerable<Notification> GetNotifications(this IMediatorResponse response)
+        internal static IEnumerable<Notification> GetNotifications(this ICollection<object> results)
         {
-            return response.Results
+            return results
                 .Where(r => r is Notification)
                 .Cast<Notification>();
         }
 
+        internal static IEnumerable<string> GetErrorMessages(this IEnumerable<Notification> notifications)
+        {
+            return notifications
+               .Where(n => n.Type.IsError())
+               .Select(n => n.Content);
+        }
+
+        public static string JoinErrorMessages(this IEnumerable<string> errors)
+        {
+            return string.Join(";", errors);
+        }
+
+        public static IEnumerable<Notification> GetNotifications(this IMediatorResponse response)
+        {
+            return response.Results
+                .GetNotifications();
+        }
+
         public static IEnumerable<string> GetErrorMessages(this IMediatorResponse response)
         {
-            return response.GetNotifications()
-                .Where(n => n.Type.IsError())
-                .Select(n => n.Content);
+            return response.Results
+                .GetNotifications()
+                .GetErrorMessages();
         }
 
         public static string GetErrorMessage(this IMediatorResponse response)
         {
-            return string.Join(";", response.GetErrorMessages());
+            return response.Results
+                .GetNotifications()
+                .GetErrorMessages()
+                .JoinErrorMessages();
         }
     }
 }

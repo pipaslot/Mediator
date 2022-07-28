@@ -67,6 +67,10 @@ namespace Pipaslot.Mediator.Middlewares
             _handlers = handlers;
         }
 
+        public IEnumerable<string> ErrorMessages => _results
+                .GetNotifications()
+                .GetErrorMessages();
+
         /// <summary>
         /// Copy context without result data
         /// </summary>
