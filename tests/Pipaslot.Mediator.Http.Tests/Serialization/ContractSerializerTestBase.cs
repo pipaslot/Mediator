@@ -142,7 +142,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         private void RunResponseTest<TDto>(TDto seed, Func<TDto, bool> match)
         {
-            var response = new MediatorResponse(true, new object[] { seed! }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { seed! });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -156,7 +156,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         {
             var sut = CreateSerializer();
             var result = new Result();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, Array.Empty<string>()));
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
             var deserialized = sut.DeserializeResponse<IResult>(responseString);
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
@@ -198,7 +198,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         private void DeserializeCollection<T>(T result) where T : ICollection<Result>
         {
             var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, Array.Empty<string>()));
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
             var deserialized = sut.DeserializeResponse<T>(responseString);
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
             Assert.Equal(result.First().Index, deserialized.Result.First().Index);
@@ -261,7 +261,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             }
 
             var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }, new string[0]));
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
             sut.DeserializeResponse<Result>(responseString);
 
             CredibleProviderMock.VerifyAll();
@@ -326,7 +326,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             public string Name { get; init; } = "";
             public int Number { get; init; }
             public string[] Collection { get; init; } = new string[0];
-            public Nested Nested { get; init; }
+            public Nested Nested { get; init; } = new();
         }
 
         public record PositionalRecordContract(string Name, int Number, string[] Collection, Nested Nested) : IMessage, IContract;

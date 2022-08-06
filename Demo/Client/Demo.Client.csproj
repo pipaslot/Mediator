@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-	<Nullable>enable</Nullable>
-	<ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-	
-  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-	<RunAOTCompilation>true</RunAOTCompilation>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<PublishTrimmed>false</PublishTrimmed>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+		<RunAOTCompilation>true</RunAOTCompilation>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
@@ -17,9 +18,9 @@
 	<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj" />
-    <ProjectReference Include="..\Shared\Demo.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj" />
+		<ProjectReference Include="..\Shared\Demo.Shared.csproj" />
+	</ItemGroup>
 
 </Project>

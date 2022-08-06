@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,6 @@ namespace Pipaslot.Mediator.Middlewares
         public Guid Guid { get; } = Guid.NewGuid();
 
         public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
-        [Obsolete]
-        private List<string> _errorMessages = new List<string>();
-        /// <summary>
-        /// Handler error message and error messages colelcted during middleware processing
-        /// </summary>
-        [Obsolete("Will be replaced by Notifications. For error detection use Status property")]
-        public IReadOnlyCollection<string> ErrorMessages => _errorMessages;
 
         private List<object> _results = new List<object>(1);
         /// <summary>
@@ -72,6 +66,10 @@ namespace Pipaslot.Mediator.Middlewares
             _handlers = handlers;
         }
 
+        public IEnumerable<string> ErrorMessages => _results
+                .GetNotifications()
+                .GetErrorMessages();
+
         /// <summary>
         /// Copy context without result data
         /// </summary>
@@ -88,7 +86,6 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="context"></param>
         public void Append(MediatorContext context)
         {
-            AddErrors(context.ErrorMessages);
             AddResults(context.Results);
         }
 
@@ -98,7 +95,6 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="response"></param>
         public void Append(IMediatorResponse response)
         {
-            AddErrors(response.ErrorMessages);
             AddResults(response.Results);
         }
 
@@ -125,11 +121,8 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="message"></param>
         public void AddError(string message)
         {
-            Status = ExecutionStatus.Failed;
-            if (!_errorMessages.Contains(message))
-            {
-                _errorMessages.Add(message);
-            }
+            var notification = Notification.Error(message, Action);
+            AddResult(notification);
         }
 
         /// <summary>
@@ -138,7 +131,10 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResults(IEnumerable<object> result)
         {
-            _results.AddRange(result);
+            foreach(var res in result)
+            {
+                AddResult(res);
+            }
         }
 
         /// <summary>
@@ -147,7 +143,33 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="result"></param>
         public void AddResult(object result)
         {
-            _results.Add(result);
+            if (result is Notification notification)
+            {
+                if (notification.Type.IsError())
+                {
+                    Status = ExecutionStatus.Failed;
+                }
+                if (!ContainsNotification(notification))
+                {
+                    _results.Add(notification);
+                }
+            }
+            else
+            {
+                _results.Add(result);
+            }
+        }
+
+        private bool ContainsNotification(Notification notification)
+        {
+            foreach (var res in Results)
+            {
+                if (res is Notification n && n.Equals(notification))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

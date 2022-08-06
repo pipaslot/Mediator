@@ -36,19 +36,13 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                         case nameof(IMediatorResponse.Success):
                             success = reader.GetBoolean();
                             break;
-                        case nameof(IMediatorResponse.ErrorMessages):
-                            using (var jsonDoc = JsonDocument.ParseValue(ref reader))
-                            {
-                                errorMessages = JsonSerializer.Deserialize<string[]>(jsonDoc.RootElement.GetRawText()) ?? new string[0];
-                            }
-                            break;
                         case nameof(IMediatorResponse.Results):
                             results = ReadResults(ref reader, options);
                             break;
                     }
                 }
             }
-            return new MediatorResponse(success, results, errorMessages);
+            return new MediatorResponse(success, results);
         }
         private object[] ReadResults(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
@@ -136,14 +130,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
         {
             writer.WriteStartObject();
             writer.WriteBoolean(nameof(IMediatorResponse.Success), value.Success);
-
-            writer.WritePropertyName(nameof(IMediatorResponse.ErrorMessages));
-            writer.WriteStartArray();
-            foreach (var message in value.ErrorMessages)
-            {
-                writer.WriteStringValue(message);
-            }
-            writer.WriteEndArray();
 
             writer.WritePropertyName(nameof(IMediatorResponse.Results));
             writer.WriteStartArray();

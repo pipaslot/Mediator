@@ -32,12 +32,12 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         [Fact]
         public void SerializeResponse_InterfaceCollection_SerializeAsSpecificType()
         {
-            var expected = @"{""Success"":true,""ErrorMessages"":[],""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
+            var expected = @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
             var contract = new Contract
             {
                 Name = "Contract name"
             };
-            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             var serialized = sut.SerializeRequest(action);
             var deserialized = (MessageWithInterfaceCollectionProperty)sut.DeserializeRequest(serialized);
             Assert.NotNull(deserialized);
-            Assert.Equal(deserialized.Contracts.GetType(), typeof(IContract[]));
+            Assert.Equal(typeof(IContract[]), deserialized.Contracts.GetType());
             Assert.Equal(((Contract)deserialized.Contracts.First()).Name, contract.Name);
         }
 
@@ -138,7 +138,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Contract = contract
             };
-            var response = new MediatorResponse(true, new object[] { action }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { action });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -161,7 +161,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Contracts = new IContract[] { contract }
             };
-            var response = new MediatorResponse(true, new object[] { action }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { action });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -169,7 +169,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
             Assert.NotNull(deserialized);
             Assert.NotNull(deserialized.Result);
-            Assert.Equal(deserialized.Result.Contracts.GetType(), typeof(IContract[]));
+            Assert.Equal(typeof(IContract[]), deserialized.Result.Contracts.GetType());
             Assert.Equal(((Contract)deserialized.Result.Contracts.First()).Name, contract.Name);
         }
 
@@ -180,7 +180,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             {
                 Name = "Contract name"
             };
-            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } }, Array.Empty<string>());
+            var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
             var sut = CreateSerializer();
 
             var serialized = sut.SerializeResponse(response);
@@ -188,7 +188,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
             Assert.NotNull(deserialized);
             Assert.NotNull(deserialized.Result);
-            Assert.Equal(deserialized.Result.GetType(), typeof(IContract[]));
+            Assert.Equal(typeof(IContract[]), deserialized.Result.GetType());
             Assert.Equal(((Contract)deserialized.Result.First()).Name, contract.Name);
         }
 
@@ -248,12 +248,12 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
         public class MessageWithInterfaceProperty : IMessage
         {
-            public IContract Contract { get; set; }
+            public IContract Contract { get; set; } = null!;
         }
 
         public class MessageWithInterfaceCollectionProperty : IMessage
         {
-            public IContract[] Contracts { get; set; }
+            public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
         }
 
         public interface IContract
@@ -262,15 +262,15 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         }
         public class Contract : IContract
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = string.Empty;
         }
         public class MessageWithIMediatorActionProperty : IMessage
         {
-            public IMediatorAction SubAction { get; set; }
+            public IMediatorAction SubAction { get; set; } = null!;
         }
         public class ChildMediatorAction : IMessage
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = string.Empty;
         }
 
         protected override IContractSerializer CreateSerializer()

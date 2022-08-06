@@ -77,7 +77,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
         {
             return result != null
                 ? Task.FromResult(result)
-                : CreateErrorResponse<TResult>($"No data received for action {context.ActionIdentifier}");
+                : CreateErrorResponse<TResult>(context, $"No data received for action {context.ActionIdentifier}");
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
         /// </summary>
         protected virtual Task<IMediatorResponse<TResult>> ProcessParsingError<TResult>(MediatorContext context, HttpResponseMessage response, Exception exception)
         {
-            return CreateErrorResponse<TResult>($"Can not deserialize response for action {context.ActionIdentifier}. ERROR: {exception.Message}, STATUS CODE: {(int)response.StatusCode} ({response.StatusCode})", exception);
+            return CreateErrorResponse<TResult>(context, $"Can not deserialize response for action {context.ActionIdentifier}. ERROR: {exception.Message}, STATUS CODE: {(int)response.StatusCode} ({response.StatusCode})", exception);
         }
 
         /// <summary>
@@ -95,13 +95,13 @@ namespace Pipaslot.Mediator.Http.Middlewares
         /// </summary>
         protected virtual Task<IMediatorResponse<TResult>> ProcessRuntimeError<TResult>(MediatorContext context, Exception exception)
         {
-            return CreateErrorResponse<TResult>($"Error occured when executed action {context.ActionIdentifier}. ERROR: {exception.Message}", exception);
+            return CreateErrorResponse<TResult>(context, $"Error occured when executed action {context.ActionIdentifier}. ERROR: {exception.Message}", exception);
         }
 
-        private Task<IMediatorResponse<TResult>> CreateErrorResponse<TResult>(string errorMessage, Exception? e = null)
+        private Task<IMediatorResponse<TResult>> CreateErrorResponse<TResult>(MediatorContext context, string errorMessage, Exception? e = null)
         {
             _logger.LogError(e, errorMessage);
-            IMediatorResponse<TResult> result = new MediatorResponse<TResult>(errorMessage);
+            IMediatorResponse<TResult> result = new MediatorResponse<TResult>(errorMessage,context.Action);
             return Task.FromResult(result);
         }
     }

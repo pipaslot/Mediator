@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             var sut = CreateMediator();
             var result = await sut.Execute(new SingleHandler.Request(false));
-            Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.ErrorMessage);
+            Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             var sut = CreateMediator();
             var result = await sut.Dispatch(new SingleHandler.Message(false));
-            Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.ErrorMessage);
+            Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
         }
 
         [Fact]

@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Factory.CreateMediator();
             var result = await sut.Execute(new SingleHandler.Request(true));
-            Assert.Equal(string.Empty, result.ErrorMessage);
+            Assert.Equal(string.Empty, result.GetErrorMessage());
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Factory.CreateMediator();
             var result = await sut.Execute(new SingleHandler.Request(false));
-            Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.ErrorMessage);
+            Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Factory.CreateMediator();
             var result = await sut.Dispatch(new SingleHandler.Message(true));
-            Assert.Equal(string.Empty, result.ErrorMessage);
+            Assert.Equal(string.Empty, result.GetErrorMessage());
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Pipaslot.Mediator.Tests
         {
             var sut = Factory.CreateMediator();
             var result = await sut.Dispatch(new SingleHandler.Message(false));
-            Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.ErrorMessage);
+            Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
         }
 
         #endregion
