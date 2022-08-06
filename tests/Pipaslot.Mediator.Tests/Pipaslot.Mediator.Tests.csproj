@@ -27,5 +27,10 @@
     <ProjectReference Include="..\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj" />
     <ProjectReference Include="..\..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
   </ItemGroup>
+	
+	<ItemGroup>
+		<Using Include="Xunit"/>
+		<Using Include="Moq"/>
+	</ItemGroup>
 
 </Project>
