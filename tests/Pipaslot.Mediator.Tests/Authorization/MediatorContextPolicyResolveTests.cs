@@ -10,6 +10,10 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Authorization
 {
+    /// <summary>
+    /// This tests simulate already resolved combination of single action and one or more actions. 
+    /// To make the tests simple, there are not connections between handlers and action like real usage.
+    /// </summary>
     public class MediatorContextPolicyResolveTests
     {
         private Mock<IMediator> _mediator = new();
