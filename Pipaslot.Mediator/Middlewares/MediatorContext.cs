@@ -60,6 +60,7 @@ namespace Pipaslot.Mediator.Middlewares
         internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
         {
             Mediator = mediator;
+            _contextAccessor = contextAccessor;
             Services = serviceProvider;
             Action = action ?? throw new System.ArgumentNullException(nameof(action));
             CancellationToken = cancellationToken;
