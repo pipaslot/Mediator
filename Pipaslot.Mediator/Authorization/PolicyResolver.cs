@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Authorization
     {
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
-            var rules = await GetPolicyRules(services,action,handlers,cancellationToken);
+            var rules = await GetPolicyRules(services, action, handlers, cancellationToken);
             if (!rules.Any())
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
@@ -25,6 +25,11 @@ namespace Pipaslot.Mediator.Authorization
         public static async Task<ICollection<Rule>> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var policies = await GetPolicies(action, handlers, cancellationToken);
+            return await ConvertPoliciesToRules(policies, services, cancellationToken); ;
+        }
+
+        private static async Task<ICollection<Rule>> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
+        {
             var rules = new List<Rule>();
             foreach (var policy in policies)
             {
@@ -37,15 +42,31 @@ namespace Pipaslot.Mediator.Authorization
         public static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var result = new List<IPolicy>();
+            var actionPolicies = GetActionPolicies(action);
+            result.AddRange(actionPolicies);
+
+            var handlerPolicies = await GetHandlerPolicies(action, handlers, cancellationToken);
+            result.AddRange(handlerPolicies);
+
+            return result;
+        }
+
+        private static IEnumerable<IPolicy> GetActionPolicies(IMediatorAction action)
+        {
             if (action is IActionAuthorization aa)
             {
-                result.Add(aa.Authorize());
+                yield return aa.Authorize();
             }
-            var attributes = GetPolicyAttributes(action.GetType());
+            var attributes = GetPolicyAttributes(action);
             foreach (var attribute in attributes)
             {
-                result.Add(attribute);
+                yield return attribute;
             }
+        }
+
+        private static async Task<ICollection<IPolicy>> GetHandlerPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+        {
+            var result = new List<IPolicy>();
             var syncType = typeof(IHandlerAuthorization<>);
             var asyncType = typeof(IHandlerAuthorizationAsync<>);
             var authorizedHandlers = new HashSet<object>();
@@ -111,6 +132,10 @@ namespace Pipaslot.Mediator.Authorization
             }
             return result;
         }
+
+        private static IPolicy[] GetPolicyAttributes(IMediatorAction action) => GetPolicyAttributes(action
+                .GetType());
+
         private static IPolicy[] GetPolicyAttributes(Type type) => type
                 .GetCustomAttributes(true)
                 .Where(a => a is IPolicy)
