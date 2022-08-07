@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
     /// This tests simulate already resolved combination of single action and one or more actions. 
     /// To make the tests simple, there are not connections between handlers and action like real usage.
     /// </summary>
-    public class MediatorContextPolicyResolveTests
+    public class PolicyResolverTests
     {
         private Mock<IMediator> _mediator = new();
         private Mock<IServiceProvider> _services = new();
@@ -124,7 +124,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         private async Task TestPassing(IMediatorAction action, int expectedCount, params object[] handlers)
         {
             var sut = Create(action, handlers);
-            var policies = await sut.GetPolicies();
+            var policies = await PolicyResolver.GetPolicies(action, handlers, CancellationToken.None);
             var count = policies.Count();
             Assert.Equal(expectedCount, count);
         }
