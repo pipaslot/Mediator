@@ -1,8 +1,6 @@
 ﻿@page "/auth"
 @using Demo.Shared.Auth
-@using Pipaslot.Mediator.Notifications
 @inject AuthService AuthService
-@inject INotificationProvider Notifications
 
 <AuthorizeView>
     <NotAuthorized>
@@ -13,78 +11,41 @@
     </Authorized>
 </AuthorizeView>
 <hr />
+<h4>Conditional authenthorization</h4>
+<h5>Defined on handler</h5>
 
-<h5>Action with conditional authorization</h5>
+<AuthFormComponent TModel="ConditionalAuthenticationMessage" Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
 
-<EditForm Model="@_model" OnValidSubmit="@Submit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div>
-        <label>
-            <InputCheckbox Value="@_model.RequireAuthentication" ValueExpression="()=>_model.RequireAuthentication" ValueChanged="e=>OnRequireAuthenticationChanged(e)"/> Require authenticated user
-        </label>
-    </div>
-    <div>
-        <label>
-            Required role name:
-            <InputText Value="@_model.RequiredRole" ValueExpression="()=>_model.RequiredRole" ValueChanged="e=>OnRequiredRoleChanged(e)"/>
-        </label>
-    </div>
-    <div>
-        <button class="btn btn-primary btn-sm me-1" type="submit">Submit</button> 
-        @if (_isAuthorized)
-        {
-            <span>Allowed</span>
-        }
-        else
-        {
-            <span>Denied</span>
-        }
-    </div>
-</EditForm>
-
+<h5 class="mt-3">Defined on action only</h5>
+Comming soon
 
 @code {
-    private ConditionalAuthenticationMessage _model = new();
-    private bool _isAuthorized;
-    protected override async Task OnParametersSetAsync()
+    private bool isAuthenticated;
+    private ConditionalAuthenticationMessage _formModel1 = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        await base.OnParametersSetAsync();
-        await OnChange();
+        await base.OnInitializedAsync();
+        await UpdateState();
     }
+
     private async Task Login()
     {
         await AuthService.SignIn("Demo", "haha");
         await Task.Delay(100);
-        await OnChange();
+        await UpdateState();
     }
+
     private async Task Logout()
     {
         await AuthService.SignOut();
-        await OnChange();
-    }
-    private async Task OnRequireAuthenticationChanged(bool value)
-    {
-        _model.RequireAuthentication = value;
-        await OnChange();
-    }
-    private async Task OnRequiredRoleChanged(string value)
-    {
-        _model.RequiredRole = value;
-        await OnChange();
-    }
-    private async Task OnChange()
-    {
-        _isAuthorized = await Mediator.IsAuthorized(_model);
+        await UpdateState();
     }
 
-    private async Task Submit()
+    private async Task UpdateState()
     {
-        var result = await Mediator.Dispatch(_model);
-        if (result.Success)
-        {
-            Notifications.AddSuccess("Validation passed");
-        }
+        var state = await AuthService.GetAuthenticationStateAsync();
+        isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
     }
 
 }

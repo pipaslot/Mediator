@@ -1,0 +1,69 @@
+﻿@using Demo.Shared.Auth
+@using Pipaslot.Mediator.Notifications
+
+<EditForm Model="@Model" OnValidSubmit="@Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            <InputCheckbox Value="@Model.RequireAuthentication" ValueExpression="()=>Model.RequireAuthentication" ValueChanged="e=>OnRequireAuthenticationChanged(e)" /> Require authenticated user
+        </label>
+    </div>
+    <div>
+        <label>
+            Required role name:
+            <InputText Value="@Model.RequiredRole" ValueExpression="()=>Model.RequiredRole" ValueChanged="e=>OnRequiredRoleChanged(e)" />
+        </label>
+    </div>
+    <div>
+        <button class="btn @(_isAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit">
+            <span class="me-1">Submit: </span>
+            @if (_isAuthorized)
+            {
+                <span>Allowed</span>
+            }
+            else
+            {
+                <span>Denied</span>
+            }
+        </button>
+    </div>
+</EditForm>
+
+@typeparam TModel where TModel: class, IAuthenticationFormMessage, new()
+@inject INotificationProvider Notifications
+@code {
+    [Parameter, EditorRequired]
+    public TModel Model { get; set; } = null!;
+
+    private bool _isAuthorized;
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await OnChange();
+    }
+
+    private async Task OnRequireAuthenticationChanged(bool value)
+    {
+        Model.RequireAuthentication = value;
+        await OnChange();
+    }
+    private async Task OnRequiredRoleChanged(string value)
+    {
+        Model.RequiredRole = value;
+        await OnChange();
+    }
+    private async Task OnChange()
+    {
+        _isAuthorized = await Mediator.IsAuthorized(Model);
+    }
+
+    private async Task Submit()
+    {
+        var result = await Mediator.Dispatch(Model);
+        if (result.Success)
+        {
+            Notifications.AddSuccess("Validation passed");
+        }
+    }
+}
