@@ -10,6 +10,7 @@ namespace Pipaslot.Mediator.Authorization
 {
     public class IdentityPolicy : IPolicy
     {
+        public const string AuthenticatedPolicyName = "Authenticated";
         /// <summary>
         /// Authenticated user can access the resource
         /// </summary>
@@ -74,7 +75,7 @@ namespace Pipaslot.Mediator.Authorization
             var isAuthenticated = _anonymous || (principal?.Identity?.IsAuthenticated ?? false);
             var shouldBeAuthenticated = !_anonymous;
             var result = new List<Rule>();
-            result.Add(new Rule("Authenticated", shouldBeAuthenticated.ToString(), isAuthenticated));
+            result.Add(new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticated));
 
             var claims = principal?.Claims ?? new Claim[0];
             foreach (var required in _claims)

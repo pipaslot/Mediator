@@ -75,7 +75,7 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
-        /// Register authorization middleware evaluating policies
+        /// Register authorization middleware evaluating policies for actions and their handlers
         /// </summary>
         public static IMiddlewareRegistrator UseAuthorization(this IMiddlewareRegistrator config)
         {

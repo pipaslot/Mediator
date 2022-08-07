@@ -24,7 +24,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
             Assert.Single(rules);
             var rule = rules.First();
-            Assert.Equal("Authenticated", rule.Name);
+            Assert.Equal(IdentityPolicy.AuthenticatedPolicyName, rule.Name);
             Assert.Equal("False", rule.Value);
             Assert.True(rule.Granted);
         }
@@ -91,7 +91,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private static void AssertAuthenticatedRule(IEnumerable<Rule> rules, bool shouldGrant)
         {
-            var rule = rules.First(r => r.Name == "Authenticated");
+            var rule = rules.First(r => r.Name == IdentityPolicy.AuthenticatedPolicyName);
             Assert.Equal("True", rule.Value);
             Assert.Equal(shouldGrant, rule.Granted);
         }
