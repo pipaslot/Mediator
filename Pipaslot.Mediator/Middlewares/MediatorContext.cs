@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Unique action identifier
         /// </summary>
-        public string ActionIdentifier => Action.GetType().ToString();
+        public string ActionIdentifier => Action.GetActionName();
 
         /// <summary>
         /// Returns true for Request types and false for Message types

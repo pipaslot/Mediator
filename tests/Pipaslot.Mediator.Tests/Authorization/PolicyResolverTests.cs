@@ -1,7 +1,5 @@
-﻿using Moq;
-using Pipaslot.Mediator.Abstractions;
+﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
 using System.Threading;
@@ -15,57 +13,56 @@ namespace Pipaslot.Mediator.Tests.Authorization
     /// </summary>
     public class PolicyResolverTests
     {
-        private Mock<IMediator> _mediator = new();
         private Mock<IServiceProvider> _services = new();
 
         [Fact]
-        public async Task NoAuthorization_ThrowException() => await TestException(
+        public async Task CheckPolicies_NoAuthorization_ThrowException() => await RunCheckPolicies(
                 new NoAuthorization(),
                 AuthorizationException.NoAuthorizationCode);
 
         [Fact]
-        public async Task SecuredSyncHandler_ResolveSinglePolicy() => await TestPassing(
+        public async Task GetPolicies_SecuredSyncHandler_ResolveSinglePolicy() => await RunGetPolicies(
                 new NoAuthorization(),
                 1,
                 new NoAuthorizationHandlerAuthorizationHandler());
 
         [Fact]
-        public async Task SecuredAsyncHandler_ResolveSinglePolicy() => await TestPassing(
+        public async Task GetPolicies_SecuredAsyncHandler_ResolveSinglePolicy() => await RunGetPolicies(
                 new NoAuthorization(),
                 1,
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
 
         [Fact]
-        public async Task SecuredAttrHandler_ResolveSinglePolicy() => await TestPassing(
+        public async Task GetPolicies_SecuredAttrHandler_ResolveSinglePolicy() => await RunGetPolicies(
                 new NoAuthorization(),
                 1,
                 new NoAuthorizationHandlerAttribute());
 
         [Fact]
-        public async Task CombineSyncAndAsyncHandler_ResolveTwoPolicies() => await TestPassing(
+        public async Task GetPolicies_CombineSyncAndAsyncHandler_ResolveTwoPolicies() => await RunGetPolicies(
                 new NoAuthorization(),
                 2,
                 new NoAuthorizationHandlerAuthorizationHandler(),
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
         [Fact]
-        public async Task MultiHandlersButOneHandlerIsUnsecured_ThrowException() => await TestException(
+        public async Task CheckPolicies_MultiHandlersButOneHandlerIsUnsecured_ThrowException() => await RunCheckPolicies(
                 new NoAuthorization(),
                 AuthorizationException.UnauthorizedHandlerCode,
                 new NoAuthorizationHandler(),
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
 
         [Fact]
-        public async Task AuthorizedActionByAttr_ResolveSinglePolicy() => await TestPassing(
+        public async Task GetPolicies_AuthorizedActionByAttr_ResolveSinglePolicy() => await RunGetPolicies(
                 new ActionAuthorizedByAttr(),
                 1);
 
         [Fact]
-        public async Task AuthorizedActionByInterface_ResolveSinglePolicy() => await TestPassing(
+        public async Task GetPolicies_AuthorizedActionByInterface_ResolveSinglePolicy() => await RunGetPolicies(
                 new ActionAuthorizedByInterface(),
                 1);
 
         [Fact]
-        public async Task CombineAllAvailablePolicies_ResolveTwoPolicies() => await TestPassing(
+        public async Task GetPolicies_CombineAllAvailablePolicies_ResolveTwoPolicies() => await RunGetPolicies(
                 new ActionAuthorizedByAttrAndInterface(),
                 5,
                 new NoAuthorizationHandlerAttribute(),
@@ -73,7 +70,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
 
         [Fact]
-        public async Task AuthorizedActionAndSyncAndAsyncHandlersAndUnauthorizedHandler_ThrowException() => await TestException(
+        public async Task CheckPolicies_AuthorizedActionAndSyncAndAsyncHandlersAndUnauthorizedHandler_ThrowException() => await RunCheckPolicies(
                 new ActionAuthorizedByAttr(),
                 AuthorizationException.UnauthorizedHandlerCode,
                 new NoAuthorizationHandler(),
@@ -121,28 +118,20 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 return Task.FromResult((IPolicy)IdentityPolicy.Anonymous());
             }
         }
-        private async Task TestPassing(IMediatorAction action, int expectedCount, params object[] handlers)
+        private async Task RunGetPolicies(IMediatorAction action, int expectedCount, params object[] handlers)
         {
-            var sut = Create(action, handlers);
             var policies = await PolicyResolver.GetPolicies(action, handlers, CancellationToken.None);
             var count = policies.Count();
             Assert.Equal(expectedCount, count);
         }
 
-        private async Task TestException(IMediatorAction action, int expectedCode, params object[] handlers)
+        private async Task RunCheckPolicies(IMediatorAction action, int expectedCode, params object[] handlers)
         {
-            var sut = Create(action, handlers);
             var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
             {
-                await sut.CheckPolicies();
+                await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);
             });
             Assert.Equal(expectedCode, ex.Code);
-        }
-
-        private MediatorContext Create(IMediatorAction action, params object[] handlers)
-        {
-            var mca = new Mock<IMediatorContextAccessor>();
-            return new MediatorContext(_mediator.Object, mca.Object, _services.Object, action, CancellationToken.None, handlers);
         }
     }
 }

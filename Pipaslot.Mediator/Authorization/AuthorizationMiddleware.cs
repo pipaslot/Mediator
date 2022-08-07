@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Authorization
     {
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            await context.CheckPolicies();
+            await PolicyResolver.CheckPolicies(context.Services, context.Action, context.GetHandlers(), context.CancellationToken);
             await next(context);
         }
     }

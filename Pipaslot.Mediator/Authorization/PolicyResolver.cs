@@ -9,6 +9,19 @@ namespace Pipaslot.Mediator.Authorization
 {
     internal static class PolicyResolver
     {
+        internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+        {
+            var rules = await GetPolicyRules(services,action,handlers,cancellationToken);
+            if (!rules.Any())
+            {
+                throw AuthorizationException.NoAuthorization(action.GetActionName());
+            }
+            if (rules.Any(r => !r.Granted))
+            {
+                throw AuthorizationException.RuleNotMet(rules);
+            }
+        }
+
         public static async Task<ICollection<Rule>> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var policies = await GetPolicies(action, handlers, cancellationToken);
