@@ -21,31 +21,63 @@
     <ValidationSummary />
     <div>
         <label>
-            <InputCheckbox @bind-Value="_model.RequireAuthentication" /> Require authenticated user
+            <InputCheckbox Value="@_model.RequireAuthentication" ValueExpression="()=>_model.RequireAuthentication" ValueChanged="e=>OnRequireAuthenticationChanged(e)"/> Require authenticated user
         </label>
     </div>
     <div>
         <label>
             Required role name:
-            <InputText @bind-Value="_model.RequiredRole" />
+            <InputText Value="@_model.RequiredRole" ValueExpression="()=>_model.RequiredRole" ValueChanged="e=>OnRequiredRoleChanged(e)"/>
         </label>
     </div>
     <div>
-        <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+        <button class="btn btn-primary btn-sm me-1" type="submit">Submit</button> 
+        @if (_isAuthorized)
+        {
+            <span>Allowed</span>
+        }
+        else
+        {
+            <span>Denied</span>
+        }
     </div>
 </EditForm>
 
 
 @code {
     private ConditionalAuthenticationMessage _model = new();
+    private bool _isAuthorized;
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await OnChange();
+    }
     private async Task Login()
     {
         await AuthService.SignIn("Demo", "haha");
+        await Task.Delay(100);
+        await OnChange();
     }
     private async Task Logout()
     {
         await AuthService.SignOut();
+        await OnChange();
     }
+    private async Task OnRequireAuthenticationChanged(bool value)
+    {
+        _model.RequireAuthentication = value;
+        await OnChange();
+    }
+    private async Task OnRequiredRoleChanged(string value)
+    {
+        _model.RequiredRole = value;
+        await OnChange();
+    }
+    private async Task OnChange()
+    {
+        _isAuthorized = await Mediator.IsAuthorized(_model);
+    }
+
     private async Task Submit()
     {
         var result = await Mediator.Dispatch(_model);

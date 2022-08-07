@@ -38,7 +38,8 @@ namespace Pipaslot.Mediator
             services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
             services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
-
+            configurator.AddActions(new[] { typeof(IsAuthorizedRequest) });
+            configurator.AddHandlers(new[] { typeof(IsAuthorizedRequestHandler) });
             return configurator;
         }
     }

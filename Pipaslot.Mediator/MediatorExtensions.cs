@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +28,15 @@ namespace Pipaslot.Mediator
         {
             var response = await mediator.Execute(request, cancellationToken);
             return response.Success ? response.Result : new TResult();
+        }
+
+        /// <summary>
+        /// Call authorize method on handler to get feedback if current is permited to execute the request
+        /// </summary>
+        public static async Task<bool> IsAuthorized(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
+        {
+            var response = await mediator.Execute(new IsAuthorizedRequest(action), cancellationToken);
+            return response.Success && response.Result.IsAuthorized;
         }
     }
 }

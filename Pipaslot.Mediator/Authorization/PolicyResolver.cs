@@ -18,10 +18,6 @@ namespace Pipaslot.Mediator.Authorization
                 var resolvedRules = await policy.Resolve(services, cancellationToken);
                 rules.AddRange(resolvedRules);
             }
-            if (rules.Any(r => !r.Granted))
-            {
-                throw AuthorizationException.RuleNotMet(rules);
-            }
             return rules;
         }
 
