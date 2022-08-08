@@ -22,19 +22,19 @@ namespace Pipaslot.Mediator.Authorization
             }
         }
 
-        public static async Task<ICollection<Rule>> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+        public static async Task<RuleSetCollection> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var policies = await GetPolicies(action, handlers, cancellationToken);
             return await ConvertPoliciesToRules(policies, services, cancellationToken); ;
         }
 
-        private static async Task<ICollection<Rule>> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
+        private static async Task<RuleSetCollection> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
         {
-            var rules = new List<Rule>();
+            var rules = new RuleSetCollection();
             foreach (var policy in policies)
             {
                 var resolvedRules = await policy.Resolve(services, cancellationToken);
-                rules.AddRange(resolvedRules);
+                rules.Add(resolvedRules);
             }
             return rules;
         }

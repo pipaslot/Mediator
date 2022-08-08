@@ -69,12 +69,12 @@ namespace Pipaslot.Mediator.Authorization
             return this;
         }
 
-        public Task<IEnumerable<Rule>> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
             var isAuthenticated = _anonymous || (principal?.Identity?.IsAuthenticated ?? false);
             var shouldBeAuthenticated = !_anonymous;
-            var result = new List<Rule>();
+            var result = new RuleSet();
             result.Add(new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticated));
 
             var claims = principal?.Claims ?? new Claim[0];
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Authorization
                                             && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
                 result.Add(new Rule(required.Name, required.Value, hasClaim));
             }
-            return Task.FromResult((IEnumerable<Rule>)result);
+            return Task.FromResult((IRuleSet)result);
         }
     }
 }

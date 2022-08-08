@@ -28,28 +28,18 @@ namespace Pipaslot.Mediator.Authorization
             return new AuthorizationException(UnauthorizedHandlerCode, $"All action handlers or no one have to provide authorization policies. These handlers did not have policies: [{handlerNames}]");
         }
 
-        internal static AuthorizationException RuleNotMet(ICollection<Rule> allRules)
+        internal static AuthorizationException RuleNotMet(RuleSetCollection rules)
         {
-            var notGrantedGroups = allRules
-                .Where(r => !r.Granted)
-                .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(FormatGroup);
-            var notGranted = $"[{string.Join(", ", notGrantedGroups)}]";
+            var notGranted = rules.StringifyNotGranted();
 
             var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules: {notGranted} not matched for current user.");
             var i = 1;
-            foreach (var rule in allRules)
+            foreach (var rule in rules)
             {
                 ex.Data[i] = rule;
                 i++;
             }
             return ex;
-        }
-        private static string FormatGroup(IGrouping<string, Rule> group)
-        {
-            return group.Count() > 1
-            ? $"'{group.Key}': [{string.Join(", ", group.Select(r => $"'{r.Value}'"))}]"
-            : $"'{group.Key}': '{group.FirstOrDefault()?.Value}'";
         }
     }
 }

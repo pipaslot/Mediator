@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task AnonymousPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
         {
             var sut = IdentityPolicy.Anonymous();
-            var rules = await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
 
             Assert.Single(rules);
             var rule = rules.First();
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task AuthenticatedPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
         {
             var sut = IdentityPolicy.Authenticated();
-            var rules = await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
 
             Assert.Single(rules);
             AssertAuthenticatedRule(rules, isAuthenticated);
@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimName, ClaimValue);
 
             var sut = IdentityPolicy.Claim(ClaimName, ClaimValue);
-            var rules = await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
 
             AssertAuthenticatedRule(rules, isAuthenticated);
         }
@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimName, ClaimValue);
 
             var sut = IdentityPolicy.Claim(ClaimName, ClaimValue);
-            var rules = await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
 
             AssertClaimRule(rules, claim, true);
         }
@@ -73,7 +73,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimTypes.Role, ClaimValue);
 
             var sut = IdentityPolicy.Role(ClaimValue);
-            var rules = await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
 
             AssertAuthenticatedRule(rules, isAuthenticated);
         }
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimTypes.Role, ClaimValue);
 
             var sut = IdentityPolicy.Role(ClaimValue);
-            var rules = await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
+            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
 
             AssertClaimRule(rules, claim, true);
         }

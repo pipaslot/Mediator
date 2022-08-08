@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Authorization
             }
         }
 
-        public Task<IEnumerable<Rule>> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             return _policy.Resolve(services, cancellationToken);
         }
