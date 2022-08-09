@@ -10,14 +10,14 @@ namespace Pipaslot.Mediator.Authorization
     /// </summary>
     public sealed class Policy : List<IPolicy>, IPolicy
     {
-        public PolicyOperator Operator { get; }
+        public Operator Operator { get; }
 
-        public Policy(PolicyOperator @operator)
+        public Policy(Operator @operator)
         {
             Operator = @operator;
         }
         
-        public Policy(PolicyOperator @operator, params IPolicy[] policies) : base(policies)
+        public Policy(Operator @operator, params IPolicy[] policies) : base(policies)
         {
             Operator = @operator;
         }
@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator.Authorization
         /// </summary>
         public static Policy And(params IPolicy[] policies)
         {
-            var expression = new Policy(PolicyOperator.And);
+            var expression = new Policy(Operator.And);
             expression.AddRange(policies);
             return expression;
         }
@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator.Authorization
         /// </summary>
         public static Policy Or(params IPolicy[] policies)
         {
-            var expression = new Policy(PolicyOperator.Or);
+            var expression = new Policy(Operator.Or);
             expression.AddRange(policies);
             return expression;
         }

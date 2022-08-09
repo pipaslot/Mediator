@@ -10,14 +10,14 @@ namespace Pipaslot.Mediator.Authorization
     /// </summary>
     public class RuleSetCollection : List<IRuleSet>, IRuleSet
     {
-        public RuleOperator Operator { get; }
+        public Operator Operator { get; }
         public bool Granted => IsGranted();
         public RuleSetCollection(params IRuleSet[] rules) : base(rules)
         {
-            Operator = RuleOperator.And;
+            Operator = Operator.And;
         }
 
-        public RuleSetCollection(RuleOperator @operator, params IRuleSet[] rules) : base(rules)
+        public RuleSetCollection(Operator @operator, params IRuleSet[] rules) : base(rules)
         {
             Operator = @operator;
         }
@@ -37,14 +37,14 @@ namespace Pipaslot.Mediator.Authorization
 
         private bool IsGranted()
         {
-            var granted = Operator == RuleOperator.And;
+            var granted = Operator == Operator.And;
             foreach (var rule in this)
             {
-                if (Operator == RuleOperator.And)
+                if (Operator == Operator.And)
                 {
                     granted &= rule.Granted;
                 }
-                else if (Operator == RuleOperator.Or)
+                else if (Operator == Operator.Or)
                 {
                     granted |= rule.Granted;
                 }

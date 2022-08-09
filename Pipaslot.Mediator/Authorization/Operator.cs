@@ -1,6 +1,6 @@
 ﻿namespace Pipaslot.Mediator.Authorization
 {
-    public enum RuleOperator
+    public enum Operator
     {
         And,
         Or,

@@ -11,6 +11,7 @@ namespace Pipaslot.Mediator.Authorization
     public class IdentityPolicy : IPolicy
     {
         public const string AuthenticatedPolicyName = "Authenticated";
+
         /// <summary>
         /// Authenticated user can access the resource
         /// </summary>
@@ -30,34 +31,41 @@ namespace Pipaslot.Mediator.Authorization
         }
 
         /// <summary>
-        /// Only user with specific claim can access the resource
+        /// Only authenticated user with specific claim can access the resource
         /// </summary>
         public static IdentityPolicy Claim(string name, string value)
         {
-            var policy = new IdentityPolicy();
-            policy.HasClaim(name, value);
-            return policy;
+            return new IdentityPolicy()
+                .HasClaim(name, value);
         }
 
         /// <summary>
-        /// Only user with specific role can access the resource
+        /// Only authenticated user with specific role can access the resource
         /// </summary>
         public static IdentityPolicy Role(string value)
         {
-            var policy = new IdentityPolicy();
-            policy.HasRole(value);
-            return policy;
+            return new IdentityPolicy()
+                .HasRole(value);
         }
 
-        private bool _anonymous = false;
         private readonly List<(string Name, string Value)> _claims = new();
+        private Operator _claimOperator;
+        private AuthStatus _authStatus = AuthStatus.AuthenticateIfNoClaim;
+
+        public IdentityPolicy(Operator @operator = Operator.And)
+        {
+            _claimOperator = @operator;
+        }
 
         public IdentityPolicy IsAnonymous()
         {
-            _anonymous = true;
+            _authStatus = AuthStatus.AnonymousIfNoClaim;
             return this;
         }
 
+        /// <summary>
+        /// Ensure that user has Role claim
+        /// </summary>
         public IdentityPolicy HasRole(string value)
         {
             return HasClaim(ClaimTypes.Role, value);
@@ -72,19 +80,42 @@ namespace Pipaslot.Mediator.Authorization
         public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
-            var isAuthenticated = _anonymous || (principal?.Identity?.IsAuthenticated ?? false);
-            var shouldBeAuthenticated = !_anonymous;
-            var result = new RuleSet();
-            result.Add(new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticated));
-
-            var claims = principal?.Claims ?? new Claim[0];
-            foreach (var required in _claims)
+            var collection = new RuleSetCollection(Operator.And);
+            if (_claims.Count() == 0)
             {
-                var hasClaim = claims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
-                                            && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
-                result.Add(new Rule(required.Name, required.Value, hasClaim));
+                var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
+                var isAuthenticationGranted = isAnonymous || (principal?.Identity?.IsAuthenticated ?? false);
+                var shouldBeAuthenticated = !isAnonymous;
+                var authRule = new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticationGranted);
+                collection.Add(new RuleSet(authRule));
             }
-            return Task.FromResult((IRuleSet)result);
+            else
+            {
+                var userClaims = principal?.Claims ?? new Claim[0];
+                var claimRules = new RuleSet(_claimOperator);
+                collection.Add(claimRules);
+                foreach (var required in _claims)
+                {
+                    var hasClaim = userClaims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
+                                                && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
+                    claimRules.Add(new Rule(required.Name, required.Value, hasClaim));
+                }
+            }
+            return Task.FromResult((IRuleSet)collection);
+        }
+
+        private enum AuthStatus
+        {
+            /// <summary>
+            /// Default state will force to define at least rule to authenticate user. 
+            /// Reduce unnecessary Authentication rules.
+            /// </summary>
+            AuthenticateIfNoClaim,
+            /// <summary>
+            /// Define rule for for anonymous authentication when no other claim is required. 
+            /// Reduce unnecessary Authentication rules.
+            /// </summary>
+            AnonymousIfNoClaim,
         }
     }
 }

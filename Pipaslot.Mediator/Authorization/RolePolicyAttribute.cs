@@ -9,13 +9,17 @@ namespace Pipaslot.Mediator.Authorization
     public class RolePolicyAttribute : Attribute, IPolicy
     {
         private readonly IdentityPolicy _policy;
-        public RolePolicyAttribute(params string[] requiredRoles)
+        public RolePolicyAttribute(params string[] requiredRoles) : this(Operator.And, requiredRoles)
+        {
+           
+        }
+        public RolePolicyAttribute(Operator @operator, params string[] requiredRoles)
         {
             if (requiredRoles.Length == 0)
             {
                 throw new ArgumentException("Can not be empty collection", nameof(requiredRoles));
             }
-            _policy = IdentityPolicy.Authenticated();
+            _policy = new IdentityPolicy(@operator);
             foreach (string role in requiredRoles)
             {
                 _policy.HasRole(role);

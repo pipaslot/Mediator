@@ -5,15 +5,15 @@ namespace Pipaslot.Mediator.Tests.Authorization
     public class RuleSetTests
     {
         [Theory]
-        [InlineData(RuleOperator.And, true, true, true)]
-        [InlineData(RuleOperator.And, false, true, false)]
-        [InlineData(RuleOperator.And, true, false, false)]
-        [InlineData(RuleOperator.And, false, false, false)]
-        [InlineData(RuleOperator.Or, true, true, true)]
-        [InlineData(RuleOperator.Or, false, true, true)]
-        [InlineData(RuleOperator.Or, true, false, true)]
-        [InlineData(RuleOperator.Or, false, false, false)]
-        public void Granted(RuleOperator @operator, bool rule1, bool rule2, bool expected)
+        [InlineData(Operator.And, true, true, true)]
+        [InlineData(Operator.And, false, true, false)]
+        [InlineData(Operator.And, true, false, false)]
+        [InlineData(Operator.And, false, false, false)]
+        [InlineData(Operator.Or, true, true, true)]
+        [InlineData(Operator.Or, false, true, true)]
+        [InlineData(Operator.Or, true, false, true)]
+        [InlineData(Operator.Or, false, false, false)]
+        public void Granted(Operator @operator, bool rule1, bool rule2, bool expected)
         {
             var sut = new RuleSet(
                     @operator,
@@ -35,9 +35,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         }
 
         [Theory]
-        [InlineData(RuleOperator.And)]
-        [InlineData(RuleOperator.Or)]
-        public void StringifyNotGranted_TwoWithUniqueName(RuleOperator @operator)
+        [InlineData(Operator.And)]
+        [InlineData(Operator.Or)]
+        public void StringifyNotGranted_TwoWithUniqueName(Operator @operator)
         {
             var set = new RuleSet(
                 @operator,
@@ -50,11 +50,11 @@ namespace Pipaslot.Mediator.Tests.Authorization
         }
 
         [Theory]
-        [InlineData(RuleOperator.And, true)]
-        [InlineData(RuleOperator.And, false)]
-        [InlineData(RuleOperator.Or, true)]
-        [InlineData(RuleOperator.Or, false)]
-        public void StringifyNotGranted_TwoWithDuplicateName(RuleOperator @operator, bool theSameNameCase)
+        [InlineData(Operator.And, true)]
+        [InlineData(Operator.And, false)]
+        [InlineData(Operator.Or, true)]
+        [InlineData(Operator.Or, false)]
+        public void StringifyNotGranted_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
         {
             var name = "Role";
             var set = new RuleSet(

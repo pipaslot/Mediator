@@ -20,8 +20,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task AnonymousPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
         {
             var sut = IdentityPolicy.Anonymous();
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
-
+            var rules = await Resolve(sut, isAuthenticated);
             Assert.Single(rules);
             var rule = rules.First();
             Assert.Equal(IdentityPolicy.AuthenticatedPolicyName, rule.Name);
@@ -35,22 +34,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task AuthenticatedPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
         {
             var sut = IdentityPolicy.Authenticated();
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated), CancellationToken.None);
+            var rules = await Resolve(sut, isAuthenticated);
 
             Assert.Single(rules);
-            AssertAuthenticatedRule(rules, isAuthenticated);
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task ClaimPolicy_HasAuthenticatedRule(bool isAuthenticated)
-        {
-            var claim = new Claim(ClaimName, ClaimValue);
-
-            var sut = IdentityPolicy.Claim(ClaimName, ClaimValue);
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
-
             AssertAuthenticatedRule(rules, isAuthenticated);
         }
 
@@ -60,22 +46,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimName, ClaimValue);
 
             var sut = IdentityPolicy.Claim(ClaimName, ClaimValue);
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
+            var rules = await Resolve(sut, true, claim);
 
             AssertClaimRule(rules, claim, true);
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task RolePolicy_HasAuthenticatedRule(bool isAuthenticated)
-        {
-            var claim = new Claim(ClaimTypes.Role, ClaimValue);
-
-            var sut = IdentityPolicy.Role(ClaimValue);
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(isAuthenticated, claim), CancellationToken.None);
-
-            AssertAuthenticatedRule(rules, isAuthenticated);
         }
 
         [Fact]
@@ -84,7 +57,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var claim = new Claim(ClaimTypes.Role, ClaimValue);
 
             var sut = IdentityPolicy.Role(ClaimValue);
-            var rules = (RuleSet)await sut.Resolve(CreateServiceProvider(true, claim), CancellationToken.None);
+            var rules = await Resolve(sut, true, claim);
 
             AssertClaimRule(rules, claim, true);
         }
@@ -100,6 +73,15 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             var rule = rules.First(r => r.Name == claim.Type);
             Assert.Equal(shouldGrant, rule.Granted);
+        }
+
+        private async Task<Rule[]> Resolve(IdentityPolicy sut, bool isAuthenticated, params Claim[] claims) {
+            var collection = await sut.Resolve(CreateServiceProvider(isAuthenticated, claims), CancellationToken.None);
+            var rules = (List<IRuleSet>)collection;
+            return rules
+                    .Cast<RuleSet>()
+                    .SelectMany(r => r)
+                    .ToArray();
         }
 
         private IServiceProvider CreateServiceProvider(bool isAuthenticated, params Claim[] claims)
