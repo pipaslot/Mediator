@@ -111,55 +111,69 @@ namespace Pipaslot.Mediator.Middlewares
         {
             var actionType = context.Action.GetType();
             var handlers = context.GetHandlers();
-            var runConcurrent = ValidateHandlers(handlers, actionType);
-            if (runConcurrent)
+            if (handlers.Any())
             {
-                var tasks = handlers
-                .Select(handler => ExecuteMessage(handler, context))
-                .ToArray();
-                await Task.WhenAll(tasks);
+                var runConcurrent = ValidateHandlers(handlers, actionType);
+                if (runConcurrent)
+                {
+                    var tasks = handlers
+                    .Select(handler => ExecuteMessage(handler, context))
+                    .ToArray();
+                    await Task.WhenAll(tasks);
+                }
+                else
+                {
+                    var sortedHandlers = Sort(handlers);
+                    foreach (var handler in sortedHandlers)
+                    {
+                        await ExecuteMessage(handler, context);
+                    }
+                }
             }
             else
             {
-                var sortedHandlers = Sort(handlers);
-                foreach (var handler in sortedHandlers)
-                {
-                    await ExecuteMessage(handler, context);
-                }
+                context.Status = ExecutionStatus.NoHandlerFound;
             }
         }
 
         private async Task HandleRequest(MediatorContext context)
         {
             var actionType = context.Action.GetType();
-            var handlers = context.GetHandlers();
-            var runConcurrent = ValidateHandlers(handlers, actionType);
-            if (runConcurrent)
+            var handlers = context.GetHandlers(); 
+            if (handlers.Any())
             {
-                var tasks = handlers
-                .Select(async handler =>
+                var runConcurrent = ValidateHandlers(handlers, actionType);
+                if (runConcurrent)
                 {
-                    var resp = context.CopyEmpty();
-                    await ExecuteRequest(handler, resp);
-                    return resp;
-                })
-                .ToArray();
-                var tasksResults = await Task.WhenAll(tasks);
-                foreach (var taskResult in tasksResults)
-                {
-                    if (taskResult != null)
+                    var tasks = handlers
+                    .Select(async handler =>
                     {
-                        context.Append(taskResult);
+                        var resp = context.CopyEmpty();
+                        await ExecuteRequest(handler, resp);
+                        return resp;
+                    })
+                    .ToArray();
+                    var tasksResults = await Task.WhenAll(tasks);
+                    foreach (var taskResult in tasksResults)
+                    {
+                        if (taskResult != null)
+                        {
+                            context.Append(taskResult);
+                        }
+                    }
+                }
+                else
+                {
+                    var sortedHandlers = Sort(handlers);
+                    foreach (var handler in sortedHandlers)
+                    {
+                        await ExecuteRequest(handler, context);
                     }
                 }
             }
             else
             {
-                var sortedHandlers = Sort(handlers);
-                foreach (var handler in sortedHandlers)
-                {
-                    await ExecuteRequest(handler, context);
-                }
+                context.Status = ExecutionStatus.NoHandlerFound;
             }
         }
 
@@ -167,7 +181,7 @@ namespace Pipaslot.Mediator.Middlewares
         {
             if (!handlers.Any())
             {
-                throw MediatorException.CreateForNoHandler(actionType);
+                return false;
             }
             var anyIsSequence = false;
             var anyIsConcurrent = false;

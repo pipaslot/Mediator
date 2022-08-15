@@ -1,9 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -69,6 +73,15 @@ namespace Pipaslot.Mediator.Tests
         public static MiddlewareDelegate CreateMiddlewareDelegate()
         {
             return (MediatorContext ctx) => Task.CompletedTask;
+        }
+
+        public static MediatorContext FakeContext(IMediatorAction action)
+        {
+            var services = CreateServiceProvider();
+            var mediator = new Mock<IMediator>();
+            var sut = new HandlerExecutionMiddleware(services);
+            var mcaMock = new Mock<IMediatorContextAccessor>();
+            return new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None);
         }
     }
 }
