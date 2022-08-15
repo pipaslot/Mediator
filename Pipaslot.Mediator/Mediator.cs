@@ -89,17 +89,17 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
-            if(context.Status == ExecutionStatus.NoHandlerFound)
+            if (!context.Results.Any(r => r is TResult))
+            {
+                throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
+            }
+            if (context.Status == ExecutionStatus.NoHandlerFound)
             {
                 throw MediatorException.CreateForNoHandler(request.GetType());
             }
             if (context.HasError())
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
-            }
-            if (!context.Results.Any(r => r is TResult))
-            {
-                throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
             var result = context.Results
                 .Where(r => r is TResult)
