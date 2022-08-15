@@ -25,13 +25,10 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         }
 
         [Fact]
-        public async Task RequestWithoutHandler_ThrowException()
+        public async Task RequestWithoutHandler_DoNotThrowException()
         {
             var services = Factory.CreateServiceProvider();
-            await Assert.ThrowsAsync<MediatorException>(async () =>
-            {
-                await RunRequest(services);
-            });
+            await RunRequest(services);
         }
 
         [Fact]
@@ -53,13 +50,10 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         }
 
         [Fact]
-        public async Task MessageWithoutHandler_ThrowException()
+        public async Task MessageWithoutHandler_DoNotThrowException()
         {
             var services = Factory.CreateServiceProvider();
-            await Assert.ThrowsAsync<MediatorException>(async () =>
-            {
-                await RunMessage(services);
-            });
+            await RunMessage(services);            
         }
 
         [Fact]

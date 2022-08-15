@@ -33,7 +33,10 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-
+                if (context.Status == ExecutionStatus.NoHandlerFound)
+                {
+                    throw MediatorException.CreateForNoHandler(message.GetType());
+                }
                 var success = !context.HasError();
                 return new MediatorResponse(success, context.Results);
             }
@@ -50,7 +53,10 @@ namespace Pipaslot.Mediator
             var context = CreateContext(message, cancellationToken);
 
             await ProcessPipeline(pipeline, context);
-
+            if (context.Status == ExecutionStatus.NoHandlerFound)
+            {
+                throw MediatorException.CreateForNoHandler(message.GetType());
+            }
             if (context.HasError())
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
@@ -64,8 +70,11 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-
-                var success = !context.HasError() && context.Results.Any(r => r is TResult);
+                if(!context.Results.Any(r => r is TResult))
+                {
+                    return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
+                }
+                var success = !context.HasError();
                 return new MediatorResponse<TResult>(success, context.Results);
             }
             catch (Exception e)
@@ -80,13 +89,17 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
-            if (context.HasError())
-            {
-                throw MediatorExecutionException.CreateForUnhandledError(context);
-            }
             if (!context.Results.Any(r => r is TResult))
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
+            }
+            if (context.Status == ExecutionStatus.NoHandlerFound)
+            {
+                throw MediatorException.CreateForNoHandler(request.GetType());
+            }
+            if (context.HasError())
+            {
+                throw MediatorExecutionException.CreateForUnhandledError(context);
             }
             var result = context.Results
                 .Where(r => r is TResult)

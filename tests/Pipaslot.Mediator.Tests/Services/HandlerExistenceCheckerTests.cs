@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using Pipaslot.Mediator.Tests.ValidActions;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -47,6 +48,32 @@ namespace Pipaslot.Mediator.Tests.Services
             });
 
             Assert.Contains(expectedError, ex.Message);
+        }
+
+        [Fact]
+        public void Verify_ActionsWithoutHandlerThrowException()
+        {
+            var sp = Factory.CreateServiceProvider(c =>
+            {
+                c.AddActions(new Type[] { typeof(InvalidActionWithoutHandler) });
+            });
+            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+            var ex = Assert.Throws<MediatorException>(() =>
+            {
+                sut.Verify();
+            });
+            Assert.Equal(MediatorException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, ex.Data[1].ToString());
+        }
+
+        [Fact]
+        public void Verify_ActionsWithoutHandlerButWithNoHandlerAttribute_Pass()
+        {
+            var sp = Factory.CreateServiceProvider(c =>
+            {
+                c.AddActions(new Type[] { typeof(ValidActionWithoutHandler) });
+            });
+            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+            sut.Verify();
         }
     }
 }

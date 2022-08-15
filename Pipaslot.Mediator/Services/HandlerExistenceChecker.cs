@@ -3,6 +3,7 @@ using Pipaslot.Mediator.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Pipaslot.Mediator.Services
 {
@@ -86,6 +87,10 @@ namespace Pipaslot.Mediator.Services
         {
             if (handlers.Count() == 0)
             {
+                if (subject.GetCustomAttributes<NoHandlerAttribute>(true).Any())
+                {
+                    return;
+                }
                 _errors.Add(MediatorException.CreateForNoHandler(subject).Message);
             }
             var anyIsSequence = false;
