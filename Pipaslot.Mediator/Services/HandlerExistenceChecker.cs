@@ -22,11 +22,15 @@ namespace Pipaslot.Mediator.Services
             _actionTypeProvider = actionTypeProvider;
         }
 
-        public void Verify()
+        public void Verify(bool checkMatchingHandlers = false, bool checkExistingPolicies = false)
         {
+            if (!checkMatchingHandlers && !checkExistingPolicies)
+            {
+                return;
+            }
             var messageTypes = _actionTypeProvider.GetMessageActionTypes();
             var requestTypes = _actionTypeProvider.GetRequestActionTypes();
-            
+
             VerifyMessages(messageTypes);
             VerifyRequests(requestTypes);
             if (_errors.Any())
@@ -35,7 +39,7 @@ namespace Pipaslot.Mediator.Services
             }
         }
 
-        private void VerifyMessages(IEnumerable<Type> queryTypes)
+        private void VerifyMessages(IEnumerable<Type> queryTypes, bool checkMatchingHandlers, bool checkExistingPolicies)
         {
             foreach (var subject in queryTypes)
             {
@@ -45,12 +49,19 @@ namespace Pipaslot.Mediator.Services
                 }
 
                 var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
-                VerifyHandlerCount(handlers, subject);
+                if (checkMatchingHandlers)
+                {
+                    VerifyHandlerCount(handlers, subject);
+                }
+                if (checkExistingPolicies)
+                {
+                    VerifyPolicies(handlers, subject);
+                }
                 _alreadyVerified.Add(subject);
             }
         }
 
-        private void VerifyRequests(IEnumerable<Type> types)
+        private void VerifyRequests(IEnumerable<Type> types, bool checkMatchingHandlers, bool checkExistingPolicies)
         {
             foreach (var subject in types)
             {
@@ -60,7 +71,14 @@ namespace Pipaslot.Mediator.Services
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
                 var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
-                VerifyHandlerCount(handlers, subject);
+                if (checkMatchingHandlers)
+                {
+                    VerifyHandlerCount(handlers, subject);
+                }
+                if (checkExistingPolicies)
+                {
+                    VerifyPolicies(handlers, subject);
+                }
                 _alreadyVerified.Add(subject);
             }
         }
