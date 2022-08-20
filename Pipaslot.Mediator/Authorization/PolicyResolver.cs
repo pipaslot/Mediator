@@ -51,6 +51,25 @@ namespace Pipaslot.Mediator.Authorization
             return result;
         }
 
+        internal static bool HasActionPolicies(Type action, object[] handlers)
+        {
+            if (action.IsAssignableFrom(typeof(IActionAuthorization))
+                || GetPolicyAttributes(action).Any())
+            {
+                return true;
+            }
+            foreach (var handler in handlers)
+            {
+                if (handler is IHandlerAuthorizationMarker
+                  || GetPolicyAttributes(handler.GetType()).Any())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         private static IEnumerable<IPolicy> GetActionPolicies(IMediatorAction action)
         {
             if (action is IActionAuthorization aa)

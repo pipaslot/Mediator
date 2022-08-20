@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using System;
 using System.Collections.Generic;
@@ -32,8 +33,8 @@ namespace Pipaslot.Mediator.Services
             var messageTypes = _actionTypeProvider.GetMessageActionTypes();
             var requestTypes = _actionTypeProvider.GetRequestActionTypes();
 
-            VerifyMessages(messageTypes);
-            VerifyRequests(requestTypes);
+            VerifyMessages(messageTypes, checkMatchingHandlers, checkExistingPolicies);
+            VerifyRequests(requestTypes, checkMatchingHandlers, checkExistingPolicies);
             if (_errors.Any())
             {
                 throw MediatorException.CreateForInvalidHandlers(_errors.ToArray());
@@ -83,6 +84,16 @@ namespace Pipaslot.Mediator.Services
                 _alreadyVerified.Add(subject);
             }
         }
+
+        private void VerifyPolicies(object[] handlers, Type subject)
+        {
+            if (PolicyResolver.HasActionPolicies(subject, handlers))
+            {
+                return;
+            }
+            _errors.Add(AuthorizationException.NoAuthorization(subject.GetType().ToString()).Message);
+        }
+
         private void VerifyHandlerCount(object[] handlers, Type subject)
         {
             if (handlers.Count() == 0)
