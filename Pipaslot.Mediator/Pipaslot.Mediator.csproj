@@ -23,12 +23,8 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>Pipaslot.Mediator.Tests</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>Pipaslot.Mediator.Http</_Parameter1>
-		</AssemblyAttribute>
+		<InternalsVisibleTo Include="Pipaslot.Mediator.Tests"/>
+		<InternalsVisibleTo Include="Pipaslot.Mediator.Http"/>
 	</ItemGroup>
 
 </Project>
