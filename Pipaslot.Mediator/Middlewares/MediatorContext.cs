@@ -101,7 +101,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public bool HasError()
         {
-            return Status != ExecutionStatus.Succeeded;
+            return Status == ExecutionStatus.Failed;
         }
 
         /// <summary>

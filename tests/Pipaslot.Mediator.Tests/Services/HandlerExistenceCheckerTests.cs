@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.Services
                 c.AddHandlersFromAssemblyOf<NopMesageHandler>();
             });
             var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            sut.Verify();
+            sut.Verify(true);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Pipaslot.Mediator.Tests.Services
             var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
             var ex = Assert.Throws<MediatorException>(() =>
             {
-                sut.Verify();
+                sut.Verify(true);
             });
 
             Assert.Contains(expectedError, ex.Message);
@@ -60,9 +60,9 @@ namespace Pipaslot.Mediator.Tests.Services
             var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
             var ex = Assert.Throws<MediatorException>(() =>
             {
-                sut.Verify();
+                sut.Verify(true);
             });
-            Assert.Equal(MediatorException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, ex.Data[1].ToString());
+            Assert.Equal(MediatorException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, ex.Data["Error:1"].ToString());
         }
 
         [Fact]

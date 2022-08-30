@@ -62,7 +62,7 @@ namespace Pipaslot.Mediator.Tests
             var sp = Factory.CreateServiceProvider(c =>
             {
                 c.AddPipelineForAction<ICommand>(x => { });
-                c.AddPipelineForAction<ICommand>(x => { });
+                c.AddPipeline(x => true, x => { });
             });
             var sut = (Mediator)sp.GetService<IMediator>();
             Assert.Throws<MediatorException>(() =>
