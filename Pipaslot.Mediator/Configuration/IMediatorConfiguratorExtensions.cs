@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         public static IMediatorConfigurator AddPipelineForAction<TActionMarker>(this IMediatorConfigurator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.AddPipeline(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
+            return configurator.AddPipeline(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares, nameof(TActionMarker));
         }
     }
 }
