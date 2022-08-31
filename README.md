@@ -7,7 +7,7 @@ This package was designed for fast and flexible development of simultaneously de
 Documentation:
  - [Wiki](https://github.com/pipaslot/Mediator/wiki)
  - [Release notes and breaking changes](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes)
- - [Basic Demo for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/2.-Basic-usage:-client-server-application-(Blazor-WASM))
+ - [Basic Demo for Blazor WASM](https://github.com/pipaslot/Mediator/wiki/1.2.-Example-for-client-server-application(Blazor-WASM)-usage)
 
 Demo: [Blazor WASM App](https://pipaslot-mediator.azurewebsites.net)
 
