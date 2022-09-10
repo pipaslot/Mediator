@@ -35,6 +35,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="Pipaslot.Mediator.Benchmarks"/>
 		<InternalsVisibleTo Include="Pipaslot.Mediator.Http.Tests"/>
 	</ItemGroup>
 </Project>
