@@ -1,9 +1,11 @@
 ﻿using Moq;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -244,6 +246,22 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
                 contract
             };
             VerifyResponseCredibility(result, contract.GetType());
+        }
+
+
+        [Fact]
+        public void Response_ResultTypeArrayOfCollections_WillKeepTheResultType()
+        {
+            var sut = CreateSerializer();
+            var result = new IsAuthorizedRequestResponse(new IRuleSet[] {
+                new RuleSet
+                {
+                    new Rule("name", "value", false)
+                }
+            });
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+            var deserialized = sut.DeserializeResponse<IsAuthorizedRequestResponse>(responseString);
+            Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
 
         public class MessageWithInterfaceProperty : IMessage
