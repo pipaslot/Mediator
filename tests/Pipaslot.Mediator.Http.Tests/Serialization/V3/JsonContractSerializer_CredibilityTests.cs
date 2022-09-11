@@ -3,6 +3,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests;
 using Xunit;
+using Moq;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 {
@@ -44,6 +45,27 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
                 contract
             };
             VerifyResponseCredibility(result, contract.GetType());
+        }
+
+        [Fact]
+        public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
+        {
+            var contract = new Contract();
+            var action = new MessageWithInterfaceCollectionProperty
+            {
+                Contracts = new IContract[] { contract }
+            };
+            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(action.GetType()));
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(contract.GetType()));
+
+            var sut = CreateSerializer();
+            var serialized = sut.SerializeRequest(action);
+            sut.DeserializeRequest(serialized);
+
+            CredibleProviderMock.VerifyAll();
         }
     }
 }

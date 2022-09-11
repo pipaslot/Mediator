@@ -195,27 +195,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         }
 
         [Fact]
-        public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
-        {
-            var contract = new Contract();
-            var action = new MessageWithInterfaceCollectionProperty
-            {
-                Contracts = new IContract[] { contract }
-            };
-            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(action.GetType()));
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(contract.GetType()));
-
-            var sut = CreateSerializer();
-            var serialized = sut.SerializeRequest(action);
-            sut.DeserializeRequest(serialized);
-
-            CredibleProviderMock.VerifyAll();
-        }
-
-        [Fact]
         public void Response_ResultTypeWithCollectionOfInterfaceInheritingCollection_WillKeepTheResultType()
         {
             var sut = CreateSerializer();
