@@ -1,11 +1,13 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests;
+using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_InterfaceTests;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 {
@@ -178,20 +180,37 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Response_ResultTypeWithCollectionOfInterfaceInheritingCollection_WillKeepTheResultType()
         {
             var sut = CreateSerializer();
-            var result = new IsAuthorizedRequestResponse(new IRuleSet[] {
-                new RuleSet
-                {
-                    new Rule("name", "value", false)
+            var result = new ResultSetResponse
+            {
+                Sets = new IResultSet[] {
+                    new ResultSet
+                    {
+                        new Result{ Index = 1 },
+                    }
                 }
-            });
+            };
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
-            var deserialized = sut.DeserializeResponse<IsAuthorizedRequestResponse>(responseString);
+            var deserialized = sut.DeserializeResponse<ResultSetResponse>(responseString);
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
 
         public class MessageWithIMediatorActionProperty : IMessage
         {
             public IMediatorAction SubAction { get; set; } = null!;
+        }
+        public class ResultSetResponse
+        {
+            public IResultSet[] Sets { get; set; } = Array.Empty<IResultSet>();
+        }
+
+        public class ResultSet : List<Result>, IResultSet
+        {
+            public bool Valid { get; set; }
+        }
+
+        public interface IResultSet
+        {
+            bool Valid { get; }
         }
     }
 }

@@ -144,8 +144,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Assert.True(match(deserialized.Result));
         }        
 
-        public interface IResult { }
-        public class Result : IResult
+        public class Result
         {
             public int Index { get; set; }
         }
