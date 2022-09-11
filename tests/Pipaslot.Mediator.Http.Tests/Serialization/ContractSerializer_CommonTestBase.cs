@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
 {
-    public abstract class ContractSerializerTestBase : ContractSerializerBaseTest
+    public abstract class ContractSerializer_CommonTestBase : ContractSerializerBaseTest
     {
         private const string _name = "JSON name";
         private const int _number = 6;

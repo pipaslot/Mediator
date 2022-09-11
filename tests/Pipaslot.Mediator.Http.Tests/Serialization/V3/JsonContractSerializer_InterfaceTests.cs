@@ -3,7 +3,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Linq;
 using Xunit;
-using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests;
+using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 {
@@ -17,7 +17,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         [Fact]
         public void SerializeRequest_InterfaceCollectionProperty_SerializeAsSpecificType()
         {
-            var expected = @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BMessageWithInterfaceCollectionProperty, Pipaslot.Mediator.Http.Tests"",""Contracts"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}";
+            var expected = @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BMessageWithInterfaceCollectionProperty, Pipaslot.Mediator.Http.Tests"",""Contracts"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}";
             var contract = new Contract
             {
                 Name = "Contract name"
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         [Fact]
         public void SerializeResponse_InterfaceCollection_SerializeAsSpecificType()
         {
-            var expected = @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializerTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
+            var expected = @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
             var contract = new Contract
             {
                 Name = "Contract name"
