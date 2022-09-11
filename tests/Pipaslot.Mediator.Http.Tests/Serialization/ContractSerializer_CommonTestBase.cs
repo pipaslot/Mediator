@@ -1,10 +1,4 @@
-﻿using Moq;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
@@ -16,7 +10,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         private static string[] _collection = new string[] { "AAA", "BBB" };
         private static Nested _nested = new Nested { Value = 1.2m };
 
-        protected Mock<ICredibleProvider> CredibleProviderMock = new();
         protected Func<IContract, bool> Match = c =>
             c.Name == _name &&
             c.Number == _number &&
@@ -149,51 +142,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             var deserialized = sut.DeserializeResponse<TDto>(serialized);
 
             Assert.True(match(deserialized.Result));
-        }
-
-        [Fact]
-        public void Response_ResultTypeIsArray_Deserialize()
-        {
-            var collection = new Result[]
-            {
-                new Result
-                {
-                   Index = 1,
-                },
-                new Result
-                {
-                   Index = 2,
-                }
-            };
-            DeserializeCollection(collection);
-        }
-
-        [Fact]
-        public void Response_ResultTypeIsList_Deserialize()
-        {
-            var collection = new List<Result>
-            {
-                new Result
-                {
-                   Index = 1,
-                },
-                new Result
-                {
-                   Index = 2,
-                }
-            };
-            DeserializeCollection(collection);
-        }
-
-        private void DeserializeCollection<T>(T result) where T : ICollection<Result>
-        {
-            var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
-            var deserialized = sut.DeserializeResponse<T>(responseString);
-            Assert.Equal(result.GetType(), deserialized.Result.GetType());
-            Assert.Equal(result.First().Index, deserialized.Result.First().Index);
-            Assert.Equal(result.Last().Index, deserialized.Result.Last().Index);
-        }
+        }        
 
         public interface IResult { }
         public class Result : IResult

@@ -1,4 +1,6 @@
-﻿using Pipaslot.Mediator.Http.Configuration;
+﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Linq;
@@ -170,6 +172,26 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             Assert.NotNull(deserialized.Result);
             Assert.Equal(typeof(IContract[]), deserialized.Result.GetType());
             Assert.Equal(((Contract)deserialized.Result.First()).Name, contract.Name);
+        }
+
+        [Fact]
+        public void Response_ResultTypeWithCollectionOfInterfaceInheritingCollection_WillKeepTheResultType()
+        {
+            var sut = CreateSerializer();
+            var result = new IsAuthorizedRequestResponse(new IRuleSet[] {
+                new RuleSet
+                {
+                    new Rule("name", "value", false)
+                }
+            });
+            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+            var deserialized = sut.DeserializeResponse<IsAuthorizedRequestResponse>(responseString);
+            Assert.Equal(result.GetType(), deserialized.Result.GetType());
+        }
+
+        public class MessageWithIMediatorActionProperty : IMessage
+        {
+            public IMediatorAction SubAction { get; set; } = null!;
         }
     }
 }
