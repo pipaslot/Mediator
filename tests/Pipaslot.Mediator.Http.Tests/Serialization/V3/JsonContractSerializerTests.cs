@@ -216,40 +216,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         }
 
         [Fact]
-        public void Request_InterfaceProperty_ShouldCallVerifyCredibility()
-        {
-            var contract = new Contract();
-            var action = new MessageWithInterfaceProperty
-            {
-                Contract = contract
-            };
-            VerifyRequestCredibility(action, action.GetType(), contract.GetType());
-        }
-
-        [Fact]
-        public void Response_InterfaceProperty_ShouldCallVerifyCredibility()
-        {
-            var contract = new Contract();
-            var result = new MessageWithInterfaceProperty
-            {
-                Contract = contract
-            };
-            VerifyResponseCredibility(result, result.GetType(), contract.GetType());
-        }
-
-        [Fact]
-        public void Response_InterfaceCollection_ShouldCallVerifyCredibility()
-        {
-            var contract = new Contract();
-            var result = new IContract[]
-            {
-                contract
-            };
-            VerifyResponseCredibility(result, contract.GetType());
-        }
-
-
-        [Fact]
         public void Response_ResultTypeWithCollectionOfInterfaceInheritingCollection_WillKeepTheResultType()
         {
             var sut = CreateSerializer();
