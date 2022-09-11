@@ -7,15 +7,8 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
 {
-    public abstract class ContractSerializer_CredibilityTestBase
+    public abstract class ContractSerializer_CredibilityTestBase : ContractSerializerBaseTest
     {
-        protected Mock<ICredibleProvider> CredibleProviderMock = new();
-        protected abstract IContractSerializer CreateSerializer(ICredibleProvider provider);
-        protected IContractSerializer CreateSerializer()
-        {
-            return CreateSerializer(CredibleProviderMock.Object);
-        }
-
         [Fact]
         public void Request_ShouldCallVerifyCredibility()
         {

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
 {
-    public abstract class ContractSerializerTestBase
+    public abstract class ContractSerializerTestBase : ContractSerializerBaseTest
     {
         private const string _name = "JSON name";
         private const int _number = 6;
@@ -152,16 +152,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         [Fact]
-        public void Response_ResultTypeIsInterface_WillKeepTheResultType()
-        {
-            var sut = CreateSerializer();
-            var result = new Result();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
-            var deserialized = sut.DeserializeResponse<IResult>(responseString);
-            Assert.Equal(result.GetType(), deserialized.Result.GetType());
-        }
-
-        [Fact]
         public void Response_ResultTypeIsArray_Deserialize()
         {
             var collection = new Result[]
@@ -213,9 +203,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
 
         #endregion
                
-
-        protected abstract IContractSerializer CreateSerializer();
-
         #region Actions
 
         public interface IContract

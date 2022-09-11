@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Http.Serialization;
+﻿using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V2;
 using Xunit;
 
@@ -28,9 +29,9 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V2
             Assert.True(Match(deserialized.Result));
         }
 
-        protected override IContractSerializer CreateSerializer()
+        protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
         {
-            return new FullJsonContractSerializer(CredibleProviderMock.Object);
+            return new FullJsonContractSerializer(provider);
         }
     }
 }
