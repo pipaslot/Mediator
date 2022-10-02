@@ -176,24 +176,6 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             Assert.Equal(((Contract)deserialized.Result.First()).Name, contract.Name);
         }
 
-        [Fact]
-        public void Response_ResultTypeWithCollectionOfInterfaceInheritingCollection_WillKeepTheResultType()
-        {
-            var sut = CreateSerializer();
-            var result = new ResultSetResponse
-            {
-                Sets = new IResultSet[] {
-                    new ResultSet
-                    {
-                        new Result{ Index = 1 },
-                    }
-                }
-            };
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
-            var deserialized = sut.DeserializeResponse<ResultSetResponse>(responseString);
-            Assert.Equal(result.GetType(), deserialized.Result.GetType());
-        }
-
         public class MessageWithIMediatorActionProperty : IMessage
         {
             public IMediatorAction SubAction { get; set; } = null!;
@@ -203,14 +185,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             public IResultSet[] Sets { get; set; } = Array.Empty<IResultSet>();
         }
 
-        public class ResultSet : List<Result>, IResultSet
+        public interface IResultSet : ICollection<Result>
         {
-            public bool Valid { get; set; }
-        }
-
-        public interface IResultSet
-        {
-            bool Valid { get; }
         }
     }
 }
