@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,12 @@ namespace Pipaslot.Mediator.Http.Configuration
         public bool DeserializeOnlyCredibleResultTypes { get; set; } = false;
 
         public SerializerType SerializerType { get; set; } = SerializerType.V2;
+
+        public BaseMediatorOptions()
+        {
+            _credibleResultTypes.Add(typeof(RuleSet));
+            _credibleResultTypes.Add(typeof(RuleSetCollection));
+        }
 
         #region Credible types
 

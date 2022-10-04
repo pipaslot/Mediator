@@ -16,8 +16,8 @@
         </label>
     </div>
     <div>
-        <button class="btn @(_isAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit">
-            <span class="me-1">Submit: </span>
+        <button class="btn @(_isAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit" title="Always trigger the action. But server error will be returned if is denied.">
+            <span class="me-1">Submit (always enabled): </span>
             @if (_isAuthorized)
             {
                 <span>Allowed</span>
@@ -26,6 +26,9 @@
             {
                 <span>Denied</span>
             }
+        </button>
+        <button class="btn btn-primary btn-sm" type="submit" disabled="@(!_isAuthorized)" title="If denied, then sending will be blocked in browser.">
+            <span class="me-1">Submit (alternative)</span>
         </button>
     </div>
 </EditForm>
