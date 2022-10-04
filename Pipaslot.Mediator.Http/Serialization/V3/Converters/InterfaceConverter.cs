@@ -41,11 +41,38 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             }
 
             string typeValue = readerClone.GetString();
-            var entityType = ContractSerializerTypeHelper.GetType(typeValue);
-            _credibleActions.VerifyCredibility(entityType);
-
-            var deserialized = JsonSerializer.Deserialize(ref reader, entityType, options);
-            return (T)deserialized;
+            var resultType = ContractSerializerTypeHelper.GetType(typeValue);
+            var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
+            if (arrayItemType != null)
+            {
+                if (!arrayItemType.IsInterface)
+                {
+                    // Ignored for arrays because interface array has type specfied for every member
+                    // and the type will be verified by interface converter
+                    _credibleActions.VerifyCredibility(resultType);
+                }
+                readerClone.Read();
+                if (readerClone.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Property was expected");
+                }
+                propertyName = readerClone.GetString();
+                if (propertyName != "Items")
+                {
+                    throw new JsonException("Property with name Items was expected");
+                }
+                reader.Read();
+                reader.Read();
+                reader.Read();
+                return (T)JsonSerializer.Deserialize(ref reader, resultType, options)
+                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+            }
+            else
+            {
+                _credibleActions.VerifyCredibility(resultType);
+                return (T)JsonSerializer.Deserialize(ref reader, resultType, options)
+                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
@@ -60,7 +87,15 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                         var type = value.GetType();
                         writer.WriteStartObject();
                         writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(type));
-                        ContractSerializerTypeHelper.WriteObjectProperties(writer, value, type, options);
+                        if (ContractSerializerTypeHelper.IsEnumerable(type))
+                        {
+                            writer.WritePropertyName("Items");
+                            JsonSerializer.Serialize(writer, value, type, options);
+                        }
+                        else
+                        {
+                            ContractSerializerTypeHelper.WriteObjectProperties(writer, value, type, options);
+                        }
                         writer.WriteEndObject();
                         break;
                     }
