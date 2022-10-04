@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,23 +9,24 @@ namespace Pipaslot.Mediator.Authorization
     /// Recursive collection for RuleSet. Aggregates multiple RuleSets with AND or OR operator.
     /// By wrapping two RuleSets in RuleSetColelction you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
-    public class RuleSetCollection : List<IRuleSet>, IRuleSet
+    public class RuleSetCollection : IRuleSet, IEnumerable<IRuleSet>
     {
         public Operator Operator { get; }
         public bool Granted => IsGranted();
-        public RuleSetCollection(params IRuleSet[] rules) : base(rules)
+        private List<IRuleSet> _rules = new List<IRuleSet>();
+        public RuleSetCollection(params IRuleSet[] rules) : this(Operator.And, rules)
         {
-            Operator = Operator.And;
         }
 
-        public RuleSetCollection(Operator @operator, params IRuleSet[] rules) : base(rules)
+        public RuleSetCollection(Operator @operator, params IRuleSet[] rules)
         {
             Operator = @operator;
+            _rules.AddRange(rules);
         }
 
         public string StringifyNotGranted()
         {
-            var notGrantedGroups = this
+            var notGrantedGroups = _rules
                 .Where(r => !r.Granted)
                 .Select(r => r.StringifyNotGranted())
                 .ToArray();
@@ -38,7 +40,7 @@ namespace Pipaslot.Mediator.Authorization
         private bool IsGranted()
         {
             var granted = Operator == Operator.And;
-            foreach (var rule in this)
+            foreach (var rule in _rules)
             {
                 if (Operator == Operator.And)
                 {
@@ -54,6 +56,16 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
+        }
+
+        public IEnumerator<IRuleSet> GetEnumerator()
+        {
+            return _rules.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _rules.GetEnumerator();
         }
     }
 }

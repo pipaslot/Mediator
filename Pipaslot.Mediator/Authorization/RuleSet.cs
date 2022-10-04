@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,24 +9,26 @@ namespace Pipaslot.Mediator.Authorization
     /// <summary>
     /// Define one or more rules aggregated with AND or OR operator
     /// </summary>
-    public class RuleSet : List<Rule>, IRuleSet
+    public class RuleSet : IRuleSet, IEnumerable<Rule>
     {
         public Operator Operator { get; }
         public bool Granted => IsGranted();
 
-        public RuleSet(params Rule[] rules) : base(rules)
+        private List<Rule> _rules = new List<Rule>();
+
+        public RuleSet(params Rule[] rules) : this(Operator.And, rules)
         {
-            Operator = Operator.And;
         }
 
-        public RuleSet(Operator @operator, params Rule[] rules) : base(rules)
+        public RuleSet(Operator @operator, params Rule[] rules)
         {
             Operator = @operator;
+            _rules.AddRange(rules);
         }
 
         public string StringifyNotGranted()
         {
-            var notGrantedGroups = this
+            var notGrantedGroups = _rules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
                 .Select(FormatGroup)
@@ -47,7 +50,7 @@ namespace Pipaslot.Mediator.Authorization
         private bool IsGranted()
         {
             var granted = Operator == Operator.And;
-            foreach (var rule in this)
+            foreach (var rule in _rules)
             {
                 if (Operator == Operator.And)
                 {
@@ -63,6 +66,16 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
+        }
+
+        public IEnumerator<Rule> GetEnumerator()
+        {
+            return _rules.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _rules.GetEnumerator();
         }
     }
 }

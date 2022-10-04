@@ -44,13 +44,13 @@ namespace Pipaslot.Mediator.Authorization
 
         public async Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var res = new RuleSetCollection(Operator);
-            foreach(var policy in this)
+            var res = new List<IRuleSet>();
+            foreach (var policy in this)
             {
                 var ruleSet = await policy.Resolve(services, cancellationToken);
                 res.Add(ruleSet);
             }
-            return res;
+            return new RuleSetCollection(Operator, res.ToArray());
         }
     }
 }

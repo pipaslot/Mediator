@@ -30,13 +30,13 @@ namespace Pipaslot.Mediator.Authorization
 
         private static async Task<RuleSetCollection> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
         {
-            var rules = new RuleSetCollection();
+            var rules = new List<IRuleSet>();
             foreach (var policy in policies)
             {
                 var resolvedRules = await policy.Resolve(services, cancellationToken);
                 rules.Add(resolvedRules);
             }
-            return rules;
+            return new RuleSetCollection(rules.ToArray());
         }
 
         public static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
