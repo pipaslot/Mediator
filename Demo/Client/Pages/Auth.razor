@@ -12,12 +12,8 @@
 </AuthorizeView>
 <hr />
 <h4>Conditional authenthorization</h4>
-<h5>Defined on handler</h5>
 
 <AuthFormComponent TModel="ConditionalAuthenticationMessage" Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
-
-<h5 class="mt-3">Defined on action only</h5>
-Comming soon
 
 @code {
     private bool isAuthenticated;
