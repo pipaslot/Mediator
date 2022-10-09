@@ -80,7 +80,7 @@ namespace Pipaslot.Mediator.Authorization
         public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
-            var collection = new List<RuleSet>();
+            var collection = new List<IRuleSet>();
             if (_claims.Count() == 0)
             {
                 var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
@@ -99,9 +99,9 @@ namespace Pipaslot.Mediator.Authorization
                                                 && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
                     claimRules.Add(new Rule(required.Name, required.Value, hasClaim));
                 }
-                collection.Add(new RuleSet(_claimOperator, claimRules.ToArray()));
+                collection.Add(new RuleSet(_claimOperator, claimRules));
             }
-            return Task.FromResult((IRuleSet)new RuleSetCollection(Operator.And, collection.ToArray()));
+            return Task.FromResult((IRuleSet)new RuleSet(Operator.And, collection));
         }
 
         private enum AuthStatus

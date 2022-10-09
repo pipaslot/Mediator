@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Authorization
                 var ruleSet = await policy.Resolve(services, cancellationToken);
                 res.Add(ruleSet);
             }
-            return new RuleSetCollection(Operator, res.ToArray());
+            return new RuleSet(Operator, res);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or, false, false, false)]
         public void Granted(Operator @operator, bool rule1, bool rule2, bool expected)
         {
-            var sut = new RuleSet(
+            var sut = RuleSet.Create(
                     @operator,
                     new Rule("Role", "A1", rule1),
                     new Rule("Role", "A2", rule2)
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or)]
         public void StringifyNotGranted_TwoWithUniqueName(Operator @operator)
         {
-            var set = new RuleSet(
+            var set = RuleSet.Create(
                 @operator,
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2"),
@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public void StringifyNotGranted_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
         {
             var name = "Role";
-            var set = new RuleSet(
+            var set = RuleSet.Create(
                 @operator,
                 new Rule(name, "A1"),
                 new Rule(theSameNameCase ? name : name.ToUpper(), "A2"),
@@ -74,7 +74,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2")
                 );
-            var collection = new RuleSetCollection(set);
+            var collection = new RuleSet(set);
             Assert.Equal(set.StringifyNotGranted(), collection.StringifyNotGranted());
         }
     }

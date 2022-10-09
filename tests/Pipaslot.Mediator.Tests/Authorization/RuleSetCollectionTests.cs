@@ -15,14 +15,14 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or, false, false, false)]
         public void Granted(Operator @operator, bool rule1, bool rule2, bool expected)
         {
-            var sut = new RuleSetCollection(@operator,
-                    new RuleSet(
-                        new Rule("Role", "A1", rule1)
-                    ),
-                    new RuleSet(
-                        new Rule("Role", "A1", rule2)
-                    )
-                );
+            var sut = RuleSet.Create(@operator,
+                new RuleSet(
+                    new Rule("Role", "A1", rule1)
+                ),
+                new RuleSet(
+                    new Rule("Role", "A1", rule2)
+                )
+            );
             Assert.Equal(expected, sut.Granted);
         }
 
@@ -31,17 +31,17 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or)]
         public void StringifyNotGranted(Operator @operator)
         {
-            var hiddenSet = new RuleSet(
+            var hiddenSet = RuleSet.Create(
                 Operator.Or,
                 new Rule("Role", "A1", true),
                 new Rule("Claim", "A2")
                 );
-            var shownOrSet = new RuleSet(
+            var shownOrSet = RuleSet.Create(
                 Operator.Or,
                 new Rule("Role", "A3"),
                 new Rule("Claim", "A4")
                 );
-            var shownDuplicateOrSet = new RuleSet(
+            var shownDuplicateOrSet = RuleSet.Create(
                 Operator.Or,
                 new Rule("Role", "A5"),
                 new Rule("Role", "A6")
@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new Rule("Claim", "A7"),
                 new Rule("Claim", "A8")
                 );
-            var collection = new RuleSetCollection(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
+            var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
             var expected = "("
                 + shownOrSet.StringifyNotGranted()
                 + $" {@operator} "

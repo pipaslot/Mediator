@@ -8,36 +8,72 @@ namespace Pipaslot.Mediator.Authorization
 
     /// <summary>
     /// Define one or more rules aggregated with AND or OR operator
+    /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
-    public class RuleSet : IRuleSet, IEnumerable<Rule>
+    public class RuleSet : IRuleSet
     {
         public Operator Operator { get; }
         public bool Granted => IsGranted();
 
         private List<Rule> _rules = new List<Rule>();
+        private List<IRuleSet> _ruleSets = new List<IRuleSet>();
 
+        public IEnumerable<Rule> Rules => _rules.Concat(_ruleSets.SelectMany(s => s.Rules)).ToArray();
+
+        public RuleSet(params IRuleSet[] sets) : this(Operator.And, sets)
+        {
+        }
+        public RuleSet(ICollection<IRuleSet> sets) : this(Operator.And, sets)
+        {
+        }
+
+        public RuleSet(Operator @operator, ICollection<IRuleSet> sets)
+        {
+            Operator = @operator;
+            _ruleSets.AddRange(sets);
+        }
         public RuleSet(params Rule[] rules) : this(Operator.And, rules)
         {
         }
 
-        public RuleSet(Operator @operator, params Rule[] rules)
+        public RuleSet(ICollection<Rule> rules) : this(Operator.And, rules)
+        {
+        }
+
+        public RuleSet(Operator @operator, ICollection<Rule> rules)
         {
             Operator = @operator;
             _rules.AddRange(rules);
         }
 
+        public static RuleSet Create(Operator @operator, params Rule[] set)
+        {
+            return new RuleSet(@operator, set);
+        }
+
+        public static RuleSet Create(Operator @operator, params RuleSet[] set)
+        {
+            return new RuleSet(@operator, set);
+        }
+
         public string StringifyNotGranted()
         {
-            var notGrantedGroups = _rules
+            var notGrantedSets = _ruleSets
+                .Where(r => !r.Granted)
+                .Select(r => r.StringifyNotGranted());
+
+            var notGrantedRules = _rules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(FormatGroup)
+                .Select(FormatGroup);
+            var notGranted = notGrantedSets.Concat(notGrantedRules)
                 .ToArray();
-            if (notGrantedGroups.Length == 1)
+
+            if (notGranted.Length == 1)
             {
-                return notGrantedGroups.First();
+                return notGranted.First();
             }
-            return $"({string.Join($" {Operator} ", notGrantedGroups)})";
+            return $"({string.Join($" {Operator} ", notGranted)})";
         }
 
         private string FormatGroup(IGrouping<string, Rule> group)
@@ -50,7 +86,7 @@ namespace Pipaslot.Mediator.Authorization
         private bool IsGranted()
         {
             var granted = Operator == Operator.And;
-            foreach (var rule in _rules)
+            foreach (var rule in Rules)
             {
                 if (Operator == Operator.And)
                 {
@@ -66,16 +102,6 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
-        }
-
-        public IEnumerator<Rule> GetEnumerator()
-        {
-            return _rules.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _rules.GetEnumerator();
         }
     }
 }

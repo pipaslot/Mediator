@@ -30,8 +30,7 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         public BaseMediatorOptions()
         {
-            _credibleResultTypes.Add(typeof(RuleSet));
-            _credibleResultTypes.Add(typeof(RuleSetCollection));
+            //_credibleResultTypes.Add(typeof(RuleSet));
         }
 
         #region Credible types

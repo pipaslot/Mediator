@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Authorization
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
             var rules = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken);
-            var notGrantedRules = rules
+            var notGrantedRules = rules.Rules
                 .Where(r => !r.Granted);
             return new IsAuthorizedRequestResponse
             {

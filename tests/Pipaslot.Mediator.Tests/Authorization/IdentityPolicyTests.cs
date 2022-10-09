@@ -77,11 +77,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private async Task<Rule[]> Resolve(IdentityPolicy sut, bool isAuthenticated, params Claim[] claims) {
             var collection = await sut.Resolve(CreateServiceProvider(isAuthenticated, claims), CancellationToken.None);
-            var rules = (IEnumerable<IRuleSet>)collection;
-            return rules
-                    .Cast<RuleSet>()
-                    .SelectMany(r => r)
-                    .ToArray();
+            return collection.Rules.ToArray();
         }
 
         private IServiceProvider CreateServiceProvider(bool isAuthenticated, params Claim[] claims)

@@ -11,24 +11,25 @@ namespace Pipaslot.Mediator.Authorization
     {
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
-            var rules = await GetPolicyRules(services, action, handlers, cancellationToken);
+            var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
+            var rules = ruleSet.Rules;
             if (!rules.Any())
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
             if (rules.Any(r => !r.Granted))
             {
-                throw AuthorizationException.RuleNotMet(rules);
+                throw AuthorizationException.RuleNotMet(ruleSet);
             }
         }
 
-        public static async Task<RuleSetCollection> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+        public static async Task<RuleSet> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var policies = await GetPolicies(action, handlers, cancellationToken);
             return await ConvertPoliciesToRules(policies, services, cancellationToken); ;
         }
 
-        private static async Task<RuleSetCollection> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
+        private static async Task<RuleSet> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
         {
             var rules = new List<IRuleSet>();
             foreach (var policy in policies)
@@ -36,7 +37,7 @@ namespace Pipaslot.Mediator.Authorization
                 var resolvedRules = await policy.Resolve(services, cancellationToken);
                 rules.Add(resolvedRules);
             }
-            return new RuleSetCollection(rules.ToArray());
+            return new RuleSet(rules);
         }
 
         public static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
