@@ -34,7 +34,7 @@ namespace Pipaslot.Mediator.Authorization
 
             var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules: {notGranted} not matched for current user.");
             var i = 1;
-            foreach (var rule in ruleSet.Rules)
+            foreach (var rule in ruleSet.RulesRecursive)
             {
                 ex.Data[i] = rule;
                 i++;

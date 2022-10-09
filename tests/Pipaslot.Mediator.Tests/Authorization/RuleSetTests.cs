@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
                     new Rule("Role", "A1", rule1),
                     new Rule("Role", "A2", rule2)
                 );
-            Assert.Equal(expected, sut.Granted);
+            Assert.Equal(expected, sut.IsGranted());
         }
 
         [Fact]

@@ -77,31 +77,31 @@ namespace Pipaslot.Mediator.Authorization
             return this;
         }
 
-        public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
-            var collection = new List<IRuleSet>();
+            var collection = new RuleSet();
             if (_claims.Count() == 0)
             {
                 var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
                 var isAuthenticationGranted = isAnonymous || (principal?.Identity?.IsAuthenticated ?? false);
                 var shouldBeAuthenticated = !isAnonymous;
                 var authRule = new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticationGranted);
-                collection.Add(new RuleSet(authRule));
+                collection.Rules.Add(authRule);
             }
             else
             {
                 var userClaims = principal?.Claims ?? new Claim[0];
-                var claimRules = new List<Rule>();
+                var claimRules = new RuleSet(_claimOperator);
+                collection.RuleSets.Add(claimRules);
                 foreach (var required in _claims)
                 {
                     var hasClaim = userClaims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
                                                 && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
-                    claimRules.Add(new Rule(required.Name, required.Value, hasClaim));
+                    claimRules.Rules.Add(new Rule(required.Name, required.Value, hasClaim));
                 }
-                collection.Add(new RuleSet(_claimOperator, claimRules));
             }
-            return Task.FromResult((IRuleSet)new RuleSet(Operator.And, collection));
+            return Task.FromResult(collection);
         }
 
         private enum AuthStatus

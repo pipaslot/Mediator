@@ -54,7 +54,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             var services = new Mock<IServiceProvider>();
             var set = await policy.Resolve(services.Object, CancellationToken.None);
-            Assert.Equal(expected, set.Granted);
+            Assert.Equal(expected, set.IsGranted());
         }
 
         private class FakeBoolPolicy : IPolicy
@@ -66,9 +66,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 _value = value;
             }
 
-            public Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+            public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
             {
-                IRuleSet set = new RuleSet(new Rule("FakeName", "FakeValue", _value));
+                var set = new RuleSet(new Rule("FakeName", "FakeValue", _value));
                 return Task.FromResult(set);
             }
         }

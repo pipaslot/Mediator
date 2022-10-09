@@ -42,15 +42,15 @@ namespace Pipaslot.Mediator.Authorization
             return expression;
         }
 
-        public async Task<IRuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var res = new List<IRuleSet>();
+            var res = new RuleSet(Operator);
             foreach (var policy in this)
             {
                 var ruleSet = await policy.Resolve(services, cancellationToken);
-                res.Add(ruleSet);
+                res.RuleSets.Add(ruleSet);
             }
-            return new RuleSet(Operator, res);
+            return res;
         }
     }
 }

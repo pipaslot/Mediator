@@ -10,27 +10,33 @@ namespace Pipaslot.Mediator.Authorization
     /// Define one or more rules aggregated with AND or OR operator
     /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
-    public class RuleSet : IRuleSet
+    public class RuleSet
     {
         public Operator Operator { get; }
-        public bool Granted => IsGranted();
 
-        private List<Rule> _rules = new List<Rule>();
-        private List<IRuleSet> _ruleSets = new List<IRuleSet>();
+        public List<Rule> Rules { get; set; } = new List<Rule>();
+        public List<RuleSet> RuleSets { get; set; } = new List<RuleSet>();
 
-        public IEnumerable<Rule> Rules => _rules.Concat(_ruleSets.SelectMany(s => s.Rules)).ToArray();
+        /// <summary>
+        /// Iterate through all rules and rule sets
+        /// </summary>
+        public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
 
-        public RuleSet(params IRuleSet[] sets) : this(Operator.And, sets)
-        {
-        }
-        public RuleSet(ICollection<IRuleSet> sets) : this(Operator.And, sets)
-        {
-        }
-
-        public RuleSet(Operator @operator, ICollection<IRuleSet> sets)
+        public RuleSet(Operator @operator = Operator.And)
         {
             Operator = @operator;
-            _ruleSets.AddRange(sets);
+        }
+        public RuleSet(params RuleSet[] sets) : this(Operator.And, sets)
+        {
+        }
+        public RuleSet(ICollection<RuleSet> sets) : this(Operator.And, sets)
+        {
+        }
+
+        public RuleSet(Operator @operator, ICollection<RuleSet> sets)
+        {
+            Operator = @operator;
+            RuleSets.AddRange(sets);
         }
         public RuleSet(params Rule[] rules) : this(Operator.And, rules)
         {
@@ -43,7 +49,7 @@ namespace Pipaslot.Mediator.Authorization
         public RuleSet(Operator @operator, ICollection<Rule> rules)
         {
             Operator = @operator;
-            _rules.AddRange(rules);
+            Rules.AddRange(rules);
         }
 
         public static RuleSet Create(Operator @operator, params Rule[] set)
@@ -58,11 +64,11 @@ namespace Pipaslot.Mediator.Authorization
 
         public string StringifyNotGranted()
         {
-            var notGrantedSets = _ruleSets
-                .Where(r => !r.Granted)
+            var notGrantedSets = RuleSets
+                .Where(r => !r.IsGranted())
                 .Select(r => r.StringifyNotGranted());
 
-            var notGrantedRules = _rules
+            var notGrantedRules = Rules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
                 .Select(FormatGroup);
@@ -83,10 +89,10 @@ namespace Pipaslot.Mediator.Authorization
             : $"{{'{group.Key}': '{group.FirstOrDefault()?.Value}'}}";
         }
 
-        private bool IsGranted()
+        public bool IsGranted()
         {
             var granted = Operator == Operator.And;
-            foreach (var rule in Rules)
+            foreach (var rule in RulesRecursive)
             {
                 if (Operator == Operator.And)
                 {

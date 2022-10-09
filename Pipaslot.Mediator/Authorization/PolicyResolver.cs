@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Authorization
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
-            var rules = ruleSet.Rules;
+            var rules = ruleSet.RulesRecursive;
             if (!rules.Any())
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
@@ -31,13 +31,13 @@ namespace Pipaslot.Mediator.Authorization
 
         private static async Task<RuleSet> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
         {
-            var rules = new List<IRuleSet>();
+            var rules = new RuleSet();
             foreach (var policy in policies)
             {
                 var resolvedRules = await policy.Resolve(services, cancellationToken);
-                rules.Add(resolvedRules);
+                rules.RuleSets.Add(resolvedRules);
             }
-            return new RuleSet(rules);
+            return rules;
         }
 
         public static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
