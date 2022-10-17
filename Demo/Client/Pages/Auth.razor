@@ -1,5 +1,6 @@
 ﻿@page "/auth"
 @using Demo.Shared.Auth
+@using Demo.Client.Pages.AuthComponents
 @inject AuthService AuthService
 
 <AuthorizeView>
@@ -13,11 +14,11 @@
 <hr />
 <h4>Conditional authenthorization</h4>
 
-<AuthFormComponent TModel="ConditionalAuthenticationMessage" Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
+<ConditionalAuthorization Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
 
 @code {
     private bool isAuthenticated;
-    private ConditionalAuthenticationMessage _formModel1 = new();
+    private ConditionalAuthorizationMessage _formModel1 = new();
 
     protected override async Task OnInitializedAsync()
     {

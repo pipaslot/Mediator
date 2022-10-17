@@ -2,9 +2,9 @@
 
 namespace Demo.Shared.Auth
 {
-    public interface IAuthenticationFormMessage : IMessage
+    public class ConditionalAuthorizationMessage : IMessage
     {
         public bool RequireAuthentication { get; set; }
-        public string RequiredRole { get; set; }
+        public string RequiredRole { get; set; } = string.Empty;
     }
 }

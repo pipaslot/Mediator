@@ -4,9 +4,9 @@ using Pipaslot.Mediator.Authorization;
 
 namespace Demo.Server.Handlers.Auth
 {
-    public class ConditionalAuthenticationMessageHandler : IMessageHandler<ConditionalAuthenticationMessage>, IHandlerAuthorization<ConditionalAuthenticationMessage>
+    public class ConditionalAuthorizationMessageHandler : IMessageHandler<ConditionalAuthorizationMessage>, IHandlerAuthorization<ConditionalAuthorizationMessage>
     {
-        public IPolicy Authorize(ConditionalAuthenticationMessage action)
+        public IPolicy Authorize(ConditionalAuthorizationMessage action)
         {
             var policy = action.RequireAuthentication
                 ? IdentityPolicy.Authenticated()
@@ -18,7 +18,7 @@ namespace Demo.Server.Handlers.Auth
             return policy;
         }
 
-        public Task Handle(ConditionalAuthenticationMessage action, CancellationToken cancellationToken)
+        public Task Handle(ConditionalAuthorizationMessage action, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

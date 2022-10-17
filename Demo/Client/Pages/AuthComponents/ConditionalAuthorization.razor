@@ -33,11 +33,10 @@
     </div>
 </EditForm>
 
-@typeparam TModel where TModel: class, IAuthenticationFormMessage, new()
 @inject INotificationProvider Notifications
 @code {
     [Parameter, EditorRequired]
-    public TModel Model { get; set; } = null!;
+    public ConditionalAuthorizationMessage Model { get; set; } = null!;
 
     private bool _isAuthorized;
     protected override async Task OnParametersSetAsync()
