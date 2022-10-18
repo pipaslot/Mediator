@@ -26,9 +26,10 @@ namespace Pipaslot.Mediator.Authorization
             }
         }
 
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            return _policy.Resolve(services, cancellationToken);
+            var set = await _policy.Resolve(services, cancellationToken);
+            return set.SetIdentityStatic();
         }
     }
 }

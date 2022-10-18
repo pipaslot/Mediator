@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Tests.Val
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Http.Tests", "tests\Pipaslot.Mediator.Http.Tests\Pipaslot.Mediator.Http.Tests.csproj", "{C7602E28-3147-4611-B68C-A015117D0F43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipaslot.Mediator.Benchmarks", "Pipaslot.Mediator.Benchmarks\Pipaslot.Mediator.Benchmarks.csproj", "{80E9ED5B-8059-4F69-8CCF-F14FAEA77A10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipaslot.Mediator.Benchmarks", "Pipaslot.Mediator.Benchmarks\Pipaslot.Mediator.Benchmarks.csproj", "{80E9ED5B-8059-4F69-8CCF-F14FAEA77A10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

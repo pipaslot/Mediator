@@ -40,7 +40,7 @@ namespace Pipaslot.Mediator.Authorization
             return rules;
         }
 
-        public static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+        internal static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var result = new List<IPolicy>();
             var actionPolicies = GetActionPolicies(action);

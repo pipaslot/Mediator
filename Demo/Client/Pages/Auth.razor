@@ -13,8 +13,9 @@
 </AuthorizeView>
 <hr />
 <h4>Conditional authenthorization</h4>
-
 <ConditionalAuthorization Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
+<br /><br />
+<IdentityStaticAuthorization @key="@($"form2-{isAuthenticated}")" />
 
 @code {
     private bool isAuthenticated;

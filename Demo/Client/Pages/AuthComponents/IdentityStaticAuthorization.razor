@@ -1,0 +1,27 @@
+﻿@using Demo.Shared.Auth
+<h4>Static authorization with caching</h4>
+<p>Cache the authorization status for the current user until his login/logout.</p>
+<div>
+    <button class="btn btn-primary btn-small me-2" @onclick="Reload">Fetch auth status</button>
+    @if (_isAuthorized)
+    {
+        <span class="text-success">Allowed</span>
+    }
+    else
+    {
+        <span class="text-danger">Denied</span>
+    }
+</div>
+
+@code {
+    private bool _isAuthorized;
+    protected override async Task OnParametersSetAsync()
+    {
+        await Reload();
+        await base.OnParametersSetAsync();
+    }
+    private async Task Reload()
+    {
+        _isAuthorized = await Mediator.IsAuthorized(new IdenitityStaticAuthorizationMessage());
+    }
+}

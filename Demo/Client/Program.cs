@@ -2,7 +2,6 @@ using Blazored.LocalStorage;
 using Demo.Client;
 using Demo.Client.Services;
 using Demo.Shared;
-using Demo.Shared.Playground;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Pipaslot.Mediator;
@@ -25,6 +24,10 @@ services.AddMediatorClient(o =>
     o.AddCredibleResultType<CommonResult>();
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
+    .AddPipelineForAuthorizationRequest(p =>
+    {
+        p.Use<AuthCacheMediatorMiddleware>();
+    })
     .UseNotificationReceiver()
     .UseWhenAction<IRequest>(s => s.UseReduceDuplicateProcessing())
     .UseActionEvents();

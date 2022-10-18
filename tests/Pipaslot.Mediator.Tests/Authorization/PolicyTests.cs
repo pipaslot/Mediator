@@ -17,6 +17,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var policy = new FakeBoolPolicy(left).And(new FakeBoolPolicy(right));
             await AssertPolicy(policy, expected);
         }
+
         [Theory]
         [InlineData(true, true, true)]
         [InlineData(true, false, false)]

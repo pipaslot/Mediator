@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Authorization
     public class RuleSet
     {
         public Operator Operator { get; }
-
+        public RuleSetReproducibility Reproducibility { get; private set; } = RuleSetReproducibility.Dynamic;
         public List<Rule> Rules { get; set; } = new List<Rule>();
         public List<RuleSet> RuleSets { get; set; } = new List<RuleSet>();
 
@@ -21,15 +21,14 @@ namespace Pipaslot.Mediator.Authorization
         /// Iterate through all rules and rule sets
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
+        public IEnumerable<RuleSet> RuleSetsRecursive => RuleSets.Concat(RuleSets.SelectMany(s => s.RuleSetsRecursive));
 
         public RuleSet(Operator @operator = Operator.And)
         {
             Operator = @operator;
         }
+
         public RuleSet(params RuleSet[] sets) : this(Operator.And, sets)
-        {
-        }
-        public RuleSet(ICollection<RuleSet> sets) : this(Operator.And, sets)
         {
         }
 
@@ -39,10 +38,6 @@ namespace Pipaslot.Mediator.Authorization
             RuleSets.AddRange(sets);
         }
         public RuleSet(params Rule[] rules) : this(Operator.And, rules)
-        {
-        }
-
-        public RuleSet(ICollection<Rule> rules) : this(Operator.And, rules)
         {
         }
 
@@ -108,6 +103,15 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
+        }
+        /// <summary>
+        /// Set identity static reproducibility
+        /// </summary>
+        /// <returns></returns>
+        public RuleSet SetIdentityStatic()
+        {
+            Reproducibility = RuleSetReproducibility.IdentityStatic;
+            return this;
         }
     }
 }

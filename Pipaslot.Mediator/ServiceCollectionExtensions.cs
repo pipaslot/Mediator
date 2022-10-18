@@ -40,6 +40,8 @@ namespace Pipaslot.Mediator
             services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
             configurator.AddActions(new[] { typeof(IsAuthorizedRequest) });
             configurator.AddHandlers(new[] { typeof(IsAuthorizedRequestHandler) });
+            // Separate authorization middleware, because we do not want to interrupt by custom middlewares
+            configurator.AddPipelineForAuthorizationRequest(p => { });
             return configurator;
         }
     }
