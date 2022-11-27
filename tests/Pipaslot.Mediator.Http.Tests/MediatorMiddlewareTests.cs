@@ -94,6 +94,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public FakeContext(HttpRequest request)
             {
                 _request = request;
+                RequestServices = new Mock<IServiceProvider>().Object;
             }
 
             public override IFeatureCollection Features => throw new NotImplementedException();
@@ -105,7 +106,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public override ConnectionInfo Connection => throw new NotImplementedException();
 
             public override WebSocketManager WebSockets => throw new NotImplementedException();
-
+            [Obsolete]
             public override AuthenticationManager Authentication => throw new NotImplementedException();
 
             public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -124,6 +125,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public PostRequest(string action)
             {
                 Body = new MemoryStream(Encoding.UTF8.GetBytes(action));
+                Query = new Mock<IQueryCollection>().Object;
             }
 
             public override HttpContext HttpContext => throw new NotImplementedException();
@@ -158,7 +160,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             public override string Method { get; set; } = "GET";
             public override IQueryCollection Query { get; set; }
-            public override Stream Body { get; set; } = null;
+            public override Stream Body { get; set; } = new Mock<Stream>().Object;
 
             public GetRequest(string action) : base("")
             {
@@ -200,7 +202,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
             public override IHeaderDictionary Headers => throw new NotImplementedException();
 
-            public override Stream Body { get; set; }
+            public override Stream Body { get; set; } = new Mock<Stream>().Object;
             public override long? ContentLength { get; set; }
             public override string ContentType { get; set; } = string.Empty;
 

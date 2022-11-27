@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
         }
 
-        public interface IContract
+        public new interface IContract
         {
 
         }

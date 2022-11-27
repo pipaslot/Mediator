@@ -28,7 +28,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 throw new JsonException();
             }
 
-            string propertyName = readerClone.GetString();
+            string propertyName = readerClone.GetString() ?? string.Empty;
             if (propertyName != "$type")
             {
                 throw new JsonException();
@@ -40,7 +40,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 throw new JsonException();
             }
 
-            string typeValue = readerClone.GetString();
+            string typeValue = readerClone.GetString() ?? string.Empty;
             var resultType = ContractSerializerTypeHelper.GetType(typeValue);
             var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
             if (arrayItemType != null)
@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 {
                     throw new JsonException("Property was expected");
                 }
-                propertyName = readerClone.GetString();
+                propertyName = readerClone.GetString() ?? string.Empty;
                 if (propertyName != "Items")
                 {
                     throw new JsonException("Property with name Items was expected");
@@ -64,15 +64,14 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 reader.Read();
                 reader.Read();
                 reader.Read();
-                return (T)JsonSerializer.Deserialize(ref reader, resultType, options)
-                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
             else
             {
                 _credibleActions.VerifyCredibility(resultType);
-                return (T)JsonSerializer.Deserialize(ref reader, resultType, options)
-                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
+            var des = JsonSerializer.Deserialize(ref reader, resultType, options)
+                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+            return (T)des;
         }
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
@@ -80,7 +79,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             switch (value)
             {
                 case null:
-                    JsonSerializer.Serialize(writer, null, options);
+                    JsonSerializer.Serialize(writer, null, null, options);
                     break;
                 default:
                     {
