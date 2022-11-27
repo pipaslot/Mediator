@@ -20,7 +20,7 @@ namespace Demo.Client.Services
             _authenticationStateProvider.AuthenticationStateChanged -= ClearCache;
         }
 
-        public async void ClearCache(Task<AuthenticationState> authState)
+        public void ClearCache(Task<AuthenticationState> authState)
         {
             _cache.Clear();
         }
@@ -30,11 +30,12 @@ namespace Demo.Client.Services
             if (context.Action is IsAuthorizedRequest authRequest && authRequest.Action != null)
             {
                 var actionName = authRequest.Action.GetType().FullName ?? throw new Exception("Can not get action name");
-                if (_cache.TryGetValue(actionName, out var cached))
+                var cacheKey = $"{actionName}##{authRequest.Action.GetHashCode()}";
+                if (_cache.TryGetValue(cacheKey, out var cached))
                 {
                     context.AddResult(cached);
                     context.Status = ExecutionStatus.Succeeded;
-                    Console.WriteLine($"Authentication state for action '{actionName}' was loaded from cache.");
+                    Console.WriteLine($"Authentication state for action '{cacheKey}' was loaded from cache.");
                 }
                 else
                 {
@@ -45,7 +46,7 @@ namespace Demo.Client.Services
                         .FirstOrDefault();
                     if (toBeCached != null && !toBeCached.IsIdentityStatic)
                     {
-                        _cache.TryAdd(actionName, toBeCached);
+                        _cache.TryAdd(cacheKey, toBeCached);
                     }
                 }
             }
