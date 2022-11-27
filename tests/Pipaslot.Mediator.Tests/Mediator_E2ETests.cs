@@ -86,7 +86,7 @@ namespace Pipaslot.Mediator.Tests
             var result = await sut.Execute(action);
             Assert.False(result.Success);
             var context = Factory.FakeContext(action);
-            Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, result.ErrorMessage);
+            Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, result.GetErrorMessage());
         }
 
         #endregion
@@ -199,7 +199,7 @@ namespace Pipaslot.Mediator.Tests
             var action = new MessageWithoutHandler();
             var result = await sut.Dispatch(action);
             Assert.False(result.Success);
-            Assert.Equal(MediatorException.CreateForNoHandler(action.GetType()).Message, result.ErrorMessage);
+            Assert.Equal(MediatorException.CreateForNoHandler(action.GetType()).Message, result.GetErrorMessage());
         }
 
         #endregion

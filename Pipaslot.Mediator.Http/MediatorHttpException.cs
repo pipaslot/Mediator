@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -43,6 +44,11 @@ namespace Pipaslot.Mediator.Http
         internal static MediatorHttpException CreateForNonContractType(Type queryType)
         {
             return new MediatorHttpException($"Received contract type {queryType.FullName} does not implements interface {nameof(IMediatorAction)}.");
+        }
+
+        internal static MediatorHttpException CreateForNotConstructableJsonConverter()
+        {
+            return new MediatorHttpException($"Can not activate JsonConverter class");
         }
     }
 }
