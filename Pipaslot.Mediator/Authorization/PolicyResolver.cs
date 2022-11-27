@@ -113,7 +113,7 @@ namespace Pipaslot.Mediator.Authorization
                         var policy = methodResult as IPolicy;
                         if (policy == null)
                         {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType.FullName);
+                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         }
                         result.Add(policy);
                         isAuthorized = true;
@@ -124,14 +124,14 @@ namespace Pipaslot.Mediator.Authorization
                         var task = (Task?)method!.Invoke(handler, new object[] { action, cancellationToken })!;
                         if (task == null)
                         {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType.FullName);
+                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         }
                         await task.ConfigureAwait(false);
                         var resultProperty = task.GetType().GetProperty("Result");
                         var taskResult = resultProperty?.GetValue(task) as IPolicy;
                         if (taskResult == null)
                         {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType.FullName);
+                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         }
                         result.Add(taskResult);
                         isAuthorized = true;

@@ -70,7 +70,7 @@ namespace Pipaslot.Mediator
         {
             return config.Use<NotificationReceiverMiddleware>(services =>
             {
-                services.TryAddScoped<INotificationReceiver>(s => s.GetService<NotificationReceiverMiddleware>());
+                services.TryAddScoped<INotificationReceiver>(s => s.GetRequiredService<NotificationReceiverMiddleware>());
             });
         }
 

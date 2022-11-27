@@ -51,7 +51,7 @@ namespace Pipaslot.Mediator.Middlewares
             _runningActions.TryAdd(context.Guid, context.Action);
             var runningActions = _runningActions.Values.ToArray();
             ActionStarted?.Invoke(this, new ActionStartedEventArgs(context.Action, runningActions));
-            if(ProcessingStarted != null && runningActions.Count() == 1)
+            if (ProcessingStarted != null && runningActions.Count() == 1)
             {
                 ProcessingStarted.Invoke(this, new EventArgs());
             }
@@ -61,7 +61,10 @@ namespace Pipaslot.Mediator.Middlewares
         {
             _runningActions.TryRemove(context.Guid, out var action);
             var runningActions = _runningActions.Values.ToArray();
-            ActionCompleted?.Invoke(this, new ActionCompletedEventArgs(action, runningActions));
+            if (action != null)
+            {
+                ActionCompleted?.Invoke(this, new ActionCompletedEventArgs(action, runningActions));
+            }
             if (ProcessingCompleted != null && runningActions.Count() == 0)
             {
                 ProcessingCompleted.Invoke(this, new EventArgs());
