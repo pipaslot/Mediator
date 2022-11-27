@@ -38,20 +38,24 @@ namespace Pipaslot.Mediator
 
         public void Add(Notification notification)
         {
-            var context = MediatorContext;
-            if(context != null)
+            var stack = ContextStack;
+            if(stack.Count == 0)
             {
-                context.AddResult(notification);
-            }
-            else
-            {
+                // Notification provider is called independently of the mediator
                 var messageReceiver = _serviceProvider.GetService<NotificationReceiverMiddleware>();
-                if(messageReceiver != null)
+                if (messageReceiver != null)
                 {
                     messageReceiver.SendNotifications(notification);
                 }
             }
-            
+            else
+            {
+                // Propagate the notifications up in call tree to be handed over to client app
+                foreach(var context in stack)
+                {
+                    context.AddResult(notification);
+                }
+            }            
         }
     }
 }
