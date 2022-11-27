@@ -93,10 +93,6 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
-            if (context.Status == ExecutionStatus.NoHandlerFound)
-            {
-                throw MediatorException.CreateForNoHandler(request.GetType());
-            }
             if (context.HasError())
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);

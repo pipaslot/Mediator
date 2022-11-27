@@ -24,7 +24,7 @@ namespace Pipaslot.Mediator.Tests
             var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
             var exception = Assert.Throws<MediatorException>(() =>
             {
-                sut.Verify();
+                sut.Verify(true);
             });
             CompareExceptions(MediatorException.CreateForCanNotCombineHandlers(subject, handlers), exception);
         }
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Tests
         public void TestCombineValid(Type subject, Type[] handlers)
         {
             var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
-            sut.Verify();
+            sut.Verify(true);
         }
 
         [Theory]
@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Tests
             var sut = CreateServiceProviderWithHandlersAndActions(new Type[0], subject);
             var exception = Assert.Throws<MediatorException>(() =>
             {
-                sut.Verify();
+                sut.Verify(true);
             });
             CompareExceptions(MediatorException.CreateForNoHandler(subject), exception);
         }
@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Tests
             var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
             var exception = Assert.Throws<MediatorException>(() =>
             {
-                sut.Verify();
+                sut.Verify(true);
             });
             CompareExceptions(MediatorException.CreateForDuplicateHandlers(subject, handlers), exception);
         }

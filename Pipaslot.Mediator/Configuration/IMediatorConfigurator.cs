@@ -48,6 +48,7 @@ namespace Pipaslot.Mediator.Configuration
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
-        IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
+        /// <param name="identifier">Customized unique pipeline identifier. Pipeline with the same identifier will be replaced</param>
+        IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares, string? identifier = null);
     }
 }

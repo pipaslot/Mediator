@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
@@ -36,7 +37,11 @@ namespace Pipaslot.Mediator
             services.AddSingleton<IActionTypeProvider>(configurator);
             services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
-
+            services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
+            configurator.AddActions(new[] { typeof(IsAuthorizedRequest) });
+            configurator.AddHandlers(new[] { typeof(IsAuthorizedRequestHandler) });
+            // Separate authorization middleware, because we do not want to interrupt by custom middlewares
+            configurator.AddPipelineForAuthorizationRequest(p => { });
             return configurator;
         }
     }

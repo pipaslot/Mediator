@@ -12,15 +12,17 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         /// <param name="app">Application builder</param>
         /// <param name="checkMatchingHandlers">Scans for all action markers and make sure that all of them have the appropriate amount of handlers registered during application startup</param>
-        public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers = false)
+        /// <param name="checkExistingPolicies">Check that every action or action handler has at least one Authorization policy to prevent runtime exceptions</param>
+        public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers = false, bool checkExistingPolicies = false)
         {
             var options = app.ApplicationServices.GetService<ServerMediatorOptions>() ?? new ServerMediatorOptions();
             app.UseMiddleware<MediatorMiddleware>(options);
-            if (checkMatchingHandlers)
+
+            if (checkMatchingHandlers || checkExistingPolicies)
             {
                 using var scope = app.ApplicationServices.CreateScope();
                 var checker = scope.ServiceProvider.GetRequiredService<IHandlerExistenceChecker>();
-                checker.Verify();
+                checker.Verify(checkMatchingHandlers, checkExistingPolicies);
             }
             return app;
         }

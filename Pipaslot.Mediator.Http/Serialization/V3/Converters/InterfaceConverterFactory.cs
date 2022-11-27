@@ -25,12 +25,12 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            var converter = (JsonConverter)Activator.CreateInstance(
+            var converter = (JsonConverter?)Activator.CreateInstance(
                 typeof(InterfaceConverter<>).MakeGenericType(typeToConvert),
                 new object[] { _credibleProvider }
                 );
 
-            return converter;
+            return converter ?? throw MediatorHttpException.CreateForNotConstructableJsonConverter();
         }
     }
 }

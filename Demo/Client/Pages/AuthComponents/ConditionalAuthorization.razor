@@ -1,0 +1,71 @@
+﻿@using Demo.Shared.Auth
+@using Pipaslot.Mediator.Notifications
+
+<EditForm Model="@Model" OnValidSubmit="@Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            <InputCheckbox Value="@Model.RequireAuthentication" ValueExpression="()=>Model.RequireAuthentication" ValueChanged="e=>OnRequireAuthenticationChanged(e)" /> Require authenticated user
+        </label>
+    </div>
+    <div>
+        <label>
+            Required role name:
+            <InputText Value="@Model.RequiredRole" ValueExpression="()=>Model.RequiredRole" ValueChanged="e=>OnRequiredRoleChanged(e)" />
+        </label>
+    </div>
+    <div class="mt-2">
+        <button class="btn @(_isAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit" title="Always trigger the action. But server error will be returned if is denied.">
+            <span class="me-1">Submit (always enabled): </span>
+            @if (_isAuthorized)
+            {
+                <span>Allowed</span>
+            }
+            else
+            {
+                <span>Denied</span>
+            }
+        </button>
+        <button class="btn btn-primary btn-sm" type="submit" disabled="@(!_isAuthorized)" title="If denied, then sending will be blocked in browser.">
+            <span class="me-1">Submit (alternative)</span>
+        </button>
+    </div>
+</EditForm>
+
+@inject INotificationProvider Notifications
+@code {
+    [Parameter, EditorRequired]
+    public ConditionalAuthorizationMessage Model { get; set; } = null!;
+
+    private bool _isAuthorized;
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await OnChange();
+    }
+
+    private async Task OnRequireAuthenticationChanged(bool value)
+    {
+        Model.RequireAuthentication = value;
+        await OnChange();
+    }
+    private async Task OnRequiredRoleChanged(string value)
+    {
+        Model.RequiredRole = value;
+        await OnChange();
+    }
+    private async Task OnChange()
+    {
+        _isAuthorized = await Mediator.IsAuthorized(Model);
+    }
+
+    private async Task Submit()
+    {
+        var result = await Mediator.Dispatch(Model);
+        if (result.Success)
+        {
+            Notifications.AddSuccess("Validation passed");
+        }
+    }
+}

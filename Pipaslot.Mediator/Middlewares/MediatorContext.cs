@@ -30,7 +30,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Unique action identifier
         /// </summary>
-        public string ActionIdentifier => Action.GetType().ToString();
+        public string ActionIdentifier => Action.GetActionName();
 
         /// <summary>
         /// Returns true for Request types and false for Message types
@@ -53,7 +53,7 @@ namespace Pipaslot.Mediator.Middlewares
         public MediatorContext[] ParentContexts => _contextAccessor.ContextStack.Skip(1).ToArray();
 
         private readonly IMediatorContextAccessor _contextAccessor;
-        private readonly IServiceProvider _serviceProvider;
+        internal IServiceProvider Services { get; }
 
         private object[]? _handlers = null;
 
@@ -61,7 +61,7 @@ namespace Pipaslot.Mediator.Middlewares
         {
             Mediator = mediator;
             _contextAccessor = contextAccessor;
-            _serviceProvider = serviceProvider;
+            Services = serviceProvider;
             Action = action ?? throw new System.ArgumentNullException(nameof(action));
             CancellationToken = cancellationToken;
             _handlers = handlers;
@@ -77,7 +77,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <returns></returns>
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext(Mediator, _contextAccessor, _serviceProvider, Action, CancellationToken, _handlers);
+            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers);
             return copy;
         }
 
@@ -101,7 +101,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public bool HasError()
         {
-            return Status != ExecutionStatus.Succeeded;
+            return Status == ExecutionStatus.Failed;
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Pipaslot.Mediator.Middlewares
         {
             if (_handlers == null)
             {
-                _handlers = _serviceProvider.GetActionHandlers(Action);
+                _handlers = Services.GetActionHandlers(Action);
             }
             return _handlers;
         }

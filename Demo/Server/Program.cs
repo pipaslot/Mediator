@@ -1,8 +1,14 @@
 ﻿using Demo.Server.Handlers;
+using Demo.Server.Handlers.Auth;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
-using Demo.Shared.Requests;
+using Demo.Shared.Playground;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -11,6 +17,30 @@ services.AddControllersWithViews();
 services.AddRazorPages();
 services.AddResponseCompression();
 services.AddHttpContextAccessor();
+
+//JWT
+var authSection = builder.Configuration.GetSection("Auth");
+services.Configure<LoginRequestHandler.AuthOptions>(authSection);
+var authOptions = new LoginRequestHandler.AuthOptions();
+authSection.Bind(authOptions);
+//Configure JWT claim binding to Identity claims 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap["role"] = ClaimTypes.Role;
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = authOptions.Issuer,
+                ValidAudience = authOptions.Audience,
+                IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey),
+                
+            };
+    });
 
 //////// Mediator implementation
 services.AddMediatorServer(o =>
@@ -30,6 +60,7 @@ services.AddMediatorServer(o =>
     //    .Use<CommandSpecificMiddleware>() // Middleare which should be applied only to Commands
     //    )
     // Use default pipeline if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution   
+    .UseAuthorization()
     .Use<CallStackLoggerMiddleware>()
     .Use<ValidatorMiddleware>()
     .Use<CommonMiddleware>();
@@ -51,6 +82,7 @@ app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+app.UseAuthentication();
 
 //////// Mediator implementation
 app.UseMediator(app.Environment.IsDevelopment());

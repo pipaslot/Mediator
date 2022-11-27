@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;

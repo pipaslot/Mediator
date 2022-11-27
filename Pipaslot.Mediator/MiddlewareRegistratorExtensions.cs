@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
@@ -71,6 +72,14 @@ namespace Pipaslot.Mediator
             {
                 services.TryAddScoped<INotificationReceiver>(s => s.GetService<NotificationReceiverMiddleware>());
             });
+        }
+
+        /// <summary>
+        /// Register authorization middleware evaluating policies for actions and their handlers
+        /// </summary>
+        public static IMiddlewareRegistrator UseAuthorization(this IMiddlewareRegistrator config)
+        {
+            return config.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton);
         }
     }
 }

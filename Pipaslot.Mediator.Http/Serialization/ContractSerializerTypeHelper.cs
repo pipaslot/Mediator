@@ -97,11 +97,17 @@ namespace Pipaslot.Mediator.Http.Serialization
         internal static void WriteObjectProperties<T>(Utf8JsonWriter writer, T value, Type type, JsonSerializerOptions options)
         {
             using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
-            foreach (var element in jsonDocument.RootElement.EnumerateObject())
+            if (jsonDocument.RootElement.ValueKind == JsonValueKind.Object)
             {
-                element.WriteTo(writer);
+                foreach (var element in jsonDocument.RootElement.EnumerateObject())
+                {
+                    element.WriteTo(writer);
+                }
             }
-
+            else
+            {
+                throw new NotSupportedException($"Can not serialize type '{type}' as object because the class inherits from collection type.");
+            }
         }
     }
 }

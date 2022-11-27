@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             var handlerExistenceCheckerMock = new Mock<IHandlerExistenceChecker>();
             handlerExistenceCheckerMock
-                .Setup(x => x.Verify())
+                .Setup(x => x.Verify(true, false))
                 .Throws(_exception);
 
             var serviceProvider = new ServiceCollection()

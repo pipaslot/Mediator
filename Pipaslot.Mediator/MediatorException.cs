@@ -59,5 +59,10 @@ namespace Pipaslot.Mediator
             ex.Data["action"] = action;
             return ex;
         }
+
+        public static MediatorException NullInsteadOfPolicy(string what)
+        {
+            return new MediatorException($"Object {what} returned NULL instead of policy");
+        }
     }
 }

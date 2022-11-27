@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Configuration
         internal HashSet<Assembly> TrustedAssemblies { get; set; } = new HashSet<Assembly>();
         private List<Type> _actionMarkerTypes = new();
         private MiddlewareCollection _middlewares;
-        private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares)> _pipelines = new();
+        private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
 
         public MediatorConfigurator(IServiceCollection services)
         {
@@ -111,11 +111,16 @@ namespace Pipaslot.Mediator.Configuration
             return this;
         }
 
-        public IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+        public IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares, string? identifier = null)
         {
             var collection = new MiddlewareCollection(Services);
             subMiddlewares(collection);
-            _pipelines.Add((condition, collection));
+            if(identifier != null)
+            {
+                _pipelines.RemoveAll(p => p.Identifier == identifier);
+            }
+            var id = identifier ?? Guid.NewGuid().ToString();
+            _pipelines.Add((condition, collection, id));
             return this;
         }
 

@@ -50,7 +50,8 @@ namespace Pipaslot.Mediator.Http.Tests
             mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
-            collection.AddMediatorServer();
+            collection.AddMediatorServer()
+                .AddActionsFromAssemblyOf<NopRequest>();
             collection.AddScoped<MediatorMiddleware>();
             collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
             collection.AddSingleton<IMediator>(mediatorMock.Object);
@@ -71,7 +72,8 @@ namespace Pipaslot.Mediator.Http.Tests
             mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
-            collection.AddMediatorServer();
+            collection.AddMediatorServer()
+                .AddActionsFromAssemblyOf<NopMessage>();
             collection.AddScoped<MediatorMiddleware>();
             collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
             collection.AddSingleton<IMediator>(mediatorMock.Object);
@@ -92,6 +94,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public FakeContext(HttpRequest request)
             {
                 _request = request;
+                RequestServices = new Mock<IServiceProvider>().Object;
             }
 
             public override IFeatureCollection Features => throw new NotImplementedException();
@@ -103,7 +106,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public override ConnectionInfo Connection => throw new NotImplementedException();
 
             public override WebSocketManager WebSockets => throw new NotImplementedException();
-
+            [Obsolete]
             public override AuthenticationManager Authentication => throw new NotImplementedException();
 
             public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -122,6 +125,7 @@ namespace Pipaslot.Mediator.Http.Tests
             public PostRequest(string action)
             {
                 Body = new MemoryStream(Encoding.UTF8.GetBytes(action));
+                Query = new Mock<IQueryCollection>().Object;
             }
 
             public override HttpContext HttpContext => throw new NotImplementedException();
@@ -156,7 +160,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             public override string Method { get; set; } = "GET";
             public override IQueryCollection Query { get; set; }
-            public override Stream Body { get; set; } = null;
+            public override Stream Body { get; set; } = new Mock<Stream>().Object;
 
             public GetRequest(string action) : base("")
             {
@@ -166,7 +170,9 @@ namespace Pipaslot.Mediator.Http.Tests
                     ));
                 Query = query;
             }
+#pragma warning disable CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
             private class QueryCollection : List<KeyValuePair<string, StringValues>>, IQueryCollection
+#pragma warning restore CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
             {
                 public StringValues this[string key] => this.FirstOrDefault(v => v.Key == key).Value;
 
@@ -198,7 +204,7 @@ namespace Pipaslot.Mediator.Http.Tests
 
             public override IHeaderDictionary Headers => throw new NotImplementedException();
 
-            public override Stream Body { get; set; }
+            public override Stream Body { get; set; } = new Mock<Stream>().Object;
             public override long? ContentLength { get; set; }
             public override string ContentType { get; set; } = string.Empty;
 
