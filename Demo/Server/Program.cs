@@ -85,7 +85,8 @@ app.UseStaticFiles();
 app.UseAuthentication();
 
 //////// Mediator implementation
-app.UseMediator(app.Environment.IsDevelopment());
+var isDev = app.Environment.IsDevelopment();
+app.UseMediator(isDev, isDev);
 ////////
 app.UseRouting();
 
