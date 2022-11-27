@@ -28,11 +28,6 @@ namespace Pipaslot.Mediator.Http.Configuration
 
         public SerializerType SerializerType { get; set; } = SerializerType.V2;
 
-        public BaseMediatorOptions()
-        {
-            //_credibleResultTypes.Add(typeof(RuleSet));
-        }
-
         #region Credible types
 
         private List<Type> _credibleResultTypes = new List<Type>()
