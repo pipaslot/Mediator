@@ -1,25 +1,22 @@
 ﻿using Demo.Shared.Playground;
 using Pipaslot.Mediator;
-using Pipaslot.Mediator.Notifications;
 
 namespace Demo.Server.Handlers.Playground
 {
     public class CallingNestedNotificationMessageHandler : IMessageHandler<CallingNestedNotificationMessage>
     {
-        private readonly IMediator _mediator;
-        private readonly INotificationProvider _notifications;
+        private readonly IMediatorFacade _mediator;
 
-        public CallingNestedNotificationMessageHandler(IMediator mediator, INotificationProvider notifications)
+        public CallingNestedNotificationMessageHandler(IMediatorFacade mediator)
         {
             _mediator = mediator;
-            _notifications = notifications;
         }
 
         public async Task Handle(CallingNestedNotificationMessage action, CancellationToken cancellationToken)
         {
-            _notifications.AddInformation("Greetings from root action");
+            _mediator.AddInformationNotification("Greetings from root action");
             await _mediator.Dispatch(new NestedNotificationMessage(), cancellationToken);
-            _notifications.AddSuccess("Root handler was executed");
+            _mediator.AddSuccessNotification("Root handler was executed");
         }
     }
 }
