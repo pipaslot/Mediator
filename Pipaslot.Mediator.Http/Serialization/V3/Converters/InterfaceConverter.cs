@@ -79,7 +79,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             switch (value)
             {
                 case null:
-                    JsonSerializer.Serialize(writer, null, null, options);
+                    JsonSerializer.Serialize(writer, "", options);
                     break;
                 default:
                     {
