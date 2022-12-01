@@ -61,6 +61,7 @@ services.AddMediatorServer(o =>
     //    )
     // Use default pipeline if you do not use Action specific specific middlewares or any from previous pipelines does not fullfil condition for execution   
     .UseAuthorization()
+    .UseWhen(a => a is IInternalRequest, m => m.UseDirectHttpCallProtection())
     .Use<CallStackLoggerMiddleware>()
     .Use<ValidatorMiddleware>()
     .Use<CommonMiddleware>();

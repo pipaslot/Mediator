@@ -64,5 +64,10 @@ namespace Pipaslot.Mediator
         {
             return new MediatorException($"Object {what} returned NULL instead of policy");
         }
+
+        public static MediatorException CreateForForbidenDirectCall()
+        {
+            return new MediatorException($"Executed action can not be executed directly. It is expected to be used as nested call only (inside another handler or middleware).");
+        }
     }
 }

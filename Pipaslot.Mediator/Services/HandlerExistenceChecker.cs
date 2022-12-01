@@ -91,7 +91,7 @@ namespace Pipaslot.Mediator.Services
             {
                 return;
             }
-            _errors.Add(AuthorizationException.NoAuthorization(subject.GetType().ToString()).Message);
+            _errors.Add(AuthorizationException.NoAuthorization(subject.ToString()).Message);
         }
 
         private void VerifyHandlerCount(object[] handlers, Type subject)

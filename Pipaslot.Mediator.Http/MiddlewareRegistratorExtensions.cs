@@ -33,5 +33,14 @@ namespace Pipaslot.Mediator.Http
             configurator.Use<THttpClientExecutionMiddleware>();
             return configurator;
         }
+
+        /// <summary>
+        /// Prevent direct calls for action which are not part of your application REST API. 
+        /// Can be used as protection for queries placed in app demilitarized zone. Such a actions lacks authentication, authorization or different security checks.
+        /// </summary>
+        public static IMiddlewareRegistrator UseDirectHttpCallProtection(this IMiddlewareRegistrator config)
+        {
+            return config.Use<DirectHttpCallProtectionMiddleware>(ServiceLifetime.Scoped);
+        }
     }
 }
