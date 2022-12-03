@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Notifications
             {
                 Type = NotificationType.ActionError,
                 Content = content,
-                Source = action?.GetType()?.ToString() ?? ""
+                Source = action.GetActionName()
             };
         }
 
@@ -49,7 +49,7 @@ namespace Pipaslot.Mediator.Notifications
             {
                 Type = NotificationType.Error,
                 Content = content,
-                Source = action?.GetType()?.ToString() ?? ""
+                Source = action.GetActionName()
             };
         }
 

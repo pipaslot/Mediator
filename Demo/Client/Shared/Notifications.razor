@@ -1,4 +1,5 @@
-﻿@using Pipaslot.Mediator.Notifications
+﻿@using Pipaslot.Mediator.Abstractions;
+ @using Pipaslot.Mediator.Notifications
 <div class="toast-container position-fixed top-0 end-0" style="z-index: 11">
     @foreach (var message in _notifications)
     {
@@ -8,7 +9,7 @@
                     <small class="col text-white">@message.Time</small>
                     <button type="button" class="btn-close" @onclick="()=>{ _notifications.Remove(message); }"></button>
                 </div>
-                <strong class="text-white px-0">@message.Source</strong>
+                <strong class="text-white px-0">@FormatSource(message)</strong>
             </div>
             <div class="toast-body">
                 @message.Content
@@ -86,5 +87,12 @@
             default:
                 return "bg-danger";
         }
+    }
+
+    private string FormatSource(Notification notification)
+    {
+        return notification.Type == NotificationType.ActionError
+            ? notification.Source.GetActionFriendlyName(0)
+            : notification.Source;
     }
 }
