@@ -158,6 +158,9 @@ namespace Pipaslot.Mediator.Authorization
 
         private static IPolicy[] GetPolicyAttributes(Type type) => type
                 .GetCustomAttributes(true)
+                .Union(type
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetCustomAttributes(true)))
                 .Where(a => a is IPolicy)
                 .Cast<IPolicy>()
                 .ToArray();

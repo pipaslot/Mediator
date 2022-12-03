@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class AnonymousPolicyAttribute : Attribute, IPolicy
     {
         public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
