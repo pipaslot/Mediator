@@ -9,7 +9,7 @@
                     <small class="col text-white">@message.Time</small>
                     <button type="button" class="btn-close" @onclick="()=>{ _notifications.Remove(message); }"></button>
                 </div>
-                <strong class="text-white px-0">@FormatSource(message)</strong>
+                <strong class="text-white px-0">@message.Source.GetActionFriendlyName(0)</strong>
             </div>
             <div class="toast-body">
                 @message.Content
@@ -87,12 +87,5 @@
             default:
                 return "bg-danger";
         }
-    }
-
-    private string FormatSource(Notification notification)
-    {
-        return notification.Type == NotificationType.ActionError
-            ? notification.Source.GetActionFriendlyName(0)
-            : notification.Source;
     }
 }
