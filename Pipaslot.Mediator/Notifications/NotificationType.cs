@@ -1,27 +1,32 @@
-﻿namespace Pipaslot.Mediator.Notifications
+﻿using System;
+
+namespace Pipaslot.Mediator.Notifications
 {
     public enum NotificationType
     {
+        // TODO COnsider to get rid of this notification type from the app and let the responsibility of exception handling to consumer.
+        // TODO Consider to add new type "Trace" for detailed notifications which may be interrested for troubleshooting by users
         /// <summary>
         /// Error produced by mediator during action processing in handler
         /// </summary>
-        ActionError,
+        [Obsolete]
+        ActionError = 0,
         /// <summary>
         /// Custom type provided by application or by middlewares
         /// </summary>
-        Success,
+        Success = 1,
         /// <summary>
         /// Custom type provided by application or by middlewares
         /// </summary>
-        Information,
+        Information = 2,
         /// <summary>
         /// Custom type provided by application or by middlewares
         /// </summary>
-        Warning,
+        Warning = 3,
         /// <summary>
         /// Custom type provided by application or by middlewares
         /// </summary>
-        Error
+        Error = 4
     }
 
     public static class NotificationTypeExtensions

@@ -11,6 +11,7 @@ namespace Pipaslot.Mediator.Tests.Abstractions
         [InlineData(0, "Rude.Dude.TheMITUniversityILove+Action", "The MIT university I love action")]
         [InlineData(0, "TheMITUniversityILove_Action"          , "The MIT university I love action")]
         [InlineData(1, "Rude.Dude.TheMITUniversityILove_Action", "The MIT university I love")]
+        [InlineData(1, "Rude.Dude.TheMITUniversityILove+Action", "The MIT university I love")]
         [InlineData(2, "Rude.Dude.TheMITUniversityILove_Action", "The MIT university I")]
         [InlineData(3, "Rude.Dude.TheMITUniversityILove_Action", "The MIT university")]
         [InlineData(4, "Rude.Dude.TheMITUniversityILove_Action", "The MIT")]

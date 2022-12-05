@@ -9,7 +9,7 @@
                     <small class="col text-white">@message.Time</small>
                     <button type="button" class="btn-close" @onclick="()=>{ _notifications.Remove(message); }"></button>
                 </div>
-                <strong class="text-white px-0">@message.Source.GetActionFriendlyName(0)</strong>
+                <strong class="text-white px-0">@message.Source</strong>
             </div>
             <div class="toast-body">
                 @message.Content
