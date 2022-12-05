@@ -9,7 +9,6 @@ using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Windows.Input;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
