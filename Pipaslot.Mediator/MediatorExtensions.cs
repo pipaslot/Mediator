@@ -24,10 +24,12 @@ namespace Pipaslot.Mediator
         /// <typeparam name="TResult">Action result type</typeparam>
         /// <returns>Action result type of its new implementation</returns>
         public static async Task<TResult> ExecuteOrNew<TResult>(this IMediator mediator, IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
-            where TResult : new ()
+            where TResult : new()
         {
             var response = await mediator.Execute(request, cancellationToken);
-            return response.Success ? response.Result : new TResult();
+            return response.Success
+                ? response.Result ?? new TResult()
+                : new TResult();
         }
 
         /// <summary>
