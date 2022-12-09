@@ -57,6 +57,14 @@ namespace Pipaslot.Mediator.Middlewares
 
         private object[]? _handlers = null;
 
+        /// <summary>
+        /// Action errors are specific errors from exceptions produced by hanlers and catched in handler execution middleware.
+        /// These can be unwanted in situations when you want to process all error yourself and expose only limited set of known errors to your users.
+        /// By turning this option to FALSE, context starts ignoring all <see cref="Notification"/> instances with <see cref="NotificationType.ActionError"/>
+        /// </summary>
+        [Obsolete("This is temporary workarround and will be removed in next major version")]
+        public bool IgnoreActionErrors { get; set; } = false;
+
         internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
         {
             Mediator = mediator;
@@ -107,7 +115,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Register processing errors. Ignores duplicate entries.
         /// </summary>
-        /// <param name="messages"></param>
+        /// <param name="messages">The contents</param>
         public void AddErrors(IEnumerable<string> messages)
         {
             foreach (var message in messages)
@@ -119,10 +127,21 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Register processing error. Ignores duplicate entries.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The content</param>
         public void AddError(string message)
         {
             var notification = Notification.Error(message, Action);
+            AddResult(notification);
+        }
+
+        /// <summary>
+        /// Register processing error. Ignores duplicate entries.
+        /// </summary>
+        /// <param name="message">The content</param>
+        /// <param name="source">Source name or title</param>
+        public void AddError(string message, string source)
+        {
+            var notification = Notification.Error(message, source);
             AddResult(notification);
         }
 
@@ -149,6 +168,10 @@ namespace Pipaslot.Mediator.Middlewares
                 if (notification.Type.IsError())
                 {
                     Status = ExecutionStatus.Failed;
+                }
+                if(notification.Type == NotificationType.ActionError && IgnoreActionErrors)
+                {
+                    return;
                 }
                 if (!ContainsNotification(notification))
                 {

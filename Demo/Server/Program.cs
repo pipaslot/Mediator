@@ -38,7 +38,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidIssuer = authOptions.Issuer,
                 ValidAudience = authOptions.Audience,
                 IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey),
-                
+
             };
     });
 
@@ -51,7 +51,11 @@ services.AddMediatorServer(o =>
 })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
-    .UseExceptionLogging()                  // Log all unhalded exception via ILogger
+    // Log all unhalded exception via ILogger. Wont catch exception from IMessage as the next middleware provides custom handling for the Messages
+    .UseExceptionLogging()                  
+    .UseWhenAction<IMessage>(
+        p => p.Use<CustomLoggingMiddleware>()
+        )
     // Configure pipelines for own custom action types. This is CQRS implementaiton Demo 
     //.UseWhen<IQuery>(s => s               // Pipeline specified only for queries
     //    .Use<QuerySpecificMiddleware>()   // Middleare which should be applied only to Queries

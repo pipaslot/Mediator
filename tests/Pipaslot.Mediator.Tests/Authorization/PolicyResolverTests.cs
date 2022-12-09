@@ -70,6 +70,12 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
 
         [Fact]
+        public async Task GetPolicies_ReadPolicyFromInterfaces() => await RunGetPolicies(
+                new AnonamousAction(),
+                1);
+
+
+        [Fact]
         public async Task CheckPolicies_AuthorizedActionAndSyncAndAsyncHandlersAndUnauthorizedHandler_ThrowException() => await RunCheckPolicies(
                 new ActionAuthorizedByAttr(),
                 AuthorizationException.UnauthorizedHandlerCode,
@@ -97,6 +103,10 @@ namespace Pipaslot.Mediator.Tests.Authorization
         private class NoAuthorization : IMediatorAction { }
         [AnonymousPolicy]
         private class NoAuthorizationHandlerAttribute { }
+
+        [AnonymousPolicy]
+        private interface IAnonamousAction : IMediatorAction { }
+        private class AnonamousAction : IAnonamousAction { }
         private class NoAuthorizationHandler : IMediatorHandler<IMediatorAction>
         {
             public Task Handle(IMediatorAction action, CancellationToken cancellationToken)

@@ -7,6 +7,10 @@ namespace Pipaslot.Mediator.Notifications
     public class Notification : IEquatable<Notification?>
     {
         public DateTime Time { get; set; } = DateTime.Now;
+        /// <summary>
+        /// Name of action for which the notification was raised.
+        /// Can be also used as title.
+        /// </summary>
         public string Source { get; set; } = "";
         public string Content { get; set; } = "";
         public NotificationType Type { get; set; } = NotificationType.Information;
@@ -39,7 +43,7 @@ namespace Pipaslot.Mediator.Notifications
             {
                 Type = NotificationType.ActionError,
                 Content = content,
-                Source = action?.GetType()?.ToString() ?? ""
+                Source = action.GetActionName()
             };
         }
 
@@ -49,7 +53,7 @@ namespace Pipaslot.Mediator.Notifications
             {
                 Type = NotificationType.Error,
                 Content = content,
-                Source = action?.GetType()?.ToString() ?? ""
+                Source = action.GetActionName()
             };
         }
 

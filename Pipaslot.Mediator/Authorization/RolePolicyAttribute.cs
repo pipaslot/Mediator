@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class RolePolicyAttribute : Attribute, IPolicy
     {
         private readonly IdentityPolicy _policy;
