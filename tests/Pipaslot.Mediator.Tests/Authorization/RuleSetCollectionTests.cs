@@ -25,40 +25,5 @@ namespace Pipaslot.Mediator.Tests.Authorization
             );
             Assert.Equal(expected, sut.IsGranted());
         }
-
-        [Theory]
-        [InlineData(Operator.And)]
-        [InlineData(Operator.Or)]
-        public void StringifyNotGranted(Operator @operator)
-        {
-            var hiddenSet = RuleSet.Create(
-                Operator.Or,
-                new Rule("Role", "A1", true),
-                new Rule("Claim", "A2")
-                );
-            var shownOrSet = RuleSet.Create(
-                Operator.Or,
-                new Rule("Role", "A3"),
-                new Rule("Claim", "A4")
-                );
-            var shownDuplicateOrSet = RuleSet.Create(
-                Operator.Or,
-                new Rule("Role", "A5"),
-                new Rule("Role", "A6")
-                );
-            var shownAndSet = new RuleSet(
-                new Rule("Claim", "A7"),
-                new Rule("Claim", "A8")
-                );
-            var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
-            var expected = "("
-                + shownOrSet.StringifyNotGranted()
-                + $" {@operator} "
-                + shownDuplicateOrSet.StringifyNotGranted()
-                + $" {@operator} "
-                + shownAndSet.StringifyNotGranted()
-                + ")";
-            Assert.Equal(expected, collection.StringifyNotGranted());
-        }
     }
 }

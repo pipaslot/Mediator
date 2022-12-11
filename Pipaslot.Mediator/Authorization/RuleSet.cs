@@ -57,31 +57,11 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
+        [Obsolete("Use RuleSetFormatter")]
         public string StringifyNotGranted()
         {
-            var notGrantedSets = RuleSets
-                .Where(r => !r.IsGranted())
-                .Select(r => r.StringifyNotGranted());
-
-            var notGrantedRules = Rules
-                .Where(r => !r.Granted)
-                .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(FormatGroup);
-            var notGranted = notGrantedSets.Concat(notGrantedRules)
-                .ToArray();
-
-            if (notGranted.Length == 1)
-            {
-                return notGranted.First();
-            }
-            return $"({string.Join($" {Operator} ", notGranted)})";
-        }
-
-        private string FormatGroup(IGrouping<string, Rule> group)
-        {
-            return group.Count() > 1
-            ? $"{{'{group.Key}': [{string.Join($" {Operator} ", group.Select(r => $"'{r.Value}'"))}]}}"
-            : $"{{'{group.Key}': '{group.FirstOrDefault()?.Value}'}}";
+            var formatter = RuleSetFormatter.Instance;
+            return formatter.Format(this);
         }
 
         public bool IsGranted()

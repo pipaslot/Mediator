@@ -30,7 +30,8 @@ namespace Pipaslot.Mediator.Authorization
 
         internal static AuthorizationException RuleNotMet(RuleSet ruleSet)
         {
-            var notGranted = ruleSet.StringifyNotGranted();
+            var formatter = RuleSetFormatter.Instance;
+            var notGranted = formatter.Format(ruleSet);
 
             var ex = new AuthorizationException(RuleNotMetCode, $"Policy rules: {notGranted} not matched for current user.");
             var i = 1;
