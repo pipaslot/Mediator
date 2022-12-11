@@ -2,16 +2,16 @@
 {
     public class AuthorizationRuleException : AuthorizationException
     {
-        public AuthorizationRuleException(AuthorizationExceptionTypes type, string message) : base(type, message)
+        public AuthorizationRuleException(RuleSet ruleSet, AuthorizationExceptionTypes type, string message) : base(type, message)
         {
+            RuleSet = ruleSet;
         }
 
-        public RuleSet? RuleSet { get; set; }
+        public RuleSet RuleSet { get; }
 
         internal static AuthorizationRuleException Create(RuleSet ruleSet, string message)
         {
-            var ex = new AuthorizationRuleException(AuthorizationExceptionTypes.RuleNotMet, message);
-            ex.RuleSet = ruleSet;
+            var ex = new AuthorizationRuleException(ruleSet, AuthorizationExceptionTypes.RuleNotMet, message);
             var i = 1;
             foreach (var rule in ruleSet.RulesRecursive)
             {
