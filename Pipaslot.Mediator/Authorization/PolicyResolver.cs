@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,8 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (rules.Any(r => !r.Granted))
             {
-                throw AuthorizationException.RuleNotMet(ruleSet);
+                var formated = RuleSetFormatter.Instance.Format(ruleSet);
+                throw AuthorizationRuleException.Create(ruleSet, $"Policy rules: {formated} not matched for current user.");
             }
         }
 

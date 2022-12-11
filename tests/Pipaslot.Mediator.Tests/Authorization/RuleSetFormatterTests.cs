@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Theory]
         [InlineData(Operator.And)]
         [InlineData(Operator.Or)]
-        public void StringifyNotGranted(Operator @operator)
+        public void Format(Operator @operator)
         {
             var sut = RuleSetFormatter.Instance;
             var hiddenSet = RuleSet.Create(
@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
 
         [Fact]
-        public void StringifyNotGranted_Single()
+        public void Format_Single()
         {
             var sut = RuleSetFormatter.Instance;
             var set = new RuleSet(
@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Theory]
         [InlineData(Operator.And)]
         [InlineData(Operator.Or)]
-        public void StringifyNotGranted_TwoWithUniqueName(Operator @operator)
+        public void Format_TwoWithUniqueName(Operator @operator)
         {
             var sut = RuleSetFormatter.Instance;
             var set = RuleSet.Create(
@@ -74,7 +74,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.And, false)]
         [InlineData(Operator.Or, true)]
         [InlineData(Operator.Or, false)]
-        public void StringifyNotGranted_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
+        public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
         {
             var sut = RuleSetFormatter.Instance;
             var name = "Role";
@@ -89,7 +89,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         }
 
         [Fact]
-        public void StringifyNotGranted_CollectionWithSingleRuleSet_ReturnOnlySet()
+        public void Format_CollectionWithSingleRuleSet_ReturnOnlySet()
         {
             var sut = RuleSetFormatter.Instance;
             var set = new RuleSet(
@@ -99,6 +99,5 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var collection = new RuleSet(set);
             Assert.Equal(sut.Format(set), sut.Format(collection));
         }
-
     }
 }

@@ -7,16 +7,15 @@ namespace Pipaslot.Mediator.Authorization
     public class RuleSetFormatter
     {
         /// <summary>
-        /// Provide a Singleto ninstance
+        /// Provide a Singleton instance
         /// </summary>
         private static RuleSetFormatter? _instance;
 
-        public RuleSetFormatter()
+        private RuleSetFormatter()
         {
         }
 
         public static RuleSetFormatter Instance => _instance ??= new RuleSetFormatter();
-
 
         public string Format(RuleSet set)
         {
@@ -27,7 +26,7 @@ namespace Pipaslot.Mediator.Authorization
             var notGrantedRules = set.Rules
                 .Where(r => !r.Granted)
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(g=>FormatGroup(g ,set.Operator));
+                .Select(g => FormatGroup(g, set.Operator));
             var notGranted = notGrantedSets.Concat(notGrantedRules)
                 .ToArray();
 
