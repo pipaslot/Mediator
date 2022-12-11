@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,35 +24,16 @@ namespace Pipaslot.Mediator.Authorization
             var notGrantedRules = policyResult.RulesRecursive
                 .Where(r => !r.Granted);
             var ruleSets = policyResult.RuleSetsRecursive;
+            var formatter = _serviceProvider.GetService<IRuleSetFormatter>() ?? RuleSetFormatter.Instance;
+            var reason = formatter.FormatReason(policyResult);
             return new IsAuthorizedRequestResponse
             {
                 IsAuthorized = policyResult.IsGranted(),
-                RuleSets = /*ReduceDepth(*/MapRuleSet(policyResult.RuleSets)/*)*/,
+                Reason = reason,
+                RuleSets = MapRuleSet(policyResult.RuleSets),
                 IsIdentityStatic = ruleSets.All(r => r.Reproducibility == RuleSetReproducibility.IdentityStatic)
             };
         }
-
-        //private IsAuthorizedRequestResponse.RuleSetDto[] ReduceDepth(IsAuthorizedRequestResponse.RuleSetDto[] ruleSetDtos)
-        //{
-        //    foreach (var ruleSetDto in ruleSetDtos)
-        //    {
-        //        var rules = new List<IsAuthorizedRequestResponse.RuleDto>(ruleSetDto.Rules);
-        //        var reducedSets = new List<IsAuthorizedRequestResponse.RuleSetDto>();
-        //        foreach (var childSet in ReduceDepth(ruleSetDto.SubSets)){
-        //            if (childSet.Operator == ruleSetDto.Operator)
-        //            {
-        //                rules.AddRange(childSet.Rules);
-        //            }
-        //            else
-        //            {
-        //                reducedSets.Add(childSet);
-        //            }
-        //        }
-        //        ruleSetDto.SubSets = reducedSets.ToArray();
-        //        ruleSetDto.Rules = rules.ToArray();
-        //    }
-        //    return ruleSetDtos;
-        //}
 
         private IsAuthorizedRequestResponse.RuleSetDto[] MapRuleSet(List<RuleSet> ruleSets)
         {

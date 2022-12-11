@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Pipaslot.Mediator.Authorization
 {
-    public class RuleSetFormatter
+    public class RuleSetFormatter : IRuleSetFormatter
     {
         /// <summary>
         /// Provide a Singleton instance
@@ -16,6 +17,17 @@ namespace Pipaslot.Mediator.Authorization
         }
 
         public static RuleSetFormatter Instance => _instance ??= new RuleSetFormatter();
+
+        public string FormatException(RuleSet set)
+        {
+            return $"Policy rules: {Format(set)} not matched for current user.";
+        }
+
+
+        public string FormatReason(RuleSet set)
+        {
+            return $"Policies not met: {Format(set)}";
+        }
 
         public string Format(RuleSet set)
         {

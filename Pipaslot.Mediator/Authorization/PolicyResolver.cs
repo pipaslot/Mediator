@@ -20,8 +20,9 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (rules.Any(r => !r.Granted))
             {
-                var formated = RuleSetFormatter.Instance.Format(ruleSet);
-                throw AuthorizationRuleException.Create(ruleSet, $"Policy rules: {formated} not matched for current user.");
+                var formatter = services.GetService<IRuleSetFormatter>() ?? RuleSetFormatter.Instance;
+                var message = formatter.FormatException(ruleSet);
+                throw AuthorizationRuleException.Create(ruleSet, message);
             }
         }
 
