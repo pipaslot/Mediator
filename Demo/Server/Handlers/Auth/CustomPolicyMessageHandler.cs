@@ -20,7 +20,7 @@ namespace Demo.Server.Handlers.Auth
             var policy = IdentityPolicy.Authenticated();
             if (action.IsInvalid)
             {
-                return policy.And(new PermitPolicy("Model state does not allow to perform this operation."));
+                return policy.And(new RuleSet("Model state does not allow to perform this operation."));
             }
             return policy;
         }
@@ -29,20 +29,6 @@ namespace Demo.Server.Handlers.Auth
         {
             _notification.AddSuccess("Handler was executed");
             return Task.CompletedTask;
-        }
-    }
-    public class PermitPolicy : IPolicy
-    {
-        private RuleSet _ruleset = new();
-
-        public PermitPolicy(string reason, bool isGranted = false)
-        {
-            _ruleset.Rules.Add(new Rule("Rule", reason, isGranted));
-        }
-
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_ruleset);
         }
     }
 }

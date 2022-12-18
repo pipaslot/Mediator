@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Pipaslot.Mediator.Authorization
 {
@@ -10,7 +12,7 @@ namespace Pipaslot.Mediator.Authorization
     /// Define one or more rules aggregated with AND or OR operator
     /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
-    public class RuleSet
+    public class RuleSet : IPolicy
     {
         public Operator Operator { get; }
         public RuleSetReproducibility Reproducibility { get; private set; } = RuleSetReproducibility.Dynamic;
@@ -45,6 +47,16 @@ namespace Pipaslot.Mediator.Authorization
         {
             Operator = @operator;
             Rules.AddRange(rules);
+        }
+
+        /// <summary>
+        /// Create rule set with initialized rule
+        /// </summary>
+        /// <param name="ruleValue"></param>
+        /// <param name="isGranted"></param>
+        public RuleSet(string ruleValue, bool isGranted = false)
+        {
+            Rules.Add(new Rule("Rule", ruleValue, isGranted));
         }
 
         public static RuleSet Create(Operator @operator, params Rule[] set)
@@ -92,6 +104,11 @@ namespace Pipaslot.Mediator.Authorization
         {
             Reproducibility = RuleSetReproducibility.IdentityStatic;
             return this;
+        }
+
+        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        {
+            return Task.FromResult((RuleSet)this);
         }
     }
 }
