@@ -44,7 +44,7 @@ namespace Demo.Client.Services
                         .Where(r => r is IsAuthorizedRequestResponse)
                         .Cast<IsAuthorizedRequestResponse>()
                         .FirstOrDefault();
-                    if (toBeCached != null && !toBeCached.IsIdentityStatic)
+                    if (toBeCached != null && toBeCached.IsIdentityStatic)
                     {
                         _cache.TryAdd(cacheKey, toBeCached);
                     }
