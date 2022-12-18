@@ -1,0 +1,55 @@
+﻿@using Demo.Shared.Auth;
+@using Pipaslot.Mediator.Authorization;
+<h3>Custom policies</h3>
+<p>You can use the policies to consider object state. For example for disabling execution in case if invalida model state.</p>
+
+<EditForm Model="@Model" OnValidSubmit="@Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            <InputCheckbox Value="@Model.IsInvalid"
+                           ValueExpression="()=>Model.IsInvalid"
+                           ValueChanged="e=>OnIsInvalidChanged(e)" /> Make the model invalid
+        </label>
+    </div>
+    <div class="mt-2">
+        <button class="btn @(_auth.IsAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit">
+            <span class="me-1">Submit</span>
+        </button>
+        <div>@_auth.Reason</div>
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public CustomPolicyMessage Model { get; set; } = new();
+
+    private IsAuthorizedRequestResponse _auth = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await OnChange();
+    }
+
+    private async Task OnIsInvalidChanged(bool value)
+    {
+        Model.IsInvalid = value;
+        await OnChange();
+    }
+
+    private async Task OnChange()
+    {
+        _auth = await Mediator.Authorize(Model);
+    }
+
+    private async Task Submit()
+    {
+        var result = await Mediator.Dispatch(Model);
+        if (result.Success)
+        {
+            _auth.Reason = "Validation passed";
+        }
+    }
+}

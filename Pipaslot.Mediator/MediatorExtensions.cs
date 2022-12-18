@@ -51,7 +51,8 @@ namespace Pipaslot.Mediator
                 ? response.Result
                 : new IsAuthorizedRequestResponse
                 {
-                    IsAuthorized = false
+                    IsAuthorized = false,
+                    Reason = "Operation failed"
                 };
         }
     }

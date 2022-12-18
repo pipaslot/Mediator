@@ -16,6 +16,8 @@
 <ConditionalAuthorization Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
 <br /><br />
 <IdentityStaticAuthorization @key="@($"form2-{isAuthenticated}")" />
+<hr />
+<BusinessRuleDependentPolicy @key="@($"form3-{isAuthenticated}")" />
 
 @code {
     private bool isAuthenticated;
