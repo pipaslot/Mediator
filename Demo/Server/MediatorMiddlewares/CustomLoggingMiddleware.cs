@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Middlewares;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Demo.Server.MediatorMiddlewares
 {
@@ -33,10 +32,10 @@ namespace Demo.Server.MediatorMiddlewares
                 context.Status = ExecutionStatus.Failed;
                 // No error message is needed
             }
-            catch (AuthorizationException e)
+            catch (AuthorizationException ae)
             {
-                context.AddError(e.Message, "CustomLogging of action: " + context.Action.GetActionFriendlyName());
-                _logger.LogError(e, $"Unauthorized action '{context.ActionIdentifier}'.");
+                context.AddError(ae.Message, "CustomLogging of action: " + context.Action.GetActionFriendlyName());
+                _logger.LogWarning(ae, $"Unauthorized invocation of action '{context.ActionIdentifier}'");
             }
             catch (Exception e)
             {
