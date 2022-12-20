@@ -30,6 +30,9 @@
         <button class="btn btn-primary btn-sm" type="submit" disabled="@(!_isAuthorized)" title="If denied, then sending will be blocked in browser.">
             <span class="me-1">Submit (alternative)</span>
         </button>
+
+        <div><i>Reason:</i></div>
+        <div>@_reason</div>
     </div>
 </EditForm>
 
@@ -38,7 +41,8 @@
     [Parameter, EditorRequired]
     public ConditionalAuthorizationMessage Model { get; set; } = null!;
 
-    private bool _isAuthorized;
+    bool _isAuthorized;
+    string _reason = string.Empty;
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -57,7 +61,9 @@
     }
     private async Task OnChange()
     {
-        _isAuthorized = await Mediator.IsAuthorized(Model);
+        var auth = await Mediator.Authorize(Model);
+        _isAuthorized = auth.IsAuthorized;
+        _reason = auth.Reason;
     }
 
     private async Task Submit()

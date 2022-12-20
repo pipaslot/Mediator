@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Data;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using System.Text;
 
 namespace Pipaslot.Mediator.Authorization
 {
@@ -23,13 +26,7 @@ namespace Pipaslot.Mediator.Authorization
             return $"Policy rules: {Format(set)} not matched for current user.";
         }
 
-
-        public string FormatReason(RuleSet set)
-        {
-            return $"Policies not met: {Format(set)}";
-        }
-
-        public string Format(RuleSet set)
+        internal string Format(RuleSet set)
         {
             var notGrantedSets = set.RuleSets
                 .Where(r => !r.IsGranted())
@@ -42,6 +39,10 @@ namespace Pipaslot.Mediator.Authorization
             var notGranted = notGrantedSets.Concat(notGrantedRules)
                 .ToArray();
 
+            if (notGranted.Length == 0)
+            {
+                return string.Empty;
+            }
             if (notGranted.Length == 1)
             {
                 return notGranted.First();
@@ -54,6 +55,60 @@ namespace Pipaslot.Mediator.Authorization
             return group.Count() > 1
             ? $"{{'{group.Key}': [{string.Join($" {op} ", group.Select(r => $"'{r.Value}'"))}]}}"
             : $"{{'{group.Key}': '{group.FirstOrDefault()?.Value}'}}";
+        }
+
+        public string FormatReason(RuleSet set)
+        {
+            var isGranted = set.IsGranted();
+            var messages = CollectReasons(set, isGranted)
+                .Where(s => !string.IsNullOrWhiteSpace(s));
+            return string.Join(" ", messages);
+        }
+
+        private IEnumerable<string> CollectReasons(RuleSet set, bool isFinallyGranted)
+        {
+            foreach (var r in set.RuleSets
+                .Where(r => isFinallyGranted == r.IsGranted()))
+            {
+                foreach (var child in CollectReasons(r, isFinallyGranted))
+                {
+                    yield return child;
+                }
+            }
+            foreach (var r in set.Rules
+                .Where(r => isFinallyGranted == r.Granted))
+            {
+                yield return FormatRule(r);
+            }
+        }
+
+        protected virtual string FormatRule(Rule rule)
+        {
+            if (rule.Name == IdentityPolicy.AuthenticationPolicyName)
+            {
+                if (rule.Granted)
+                {
+                    return string.Empty;
+                }
+                if (rule.Value == IdentityPolicy.AuthenticatedValue)
+                {
+                    return "User has to be authenticated.";
+                }
+            }
+            if (rule.Name == ClaimTypes.Role)
+            {
+                if (rule.Granted)
+                {
+                    return string.Empty;
+                }
+                return $"Role {rule.Value} is required.";
+            }
+            if (rule.Name == Rule.DefaultName)
+            {
+                return rule.Value;
+            }
+
+            return $"{rule.Name} {rule.Value} is required.";
         }
     }
 }

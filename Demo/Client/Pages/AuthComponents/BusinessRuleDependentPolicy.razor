@@ -17,6 +17,7 @@
         <button class="btn @(_auth.IsAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit">
             <span class="me-1">Submit</span>
         </button>
+        <div><i>Reason:</i></div>
         <div>@_auth.Reason</div>
     </div>
 </EditForm>

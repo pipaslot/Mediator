@@ -5,9 +5,14 @@
     /// </summary>
     public class Rule
     {
+        public const string DefaultName = "Rule";
         public string Name { get; }
         public string Value { get; }
         public bool Granted { get; }
+        public Rule(string value, bool granted = false) : this(DefaultName, value, granted)
+        {
+
+        }
 
         public Rule(string name, string value, bool granted = false)
         {

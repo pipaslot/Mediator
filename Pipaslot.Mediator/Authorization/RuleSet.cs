@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Authorization
         /// <param name="isGranted"></param>
         public RuleSet(string ruleValue, bool isGranted = false)
         {
-            Rules.Add(new Rule("Rule", ruleValue, isGranted));
+            Rules.Add(new Rule(ruleValue, isGranted));
         }
 
         public static RuleSet Create(Operator @operator, params Rule[] set)
