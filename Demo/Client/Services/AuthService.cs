@@ -23,7 +23,10 @@ namespace Demo.Client.Services
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var authState = await _localStorage.GetItemAsync<AuthState>(AuthState.Name);
-            if (authState == null || string.IsNullOrWhiteSpace(authState.Username) || string.IsNullOrWhiteSpace(authState.BearerToken))
+            if (authState == null 
+                || string.IsNullOrWhiteSpace(authState.Username) 
+                || string.IsNullOrWhiteSpace(authState.BearerToken)
+                || authState.Expiration < DateTime.Now)
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
@@ -53,7 +56,8 @@ namespace Demo.Client.Services
             await _localStorage.SetItemAsync(AuthState.Name, new AuthState
             {
                 Username = username,
-                BearerToken = response.Result.Token
+                BearerToken = response.Result.Token,
+                Expiration = response.Result.Expiration
             });
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
@@ -70,6 +74,7 @@ namespace Demo.Client.Services
             internal const string Name = "Auth";
             public string? BearerToken { get; set; }
             public string? Username { get; set; }
+            public DateTime Expiration { get; set; }
         }
     }
 }
