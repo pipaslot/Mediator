@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -60,7 +61,7 @@ namespace Pipaslot.Mediator.Authorization
         [Obsolete("Use RuleSetFormatter")]
         public string StringifyNotGranted()
         {
-            var formatter = RuleSetFormatter.Instance;
+            var formatter = new PermitRuleSetFormatter();
             return formatter.Format(this);
         }
 

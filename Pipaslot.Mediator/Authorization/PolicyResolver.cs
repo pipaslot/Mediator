@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization.RuleSetFormatters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,8 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (rules.Any(r => !r.Granted))
             {
-                var formatter = services.GetService<IRuleSetFormatter>() ?? RuleSetFormatter.Instance;
-                var message = formatter.FormatException(ruleSet);
+                var formatter = services.GetRequiredService<IExceptionRuleSetFormatter>();
+                var message = formatter.Format(ruleSet);
                 throw AuthorizationRuleException.Create(ruleSet, message);
             }
         }

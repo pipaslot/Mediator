@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization.RuleSetFormatters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,17 +25,21 @@ namespace Pipaslot.Mediator.Authorization
             var notGrantedRules = policyResult.RulesRecursive
                 .Where(r => !r.Granted);
             var ruleSets = policyResult.RuleSetsRecursive;
-            var formatter = _serviceProvider.GetService<IRuleSetFormatter>() ?? RuleSetFormatter.Instance;
-            var reason = formatter.FormatReason(policyResult);
+            var isAuthorized = policyResult.IsGranted();
+            IRuleSetFormatter formatter = isAuthorized
+                ? _serviceProvider.GetRequiredService<IAllowedRuleSetFormatter>()
+                : _serviceProvider.GetRequiredService<IDeniedRuleSetFormatter>();
+            var reason = formatter.Format(policyResult);
             return new IsAuthorizedRequestResponse
             {
-                IsAuthorized = policyResult.IsGranted(),
+                IsAuthorized = isAuthorized,
                 Reason = reason,
                 RuleSets = MapRuleSet(policyResult.RuleSets),
                 IsIdentityStatic = ruleSets.All(r => r.Reproducibility == RuleSetReproducibility.IdentityStatic)
             };
         }
 
+        [Obsolete]
         private IsAuthorizedRequestResponse.RuleSetDto[] MapRuleSet(List<RuleSet> ruleSets)
         {
             return ruleSets

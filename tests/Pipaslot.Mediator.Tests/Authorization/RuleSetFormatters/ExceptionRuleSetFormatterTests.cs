@@ -1,15 +1,21 @@
 ﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.RuleSetFormatters;
 
-namespace Pipaslot.Mediator.Tests.Authorization
+namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
 {
-    public class RuleSetFormatterTests
+    public class ExceptionRuleSetFormatterTests
     {
+        private ExceptionRuleSetFormatter Create()
+        {
+            return new ExceptionRuleSetFormatter();
+        }
+
         [Theory]
         [InlineData(Operator.And)]
         [InlineData(Operator.Or)]
         public void Format(Operator @operator)
         {
-            var sut = RuleSetFormatter.Instance;
+            var sut = Create();
             var hiddenSet = RuleSet.Create(
                 Operator.Or,
                 new Rule("Role", "A1", true),
@@ -31,26 +37,26 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 );
             var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
             var expected = "("
-                + sut.Format(shownOrSet)
+                + sut.FormatInternal(shownOrSet)
                 + $" {@operator} "
-                + sut.Format(shownDuplicateOrSet)
+                + sut.FormatInternal(shownDuplicateOrSet)
                 + $" {@operator} "
-                + sut.Format(shownAndSet)
+                + sut.FormatInternal(shownAndSet)
                 + ")";
-            Assert.Equal(expected, sut.Format(collection));
+            Assert.Equal(expected, sut.FormatInternal(collection));
         }
 
 
         [Fact]
         public void Format_Single()
         {
-            var sut = RuleSetFormatter.Instance;
+            var sut = Create();
             var set = new RuleSet(
                 new Rule("Role", "Admin"),
                 new Rule("Ignored", "IgnoredValue", true)
                 );
             var expected = $"{{'Role': 'Admin'}}";
-            Assert.Equal(expected, sut.Format(set));
+            Assert.Equal(expected, sut.FormatInternal(set));
         }
 
         [Theory]
@@ -58,7 +64,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or)]
         public void Format_TwoWithUniqueName(Operator @operator)
         {
-            var sut = RuleSetFormatter.Instance;
+            var sut = Create();
             var set = RuleSet.Create(
                 @operator,
                 new Rule("Role", "A1"),
@@ -66,7 +72,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new Rule("Ignored", "IgnoredValue", true)
                 );
             var expected = $"({{'Role': 'A1'}} {@operator} {{'Claim': 'A2'}})";
-            Assert.Equal(expected, sut.Format(set));
+            Assert.Equal(expected, sut.FormatInternal(set));
         }
 
         [Theory]
@@ -76,7 +82,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(Operator.Or, false)]
         public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
         {
-            var sut = RuleSetFormatter.Instance;
+            var sut = Create();
             var name = "Role";
             var set = RuleSet.Create(
                 @operator,
@@ -85,19 +91,19 @@ namespace Pipaslot.Mediator.Tests.Authorization
                 new Rule("Ignored", "IgnoredValue", true)
                 );
             var expected = $"{{'Role': ['A1' {@operator} 'A2']}}";
-            Assert.Equal(expected, sut.Format(set));
+            Assert.Equal(expected, sut.FormatInternal(set));
         }
 
         [Fact]
         public void Format_CollectionWithSingleRuleSet_ReturnOnlySet()
         {
-            var sut = RuleSetFormatter.Instance;
+            var sut = Create();
             var set = new RuleSet(
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2")
                 );
             var collection = new RuleSet(set);
-            Assert.Equal(sut.Format(set), sut.Format(collection));
+            Assert.Equal(sut.FormatInternal(set), sut.FormatInternal(collection));
         }
     }
 }
