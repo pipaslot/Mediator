@@ -20,7 +20,7 @@ namespace Demo.Server.Handlers.Auth
             var policy = IdentityPolicy.Authenticated();
             if (action.IsInvalid)
             {
-                return policy.And(new RuleSet("Model state does not allow to perform this operation."));
+                return policy.And(new Rule("Model state does not allow to perform this operation."));
             }
             return policy;
         }

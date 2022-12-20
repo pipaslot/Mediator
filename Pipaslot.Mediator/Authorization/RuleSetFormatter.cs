@@ -101,14 +101,14 @@ namespace Pipaslot.Mediator.Authorization
                 {
                     return string.Empty;
                 }
-                return $"Role {rule.Value} is required.";
+                return $"Role '{rule.Value}' is required.";
             }
             if (rule.Name == Rule.DefaultName)
             {
                 return rule.Value;
             }
 
-            return $"{rule.Name} {rule.Value} is required.";
+            return $"{rule.Name} '{rule.Value}' is required.";
         }
     }
 }
