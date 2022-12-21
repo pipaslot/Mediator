@@ -47,6 +47,9 @@
 <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CalingCustomInternalRequestMessage())">Indirect call (passing)</button>
 <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CustomInternalRequest())">Direct call (failing)</button>
 
+<h5>Long running actions</h5>
+<button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new LongRunningRequest(10))">Start</button>
+<p>You can got to another page ant the request will be cancelled. Thas is achieved by NavigationCancellationMediatorMiddleware</p>
 
 <h4>Result Data</h4>
 <code>
