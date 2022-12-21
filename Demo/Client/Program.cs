@@ -29,7 +29,9 @@ services.AddMediatorClient(o =>
         p.Use<AuthCacheMediatorMiddleware>();
     })
     .UseNotificationReceiver()
-    .UseWhenAction<IRequest>(s => s.UseReduceDuplicateProcessing())
+    .UseWhenAction<IRequest>(s => s
+        .UseReduceDuplicateProcessing()
+        .Use<CancellationOnNavigationMediatorMiddleware>(ServiceLifetime.Singleton))
     .UseActionEvents();
 ////////
 
