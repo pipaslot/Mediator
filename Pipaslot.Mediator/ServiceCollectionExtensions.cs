@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.RuleSetFormatters;
 using Pipaslot.Mediator.Configuration;
@@ -44,9 +45,9 @@ namespace Pipaslot.Mediator
             configurator.AddHandlers(new[] { typeof(IsAuthorizedRequestHandler) });
             // Separate authorization middleware, because we do not want to interrupt by custom middlewares
             configurator.AddPipelineForAuthorizationRequest(p => { });
-            services.AddSingleton<IAllowedRuleSetFormatter, PermitRuleSetFormatter>();
-            services.AddSingleton<IDeniedRuleSetFormatter, PermitRuleSetFormatter>();
-            services.AddSingleton<IExceptionRuleSetFormatter, ExceptionRuleSetFormatter>();
+            services.TryAddSingleton<IAllowedRuleSetFormatter, PermitRuleSetFormatter>();
+            services.TryAddSingleton<IDeniedRuleSetFormatter, PermitRuleSetFormatter>();
+            services.TryAddSingleton<IExceptionRuleSetFormatter, ExceptionRuleSetFormatter>();
             return configurator;
         }
     }
