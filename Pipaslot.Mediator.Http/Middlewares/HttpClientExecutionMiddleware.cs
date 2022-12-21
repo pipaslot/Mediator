@@ -54,8 +54,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
             catch (Exception ce) when (ce is OperationCanceledException || ce is TaskCanceledException)
             {
-                context.Status = ExecutionStatus.Failed;
-                return new MediatorResponse<TResult>("Operation was canceled", context.Action);
+                throw;
             }
             catch (Exception e)
             {
