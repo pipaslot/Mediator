@@ -17,6 +17,16 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var policy = new FakeBoolPolicy(left).And(new FakeBoolPolicy(right));
             await AssertPolicy(policy, expected);
         }
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, false, false)]
+        public async Task And_Operator(bool left, bool right, bool expected)
+        {
+            var policy = (IPolicy)new FakeBoolPolicy(left) & new FakeBoolPolicy(right);
+            await AssertPolicy(policy, expected);
+        }
 
         [Theory]
         [InlineData(true, true, true)]
@@ -37,6 +47,17 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task Or_Instance(bool left, bool right, bool expected)
         {
             var policy = new FakeBoolPolicy(left).Or(new FakeBoolPolicy(right));
+            await AssertPolicy(policy, expected);
+        }
+
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(false, false, false)]
+        public async Task Or_operator(bool left, bool right, bool expected)
+        {
+            var policy = (IPolicy)new FakeBoolPolicy(left) | new FakeBoolPolicy(right);
             await AssertPolicy(policy, expected);
         }
 
