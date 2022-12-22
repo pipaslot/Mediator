@@ -108,6 +108,17 @@ namespace Pipaslot.Mediator.Authorization
             }
             return Task.FromResult(collection);
         }
+#if !NETSTANDARD
+        public static IPolicy operator &(IdentityPolicy c1, IPolicy c2)
+        {
+            return c1.And(c2);
+        }
+
+        public static IPolicy operator |(IdentityPolicy c1, IPolicy c2)
+        {
+            return c1.Or(c2);
+        }
+#endif
 
         private enum AuthStatus
         {
