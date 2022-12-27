@@ -7,6 +7,7 @@ namespace Pipaslot.Mediator.Authorization
 {
     public class Rule : IPolicy
     {
+        public RuleScope Scope { get; }
         /// <summary>
         /// Default rule name if not specified
         /// </summary>
@@ -37,11 +38,12 @@ namespace Pipaslot.Mediator.Authorization
 
         }
 
-        public Rule(string name, string value, bool granted = false)
+        public Rule(string name, string value, bool granted = false, RuleScope scope = RuleScope.State)
         {
             Name = name;
             Value = value;
             Granted = granted;
+            Scope = scope;
         }
 
         public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)

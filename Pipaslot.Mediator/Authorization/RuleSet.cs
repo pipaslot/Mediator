@@ -14,7 +14,6 @@ namespace Pipaslot.Mediator.Authorization
     public class RuleSet
     {
         public Operator Operator { get; }
-        public RuleSetReproducibility Reproducibility { get; private set; } = RuleSetReproducibility.Dynamic;
         public List<Rule> Rules { get; set; } = new List<Rule>();
         public List<RuleSet> RuleSets { get; set; } = new List<RuleSet>();
 
@@ -84,15 +83,6 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
-        }
-        /// <summary>
-        /// Set identity static reproducibility
-        /// </summary>
-        /// <returns></returns>
-        public RuleSet SetIdentityStatic()
-        {
-            Reproducibility = RuleSetReproducibility.IdentityStatic;
-            return this;
         }
     }
 }

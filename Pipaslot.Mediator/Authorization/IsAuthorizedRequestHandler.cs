@@ -22,7 +22,8 @@ namespace Pipaslot.Mediator.Authorization
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
             var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken);
-            var notGrantedRules = policyResult.RulesRecursive
+            var allRules = policyResult.RulesRecursive;
+            var notGrantedRules = allRules
                 .Where(r => !r.Granted);
             var ruleSets = policyResult.RuleSetsRecursive;
             var isAuthorized = policyResult.IsGranted();
@@ -35,7 +36,7 @@ namespace Pipaslot.Mediator.Authorization
                 IsAuthorized = isAuthorized,
                 Reason = reason,
                 RuleSets = MapRuleSet(policyResult.RuleSets),
-                IsIdentityStatic = ruleSets.All(r => r.Reproducibility == RuleSetReproducibility.IdentityStatic)
+                IsIdentityStatic = allRules.All(r => r.Scope == RuleScope.Identity)
             };
         }
 

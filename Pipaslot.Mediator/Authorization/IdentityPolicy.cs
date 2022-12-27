@@ -91,7 +91,7 @@ namespace Pipaslot.Mediator.Authorization
                 var value = shouldBeAuthenticated
                     ? AuthenticatedValue
                     : AnonymousValue;
-                var authRule = new Rule(AuthenticationPolicyName, value, isAuthenticationGranted);
+                var authRule = new Rule(AuthenticationPolicyName, value, isAuthenticationGranted, RuleScope.Identity);
                 collection.Rules.Add(authRule);
             }
             else
@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator.Authorization
                 {
                     var hasClaim = userClaims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
                                                 && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
-                    claimRules.Rules.Add(new Rule(required.Name, required.Value, hasClaim));
+                    claimRules.Rules.Add(new Rule(required.Name, required.Value, hasClaim, RuleScope.Identity));
                 }
             }
             return Task.FromResult(collection);
