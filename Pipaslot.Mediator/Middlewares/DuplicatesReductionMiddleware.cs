@@ -11,14 +11,14 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
     {
-        private readonly static Dictionary<Type, Dictionary<int, Task>> _running = new();
+        private readonly static Dictionary<Type, Dictionary<int, Task<MediatorContext>>> _running = new();
         private readonly object _lock = new();
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             var type = context.Action.GetType();
             var hashCode = context.Action.GetHashCode();
-            Task task;
+            Task<MediatorContext> task;
             lock (_lock)
             {
                 task = GetOrAddTask(type, hashCode, context, next);
@@ -26,7 +26,8 @@ namespace Pipaslot.Mediator.Middlewares
 
             try
             {
-                await task;
+                var innerContext = await task;
+                context.Append(innerContext);
             }
             finally
             {
@@ -37,23 +38,30 @@ namespace Pipaslot.Mediator.Middlewares
             }
         }
 
-        private Task GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
+        private Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
         {
-            Task task;
+            var contextCopy = context.CopyEmpty();
+            Task<MediatorContext> task;
             if (_running.TryGetValue(actionType, out var instances))
             {
                 if (instances.TryGetValue(hashCode, out var runningTask))
                 {
                     return runningTask;
                 }
-                task = next(context);
+                task = Run(contextCopy, next);
                 instances.Add(hashCode, task);
                 return task;
             }
 
-            task = next(context);
-            _running.Add(actionType, new Dictionary<int, Task> { { hashCode, task } });
+            task = Run(contextCopy, next);
+            _running.Add(actionType, new Dictionary<int, Task<MediatorContext>> { { hashCode, task } });
             return task;
+        }
+
+        private async Task<MediatorContext> Run(MediatorContext context, MiddlewareDelegate next)
+        {
+            await next(context);
+            return context;
         }
 
         private void Remove(Type actionType, int hashCode)
