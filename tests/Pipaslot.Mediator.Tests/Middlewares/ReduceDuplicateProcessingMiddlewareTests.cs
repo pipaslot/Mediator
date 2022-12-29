@@ -93,6 +93,21 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             Assert.Single(ctx2.Results);
         }
 
+        [Fact]
+        public async Task RaceCondition()
+        {
+            var mediator = Factory.CreateMediator(s => s.UseReduceDuplicateProcessing());
+            var task1 = mediator.Execute(new RaceConditionAction() { Value = 1 });
+            var task2 = mediator.Execute(new RaceConditionAction() { Value = 1 });
+
+            await Task.WhenAll(task1, task2);
+            var r1 = (await task1).Result;
+            var r2 = (await task2).Result;
+
+            Assert.True(r1 is RaceConditionResult);
+            Assert.True(r2 is RaceConditionResult);
+        }
+
         #region Setup
 
         private Task Run(IMediatorAction action, out MediatorContext context)
@@ -122,6 +137,22 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             }
         }
 
+        public record RaceConditionAction : IMediatorAction<RaceConditionResult>
+        {
+            public int Value { get; set; }
+        }
+        public class RaceConditionActionHandler : IMediatorHandler<RaceConditionAction, RaceConditionResult>
+        {
+            public async Task<RaceConditionResult> Handle(RaceConditionAction action, CancellationToken cancellationToken)
+            {
+                await Task.Delay(500);
+                return new RaceConditionResult();
+            }
+        }
+        public class RaceConditionResult
+        {
+
+        }
         #endregion
 
     }
