@@ -9,115 +9,99 @@ namespace Pipaslot.Mediator.Tests.Middlewares
 {
     public class ReduceDuplicateProcessingMiddlewareTests
     {
-        private readonly SemaphoreSlim _semaphore = new(0);
-        async Task _next(MediatorContext res)
-        {
-            await _semaphore.WaitAsync();
-            res.Results.Add(new object());
-        }
-
         [Fact]
         public async void RunSingleAction_ShouldRunOnce()
         {
-            var action = new FakeAction();
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var res = await mediator.Execute(new FakeAction() { Value = 1 });
 
-            var task = Run(action, out var ctx);
-            _semaphore.Release();
-            await task;
-            Assert.Single(ctx.Results);
+            Assert.True(res.Result.Number > 0);
         }
 
         [Fact]
         public async void RunTheSameInstanceActionTwice_ShouldRunOnce()
         {
-            var action = new FakeAction();
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var res1 = await mediator.Execute(new FakeAction() { Value = 1 });
+            var res2 = await mediator.Execute(new FakeAction() { Value = 1 });
 
-            var task1 = Run(action, out var ctx1);
-            var task2 = Run(action, out var ctx2);
-            _semaphore.Release(2);
-
-            await Task.WhenAll(task1, task2);
-            Assert.Single(ctx1.Results);
-            Assert.Empty(ctx2.Results);
+            Assert.NotEqual(res1.Result.Number, res2.Result.Number);
         }
 
         [Fact]
         public async void RunDuplicateTheSameTypeAction_ShouldRuntTwice()
         {
-            var action = new FakeAction();
+            var action = new FakeAction() { Value = 1 };
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var res1 = await mediator.Execute(action);
+            var res2 = await mediator.Execute(action);
 
-            var task1 = Run(action, out var ctx1);
-            _semaphore.Release();
-            await task1;
-            var task2 = Run(action, out var ctx2);
-            _semaphore.Release();
-
-            await task2;
-            Assert.Single(ctx1.Results);
-            Assert.Single(ctx2.Results);
+            Assert.NotEqual(res1.Result.Number, res2.Result.Number);
         }
 
         [Fact]
         public async void RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
         {
-            var task1 = Run(new FakeAction() { Value = 1 }, out var ctx1);
-            var task2 = Run(new FakeAction() { Value = 1 }, out var ctx2);
-            _semaphore.Release(2);
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var task1 = mediator.Execute(new FakeAction() { Value = 1 });
+            var task2 = mediator.Execute(new FakeAction() { Value = 1 });
 
             await Task.WhenAll(task1, task2);
-            Assert.Single(ctx1.Results);
-            Assert.Empty(ctx2.Results);
+            var res1 = await task1;
+            var res2 = await task2;
+
+            Assert.Equal(res1.Result.Number, res2.Result.Number);
         }
 
         [Fact]
         public async void RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
         {
-            var task1 = Run(new FakeAction() { Value = 1 }, out var ctx1);
-            var task2 = Run(new FakeAction2() { Value = 1 }, out var ctx2);
-            _semaphore.Release(2);
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var task1 = mediator.Execute(new FakeAction() { Value = 1 });
+            var task2 = mediator.Execute(new FakeAction2() { Value = 1 });
 
             await Task.WhenAll(task1, task2);
-            Assert.Single(ctx1.Results);
-            Assert.Single(ctx2.Results);
+            var res1 = await task1;
+            var res2 = await task2;
+
+            Assert.NotEqual(res1.Result.Number, res2.Result.Number);
         }
 
         [Fact]
         public async void RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
         {
-            var task1 = Run(new FakeAction() { Value = 1 },out var ctx1);
-            var task2 = Run(new FakeAction2() { Value = 2 }, out var ctx2);
-            _semaphore.Release(2);
+            var mediator = Factory.CreateMediator(s =>
+            {
+                s.AddDefaultPipeline().Use<ReduceDuplicateProcessingMiddleware>();
+            });
+            var task1 = mediator.Execute(new FakeAction() { Value = 1 });
+            var task2 = mediator.Execute(new FakeAction2() { Value = 2 });
 
             await Task.WhenAll(task1, task2);
-            Assert.Single(ctx1.Results);
-            Assert.Single(ctx2.Results);
-        }
+            var res1 = await task1;
+            var res2 = await task2;
 
-        [Fact]
-        public async Task RaceCondition()
-        {
-            var mediator = Factory.CreateMediator(s => s.UseReduceDuplicateProcessing());
-            var task1 = mediator.Execute(new RaceConditionAction() { Value = 1 });
-            var task2 = mediator.Execute(new RaceConditionAction() { Value = 1 });
-
-            await Task.WhenAll(task1, task2);
-            var r1 = (await task1).Result;
-            var r2 = (await task2).Result;
-
-            Assert.True(r1 is RaceConditionResult);
-            Assert.True(r2 is RaceConditionResult);
+            Assert.NotEqual(res1.Result.Number, res2.Result.Number);
         }
 
         #region Setup
 
-        private Task Run(IMediatorAction action, out MediatorContext context)
-        {
-            context = new MediatorContext(action, CancellationToken.None);
-            var sut = new ReduceDuplicateProcessingMiddleware();
-            return sut.Invoke(context, _next);
-        }
-
-        public class FakeAction : IMediatorAction
+        public class FakeAction : IMediatorAction<FakeActionResult>
         {
             public int Value { get; set; }
 
@@ -126,8 +110,18 @@ namespace Pipaslot.Mediator.Tests.Middlewares
                 return Value.GetHashCode();
             }
         }
+        public class FakeActionHandler : IMediatorHandler<FakeAction, FakeActionResult>
+        {
+            private static int Iterator = 1;
+            public async Task<FakeActionResult> Handle(FakeAction action, CancellationToken cancellationToken)
+            {
+                await Task.Delay(100);
+                Iterator++;
+                return new FakeActionResult(Iterator); ;
+            }
+        }
 
-        public class FakeAction2 : IMediatorAction
+        public class FakeAction2 : IMediatorAction<FakeActionResult>
         {
             public int Value { get; set; }
 
@@ -136,23 +130,18 @@ namespace Pipaslot.Mediator.Tests.Middlewares
                 return Value.GetHashCode();
             }
         }
-
-        public record RaceConditionAction : IMediatorAction<RaceConditionResult>
+        public class FakeAction2Handler : IMediatorHandler<FakeAction2, FakeActionResult>
         {
-            public int Value { get; set; }
-        }
-        public class RaceConditionActionHandler : IMediatorHandler<RaceConditionAction, RaceConditionResult>
-        {
-            public async Task<RaceConditionResult> Handle(RaceConditionAction action, CancellationToken cancellationToken)
+            private static int Iterator = 1000;
+            public async Task<FakeActionResult> Handle(FakeAction2 action, CancellationToken cancellationToken)
             {
-                await Task.Delay(500);
-                return new RaceConditionResult();
+                await Task.Delay(100);
+                Iterator++;
+                return new FakeActionResult(Iterator); ;
             }
         }
-        public class RaceConditionResult
-        {
+        public record FakeActionResult(int Number);
 
-        }
         #endregion
 
     }
