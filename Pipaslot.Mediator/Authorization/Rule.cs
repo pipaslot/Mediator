@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Authorization
         /// <summary>
         /// Default rule name if not specified
         /// </summary>
-        public const string DefaultName = "Rule";
+        public const string DefaultName = "RuleWithReasoning";
         /// <summary>
         /// Name can be used also as kind like Authentication, Claim, Role or any custom name.
         /// The name is used by <see cref="IRuleSetFormatter"/> to distinguish
