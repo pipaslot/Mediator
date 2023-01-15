@@ -2,7 +2,6 @@
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Notifications;
-using System.Diagnostics;
 
 namespace Demo.Server.Handlers.Auth
 {
@@ -17,12 +16,9 @@ namespace Demo.Server.Handlers.Auth
 
         public IPolicy Authorize(CustomPolicyMessage action)
         {
-            var policy = IdentityPolicy.Authenticated();
-            if (action.IsInvalid)
-            {
-                return policy.And(new Rule("Model state does not allow to perform this operation."));
-            }
-            return policy;
+            return IdentityPolicy.Authenticated()
+                & Rule.Unavailable(!action.IsAvailable)
+                & Rule.Allow(!action.IsInvalid,"Model state does not allow to perform this operation.", "Go one!");
         }
 
         public Task Handle(CustomPolicyMessage action, CancellationToken cancellationToken)

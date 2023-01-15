@@ -8,6 +8,11 @@
     <ValidationSummary />
     <div>
         <label>
+            <InputCheckbox Value="@Model.IsAvailable"
+                           ValueExpression="()=>Model.IsAvailable"
+                           ValueChanged="e=>OnIsAvailableChanged(e)" /> Is action available
+        </label>
+        <label>
             <InputCheckbox Value="@Model.IsInvalid"
                            ValueExpression="()=>Model.IsInvalid"
                            ValueChanged="e=>OnIsInvalidChanged(e)" /> Make the model invalid
@@ -21,7 +26,6 @@
         <div>@_auth.Reason</div>
     </div>
 </EditForm>
-
 
 @code {
     [Parameter, EditorRequired]
@@ -37,6 +41,12 @@
     private async Task OnIsInvalidChanged(bool value)
     {
         Model.IsInvalid = value;
+        await OnChange();
+    }
+
+    private async Task OnIsAvailableChanged(bool value)
+    {
+        Model.IsAvailable = value;
         await OnChange();
     }
 

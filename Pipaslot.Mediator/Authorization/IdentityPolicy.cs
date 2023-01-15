@@ -91,6 +91,11 @@ namespace Pipaslot.Mediator.Authorization
                 var value = shouldBeAuthenticated
                     ? AuthenticatedValue
                     : AnonymousValue;
+                var outcome = shouldBeAuthenticated
+                    ? isAuthenticationGranted
+                        ? RuleOutcome.Allow
+                        : RuleOutcome.Deny
+                    : RuleOutcome.Ignored;
                 var authRule = new Rule(AuthenticationPolicyName, value, isAuthenticationGranted, RuleScope.Identity);
                 collection.Rules.Add(authRule);
             }

@@ -13,9 +13,9 @@
         {
             var ex = new AuthorizationRuleException(ruleSet, AuthorizationExceptionTypes.RuleNotMet, message);
             var i = 1;
-            foreach (var rule in ruleSet.RulesRecursive)
+            foreach (var set in ruleSet.RuleSets)
             {
-                ex.Data[i] = rule;
+                ex.Data[i] = set;
                 i++;
             }
             return ex;

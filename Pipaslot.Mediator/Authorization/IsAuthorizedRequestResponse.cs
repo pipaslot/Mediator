@@ -4,6 +4,7 @@ namespace Pipaslot.Mediator.Authorization
 {
     public class IsAuthorizedRequestResponse
     {
+        public AccessType Access { get; set; }
         public bool IsAuthorized { get; set; }
 
         /// <summary>
