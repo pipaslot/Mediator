@@ -7,7 +7,7 @@ namespace Demo.Client.Services
 {
     public class AuthCacheMediatorMiddleware : IMediatorMiddleware, IDisposable
     {
-        private readonly ConcurrentDictionary<string, IsAuthorizedRequestResponse> _cache = new ConcurrentDictionary<string, IsAuthorizedRequestResponse>();
+        private readonly ConcurrentDictionary<string, AuthorizeRequestResponse> _cache = new ConcurrentDictionary<string, AuthorizeRequestResponse>();
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         public AuthCacheMediatorMiddleware(AuthenticationStateProvider authenticationStateProvider)
         {
@@ -27,7 +27,7 @@ namespace Demo.Client.Services
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            if (context.Action is IsAuthorizedRequest authRequest && authRequest.Action != null)
+            if (context.Action is AuthorizeRequest authRequest && authRequest.Action != null)
             {
                 var actionName = authRequest.Action.GetType().FullName ?? throw new Exception("Can not get action name");
                 var cacheKey = $"{actionName}##{authRequest.Action.GetHashCode()}";
@@ -41,8 +41,8 @@ namespace Demo.Client.Services
                 {
                     await next(context);
                     var toBeCached = context.Results
-                        .Where(r => r is IsAuthorizedRequestResponse)
-                        .Cast<IsAuthorizedRequestResponse>()
+                        .Where(r => r is AuthorizeRequestResponse)
+                        .Cast<AuthorizeRequestResponse>()
                         .FirstOrDefault();
                     if (toBeCached != null && toBeCached.IsIdentityStatic)
                     {

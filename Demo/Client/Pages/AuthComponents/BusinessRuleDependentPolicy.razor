@@ -31,7 +31,7 @@
     [Parameter, EditorRequired]
     public CustomPolicyMessage Model { get; set; } = new();
 
-    private IsAuthorizedRequestResponse _auth = new();
+    private AuthorizeRequestResponse _auth = new();
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();

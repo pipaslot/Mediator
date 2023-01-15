@@ -1,11 +1,12 @@
-﻿using System;
-
-namespace Pipaslot.Mediator.Authorization
+﻿namespace Pipaslot.Mediator.Authorization
 {
-    public class IsAuthorizedRequestResponse
+    public class AuthorizeRequestResponse
     {
         public AccessType Access { get; set; }
-        public bool IsAuthorized { get; set; }
+        /// <summary>
+        /// Access type converted to bool
+        /// </summary>
+        public bool IsAuthorized => Access == AccessType.Allow;
 
         /// <summary>
         /// User friendly explanation of the result

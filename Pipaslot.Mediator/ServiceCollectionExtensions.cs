@@ -41,8 +41,8 @@ namespace Pipaslot.Mediator
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
             services.AddScoped<IMediatorFacade, MediatorFacade>();
             services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
-            configurator.AddActions(new[] { typeof(IsAuthorizedRequest) });
-            configurator.AddHandlers(new[] { typeof(IsAuthorizedRequestHandler) });
+            configurator.AddActions(new[] { typeof(AuthorizeRequest) });
+            configurator.AddHandlers(new[] { typeof(AuthorizeRequestHandler) });
             // Separate authorization middleware, because we do not want to interrupt by custom middlewares
             configurator.AddPipelineForAuthorizationRequest(p => { });
             //TODO zvážít, jestli nesjednotit Allow a Denied Rule set formatter

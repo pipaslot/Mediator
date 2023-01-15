@@ -37,20 +37,21 @@ namespace Pipaslot.Mediator
         /// </summary>
         public static async Task<bool> IsAuthorized(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(new IsAuthorizedRequest(action), cancellationToken);
+            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken);
             return response.Success && response.Result.IsAuthorized;
         }
 
         /// <summary>
         /// Call authorize method on handler to get feedback if current is permited to execute the request
         /// </summary>
-        public static async Task<IsAuthorizedRequestResponse> Authorize(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
+        public static async Task<AuthorizeRequestResponse> Authorize(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(new IsAuthorizedRequest(action), cancellationToken);
+            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken);
             return response.Success
                 ? response.Result
-                : new IsAuthorizedRequestResponse
+                : new AuthorizeRequestResponse
                 {
+                    Access = AccessType.Unavailable,
                     IsAuthorized = false,
                     Reason = "Operation failed"
                 };
