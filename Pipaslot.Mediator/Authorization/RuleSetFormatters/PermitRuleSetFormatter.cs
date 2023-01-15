@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 
@@ -10,7 +11,7 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
     {
         public string Format(RuleSet set)
         {
-            var isGranted = set.IsGranted();
+            var isGranted = set.GetRuleOutcome().ToAccessType() == AccessType.Allow;
             var messages = CollectReasons(set, isGranted)
                 .Where(s => !string.IsNullOrWhiteSpace(s));
             return string.Join(" ", messages);
@@ -19,7 +20,7 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
         private IEnumerable<string> CollectReasons(RuleSet set, bool isFinallyGranted)
         {
             foreach (var r in set.RuleSets
-                .Where(r => isFinallyGranted == r.IsGranted()))
+                .Where(r => isFinallyGranted == r.GetRuleOutcome().IsAllowedOrIgnored()))
             {
                 foreach (var child in CollectReasons(r, isFinallyGranted))
                 {
@@ -27,7 +28,7 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
                 }
             }
             foreach (var r in set.Rules
-                .Where(r => isFinallyGranted == r.Granted))
+                .Where(r => isFinallyGranted == r.Outcome.IsAllowedOrIgnored()))
             {
                 yield return FormatRule(r);
             }
@@ -35,9 +36,13 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
 
         protected virtual string FormatRule(Rule rule)
         {
+            if (rule.Outcome == RuleOutcome.Ignored)
+            {
+                return string.Empty;
+            }
             if (rule.Name == IdentityPolicy.AuthenticationPolicyName)
             {
-                if (rule.Granted)
+                if (rule.Outcome == RuleOutcome.Allow)
                 {
                     return string.Empty;
                 }
@@ -48,7 +53,7 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
             }
             if (rule.Name == ClaimTypes.Role)
             {
-                if (rule.Granted)
+                if (rule.Outcome == RuleOutcome.Allow)
                 {
                     return string.Empty;
                 }

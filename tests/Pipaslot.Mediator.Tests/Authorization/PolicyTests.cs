@@ -76,7 +76,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             var services = new Mock<IServiceProvider>();
             var set = await policy.Resolve(services.Object, CancellationToken.None);
-            Assert.Equal(expected, set.IsGranted());
+            Assert.Equal(expected, set.GetRuleOutcome() == RuleOutcome.Allow);
         }
 
         private class FakeBoolPolicy : IPolicy

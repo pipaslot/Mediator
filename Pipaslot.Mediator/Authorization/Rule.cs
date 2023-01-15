@@ -32,12 +32,6 @@ namespace Pipaslot.Mediator.Authorization
         /// </summary>
         public string Value { get; }
 
-        /// <summary>
-        /// Flag saying that user can perform requrested operation.
-        /// </summary>
-        [Obsolete("Use Outcome instead")]
-        public bool Granted => Outcome == RuleOutcome.Allow;
-
         internal Rule(RuleOutcome outcome, string value) : this(DefaultName, value, outcome)
         {
 

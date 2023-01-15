@@ -12,12 +12,13 @@ namespace Pipaslot.Mediator.Authorization.RuleSetFormatters
 
         internal string FormatInternal(RuleSet set)
         {
+
             var notGrantedSets = set.RuleSets
-                .Where(r => !r.IsGranted())
+                .Where(r => r.GetRuleOutcome().IsNotGranted())
                 .Select(r => FormatInternal(r));
 
             var notGrantedRules = set.Rules
-                .Where(r => !r.Granted)
+                .Where(r => r.Outcome.IsNotGranted())
                 .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
                 .Select(g => FormatGroup(g, set.Operator));
             var notGranted = notGrantedSets.Concat(notGrantedRules)

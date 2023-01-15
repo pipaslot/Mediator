@@ -24,6 +24,14 @@
     }
     public static class RuleOutcomeExtensions
     {
+        internal static bool IsAllowedOrIgnored(this RuleOutcome outcome)
+        {
+            return outcome == RuleOutcome.Allow || outcome == RuleOutcome.Ignored;
+        }
+        internal static bool IsNotGranted(this RuleOutcome outcome)
+        {
+            return outcome == RuleOutcome.Deny || outcome == RuleOutcome.Unavailable;
+        }
         public static AccessType ToAccessType(this RuleOutcome outcome) => outcome switch
         {
             RuleOutcome.Allow => AccessType.Allow,

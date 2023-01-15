@@ -21,8 +21,6 @@ namespace Pipaslot.Mediator.Authorization
         /// Iterate through all rules and rule sets
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
-        [Obsolete]
-        public IEnumerable<RuleSet> RuleSetsRecursive => RuleSets.Concat(RuleSets.SelectMany(s => s.RuleSetsRecursive));
 
         public RuleSet(Operator @operator = Operator.And)
         {
@@ -58,33 +56,6 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        [Obsolete("Use RuleSetFormatter")]
-        public string StringifyNotGranted()
-        {
-            var formatter = new PermitRuleSetFormatter();
-            return formatter.Format(this);
-        }
-        [Obsolete]
-        public bool IsGranted()
-        {
-            var granted = Operator == Operator.And;
-            foreach (var rule in RulesRecursive)
-            {
-                if (Operator == Operator.And)
-                {
-                    granted &= rule.Granted;
-                }
-                else if (Operator == Operator.Or)
-                {
-                    granted |= rule.Granted;
-                }
-                else
-                {
-                    throw new NotImplementedException($"Unknown operator '{Operator}'");
-                }
-            }
-            return granted;
-        }
         public RuleOutcome GetRuleOutcome()
         {
             var outcomes = Rules
