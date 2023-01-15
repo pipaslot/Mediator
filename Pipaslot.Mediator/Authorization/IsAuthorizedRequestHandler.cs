@@ -34,29 +34,8 @@ namespace Pipaslot.Mediator.Authorization
                 Access = accessType,
                 IsAuthorized = isAuthorized,
                 Reason = reason,
-                RuleSets = MapRuleSet(policyResult.RuleSets),
                 IsIdentityStatic = policyResult.RulesRecursive.All(r => r.Scope == RuleScope.Identity)
             };
-        }
-
-        [Obsolete]
-        private IsAuthorizedRequestResponse.RuleSetDto[] MapRuleSet(List<RuleSet> ruleSets)
-        {
-            return ruleSets
-                .Select(s => new IsAuthorizedRequestResponse.RuleSetDto
-                {
-                    Operator = s.Operator.ToString().ToUpper(),
-                    SubSets = MapRuleSet(s.RuleSets),
-                    Rules = s.Rules
-                        .Select(r => new IsAuthorizedRequestResponse.RuleDto
-                        {
-                            Granted = r.Granted,
-                            Name = r.Name,
-                            Value = r.Value
-                        })
-                        .ToArray()
-                })
-                .ToArray();
         }
     }
 }

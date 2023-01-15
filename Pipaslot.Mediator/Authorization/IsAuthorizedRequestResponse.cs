@@ -17,24 +17,5 @@ namespace Pipaslot.Mediator.Authorization
         /// This value is calculated from RuleSets
         /// </summary>
         public bool IsIdentityStatic { get; set; }
-
-        [Obsolete("Will be deleted in next version")]
-        public RuleSetDto[] RuleSets { get; set; } = Array.Empty<RuleSetDto>();
-
-        [Obsolete("Will be deleted in next version")]
-        public class RuleSetDto
-        {
-            public string Operator { get; set; } = string.Empty;
-            public RuleSetDto[] SubSets { get; set; } = Array.Empty<RuleSetDto>();
-            public RuleDto[] Rules { get; set; } = Array.Empty<RuleDto>();
-        }
-
-        [Obsolete("Will be deleted in next version")]
-        public class RuleDto
-        {
-            public string Name { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-            public bool Granted { get; set; }
-        }
     }
 }

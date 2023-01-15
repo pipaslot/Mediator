@@ -9,17 +9,10 @@ namespace Pipaslot.Mediator.Authorization
         public AuthorizationException(AuthorizationExceptionTypes type, string message) : base(message)
         {
             Type = type;
-            Code = (int)type;
-        }
-        public AuthorizationException(int code, string message) : base(message)
-        {
-            Code = code;
         }
 
 
         public AuthorizationExceptionTypes Type { get; }
-        [Obsolete("Use Type instead")]
-        public int Code { get; }
 
 
         internal static AuthorizationException NoAuthorization(string actionIdentifier)
