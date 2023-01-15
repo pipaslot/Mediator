@@ -27,7 +27,7 @@ namespace Demo.Server.Handlers.Auth
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim("role", "visitor")
                 };
-            var expiration = DateTime.UtcNow.AddMinutes(options.TokenExpirationInMinutes);
+            var expiration = DateTime.Now.AddMinutes(options.TokenExpirationInMinutes);
             var jwtToken = new JwtSecurityToken(
                 options.Issuer,
                 options.Audience,
