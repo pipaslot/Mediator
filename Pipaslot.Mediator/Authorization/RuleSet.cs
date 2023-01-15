@@ -21,6 +21,7 @@ namespace Pipaslot.Mediator.Authorization
         /// Iterate through all rules and rule sets
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
+        [Obsolete]
         public IEnumerable<RuleSet> RuleSetsRecursive => RuleSets.Concat(RuleSets.SelectMany(s => s.RuleSetsRecursive));
 
         public RuleSet(Operator @operator = Operator.And)
@@ -63,7 +64,7 @@ namespace Pipaslot.Mediator.Authorization
             var formatter = new PermitRuleSetFormatter();
             return formatter.Format(this);
         }
-
+        [Obsolete]
         public bool IsGranted()
         {
             var granted = Operator == Operator.And;
@@ -83,6 +84,71 @@ namespace Pipaslot.Mediator.Authorization
                 }
             }
             return granted;
+        }
+        public RuleOutcome GetRuleOutcome()
+        {
+            var outcomes = Rules
+                .Select(r => r.Outcome)
+                .Concat(RuleSets.Select(s => s.GetRuleOutcome()));
+            if (Operator == Operator.And)
+            {
+                return ReduceWithAnd(outcomes);
+            }
+            if (Operator == Operator.Or)
+            {
+                return ReduceWithOr(outcomes);
+            }
+            throw new NotImplementedException($"Unknown operator '{Operator}'");
+        }
+
+        private RuleOutcome ReduceWithAnd(IEnumerable<RuleOutcome> outcomes)
+        {
+            var result = RuleOutcome.Ignored;
+            foreach (var outcome in outcomes)
+            {
+                if (outcome == RuleOutcome.Ignored)
+                {
+                    continue;
+                }
+                if (outcome == RuleOutcome.Unavailable)
+                {
+                    return RuleOutcome.Unavailable;
+                }
+                if(outcome == RuleOutcome.Deny)
+                {
+                    result = outcome; 
+                }
+                if (outcome == RuleOutcome.Allow && result != RuleOutcome.Deny)
+                {
+                    result = outcome;
+                }
+            }
+            return result;
+        }
+
+        private RuleOutcome ReduceWithOr(IEnumerable<RuleOutcome> outcomes)
+        {
+            var result = RuleOutcome.Ignored;
+            foreach (var outcome in outcomes)
+            {
+                if (outcome == RuleOutcome.Ignored)
+                {
+                    continue;
+                }
+                if (outcome == RuleOutcome.Unavailable && outcome != RuleOutcome.Deny)
+                {
+                    result = outcome;
+                }
+                if (outcome == RuleOutcome.Deny)
+                {
+                    result = outcome;
+                }
+                if (outcome == RuleOutcome.Allow)
+                {
+                    return outcome;
+                }
+            }
+            return result;
         }
     }
 }
