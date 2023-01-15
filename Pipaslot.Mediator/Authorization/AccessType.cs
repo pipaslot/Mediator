@@ -1,5 +1,8 @@
 ﻿namespace Pipaslot.Mediator.Authorization
 {
+    /// <summary>
+    /// Final access type calculated from all <see cref="RuleOutcome"/> provided by <see cref="RuleSet"/>
+    /// </summary>
     public enum AccessType
     {
         /// <summary>

@@ -22,4 +22,13 @@
         /// </summary>
         Ignored = 3
     }
+    public static class RuleOutcomeExtensions
+    {
+        public static AccessType ToAccessType(this RuleOutcome outcome) => outcome switch
+        {
+            RuleOutcome.Allow => AccessType.Allow,
+            RuleOutcome.Unavailable => AccessType.Unavailable,
+            _ => AccessType.Deny,
+        };
+    }
 }

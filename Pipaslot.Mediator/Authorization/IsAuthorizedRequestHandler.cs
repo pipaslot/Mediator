@@ -22,21 +22,20 @@ namespace Pipaslot.Mediator.Authorization
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
             var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken);
-            var allRules = policyResult.RulesRecursive;
-            var notGrantedRules = allRules
-                .Where(r => !r.Granted);
-            var ruleSets = policyResult.RuleSetsRecursive;
-            var isAuthorized = policyResult.IsGranted();
+            var outcome = policyResult.GetRuleOutcome();
+            var accessType = outcome.ToAccessType();
+            var isAuthorized = accessType == AccessType.Allow;
             IRuleSetFormatter formatter = isAuthorized
                 ? _serviceProvider.GetRequiredService<IAllowedRuleSetFormatter>()
                 : _serviceProvider.GetRequiredService<IDeniedRuleSetFormatter>();
             var reason = formatter.Format(policyResult);
             return new IsAuthorizedRequestResponse
             {
+                Access = accessType,
                 IsAuthorized = isAuthorized,
                 Reason = reason,
                 RuleSets = MapRuleSet(policyResult.RuleSets),
-                IsIdentityStatic = allRules.All(r => r.Scope == RuleScope.Identity)
+                IsIdentityStatic = policyResult.RulesRecursive.All(r => r.Scope == RuleScope.Identity)
             };
         }
 

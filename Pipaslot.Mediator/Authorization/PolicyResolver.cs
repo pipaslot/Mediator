@@ -14,12 +14,18 @@ namespace Pipaslot.Mediator.Authorization
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
+
+            var access = ruleSet
+                .GetRuleOutcome()
+                .ToAccessType();
             var rules = ruleSet.RulesRecursive;
             if (!rules.Any())
             {
+                //TODO should be probably handled as configuration because in some apps it wont be benefitial to force user to define always the policy. 
+                // The issue can occure when defiing handlers as library but target app uses some Auth policies. Then it is more appropriate to handle it via middlewares.
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
-            if (rules.Any(r => !r.Granted))
+            if (access != AccessType.Allow)
             {
                 var formatter = services.GetRequiredService<IExceptionRuleSetFormatter>();
                 var message = formatter.Format(ruleSet);
