@@ -11,9 +11,9 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
         }
 
         [Theory]
-        [InlineData(Operator.And)]
-        [InlineData(Operator.Or)]
-        public void Format(Operator @operator)
+        [InlineData(Operator.And, "(({'Role': 'A3'} Or {'Claim': 'A4'}) And {'Role': ['A5' Or 'A6']} And {'Claim': ['A7' And 'A8']})")]
+        [InlineData(Operator.Or,  "(({'Role': 'A3'} Or {'Claim': 'A4'}) Or {'Role': ['A5' Or 'A6']} Or {'Claim': ['A7' And 'A8']})")]
+        public void Format(Operator @operator, string expected)
         {
             var sut = Create();
             var hiddenSet = RuleSet.Create(
@@ -36,13 +36,6 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
                 new Rule("Claim", "A8")
                 );
             var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
-            var expected = "("
-                + sut.FormatInternal(shownOrSet)
-                + $" {@operator} "
-                + sut.FormatInternal(shownDuplicateOrSet)
-                + $" {@operator} "
-                + sut.FormatInternal(shownAndSet)
-                + ")";
             Assert.Equal(expected, sut.FormatInternal(collection));
         }
 
@@ -60,9 +53,9 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
         }
 
         [Theory]
-        [InlineData(Operator.And)]
-        [InlineData(Operator.Or)]
-        public void Format_TwoWithUniqueName(Operator @operator)
+        [InlineData(Operator.And, $"({{'Role': 'A1'}} And {{'Claim': 'A2'}})")]
+        [InlineData(Operator.Or, $"({{'Role': 'A1'}} Or {{'Claim': 'A2'}})")]
+        public void Format_TwoWithUniqueName(Operator @operator, string expected)
         {
             var sut = Create();
             var set = RuleSet.Create(
@@ -71,7 +64,6 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
                 new Rule("Claim", "A2"),
                 new Rule("Ignored", "IgnoredValue", true)
                 );
-            var expected = $"({{'Role': 'A1'}} {@operator} {{'Claim': 'A2'}})";
             Assert.Equal(expected, sut.FormatInternal(set));
         }
 
