@@ -65,11 +65,11 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatters
         }
 
         [Theory]
-        [InlineData(Operator.And, true)]
-        [InlineData(Operator.And, false)]
-        [InlineData(Operator.Or, true)]
-        [InlineData(Operator.Or, false)]
-        public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
+        [InlineData(Operator.And, true, $"{{'Role': ['A1' AND 'A2']}}")]
+        [InlineData(Operator.And, false, $"{{'Role': ['A1' AND 'A2']}}")]
+        [InlineData(Operator.Or, true, $"{{'Role': ['A1' OR 'A2']}}")]
+        [InlineData(Operator.Or, false, $"{{'Role': ['A1' OR 'A2']}}")]
+        public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase, string expected)
         {
             var name = "Role";
             var set = RuleSet.Create(
@@ -78,7 +78,6 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatters
                 new Rule(theSameNameCase ? name : name.ToUpper(), "A2"),
                 new Rule("Ignored", "IgnoredValue", RuleOutcome.Ignored)
                 );
-            var expected = $"{{'Role': ['A1' {@operator.ToString().ToUpper()} 'A2']}}";
             AssertEqual(expected, set);
         }
 
@@ -89,10 +88,8 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatters
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2")
                 );
-            var collection = new RuleSet(set);
-            var formatter = Create();
-            var value = set.Evaluate(formatter).Value;
-            Assert.Equal(value, collection.Evaluate(formatter).Value);
+            var expected = "({'Role': 'A1'} AND {'Claim': 'A2'})";
+            AssertEqual(expected, set);
         }
 
         private RuleOutcome AssertEqual(string expected, RuleSet ruleSet)
