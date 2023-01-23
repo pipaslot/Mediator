@@ -11,14 +11,8 @@
 
         internal static AuthorizationRuleException Create(RuleSet ruleSet, string message)
         {
-            var ex = new AuthorizationRuleException(ruleSet, AuthorizationExceptionTypes.RuleNotMet, message);
-            var i = 1;
-            foreach (var set in ruleSet.RuleSets)
-            {
-                ex.Data[i] = set;
-                i++;
-            }
-            return ex;
+            var fullMessage = $"Policy rules not matched for the current user: {message}";
+            return new AuthorizationRuleException(ruleSet, AuthorizationExceptionTypes.RuleNotMet, fullMessage);
         }
     }
 }

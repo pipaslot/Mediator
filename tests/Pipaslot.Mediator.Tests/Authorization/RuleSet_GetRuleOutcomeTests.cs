@@ -1,4 +1,6 @@
 ﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.Formatters;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Tests.Authorization
@@ -44,8 +46,26 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var sut = new RuleSet(@operator);
             sut.Rules.AddRange(outcomes.Select(o => new Rule(o, string.Empty)));
 
-            var result = sut.GetRuleOutcome();
-            Assert.Equal(expected, result);
+            var result = sut.Evaluate(new NullFormatter());
+            Assert.Equal(expected, result.Outcome);
+        }
+
+        private class NullFormatter : IRuleSetFormatter
+        {
+            public Rule Format(Rule rule)
+            {
+                return rule;
+            }
+
+            public Rule FormatDeniedWithAnd(ICollection<Rule> denied)
+            {
+                return denied.First();
+            }
+
+            public Rule FormatDeniedWithOr(ICollection<Rule> denied)
+            {
+                return denied.First();
+            }
         }
     }
 }

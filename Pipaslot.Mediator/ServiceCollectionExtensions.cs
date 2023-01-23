@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+using Pipaslot.Mediator.Authorization.Formatters;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
@@ -45,10 +45,7 @@ namespace Pipaslot.Mediator
             configurator.AddHandlers(new[] { typeof(AuthorizeRequestHandler) });
             // Separate authorization middleware, because we do not want to interrupt by custom middlewares
             configurator.AddPipelineForAuthorizationRequest(p => { });
-            //TODO zvážít, jestli nesjednotit Allow a Denied Rule set formatter
-            services.TryAddSingleton<IAllowedRuleSetFormatter, PermitRuleSetFormatter>();
-            services.TryAddSingleton<IDeniedRuleSetFormatter, PermitRuleSetFormatter>();
-            services.TryAddSingleton<IExceptionRuleSetFormatter, ExceptionRuleSetFormatter>();
+            services.AddScoped<IRuleSetFormatter, DefaultRuleSetFormatter>();
             return configurator;
         }
     }

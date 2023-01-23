@@ -1,6 +1,7 @@
-﻿using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+﻿using Pipaslot.Mediator.Authorization.Formatters;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Authorization
@@ -56,70 +57,103 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        public RuleOutcome GetRuleOutcome()
+        public Rule Evaluate(IRuleSetFormatter formatter)
         {
-            var outcomes = Rules
-                .Select(r => r.Outcome)
-                .Concat(RuleSets.Select(s => s.GetRuleOutcome()));
+            var rules = Rules
+                .Concat(RuleSets.Select(s => s.Evaluate(formatter)));
             if (Operator == Operator.And)
             {
-                return ReduceWithAnd(outcomes);
+                return ReduceWithAnd(rules, formatter);
             }
             if (Operator == Operator.Or)
             {
-                return ReduceWithOr(outcomes);
+                return ReduceWithOr(rules, formatter);
             }
             throw new NotImplementedException($"Unknown operator '{Operator}'");
         }
 
-        private RuleOutcome ReduceWithAnd(IEnumerable<RuleOutcome> outcomes)
+        private Rule ReduceWithAnd(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
         {
-            var result = RuleOutcome.Ignored;
-            foreach (var outcome in outcomes)
+            var denied = new List<Rule>();
+            Rule? allowed = null;
+            foreach (var rule in rules)
             {
+                var outcome = rule.Outcome;
                 if (outcome == RuleOutcome.Ignored)
                 {
                     continue;
                 }
                 if (outcome == RuleOutcome.Unavailable)
                 {
-                    return RuleOutcome.Unavailable;
+                    return formatter.Format(rule);
                 }
                 if(outcome == RuleOutcome.Deny)
                 {
-                    result = outcome; 
+                    denied.Add(rule); 
                 }
-                if (outcome == RuleOutcome.Allow && result != RuleOutcome.Deny)
+                if(outcome == RuleOutcome.Allow)
                 {
-                    result = outcome;
+                    allowed = rule;
                 }
             }
-            return result;
+            if (denied.Any()){
+                if (denied.Count == 1)
+                {
+                    return formatter.Format(denied.First());
+                }
+                return formatter.FormatDeniedWithAnd(denied);
+            }
+            else
+            {
+                if(allowed != null)
+                {
+                    return formatter.Format(allowed);
+                }
+            }
+            return new Rule(RuleOutcome.Ignored, string.Empty);
         }
 
-        private RuleOutcome ReduceWithOr(IEnumerable<RuleOutcome> outcomes)
+        private Rule ReduceWithOr(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
         {
-            var result = RuleOutcome.Ignored;
-            foreach (var outcome in outcomes)
+            var denied = new List<Rule>();
+            var undefinedRules = new List<Rule>();
+            foreach (var rule in rules)
             {
+                var outcome = rule.Outcome;
                 if (outcome == RuleOutcome.Ignored)
                 {
                     continue;
                 }
-                if (outcome == RuleOutcome.Unavailable && outcome != RuleOutcome.Deny)
+                if (outcome == RuleOutcome.Allow)
                 {
-                    result = outcome;
+                    return formatter.Format(rule);
+                }
+                if(outcome == RuleOutcome.Unavailable)
+                {
+                    undefinedRules.Add(rule);
                 }
                 if (outcome == RuleOutcome.Deny)
                 {
-                    result = outcome;
-                }
-                if (outcome == RuleOutcome.Allow)
-                {
-                    return outcome;
-                }
+                    denied.Add(rule);
+                }                
             }
-            return result;
+            if (denied.Any())
+            {
+                if (denied.Count == 1)
+                {
+                    return formatter.Format(denied.First());
+                }
+                return formatter.FormatDeniedWithOr(denied);
+            }
+            else if (undefinedRules.Any()) 
+            {
+                if (undefinedRules.Count == 1)
+                {
+                    return formatter.Format(undefinedRules.First());
+                }
+                return formatter.FormatDeniedWithOr(undefinedRules);
+            }
+            return new Rule(RuleOutcome.Ignored, string.Empty);
         }
     }
 }

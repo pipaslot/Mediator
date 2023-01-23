@@ -1,5 +1,8 @@
 ﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.Formatters;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,7 +79,8 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             var services = new Mock<IServiceProvider>();
             var set = await policy.Resolve(services.Object, CancellationToken.None);
-            Assert.Equal(expected, set.GetRuleOutcome() == RuleOutcome.Allow);
+            var evaluated = set.Evaluate(new NullFormatter());
+            Assert.Equal(expected, evaluated.Outcome == RuleOutcome.Allow);
         }
 
         private class FakeBoolPolicy : IPolicy
@@ -92,6 +96,24 @@ namespace Pipaslot.Mediator.Tests.Authorization
             {
                 var set = new RuleSet(new Rule("FakeName", "FakeValue", _value));
                 return Task.FromResult(set);
+            }
+        }
+
+        private class NullFormatter : IRuleSetFormatter
+        {
+            public Rule Format(Rule rule)
+            {
+                return rule;
+            }
+
+            public Rule FormatDeniedWithAnd(ICollection<Rule> denied)
+            {
+                return denied.First();
+            }
+
+            public Rule FormatDeniedWithOr(ICollection<Rule> denied)
+            {
+                return denied.First();
             }
         }
     }

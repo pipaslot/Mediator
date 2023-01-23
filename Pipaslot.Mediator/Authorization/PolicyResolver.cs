@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+using Pipaslot.Mediator.Authorization.Formatters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +15,13 @@ namespace Pipaslot.Mediator.Authorization
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
 
-            var access = ruleSet
-                .GetRuleOutcome()
+            var formatter = services.GetRequiredService<IRuleSetFormatter>();
+            var aggregatedRule = ruleSet
+                .Evaluate(formatter);
+            var access = aggregatedRule
+                .Outcome
                 .ToAccessType();
-            var rules = ruleSet.RulesRecursive;
-            if (!rules.Any())
+            if (ruleSet.RuleSets.Count == 0 && ruleSet.Rules.Count == 0)
             {
                 //TODO should be probably handled as configuration because in some apps it wont be benefitial to force user to define always the policy. 
                 // The issue can occure when defiing handlers as library but target app uses some Auth policies. Then it is more appropriate to handle it via middlewares.
@@ -27,9 +29,7 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (access != AccessType.Allow)
             {
-                var formatter = services.GetRequiredService<IExceptionRuleSetFormatter>();
-                var message = formatter.Format(ruleSet);
-                throw AuthorizationRuleException.Create(ruleSet, message);
+                throw AuthorizationRuleException.Create(ruleSet, aggregatedRule.Value);
             }
         }
 

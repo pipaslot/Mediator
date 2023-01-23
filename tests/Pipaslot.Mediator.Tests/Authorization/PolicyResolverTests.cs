@@ -1,6 +1,9 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.Formatters;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,6 +140,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private async Task RunCheckPolicies(IMediatorAction action, AuthorizationExceptionTypes expectedCode, params object[] handlers)
         {
+            _services
+                .Setup(s => s.GetService(typeof(IRuleSetFormatter)))
+                .Returns(new DefaultRuleSetFormatter());
             var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
             {
                 await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);

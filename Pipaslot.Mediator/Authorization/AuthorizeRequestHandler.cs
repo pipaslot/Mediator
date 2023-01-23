@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+using Pipaslot.Mediator.Authorization.Formatters;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,17 +21,14 @@ namespace Pipaslot.Mediator.Authorization
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
             var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken);
-            var outcome = policyResult.GetRuleOutcome();
-            var accessType = outcome.ToAccessType();
+            var formatter = _serviceProvider.GetRequiredService<IRuleSetFormatter>();
+            var combinedRule = policyResult.Evaluate(formatter);
+            var accessType = combinedRule.Outcome.ToAccessType();
             var isAuthorized = accessType == AccessType.Allow;
-            IRuleSetFormatter formatter = isAuthorized
-                ? _serviceProvider.GetRequiredService<IAllowedRuleSetFormatter>()
-                : _serviceProvider.GetRequiredService<IDeniedRuleSetFormatter>();
-            var reason = formatter.Format(policyResult);
             return new AuthorizeRequestResponse
             {
                 Access = accessType,
-                Reason = reason,
+                Reason = combinedRule.Value,
                 IsIdentityStatic = policyResult.RulesRecursive.All(r => r.Scope == RuleScope.Identity)
             };
         }

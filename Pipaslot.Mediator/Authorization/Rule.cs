@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Threading;
 using System;
-using Pipaslot.Mediator.Authorization.RuleSetFormatters;
-using System.Collections;
 
 namespace Pipaslot.Mediator.Authorization
 {
@@ -18,12 +16,11 @@ namespace Pipaslot.Mediator.Authorization
         public RuleOutcome Outcome { get; } = RuleOutcome.Deny;
 
         /// <summary>
-        /// Default rule name if not specified
+        /// Default rule name if not specified. It is used in cases where the value should serve as a sentence or when we want to prevent additional formatting.
         /// </summary>
         public const string DefaultName = "RuleWithReasoning";
         /// <summary>
         /// Name can be used also as kind like Authentication, Claim, Role or any custom name.
-        /// The name is used by <see cref="IRuleSetFormatter"/> to distinguish
         /// </summary>
         public string Name { get; }
         /// <summary>

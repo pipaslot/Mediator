@@ -1,21 +1,20 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.RuleSetFormatters;
+using Pipaslot.Mediator.Authorization.Formatters;
 
-namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
+namespace Pipaslot.Mediator.Tests.Authorization.Formatters
 {
-    public class ExceptionRuleSetFormatterTests
+    public class DefaultRuleSetFormatterTests
     {
-        private ExceptionRuleSetFormatter Create()
+        private DefaultRuleSetFormatter Create()
         {
-            return new ExceptionRuleSetFormatter();
+            return new DefaultRuleSetFormatter();
         }
 
         [Theory]
-        [InlineData(Operator.And, "(({'Role': 'A3'} Or {'Claim': 'A4'}) And {'Role': ['A5' Or 'A6']} And {'Claim': ['A7' And 'A8']})")]
-        [InlineData(Operator.Or,  "(({'Role': 'A3'} Or {'Claim': 'A4'}) Or {'Role': ['A5' Or 'A6']} Or {'Claim': ['A7' And 'A8']})")]
-        public void Format(Operator @operator, string expected)
+        [InlineData(Operator.And, "(({'Role': 'A3'} OR {'Claim': 'A4'}) AND {'Role': ['A5' OR 'A6']} AND {'Claim': ['A7' AND 'A8']})", RuleOutcome.Deny)]
+        [InlineData(Operator.Or, "", RuleOutcome.Allow)]
+        public void Format(Operator @operator, string expected, RuleOutcome outcome)
         {
-            var sut = Create();
             var hiddenSet = RuleSet.Create(
                 Operator.Or,
                 new Rule("Role", "A1", true),
@@ -36,35 +35,33 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
                 new Rule("Claim", "A8")
                 );
             var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
-            Assert.Equal(expected, sut.FormatInternal(collection));
+            var actualOutcome = AssertEqual(expected, collection);
+            Assert.Equal(outcome, actualOutcome);
         }
-
 
         [Fact]
         public void Format_Single()
         {
-            var sut = Create();
             var set = new RuleSet(
                 new Rule("Role", "Admin"),
                 new Rule("Ignored", "IgnoredValue", true)
                 );
-            var expected = $"{{'Role': 'Admin'}}";
-            Assert.Equal(expected, sut.FormatInternal(set));
+            var expected = $"Role 'Admin' is required.";
+            AssertEqual(expected, set);
         }
 
         [Theory]
-        [InlineData(Operator.And, $"({{'Role': 'A1'}} And {{'Claim': 'A2'}})")]
-        [InlineData(Operator.Or, $"({{'Role': 'A1'}} Or {{'Claim': 'A2'}})")]
+        [InlineData(Operator.And, $"({{'Role': 'A1'}} AND {{'Claim': 'A2'}})")]
+        [InlineData(Operator.Or, $"({{'Role': 'A1'}} OR {{'Claim': 'A2'}})")]
         public void Format_TwoWithUniqueName(Operator @operator, string expected)
         {
-            var sut = Create();
             var set = RuleSet.Create(
                 @operator,
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2"),
-                new Rule("Ignored", "IgnoredValue", true)
+                new Rule("Ignored", "IgnoredValue", RuleOutcome.Ignored)
                 );
-            Assert.Equal(expected, sut.FormatInternal(set));
+            AssertEqual(expected, set);
         }
 
         [Theory]
@@ -74,28 +71,36 @@ namespace Pipaslot.Mediator.Tests.Authorization.RuleSetFormatters
         [InlineData(Operator.Or, false)]
         public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase)
         {
-            var sut = Create();
             var name = "Role";
             var set = RuleSet.Create(
                 @operator,
                 new Rule(name, "A1"),
                 new Rule(theSameNameCase ? name : name.ToUpper(), "A2"),
-                new Rule("Ignored", "IgnoredValue", true)
+                new Rule("Ignored", "IgnoredValue", RuleOutcome.Ignored)
                 );
-            var expected = $"{{'Role': ['A1' {@operator} 'A2']}}";
-            Assert.Equal(expected, sut.FormatInternal(set));
+            var expected = $"{{'Role': ['A1' {@operator.ToString().ToUpper()} 'A2']}}";
+            AssertEqual(expected, set);
         }
 
         [Fact]
         public void Format_CollectionWithSingleRuleSet_ReturnOnlySet()
         {
-            var sut = Create();
             var set = new RuleSet(
                 new Rule("Role", "A1"),
                 new Rule("Claim", "A2")
                 );
             var collection = new RuleSet(set);
-            Assert.Equal(sut.FormatInternal(set), sut.FormatInternal(collection));
+            var formatter = Create();
+            var value = set.Evaluate(formatter).Value;
+            Assert.Equal(value, collection.Evaluate(formatter).Value);
+        }
+
+        private RuleOutcome AssertEqual(string expected, RuleSet ruleSet)
+        {
+            var sut = Create();
+            var eval = ruleSet.Evaluate(sut);
+            Assert.Equal(expected, eval.Value);
+            return eval.Outcome;
         }
     }
 }
