@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Authorization.Formatters
 {
     public class DefaultRuleSetFormatter : IRuleSetFormatter
     {
-        public Rule Format(Rule rule)
+        public Rule FormatSingle(Rule rule)
         {
             if (rule.Name == IdentityPolicy.AuthenticationPolicyName)
             {
@@ -37,33 +37,25 @@ namespace Pipaslot.Mediator.Authorization.Formatters
             return new Rule(Rule.DefaultName, $"{rule.Name} '{rule.Value}' is required.", rule.Outcome);
         }
 
-        public Rule FormatDeniedWithAnd(ICollection<Rule> denied)
+        public Rule FormatMultiple(List<Rule> rules, Operator @operator)
         {
-            var sets = denied
-                .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(g => FormatGroup(g, "AND"))
-                .ToArray();
-            if(sets.Length == 1)
-            {
-                return new Rule(RuleOutcome.Deny, sets.First());
-            }
-            return new Rule(RuleOutcome.Deny, $"({string.Join($" AND ", sets)})");
+            return Join(rules, @operator == Operator.And ? "AND" : "OR");
         }
 
-        public Rule FormatDeniedWithOr(ICollection<Rule> denied)
+        protected Rule Join(ICollection<Rule> denied, string operation)
         {
             var sets = denied
-                .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(g => FormatGroup(g, "OR"))
-                .ToArray();
+                            .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
+                            .Select(g => FormatGroup(g, operation))
+                            .ToArray();
             if (sets.Length == 1)
             {
                 return new Rule(RuleOutcome.Deny, sets.First());
             }
-            return new Rule(RuleOutcome.Deny, $"({string.Join($" OR ", sets)})");
+            return new Rule(RuleOutcome.Deny, $"({string.Join($" {operation} ", sets)})");
         }
 
-        private string FormatGroup(IGrouping<string, Rule> group, string op)
+        protected string FormatGroup(IGrouping<string, Rule> group, string op)
         {
             if(group.Key == Rule.DefaultName)
             {
@@ -74,6 +66,6 @@ namespace Pipaslot.Mediator.Authorization.Formatters
             return group.Count() > 1
             ? $"{{'{group.Key}': [{string.Join($" {op} ", group.Select(r => $"'{r.Value}'"))}]}}"
             : $"{{'{group.Key}': '{group.FirstOrDefault()?.Value}'}}";
-        }     
+        }        
     }
 }

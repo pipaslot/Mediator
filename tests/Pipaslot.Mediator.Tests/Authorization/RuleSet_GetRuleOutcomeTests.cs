@@ -52,19 +52,14 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private class NullFormatter : IRuleSetFormatter
         {
-            public Rule Format(Rule rule)
+            public Rule FormatSingle(Rule rule)
             {
                 return rule;
             }
 
-            public Rule FormatDeniedWithAnd(ICollection<Rule> denied)
+            public Rule FormatMultiple(List<Rule> rules, Operator @operator)
             {
-                return denied.First();
-            }
-
-            public Rule FormatDeniedWithOr(ICollection<Rule> denied)
-            {
-                return denied.First();
+                return rules.First();
             }
         }
     }

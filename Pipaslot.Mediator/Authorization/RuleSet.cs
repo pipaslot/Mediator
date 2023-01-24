@@ -75,7 +75,8 @@ namespace Pipaslot.Mediator.Authorization
         private Rule ReduceWithAnd(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
         {
             var denied = new List<Rule>();
-            Rule? allowed = null;
+            var unavailable = new List<Rule>();
+            var allowed = new List<Rule>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -85,30 +86,28 @@ namespace Pipaslot.Mediator.Authorization
                 }
                 if (outcome == RuleOutcome.Unavailable)
                 {
-                    return formatter.Format(rule);
+                    unavailable.Add(rule);
                 }
-                if(outcome == RuleOutcome.Deny)
+                if (outcome == RuleOutcome.Deny)
                 {
-                    denied.Add(rule); 
+                    denied.Add(rule);
                 }
-                if(outcome == RuleOutcome.Allow)
+                if (outcome == RuleOutcome.Allow)
                 {
-                    allowed = rule;
+                    allowed.Add(rule);
                 }
             }
-            if (denied.Any()){
-                if (denied.Count == 1)
-                {
-                    return formatter.Format(denied.First());
-                }
-                return formatter.FormatDeniedWithAnd(denied);
-            }
-            else
+            if (unavailable.Any())
             {
-                if(allowed != null)
-                {
-                    return formatter.Format(allowed);
-                }
+                return formatter.Format(unavailable, Operator.Or);
+            }
+            if (denied.Any())
+            {
+                return formatter.Format(denied, Operator.And);
+            }
+            if (allowed.Any())
+            {
+                return formatter.Format(allowed, Operator.And);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }
@@ -116,7 +115,8 @@ namespace Pipaslot.Mediator.Authorization
         private Rule ReduceWithOr(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
         {
             var denied = new List<Rule>();
-            var undefinedRules = new List<Rule>();
+            var unavailable = new List<Rule>();
+            var allowed = new List<Rule>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -126,32 +126,28 @@ namespace Pipaslot.Mediator.Authorization
                 }
                 if (outcome == RuleOutcome.Allow)
                 {
-                    return formatter.Format(rule);
+                    allowed.Add(rule);
                 }
-                if(outcome == RuleOutcome.Unavailable)
+                if (outcome == RuleOutcome.Unavailable)
                 {
-                    undefinedRules.Add(rule);
+                    unavailable.Add(rule);
                 }
                 if (outcome == RuleOutcome.Deny)
                 {
                     denied.Add(rule);
-                }                
+                }
+            }
+            if (allowed.Any())
+            {
+                return formatter.Format(allowed, Operator.Or);
             }
             if (denied.Any())
             {
-                if (denied.Count == 1)
-                {
-                    return formatter.Format(denied.First());
-                }
-                return formatter.FormatDeniedWithOr(denied);
+                return formatter.Format(denied, Operator.Or);
             }
-            else if (undefinedRules.Any()) 
+            if (unavailable.Any())
             {
-                if (undefinedRules.Count == 1)
-                {
-                    return formatter.Format(undefinedRules.First());
-                }
-                return formatter.FormatDeniedWithOr(undefinedRules);
+                return formatter.Format(unavailable, Operator.Or);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }
