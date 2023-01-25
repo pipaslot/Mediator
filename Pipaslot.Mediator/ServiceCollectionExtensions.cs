@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.Formatters;
+using Pipaslot.Mediator.Authorization.Formatting;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;

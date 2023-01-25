@@ -1,5 +1,5 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.Formatters;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,12 +101,12 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private class NullFormatter : IRuleSetFormatter
         {
-            public Rule FormatSingle(Rule rule)
+            public IRule FormatSingle(IRule rule, RuleOutcome outcome)
             {
                 return rule;
             }
 
-            public Rule FormatMultiple(List<Rule> rules, Operator @operator)
+            public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
             {
                 return rules.First();
             }

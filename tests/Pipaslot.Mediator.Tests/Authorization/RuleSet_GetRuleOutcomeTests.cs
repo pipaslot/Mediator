@@ -1,5 +1,5 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.Formatters;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,11 +10,11 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Theory]
         // Empty 
         [InlineData(new RuleOutcome[] { }, Operator.And, RuleOutcome.Ignored)]
-        [InlineData(new RuleOutcome[] { }, Operator.Or , RuleOutcome.Ignored)]
+        [InlineData(new RuleOutcome[] { }, Operator.Or, RuleOutcome.Ignored)]
 
         // Ignored only
         [InlineData(new[] { RuleOutcome.Ignored }, Operator.And, RuleOutcome.Ignored)]
-        [InlineData(new[] { RuleOutcome.Ignored }, Operator.Or , RuleOutcome.Ignored)]
+        [InlineData(new[] { RuleOutcome.Ignored }, Operator.Or, RuleOutcome.Ignored)]
         // Ignored together with other
         [InlineData(new[] { RuleOutcome.Ignored, RuleOutcome.Allow }, Operator.And, RuleOutcome.Allow)]
         [InlineData(new[] { RuleOutcome.Ignored, RuleOutcome.Allow }, Operator.Or, RuleOutcome.Allow)]
@@ -52,12 +52,12 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private class NullFormatter : IRuleSetFormatter
         {
-            public Rule FormatSingle(Rule rule)
+            public IRule FormatSingle(IRule rule, RuleOutcome outcome)
             {
                 return rule;
             }
 
-            public Rule FormatMultiple(List<Rule> rules, Operator @operator)
+            public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
             {
                 return rules.First();
             }

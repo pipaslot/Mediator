@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Authorization
     /// Default state is Deny. This state is applied also when no rule was defined.
     /// Unavailable state can occure when
     /// </summary>
-    public class Rule : IPolicy
+    public class Rule : IPolicy, IRuleWithOutcome
     {
         public RuleScope Scope { get; } = RuleScope.State;
 
@@ -19,6 +19,10 @@ namespace Pipaslot.Mediator.Authorization
         /// Default rule name if not specified. It is used in cases where the value should serve as a sentence or when we want to prevent additional formatting.
         /// </summary>
         public const string DefaultName = "RuleWithReasoning";
+        /// <summary>
+        /// Rule name used in situation when multiple rules were joined by operator to be later detected by the formatter
+        /// </summary>
+        public const string JoinedFormatedRuleName = "JoinedFormatedRuleName";
         /// <summary>
         /// Name can be used also as kind like Authentication, Claim, Role or any custom name.
         /// </summary>

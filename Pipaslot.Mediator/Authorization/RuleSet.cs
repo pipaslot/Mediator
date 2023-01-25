@@ -1,4 +1,4 @@
-﻿using Pipaslot.Mediator.Authorization.Formatters;
+﻿using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        public Rule Evaluate(IRuleSetFormatter formatter)
+        public IRuleWithOutcome Evaluate(IRuleSetFormatter formatter)
         {
             var rules = Rules
                 .Concat(RuleSets.Select(s => s.Evaluate(formatter)));
@@ -72,11 +72,11 @@ namespace Pipaslot.Mediator.Authorization
             throw new NotImplementedException($"Unknown operator '{Operator}'");
         }
 
-        private Rule ReduceWithAnd(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
+        private IRuleWithOutcome ReduceWithAnd(IEnumerable<IRuleWithOutcome> rules, IRuleSetFormatter formatter)
         {
-            var denied = new List<Rule>();
-            var unavailable = new List<Rule>();
-            var allowed = new List<Rule>();
+            var denied = new List<IRule>();
+            var unavailable = new List<IRule>();
+            var allowed = new List<IRule>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -99,24 +99,24 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, Operator.Or);
+                return formatter.Format(unavailable, RuleOutcome.Unavailable,Operator.Or);
             }
             if (denied.Any())
             {
-                return formatter.Format(denied, Operator.And);
+                return formatter.Format(denied, RuleOutcome.Deny, Operator.And);
             }
             if (allowed.Any())
             {
-                return formatter.Format(allowed, Operator.And);
+                return formatter.Format(allowed, RuleOutcome.Allow, Operator.And);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }
 
-        private Rule ReduceWithOr(IEnumerable<Rule> rules, IRuleSetFormatter formatter)
+        private IRuleWithOutcome ReduceWithOr(IEnumerable<IRuleWithOutcome> rules, IRuleSetFormatter formatter)
         {
-            var denied = new List<Rule>();
-            var unavailable = new List<Rule>();
-            var allowed = new List<Rule>();
+            var denied = new List<IRule>();
+            var unavailable = new List<IRule>();
+            var allowed = new List<IRule>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -139,15 +139,15 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (allowed.Any())
             {
-                return formatter.Format(allowed, Operator.Or);
+                return formatter.Format(allowed, RuleOutcome.Allow, Operator.Or);
             }
             if (denied.Any())
             {
-                return formatter.Format(denied, Operator.Or);
+                return formatter.Format(denied, RuleOutcome.Deny, Operator.Or);
             }
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, Operator.Or);
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.Or);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Authorization.Formatters;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
