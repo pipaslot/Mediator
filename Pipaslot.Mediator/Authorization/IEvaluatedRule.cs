@@ -2,7 +2,7 @@
 
 namespace Pipaslot.Mediator.Authorization
 {
-    public interface IRuleWithOutcome : IRule
+    public interface IEvaluatedRule : IRule
     {
         public RuleOutcome Outcome { get; }
     }

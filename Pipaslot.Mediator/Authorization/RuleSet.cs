@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        public IRuleWithOutcome Evaluate(IRuleSetFormatter formatter)
+        public IEvaluatedRule Evaluate(IRuleSetFormatter formatter)
         {
             var rules = Rules
                 .Concat(RuleSets.Select(s => s.Evaluate(formatter)));
@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator.Authorization
             throw new NotImplementedException($"Unknown operator '{Operator}'");
         }
 
-        private IRuleWithOutcome ReduceWithAnd(IEnumerable<IRuleWithOutcome> rules, IRuleSetFormatter formatter)
+        private IEvaluatedRule ReduceWithAnd(IEnumerable<IEvaluatedRule> rules, IRuleSetFormatter formatter)
         {
             var denied = new List<IRule>();
             var unavailable = new List<IRule>();
@@ -112,7 +112,7 @@ namespace Pipaslot.Mediator.Authorization
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }
 
-        private IRuleWithOutcome ReduceWithOr(IEnumerable<IRuleWithOutcome> rules, IRuleSetFormatter formatter)
+        private IEvaluatedRule ReduceWithOr(IEnumerable<IEvaluatedRule> rules, IRuleSetFormatter formatter)
         {
             var denied = new List<IRule>();
             var unavailable = new List<IRule>();

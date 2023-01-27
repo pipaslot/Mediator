@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting
         /// Format one or more rules with the same outcome
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IRuleWithOutcome Format(this IRuleSetFormatter formatter, List<IRule> rules, RuleOutcome outcome, Operator @operator)
+        public static IEvaluatedRule Format(this IRuleSetFormatter formatter, List<IRule> rules, RuleOutcome outcome, Operator @operator)
         {
             if (rules.Count == 0)
             {
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting
             var pair = rules.Count == 1
                 ? formatter.FormatSingle(casted.First(), outcome)
                 : formatter.FormatMultiple(casted, outcome, @operator);
-            return new RuleWithOutcome(pair, outcome);
+            return new EvaluatedRule(pair, outcome);
         }
     }
 }

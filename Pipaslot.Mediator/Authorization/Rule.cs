@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Authorization
     /// Default state is Deny. This state is applied also when no rule was defined.
     /// Unavailable state can occure when
     /// </summary>
-    public class Rule : IPolicy, IRuleWithOutcome
+    public class Rule : IPolicy, IEvaluatedRule
     {
         public RuleScope Scope { get; } = RuleScope.State;
 
