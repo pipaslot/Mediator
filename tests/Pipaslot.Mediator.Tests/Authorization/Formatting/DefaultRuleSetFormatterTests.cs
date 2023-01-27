@@ -1,7 +1,10 @@
 ﻿using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Xml.Linq;
+using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
@@ -13,8 +16,8 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         }
 
         [Theory]
-        [InlineData(Operator.And, "(Sentence1 OR Sentence2) AND Sentence3 AND (Sentence4 AND Sentence5)")] //Deny result
-        [InlineData(Operator.Or, "")] // Allow result
+        [InlineData(Operator.And, "(Sentence1 OR Sentence2) AND Sentence3 AND (Sentence4 AND Sentence5)")]
+        [InlineData(Operator.Or, "(Sentence1 OR Sentence2) OR Sentence3 OR (Sentence4 AND Sentence5)")]
         public void Format_OnlyDefaultRules(Operator @operator, string expected)
         {
             var set1 = RuleSet.Create(
@@ -23,7 +26,7 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
                 Rule.Allow(false, "Sentence2")
                 );
             var set2 = RuleSet.Create(
-                Operator.Or,
+                Operator.And,
                 Rule.Allow(false, "Sentence3"),
                 Rule.Allow(true, "Ignored sentence because it is granted")
                 );
@@ -38,7 +41,7 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         }
 
         [Theory]
-        [InlineData(Operator.And, "({'Role': 'A3'} OR {'Claim': 'A4'}) AND {'Role': ['A5' OR 'A6']} AND {'Claim': ['A7' AND 'A8']}")] // Deny result
+        [InlineData(Operator.And, "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. AND Role 'A6' is required.)")] // Deny result
         [InlineData(Operator.Or, "")] // Allow result
         public void Format_withoutDefaultRule(Operator @operator, string expected)
         {
@@ -53,20 +56,16 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
                 new Rule("Claim", "A4")
                 );
             var set3 = RuleSet.Create(
-                Operator.Or,
-                new Rule("Role", "A5"),
+                Operator.And,
+                new Rule(ClaimTypes.Role, "A5"), // has to be converted to Role
                 new Rule("Role", "A6")
                 );
-            var set4 = new RuleSet(
-                new Rule("Claim", "A7"),
-                new Rule("Claim", "A8")
-                );
-            var collection = RuleSet.Create(@operator, set1, set2, set3, set4);
+            var collection = RuleSet.Create(@operator, set1, set2, set3);
             AssertEqual(expected, collection);
         }
 
         [Theory]
-        [InlineData(Operator.And, "({'Role': 'A3'} OR {'Claim': 'A4'}) AND {'Role': ['A5' OR 'A6']} AND {'Claim': ['A7' AND 'A8']}")] // Deny result
+        [InlineData(Operator.And, "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. OR Role 'A6' is required.) AND (Claim 'A7' is required. AND Claim 'A8' is required.)")] // Deny result
         [InlineData(Operator.Or, "You did it!")] // Allow result
         public void Format_WithDefaultRule(Operator @operator, string expected)
         {
@@ -104,8 +103,17 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         }
 
         [Theory]
-        [InlineData(Operator.And, $"{{'Role': 'A1'}} AND {{'Claim': 'A2'}}")]
-        [InlineData(Operator.Or, $"{{'Role': 'A1'}} OR {{'Claim': 'A2'}}")]
+        [InlineData(RuleOutcome.Allow, "")]
+        [InlineData(RuleOutcome.Deny, "User has to be authenticated.")]
+        public void Format_Authorization(RuleOutcome outcome, string expected)
+        {
+            var rule = new Rule(IdentityPolicy.AuthenticationPolicyName, IdentityPolicy.AuthenticatedValue, outcome);
+            AssertEqual(expected, Operator.And, rule);
+        }
+
+        [Theory]
+        [InlineData(Operator.And, $"Role 'A1' is required. AND Claim 'A2' is required.")]
+        [InlineData(Operator.Or, $"Role 'A1' is required. OR Claim 'A2' is required.")]
         public void Format_TwoWithUniqueName(Operator @operator, string expected)
         {
             AssertEqual(expected,
@@ -117,28 +125,15 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         }
 
         [Theory]
-        [InlineData(Operator.And, true, $"{{'Role': ['A1' AND 'A2']}}")]
-        [InlineData(Operator.And, false, $"{{'Role': ['A1' AND 'A2']}}")]
-        [InlineData(Operator.Or, true, $"{{'Role': ['A1' OR 'A2']}}")]
-        [InlineData(Operator.Or, false, $"{{'Role': ['A1' OR 'A2']}}")]
-        public void Format_TwoWithDuplicateName(Operator @operator, bool theSameNameCase, string expected)
+        [InlineData(Operator.And,$"Role 'A1' is required. AND Role 'A2' is required.")]
+        [InlineData(Operator.Or, $"Role 'A1' is required. OR Role 'A2' is required.")]
+        public void Format_TwoWithDuplicateName(Operator @operator, string expected)
         {
-            var name = "Role";
             AssertEqual(expected,
                 @operator,
-                new Rule(name, "A1"),
-                new Rule(theSameNameCase ? name : name.ToUpper(), "A2"),
+                new Rule("Role", "A1"),
+                new Rule("Role", "A2"),
                 new Rule("Ignored", "IgnoredValue", RuleOutcome.Ignored)
-                );
-        }
-
-        [Fact]
-        public void Format_CollectionWthSingleRuleSet_ReturnOnlySet()
-        {
-            var expected = "{'Role': 'A1'} AND {'Claim': 'A2'}";
-            AssertEqual(expected, Operator.And
-                , new Rule("Role", "A1")
-                , new Rule("Claim", "A2")
                 );
         }
 

@@ -8,7 +8,19 @@ namespace Pipaslot.Mediator.Authorization.Formatting
 {
     public class DefaultRuleSetFormatter : IRuleSetFormatter
     {
-        public IRule FormatSingle(IRule rule, RuleOutcome outcome)
+        public virtual IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
+        {
+            var operation = FormatOperator(@operator);
+            var sets = rules
+                .Select(g => FormatSingle(g, outcome))
+                .Select(g => g.Value)
+                .Where(r => !string.IsNullOrWhiteSpace(r))
+                .ToArray();
+            var joined = $"{string.Join($" {operation} ", sets)}";
+            return new Rule(Rule.JoinedFormatedRuleName, joined);
+        }
+
+        public virtual IRule FormatSingle(IRule rule, RuleOutcome outcome)
         {
             if (rule.Name == IdentityPolicy.AuthenticationPolicyName)
             {
@@ -18,65 +30,54 @@ namespace Pipaslot.Mediator.Authorization.Formatting
                 }
                 if (rule.Value == IdentityPolicy.AuthenticatedValue)
                 {
-                    return new Rule(Rule.DefaultName, "User has to be authenticated.");
+                    return new Rule(Rule.DefaultName, FormatRequiredAuthentication());
                 }
             }
             if (rule.Name == ClaimTypes.Role)
             {
-                return new Rule(Rule.DefaultName, $"Role '{rule.Value}' is required.");
+                return new Rule(Rule.DefaultName, FormatRole(rule));
             }
-            if (rule.Name == Rule.DefaultName /*|| rule.Name == Rule.JoinedFormatedRuleName*/)
+            if (rule.Name == Rule.DefaultName)
             {
                 return rule;
+            }
+            if (rule.Name == Rule.JoinedFormatedRuleName)
+            {
+                return string.IsNullOrWhiteSpace(rule.Value)
+                    ? rule
+                    : new Rule(Rule.DefaultName, WrapMultipleRules(rule));
             }
             if (outcome == RuleOutcome.Allow)
             {
                 return new Rule(outcome, string.Empty);
             }
 
-            return new Rule(Rule.DefaultName, $"{rule.Name} '{rule.Value}' is required.");
+            return new Rule(Rule.DefaultName, FormatDefault(rule));
         }
 
-        public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
+        protected virtual string FormatDefault(IRule rule)
         {
-            return Join(rules, @operator == Operator.And ? "AND" : "OR");
+            return $"{rule.Name} '{rule.Value}' is required.";
         }
 
-        protected IRule Join(IRule[] denied, string operation)
+        protected virtual string WrapMultipleRules(IRule rule)
         {
-            var sets = denied
-                            .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                            .Select(g => FormatGroup(g, operation))
-                            .Where(r => !string.IsNullOrWhiteSpace(r))
-                            .ToArray();
-            if (sets.Length == 1)
-            {
-                return new Rule(Rule.DefaultName, sets.First());
-            }
-            return new Rule(Rule.JoinedFormatedRuleName, $"{string.Join($" {operation} ", sets)}");
+            return $"({rule.Value})";
         }
 
-        protected string FormatGroup(IGrouping<string, IRule> group, string op)
+        protected virtual string FormatRequiredAuthentication()
         {
-            var nonEmptyRules = group
-                .Where(g => !string.IsNullOrWhiteSpace(g.Value))
-                .ToArray();
-            if (nonEmptyRules.Length == 0)
-            {
-                return string.Empty;
-            }
+            return "User has to be authenticated.";
+        }
 
-            if (group.Key == Rule.DefaultName || group.Key == Rule.JoinedFormatedRuleName)
-            {
-                return string.Join($" {op} ",
-                    nonEmptyRules
-                    .Select(r => r.Name == Rule.JoinedFormatedRuleName
-                        ? $"({r.Value})"
-                        : r.Value));
-            }
-            return nonEmptyRules.Count() > 1
-            ? $"{{'{group.Key}': [{string.Join($" {op} ", nonEmptyRules.Select(r => $"'{r.Value}'"))}]}}"
-            : $"{{'{group.Key}': '{nonEmptyRules.FirstOrDefault()?.Value}'}}";
+        protected virtual string FormatRole(IRule rule)
+        {
+            return $"Role '{rule.Value}' is required.";
+        }
+
+        protected virtual string FormatOperator(Operator @operator)
+        {
+            return @operator == Operator.And ? "AND" : "OR";
         }
     }
 }

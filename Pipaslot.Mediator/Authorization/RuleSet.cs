@@ -59,8 +59,8 @@ namespace Pipaslot.Mediator.Authorization
 
         public IEvaluatedRule Evaluate(IRuleSetFormatter formatter)
         {
-            var rules = Rules
-                .Concat(RuleSets.Select(s => s.Evaluate(formatter)));
+            var rules = RuleSets.Select(s => s.Evaluate(formatter))
+                .Concat(Rules);
             if (Operator == Operator.And)
             {
                 return ReduceWithAnd(rules, formatter);
