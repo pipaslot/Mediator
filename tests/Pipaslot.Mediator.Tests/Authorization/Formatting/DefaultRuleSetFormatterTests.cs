@@ -125,7 +125,7 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         }
 
         [Theory]
-        [InlineData(Operator.And,$"Role 'A1' is required. AND Role 'A2' is required.")]
+        [InlineData(Operator.And, $"Role 'A1' is required. AND Role 'A2' is required.")]
         [InlineData(Operator.Or, $"Role 'A1' is required. OR Role 'A2' is required.")]
         public void Format_TwoWithDuplicateName(Operator @operator, string expected)
         {
@@ -148,6 +148,18 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
                 , Rule.Allow(false, second)
                 , Rule.Allow(false, third)
                 );
+        }
+
+        [Fact]
+        public void Format_NestedRuleWontBeWrappedBecauseItIsNotNecessary()
+        {
+            var nested = RuleSet.Create(Operator.And,
+                Rule.Allow(false, "AAA"),
+                Rule.Allow(false, "BBB")
+                );
+            var root = new RuleSet(nested);
+
+            AssertEqual("AAA AND BBB", root);
         }
 
         private void AssertEqual(string expected, Operator @operator, params Rule[] rules)

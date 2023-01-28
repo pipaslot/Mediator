@@ -24,24 +24,28 @@ namespace Pipaslot.Mediator.Services
             _actionTypeProvider = actionTypeProvider;
         }
 
-        public void Verify(bool checkMatchingHandlers = false, bool checkExistingPolicies = false)
+        public void Verify(ExistenceCheckerSetting setting)
         {
-            if (!checkMatchingHandlers && !checkExistingPolicies)
+            if (setting is null)
+            {
+                throw new ArgumentNullException(nameof(setting));
+            }
+            if (!setting.CheckMatchingHandlers && !setting.CheckExistingPolicies)
             {
                 return;
             }
             var messageTypes = _actionTypeProvider.GetMessageActionTypes();
             var requestTypes = _actionTypeProvider.GetRequestActionTypes();
 
-            VerifyMessages(messageTypes, checkMatchingHandlers, checkExistingPolicies);
-            VerifyRequests(requestTypes, checkMatchingHandlers, checkExistingPolicies);
+            VerifyMessages(messageTypes, setting);
+            VerifyRequests(requestTypes, setting);
             if (_errors.Any())
             {
                 throw MediatorException.CreateForInvalidHandlers(_errors.ToArray());
             }
         }
 
-        private void VerifyMessages(IEnumerable<Type> queryTypes, bool checkMatchingHandlers, bool checkExistingPolicies)
+        private void VerifyMessages(IEnumerable<Type> queryTypes, ExistenceCheckerSetting setting)
         {
             foreach (var subject in queryTypes)
             {
@@ -51,19 +55,19 @@ namespace Pipaslot.Mediator.Services
                 }
 
                 var handlers = _serviceProvider.GetMessageHandlers(subject).ToArray();
-                if (checkMatchingHandlers)
+                if (setting.CheckMatchingHandlers)
                 {
                     VerifyHandlerCount(handlers, subject);
                 }
-                if (checkExistingPolicies)
+                if (setting.CheckExistingPolicies)
                 {
-                    VerifyPolicies(handlers, subject);
+                    VerifyPolicies(handlers, subject, setting.IgnoredPolicyChecks);
                 }
                 _alreadyVerified.Add(subject);
             }
         }
 
-        private void VerifyRequests(IEnumerable<Type> types, bool checkMatchingHandlers, bool checkExistingPolicies)
+        private void VerifyRequests(IEnumerable<Type> types, ExistenceCheckerSetting setting)
         {
             foreach (var subject in types)
             {
@@ -73,20 +77,24 @@ namespace Pipaslot.Mediator.Services
                 }
                 var resultType = RequestGenericHelpers.GetRequestResultType(subject);
                 var handlers = _serviceProvider.GetRequestHandlers(subject, resultType);
-                if (checkMatchingHandlers)
+                if (setting.CheckMatchingHandlers)
                 {
                     VerifyHandlerCount(handlers, subject);
                 }
-                if (checkExistingPolicies)
+                if (setting.CheckExistingPolicies)
                 {
-                    VerifyPolicies(handlers, subject);
+                    VerifyPolicies(handlers, subject, setting.IgnoredPolicyChecks);
                 }
                 _alreadyVerified.Add(subject);
             }
         }
 
-        private void VerifyPolicies(object[] handlers, Type subject)
+        private void VerifyPolicies(object[] handlers, Type subject, HashSet<Type> ignoredSubjects)
         {
+            if (ignoredSubjects.Contains(subject))
+            {
+                return;
+            }
             if (PolicyResolver.HasActionPolicies(subject, handlers))
             {
                 return;

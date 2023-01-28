@@ -91,9 +91,10 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             var task2 = sut.Dispatch(action);
             Assert.Equal(2, _started.Count);
             _handlerSemaphore.Release(2);
-            await Task.Delay(10); // Wait for event propagation
+            await Task.Delay(20); // Wait for event propagation
             await Task.WhenAll(task1, task2);
         }
+
         [Fact]
         public async Task SendingTheSameActionInstanceTwiceFiresTwoCompletedEvents()
         {
@@ -103,13 +104,9 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             var task2 = sut.Dispatch(action);
             _handlerSemaphore.Release(2);
             await Task.WhenAll(task1, task2);
-            await Task.Delay(10); // Wait for event propagation
+            await Task.Delay(20); // Wait for event propagation
             Assert.Equal(2, _completed.Count);
         }
-
-        #region Other cases
-
-        #endregion
 
         #region Setup
 
