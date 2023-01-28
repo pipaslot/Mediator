@@ -59,7 +59,14 @@ namespace Pipaslot.Mediator.Authorization
 
         public IEvaluatedRule Evaluate(IRuleSetFormatter formatter)
         {
-            var rules = RuleSets.Select(s => s.Evaluate(formatter))
+            var evaluatedRules = RuleSets
+                .Select(s => s.Evaluate(formatter))
+                .ToArray();
+            if(evaluatedRules.Length == 1 && Rules.Count == 0)
+            {
+                return evaluatedRules.First();
+            }
+            var rules = evaluatedRules
                 .Concat(Rules);
             if (Operator == Operator.And)
             {
