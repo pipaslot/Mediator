@@ -23,8 +23,6 @@ namespace Pipaslot.Mediator.Authorization
                 .ToAccessType();
             if (ruleSet.RuleSets.Count == 0 && ruleSet.Rules.Count == 0)
             {
-                //TODO should be probably handled as configuration because in some apps it wont be benefitial to force user to define always the policy. 
-                // The issue can occure when defiing handlers as library but target app uses some Auth policies. Then it is more appropriate to handle it via middlewares.
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
             if (access != AccessType.Allow)
