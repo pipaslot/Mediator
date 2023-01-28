@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization
@@ -153,7 +154,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
                
         #region Actions
 
-        public interface IContract
+        public interface IContract : IMediatorAction
         {
             public string Name { get; }
             public int Number { get; }

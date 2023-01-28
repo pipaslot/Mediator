@@ -28,7 +28,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
             };
         }
 
-        public string SerializeRequest(object request)
+        public string SerializeRequest(IMediatorAction request)
         {
             return JsonSerializer.Serialize(request, typeof(IMediatorAction), _serializationOptions);
         }
