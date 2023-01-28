@@ -1,0 +1,69 @@
+﻿@using Demo.Shared.Auth;
+@using Pipaslot.Mediator.Authorization;
+<h3>Custom policies</h3>
+<p>You can use the policies to consider object state. For example for disabling execution in case if invalida model state.</p>
+
+<EditForm Model="@Model" OnValidSubmit="@Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            <InputCheckbox Value="@Model.IsAvailable"
+                           ValueExpression="()=>Model.IsAvailable"
+                           ValueChanged="e=>OnIsAvailableChanged(e)" /> Is action available
+        </label>
+        <label>
+            <InputCheckbox Value="@Model.IsInvalid"
+                           ValueExpression="()=>Model.IsInvalid"
+                           ValueChanged="e=>OnIsInvalidChanged(e)" /> Make the model invalid
+        </label>
+    </div>
+    <div class="mt-2">
+        @if (_auth.IsAvailable)
+        {
+            <button class="btn btn-primary btn-sm" type="submit" disabled="@_auth.IsDisabled" title="@_auth.Reason">
+                <span class="me-1">Submit</span>
+            </button>
+        }
+        <div><i>Reason:</i></div>
+        <div>@_auth.Reason</div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public CustomPolicyMessage Model { get; set; } = new();
+
+    private AuthorizeRequestResponse _auth = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await OnChange();
+    }
+
+    private async Task OnIsInvalidChanged(bool value)
+    {
+        Model.IsInvalid = value;
+        await OnChange();
+    }
+
+    private async Task OnIsAvailableChanged(bool value)
+    {
+        Model.IsAvailable = value;
+        await OnChange();
+    }
+
+    private async Task OnChange()
+    {
+        _auth = await Mediator.Authorize(Model);
+    }
+
+    private async Task Submit()
+    {
+        var result = await Mediator.Dispatch(Model);
+        if (result.Success)
+        {
+            _auth.Reason = "Validation passed";
+        }
+    }
+}

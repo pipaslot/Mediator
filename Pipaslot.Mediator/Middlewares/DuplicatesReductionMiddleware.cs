@@ -42,9 +42,9 @@ namespace Pipaslot.Mediator.Middlewares
         {
             var contextCopy = context.CopyEmpty();
             Task<MediatorContext> task;
-            if (_running.TryGetValue(actionType, out var instances))
+            if (_running.TryGetValue(actionType, out var instances) && instances != null)
             {
-                if (instances.TryGetValue(hashCode, out var runningTask))
+                if (instances.TryGetValue(hashCode, out var runningTask) && runningTask != null)
                 {
                     return runningTask;
                 }
@@ -66,7 +66,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         private void Remove(Type actionType, int hashCode)
         {
-            if (_running.TryGetValue(actionType, out var instances))
+            if (_running.TryGetValue(actionType, out var instances) && instances != null)
             {
                 instances.Remove(hashCode);
                 if (instances.Count == 0)

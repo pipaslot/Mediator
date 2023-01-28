@@ -2,6 +2,6 @@
 {
     public interface IHandlerExistenceChecker
     {
-        void Verify(bool checkMatchingHandlers = false, bool checkExistingPolicies = false);
+        void Verify(ExistenceCheckerSetting setting);
     }
 }

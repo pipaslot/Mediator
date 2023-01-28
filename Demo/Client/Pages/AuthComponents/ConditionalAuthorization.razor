@@ -1,4 +1,5 @@
 ﻿@using Demo.Shared.Auth
+@using Pipaslot.Mediator.Authorization;
 @using Pipaslot.Mediator.Notifications
 
 <EditForm Model="@Model" OnValidSubmit="@Submit">
@@ -16,9 +17,9 @@
         </label>
     </div>
     <div class="mt-2">
-        <button class="btn @(_isAuthorized ? "btn-success" : "btn-danger") btn-sm" type="submit" title="Always trigger the action. But server error will be returned if is denied.">
+        <button class="btn @(_auth.IsAllowed ? "btn-success" : "btn-danger") btn-sm" type="submit" title="Always trigger the action. But server error will be returned if is denied.">
             <span class="me-1">Submit (always enabled): </span>
-            @if (_isAuthorized)
+            @if (_auth.IsAllowed)
             {
                 <span>Allowed</span>
             }
@@ -27,9 +28,12 @@
                 <span>Denied</span>
             }
         </button>
-        <button class="btn btn-primary btn-sm" type="submit" disabled="@(!_isAuthorized)" title="If denied, then sending will be blocked in browser.">
+        <button class="btn btn-primary btn-sm" type="submit" disabled="@_auth.IsDisabled" title="If denied, then sending will be blocked in browser.">
             <span class="me-1">Submit (alternative)</span>
         </button>
+
+        <div><i>Reason:</i></div>
+        <div>@_auth.Reason</div>
     </div>
 </EditForm>
 
@@ -38,7 +42,7 @@
     [Parameter, EditorRequired]
     public ConditionalAuthorizationMessage Model { get; set; } = null!;
 
-    private bool _isAuthorized;
+    private AuthorizeRequestResponse _auth = new();
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -57,7 +61,7 @@
     }
     private async Task OnChange()
     {
-        _isAuthorized = await Mediator.IsAuthorized(Model);
+        _auth = await Mediator.Authorize(Model);
     }
 
     private async Task Submit()

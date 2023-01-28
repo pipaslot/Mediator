@@ -40,7 +40,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <summary>
         /// Cancellation token
         /// </summary>
-        public CancellationToken CancellationToken { get; }
+        public CancellationToken CancellationToken { get; private set; }
 
         public IMediator Mediator { get; }
 
@@ -207,6 +207,15 @@ namespace Pipaslot.Mediator.Middlewares
                 _handlers = Services.GetActionHandlers(Action);
             }
             return _handlers;
+        }
+
+        /// <summary>
+        /// Replace actual cancellation token by own one. 
+        /// Can be used as hooking to application events to cancel operations relevat to leaved pages/requests.
+        /// </summary>
+        public void SetCancellationToken(CancellationToken cancellationToken)
+        {
+            CancellationToken = cancellationToken;
         }
     }
 }

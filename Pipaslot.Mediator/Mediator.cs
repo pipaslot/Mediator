@@ -28,6 +28,11 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
             try
@@ -49,6 +54,10 @@ namespace Pipaslot.Mediator
 
         public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
             var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
 
@@ -65,6 +74,11 @@ namespace Pipaslot.Mediator
 
         public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             try
@@ -86,6 +100,11 @@ namespace Pipaslot.Mediator
 
         public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);

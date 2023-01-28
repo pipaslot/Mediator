@@ -1,6 +1,9 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +21,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public async Task CheckPolicies_NoAuthorization_ThrowException() => await RunCheckPolicies(
                 new NoAuthorization(),
-                AuthorizationException.NoAuthorizationCode);
+                AuthorizationExceptionTypes.NoAuthorization);
 
         [Fact]
         public async Task GetPolicies_SecuredSyncHandler_ResolveSinglePolicy() => await RunGetPolicies(
@@ -47,7 +50,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public async Task CheckPolicies_MultiHandlersButOneHandlerIsUnsecured_ThrowException() => await RunCheckPolicies(
                 new NoAuthorization(),
-                AuthorizationException.UnauthorizedHandlerCode,
+                AuthorizationExceptionTypes.UnauthorizedHandler,
                 new NoAuthorizationHandler(),
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
 
@@ -78,7 +81,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public async Task CheckPolicies_AuthorizedActionAndSyncAndAsyncHandlersAndUnauthorizedHandler_ThrowException() => await RunCheckPolicies(
                 new ActionAuthorizedByAttr(),
-                AuthorizationException.UnauthorizedHandlerCode,
+                AuthorizationExceptionTypes.UnauthorizedHandler,
                 new NoAuthorizationHandler(),
                 new NoAuthorizationHandlerAuthorizationHandler(),
                 new NoAuthorizationHandlerAuthorizationAsyncHandler());
@@ -135,13 +138,16 @@ namespace Pipaslot.Mediator.Tests.Authorization
             Assert.Equal(expectedCount, count);
         }
 
-        private async Task RunCheckPolicies(IMediatorAction action, int expectedCode, params object[] handlers)
+        private async Task RunCheckPolicies(IMediatorAction action, AuthorizationExceptionTypes expectedCode, params object[] handlers)
         {
+            _services
+                .Setup(s => s.GetService(typeof(IRuleFormatter)))
+                .Returns(new DefaultRuleFormatter());
             var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
             {
                 await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);
             });
-            Assert.Equal(expectedCode, ex.Code);
+            Assert.Equal(expectedCode, ex.Type);
         }
     }
 }

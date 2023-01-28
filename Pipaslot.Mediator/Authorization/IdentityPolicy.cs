@@ -10,7 +10,9 @@ namespace Pipaslot.Mediator.Authorization
 {
     public class IdentityPolicy : IPolicy
     {
-        public const string AuthenticatedPolicyName = "Authenticated";
+        public const string AuthenticationPolicyName = "Authentication";
+        public const string AuthenticatedValue = "Authenticated";
+        public const string AnonymousValue = "Anonymous";
 
         /// <summary>
         /// Authenticated user can access the resource
@@ -86,7 +88,15 @@ namespace Pipaslot.Mediator.Authorization
                 var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
                 var isAuthenticationGranted = isAnonymous || (principal?.Identity?.IsAuthenticated ?? false);
                 var shouldBeAuthenticated = !isAnonymous;
-                var authRule = new Rule(AuthenticatedPolicyName, shouldBeAuthenticated.ToString(), isAuthenticationGranted);
+                var value = shouldBeAuthenticated
+                    ? AuthenticatedValue
+                    : AnonymousValue;
+                var outcome = shouldBeAuthenticated
+                    ? isAuthenticationGranted
+                        ? RuleOutcome.Allow
+                        : RuleOutcome.Deny
+                    : RuleOutcome.Ignored;
+                var authRule = new Rule(AuthenticationPolicyName, value, isAuthenticationGranted, RuleScope.Identity);
                 collection.Rules.Add(authRule);
             }
             else
@@ -98,11 +108,22 @@ namespace Pipaslot.Mediator.Authorization
                 {
                     var hasClaim = userClaims.Any(c => c.Type.Equals(required.Name, StringComparison.OrdinalIgnoreCase)
                                                 && c.Value.Equals(required.Value, StringComparison.OrdinalIgnoreCase));
-                    claimRules.Rules.Add(new Rule(required.Name, required.Value, hasClaim));
+                    claimRules.Rules.Add(new Rule(required.Name, required.Value, hasClaim, RuleScope.Identity));
                 }
             }
             return Task.FromResult(collection);
         }
+#if !NETSTANDARD
+        public static IPolicy operator &(IdentityPolicy c1, IPolicy c2)
+        {
+            return c1.And(c2);
+        }
+
+        public static IPolicy operator |(IdentityPolicy c1, IPolicy c2)
+        {
+            return c1.Or(c2);
+        }
+#endif
 
         private enum AuthStatus
         {
