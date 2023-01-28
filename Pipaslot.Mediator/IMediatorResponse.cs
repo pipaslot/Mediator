@@ -21,16 +21,6 @@ namespace Pipaslot.Mediator
         /// </summary>
         bool Failure { get; }
         /// <summary>
-        /// Concatenated error messages occured durign processing 
-        /// </summary>
-        [Obsolete("Use GetErrorMessage() instead")]
-        string ErrorMessage { get; }
-        /// <summary>
-        /// Error messages occured durign processing 
-        /// </summary>
-        [Obsolete("Use GetErrorMessages() instead")]
-        string[] ErrorMessages { get; }
-        /// <summary>
         /// Results provided by middlewares and handlers
         /// </summary>
         object[] Results { get; }
