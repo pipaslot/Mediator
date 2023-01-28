@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
-    public class DefaultRuleSetFormatterTests
+    public class DefaultRuleFormatterTests
     {
-        private DefaultRuleSetFormatter Create()
+        private DefaultRuleFormatter Create()
         {
-            return new DefaultRuleSetFormatter();
+            return new DefaultRuleFormatter();
         }
 
         [Theory]

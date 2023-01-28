@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Pipaslot.Mediator.Authorization.Formatting
 {
-    public class DefaultRuleSetFormatter : IRuleSetFormatter
+    public class DefaultRuleFormatter : IRuleFormatter
     {
         public virtual IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
         {

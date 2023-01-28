@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting
     /// <summary>
     /// Service intercepting rule evaluation. Can be used for message/reason customization or for translations
     /// </summary>
-    public interface IRuleSetFormatter
+    public interface IRuleFormatter
     {
         /// <summary>
         /// Format/Convert single incomming rule
@@ -23,13 +23,13 @@ namespace Pipaslot.Mediator.Authorization.Formatting
         IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator);
     }
 
-    public static class RuleSetFormatterExtensions
+    public static class RuleFormatterExtensions
     {
         /// <summary>
         /// Format one or more rules with the same outcome
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IEvaluatedRule Format(this IRuleSetFormatter formatter, List<IRule> rules, RuleOutcome outcome, Operator @operator)
+        public static IEvaluatedRule Format(this IRuleFormatter formatter, List<IRule> rules, RuleOutcome outcome, Operator @operator)
         {
             if (rules.Count == 0)
             {

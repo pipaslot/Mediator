@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator
             configurator.AddHandlers(new[] { typeof(AuthorizeRequestHandler) });
             // Separate authorization middleware, because we do not want to interrupt by custom middlewares
             configurator.AddPipelineForAuthorizationRequest(p => { });
-            services.AddScoped<IRuleSetFormatter, DefaultRuleSetFormatter>();
+            services.AddScoped<IRuleFormatter, DefaultRuleFormatter>();
             return configurator;
         }
     }

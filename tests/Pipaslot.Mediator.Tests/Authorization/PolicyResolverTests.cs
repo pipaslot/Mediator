@@ -141,8 +141,8 @@ namespace Pipaslot.Mediator.Tests.Authorization
         private async Task RunCheckPolicies(IMediatorAction action, AuthorizationExceptionTypes expectedCode, params object[] handlers)
         {
             _services
-                .Setup(s => s.GetService(typeof(IRuleSetFormatter)))
-                .Returns(new DefaultRuleSetFormatter());
+                .Setup(s => s.GetService(typeof(IRuleFormatter)))
+                .Returns(new DefaultRuleFormatter());
             var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
             {
                 await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);

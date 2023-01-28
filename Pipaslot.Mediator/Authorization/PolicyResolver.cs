@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Authorization
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
 
-            var formatter = services.GetRequiredService<IRuleSetFormatter>();
+            var formatter = services.GetRequiredService<IRuleFormatter>();
             var aggregatedRule = ruleSet
                 .Evaluate(formatter);
             var access = aggregatedRule

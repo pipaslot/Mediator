@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             Assert.Equal(expected, result.Outcome);
         }
 
-        private class NullFormatter : IRuleSetFormatter
+        private class NullFormatter : IRuleFormatter
         {
             public IRule FormatSingle(IRule rule, RuleOutcome outcome)
             {

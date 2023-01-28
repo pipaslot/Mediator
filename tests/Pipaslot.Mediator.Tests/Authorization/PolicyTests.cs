@@ -99,7 +99,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             }
         }
 
-        private class NullFormatter : IRuleSetFormatter
+        private class NullFormatter : IRuleFormatter
         {
             public IRule FormatSingle(IRule rule, RuleOutcome outcome)
             {
