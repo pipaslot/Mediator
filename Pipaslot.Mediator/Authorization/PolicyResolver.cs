@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (access != AccessType.Allow)
             {
-                throw AuthorizationRuleException.Create(ruleSet, aggregatedRule.Value);
+                throw AuthorizationRuleNotMetException.Create(ruleSet, aggregatedRule.Value);
             }
         }
 
