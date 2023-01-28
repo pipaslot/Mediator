@@ -5,7 +5,7 @@
 		<LangVersion>11</LangVersion>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>6.4.0</Version>
+		<Version>6.4.2</Version>
 		<PackageId>Pipaslot.Mediator</PackageId>
 		<AssemblyName>Pipaslot.Mediator</AssemblyName>
 		<Authors>Petr Stipek</Authors>
