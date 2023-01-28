@@ -40,10 +40,9 @@ namespace Pipaslot.Mediator.Http.Configuration
         /// Define extra types returned by server as credible.
         /// For action result type refistrations use mediator methods <see cref="IMediatorConfigurator.AddActionsFromAssemblyOf"/> or <see cref="IMediatorConfigurator.AddActionsFromAssembly"/>
         /// </summary>
-        //TODO Convert to IEnumerable
-        public Type[] CredibleResultTypes
+        public IEnumerable<Type> CredibleResultTypes
         {
-            get => _credibleResultTypes.ToArray();
+            get => _credibleResultTypes;
             set
             {
                 _credibleResultTypes.Clear();
