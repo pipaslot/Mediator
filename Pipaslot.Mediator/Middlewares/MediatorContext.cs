@@ -57,14 +57,6 @@ namespace Pipaslot.Mediator.Middlewares
 
         private object[]? _handlers = null;
 
-        /// <summary>
-        /// Action errors are specific errors from exceptions produced by hanlers and catched in handler execution middleware.
-        /// These can be unwanted in situations when you want to process all error yourself and expose only limited set of known errors to your users.
-        /// By turning this option to FALSE, context starts ignoring all <see cref="Notification"/> instances with <see cref="NotificationType.ActionError"/>
-        /// </summary>
-        [Obsolete("This is temporary workarround and will be removed in next major version")]
-        public bool IgnoreActionErrors { get; set; } = false;
-
         internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
         {
             Mediator = mediator;
@@ -168,10 +160,6 @@ namespace Pipaslot.Mediator.Middlewares
                 if (notification.Type.IsError())
                 {
                     Status = ExecutionStatus.Failed;
-                }
-                if(notification.Type == NotificationType.ActionError && IgnoreActionErrors)
-                {
-                    return;
                 }
                 if (!ContainsNotification(notification))
                 {

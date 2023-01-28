@@ -52,7 +52,6 @@ namespace Pipaslot.Mediator.Middlewares
                 if (e.InnerException != null)
                 {
                     // Unwrap exception
-                    context.AddResult(Notification.ActionError(e.InnerException.Message, context.Action));
                     throw e.InnerException;
                 }
 
@@ -61,7 +60,6 @@ namespace Pipaslot.Mediator.Middlewares
             catch (Exception e)
             {
                 context.Status = ExecutionStatus.Failed;
-                context.AddResult(Notification.ActionError(e.Message, context.Action));
                 throw;
             }
         }
@@ -92,7 +90,6 @@ namespace Pipaslot.Mediator.Middlewares
                 context.Status = ExecutionStatus.Failed;
                 if (e.InnerException != null)
                 {
-                    context.AddResult(Notification.ActionError(e.InnerException.Message, context.Action));
                     // Unwrap exception
                     throw e.InnerException;
                 }
@@ -102,7 +99,6 @@ namespace Pipaslot.Mediator.Middlewares
             catch (Exception e)
             {
                 context.Status = ExecutionStatus.Failed;
-                context.AddResult(Notification.ActionError(e.Message, context.Action));
                 throw;
             }
         }

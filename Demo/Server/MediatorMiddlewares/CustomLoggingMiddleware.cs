@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Demo.Server.MediatorMiddlewares
 {
@@ -24,7 +23,6 @@ namespace Demo.Server.MediatorMiddlewares
             // Catch all exceptions and provide only unified message
             try
             {
-                context.IgnoreActionErrors = true;
                 await next(context);
             }
             catch (Exception c) when (c is TaskCanceledException || c is OperationCanceledException)
