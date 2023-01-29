@@ -3,18 +3,18 @@
 <h3>Custom policies</h3>
 <p>You can use the policies to consider object state. For example for disabling execution in case if invalida model state.</p>
 
-<EditForm Model="@Model" OnValidSubmit="@Submit">
+<EditForm Model="@_model" OnValidSubmit="@Submit">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div>
         <label>
-            <InputCheckbox Value="@Model.IsAvailable"
-                           ValueExpression="()=>Model.IsAvailable"
+            <InputCheckbox Value="@_model.IsAvailable"
+                           ValueExpression="()=>_model.IsAvailable"
                            ValueChanged="e=>OnIsAvailableChanged(e)" /> Is action available
         </label>
         <label>
-            <InputCheckbox Value="@Model.IsInvalid"
-                           ValueExpression="()=>Model.IsInvalid"
+            <InputCheckbox Value="@_model.IsInvalid"
+                           ValueExpression="()=>_model.IsInvalid"
                            ValueChanged="e=>OnIsInvalidChanged(e)" /> Make the model invalid
         </label>
     </div>
@@ -31,8 +31,7 @@
 </EditForm>
 
 @code {
-    [Parameter, EditorRequired]
-    public CustomPolicyMessage Model { get; set; } = new();
+    private CustomPolicyMessage _model = new();
 
     private AuthorizeRequestResponse _auth = new();
     protected override async Task OnParametersSetAsync()
@@ -43,24 +42,24 @@
 
     private async Task OnIsInvalidChanged(bool value)
     {
-        Model.IsInvalid = value;
+        _model.IsInvalid = value;
         await OnChange();
     }
 
     private async Task OnIsAvailableChanged(bool value)
     {
-        Model.IsAvailable = value;
+        _model.IsAvailable = value;
         await OnChange();
     }
 
     private async Task OnChange()
     {
-        _auth = await Mediator.Authorize(Model);
+        _auth = await Mediator.Authorize(_model);
     }
 
     private async Task Submit()
     {
-        var result = await Mediator.Dispatch(Model);
+        var result = await Mediator.Dispatch(_model);
         if (result.Success)
         {
             _auth.Reason = "Validation passed";

@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V2.Models
     {
         public bool Success { get; set; }
         public bool Failure => !Success;
-        public TResult Result => (TResult)Results.FirstOrDefault(r => r is TResult);
+        public TResult Result => (TResult)Results.FirstOrDefault(r => r is TResult)!;
         public object[] Results { get; set; } = Array.Empty<object>();
     }
 }

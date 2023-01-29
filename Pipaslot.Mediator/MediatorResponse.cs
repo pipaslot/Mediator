@@ -18,7 +18,7 @@ namespace Pipaslot.Mediator
         {
         }
 
-        TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult);
+        TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult)!;
     }
 
     public class MediatorResponse : IMediatorResponse

@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Middlewares
 
                 throw;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 context.Status = ExecutionStatus.Failed;
                 throw;
@@ -96,7 +96,7 @@ namespace Pipaslot.Mediator.Middlewares
 
                 throw;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 context.Status = ExecutionStatus.Failed;
                 throw;
