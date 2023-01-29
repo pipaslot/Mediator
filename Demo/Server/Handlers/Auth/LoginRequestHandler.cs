@@ -27,12 +27,12 @@ namespace Demo.Server.Handlers.Auth
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim("role", "visitor")
                 };
-
+            var expiration = DateTime.Now.AddMinutes(options.TokenExpirationInMinutes);
             var jwtToken = new JwtSecurityToken(
                 options.Issuer,
                 options.Audience,
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(options.TokenExpirationInMinutes),
+                expires: expiration,
                 signingCredentials: new SigningCredentials(
                     CreateSymetricKey(options.SecretKey),
                     SecurityAlgorithms.HmacSha256));
@@ -40,7 +40,10 @@ namespace Demo.Server.Handlers.Auth
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 
 
-            return Task.FromResult(new LoginRequestResult { Token = token! });
+            return Task.FromResult(new LoginRequestResult { 
+                Token = token!,
+                Expiration = expiration
+            });
         }
 
         public static SymmetricSecurityKey CreateSymetricKey(string secret)

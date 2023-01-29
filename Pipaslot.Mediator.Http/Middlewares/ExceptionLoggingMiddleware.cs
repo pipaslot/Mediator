@@ -25,16 +25,10 @@ namespace Pipaslot.Mediator.Http.Middlewares
             {
                 await next(context);
             }
-            catch (TaskCanceledException oce)
+            catch (Exception ce) when (ce is TaskCanceledException || ce is OperationCanceledException)
             {
                 var serializedData = Serialize(context.Action);
-                _logger.LogWarning(oce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
-                throw;
-            }
-            catch (OperationCanceledException oce)
-            {
-                var serializedData = Serialize(context.Action);
-                _logger.LogWarning(oce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
+                _logger.LogWarning(ce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
                 throw;
             }
             catch (Exception e)

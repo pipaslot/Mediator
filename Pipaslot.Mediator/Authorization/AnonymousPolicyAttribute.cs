@@ -7,10 +7,9 @@ namespace Pipaslot.Mediator.Authorization
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class AnonymousPolicyAttribute : Attribute, IPolicy
     {
-        public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var set = await IdentityPolicy.Anonymous().Resolve(services, cancellationToken);
-            return set.SetIdentityStatic();
+            return IdentityPolicy.Anonymous().Resolve(services, cancellationToken);
         }
     }
 }

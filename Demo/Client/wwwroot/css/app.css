@@ -1,7 +1,9 @@
 ﻿html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-
+#app > .page > .main{
+    position: relative; /*Because the spinner*/
+}
 a, .btn-link {
     color: #0366d6;
 }

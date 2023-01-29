@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         public static IMediatorConfigurator AddPipelineForAuthorizationRequest(this IMediatorConfigurator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.AddPipelineForAction<IsAuthorizedRequest>(subMiddlewares);
+            return configurator.AddPipelineForAction<AuthorizeRequest>(subMiddlewares);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Http.Tests
 {
     public class ApplicationBuilderExtensionsTests
     {
-        private Exception _exception = new Exception();
+        private static Exception _exception = new Exception();
 
         [Fact]
         public void UseMediator_CheckMatchingHandlersEnabled_ResolveAndExecuteHandlerExistenceChecker()
@@ -30,13 +30,8 @@ namespace Pipaslot.Mediator.Http.Tests
 
         private IApplicationBuilder CreateApplicationBuilder()
         {
-            var handlerExistenceCheckerMock = new Mock<IHandlerExistenceChecker>();
-            handlerExistenceCheckerMock
-                .Setup(x => x.Verify(true, false))
-                .Throws(_exception);
-
             var serviceProvider = new ServiceCollection()
-                .AddSingleton(_ => handlerExistenceCheckerMock.Object)
+                .AddSingleton<IHandlerExistenceChecker>(_ => new FakeChecker())
                 .BuildServiceProvider();
 
             var ApplicationBuilderMock = new Mock<IApplicationBuilder>();
@@ -45,6 +40,17 @@ namespace Pipaslot.Mediator.Http.Tests
                 .Returns(serviceProvider);
 
             return ApplicationBuilderMock.Object;
+        }
+
+        private class FakeChecker : IHandlerExistenceChecker
+        {
+            public void Verify(ExistenceCheckerSetting setting)
+            {
+                if (setting.CheckMatchingHandlers)
+                {
+                    throw _exception;
+                }
+            }
         }
     }
 }

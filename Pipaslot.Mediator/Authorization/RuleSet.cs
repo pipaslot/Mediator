@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections;
+﻿using Pipaslot.Mediator.Authorization.Formatting;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Authorization
 {
 
     /// <summary>
-    /// Define one or more rules aggregated with AND or OR operator
+    /// Provides connection between policies and rules
+    /// Define one or more rules aggregated with AND or OR operator.
     /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
     public class RuleSet
     {
         public Operator Operator { get; }
-        public RuleSetReproducibility Reproducibility { get; private set; } = RuleSetReproducibility.Dynamic;
         public List<Rule> Rules { get; set; } = new List<Rule>();
         public List<RuleSet> RuleSets { get; set; } = new List<RuleSet>();
 
@@ -21,7 +22,6 @@ namespace Pipaslot.Mediator.Authorization
         /// Iterate through all rules and rule sets
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
-        public IEnumerable<RuleSet> RuleSetsRecursive => RuleSets.Concat(RuleSets.SelectMany(s => s.RuleSetsRecursive));
 
         public RuleSet(Operator @operator = Operator.And)
         {
@@ -57,61 +57,106 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        public string StringifyNotGranted()
+        public IEvaluatedRule Evaluate(IRuleFormatter formatter)
         {
-            var notGrantedSets = RuleSets
-                .Where(r => !r.IsGranted())
-                .Select(r => r.StringifyNotGranted());
-
-            var notGrantedRules = Rules
-                .Where(r => !r.Granted)
-                .GroupBy(r => r.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(FormatGroup);
-            var notGranted = notGrantedSets.Concat(notGrantedRules)
+            var evaluatedRules = RuleSets
+                .Select(s => s.Evaluate(formatter))
                 .ToArray();
-
-            if (notGranted.Length == 1)
+            if(evaluatedRules.Length == 1 && Rules.Count == 0)
             {
-                return notGranted.First();
+                return evaluatedRules.First();
             }
-            return $"({string.Join($" {Operator} ", notGranted)})";
-        }
-
-        private string FormatGroup(IGrouping<string, Rule> group)
-        {
-            return group.Count() > 1
-            ? $"{{'{group.Key}': [{string.Join($" {Operator} ", group.Select(r => $"'{r.Value}'"))}]}}"
-            : $"{{'{group.Key}': '{group.FirstOrDefault()?.Value}'}}";
-        }
-
-        public bool IsGranted()
-        {
-            var granted = Operator == Operator.And;
-            foreach (var rule in RulesRecursive)
+            var rules = evaluatedRules
+                .Concat(Rules);
+            if (Operator == Operator.And)
             {
-                if (Operator == Operator.And)
+                return ReduceWithAnd(rules, formatter);
+            }
+            if (Operator == Operator.Or)
+            {
+                return ReduceWithOr(rules, formatter);
+            }
+            throw new NotImplementedException($"Unknown operator '{Operator}'");
+        }
+
+        private IEvaluatedRule ReduceWithAnd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+        {
+            var denied = new List<IRule>();
+            var unavailable = new List<IRule>();
+            var allowed = new List<IRule>();
+            foreach (var rule in rules)
+            {
+                var outcome = rule.Outcome;
+                if (outcome == RuleOutcome.Ignored)
                 {
-                    granted &= rule.Granted;
+                    continue;
                 }
-                else if (Operator == Operator.Or)
+                if (outcome == RuleOutcome.Unavailable)
                 {
-                    granted |= rule.Granted;
+                    unavailable.Add(rule);
                 }
-                else
+                if (outcome == RuleOutcome.Deny)
                 {
-                    throw new NotImplementedException($"Unknown operator '{Operator}'");
+                    denied.Add(rule);
+                }
+                if (outcome == RuleOutcome.Allow)
+                {
+                    allowed.Add(rule);
                 }
             }
-            return granted;
+            if (unavailable.Any())
+            {
+                return formatter.Format(unavailable, RuleOutcome.Unavailable,Operator.Or);
+            }
+            if (denied.Any())
+            {
+                return formatter.Format(denied, RuleOutcome.Deny, Operator.And);
+            }
+            if (allowed.Any())
+            {
+                return formatter.Format(allowed, RuleOutcome.Allow, Operator.And);
+            }
+            return new Rule(RuleOutcome.Ignored, string.Empty);
         }
-        /// <summary>
-        /// Set identity static reproducibility
-        /// </summary>
-        /// <returns></returns>
-        public RuleSet SetIdentityStatic()
+
+        private IEvaluatedRule ReduceWithOr(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
         {
-            Reproducibility = RuleSetReproducibility.IdentityStatic;
-            return this;
+            var denied = new List<IRule>();
+            var unavailable = new List<IRule>();
+            var allowed = new List<IRule>();
+            foreach (var rule in rules)
+            {
+                var outcome = rule.Outcome;
+                if (outcome == RuleOutcome.Ignored)
+                {
+                    continue;
+                }
+                if (outcome == RuleOutcome.Allow)
+                {
+                    allowed.Add(rule);
+                }
+                if (outcome == RuleOutcome.Unavailable)
+                {
+                    unavailable.Add(rule);
+                }
+                if (outcome == RuleOutcome.Deny)
+                {
+                    denied.Add(rule);
+                }
+            }
+            if (allowed.Any())
+            {
+                return formatter.Format(allowed, RuleOutcome.Allow, Operator.Or);
+            }
+            if (denied.Any())
+            {
+                return formatter.Format(denied, RuleOutcome.Deny, Operator.Or);
+            }
+            if (unavailable.Any())
+            {
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.Or);
+            }
+            return new Rule(RuleOutcome.Ignored, string.Empty);
         }
     }
 }

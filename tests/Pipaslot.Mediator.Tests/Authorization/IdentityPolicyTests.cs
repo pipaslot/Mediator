@@ -23,9 +23,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var rules = await Resolve(sut, isAuthenticated);
             Assert.Single(rules);
             var rule = rules.First();
-            Assert.Equal(IdentityPolicy.AuthenticatedPolicyName, rule.Name);
-            Assert.Equal("False", rule.Value);
-            Assert.True(rule.Granted);
+            Assert.Equal(IdentityPolicy.AuthenticationPolicyName, rule.Name);
+            Assert.Equal(IdentityPolicy.AnonymousValue, rule.Value);
+            Assert.Equal(RuleOutcome.Allow, rule.Outcome);
         }
 
         [Theory]
@@ -64,15 +64,15 @@ namespace Pipaslot.Mediator.Tests.Authorization
 
         private static void AssertAuthenticatedRule(IEnumerable<Rule> rules, bool shouldGrant)
         {
-            var rule = rules.First(r => r.Name == IdentityPolicy.AuthenticatedPolicyName);
-            Assert.Equal("True", rule.Value);
-            Assert.Equal(shouldGrant, rule.Granted);
+            var rule = rules.First(r => r.Name == IdentityPolicy.AuthenticationPolicyName);
+            Assert.Equal(IdentityPolicy.AuthenticatedValue, rule.Value);
+            Assert.Equal(shouldGrant, rule.Outcome == RuleOutcome.Allow);
         }
 
         private static void AssertClaimRule(IEnumerable<Rule> rules, Claim claim, bool shouldGrant)
         {
             var rule = rules.First(r => r.Name == claim.Type);
-            Assert.Equal(shouldGrant, rule.Granted);
+            Assert.Equal(shouldGrant, rule.Outcome == RuleOutcome.Allow);
         }
 
         private async Task<Rule[]> Resolve(IdentityPolicy sut, bool isAuthenticated, params Claim[] claims) {

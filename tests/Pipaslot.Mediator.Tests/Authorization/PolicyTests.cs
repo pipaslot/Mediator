@@ -1,5 +1,8 @@
 ﻿using Pipaslot.Mediator.Authorization;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +18,16 @@ namespace Pipaslot.Mediator.Tests.Authorization
         public async Task And_Instance(bool left, bool right, bool expected)
         {
             var policy = new FakeBoolPolicy(left).And(new FakeBoolPolicy(right));
+            await AssertPolicy(policy, expected);
+        }
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, false, false)]
+        public async Task And_Operator(bool left, bool right, bool expected)
+        {
+            var policy = (IPolicy)new FakeBoolPolicy(left) & new FakeBoolPolicy(right);
             await AssertPolicy(policy, expected);
         }
 
@@ -45,6 +58,17 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(true, false, true)]
         [InlineData(false, true, true)]
         [InlineData(false, false, false)]
+        public async Task Or_operator(bool left, bool right, bool expected)
+        {
+            var policy = (IPolicy)new FakeBoolPolicy(left) | new FakeBoolPolicy(right);
+            await AssertPolicy(policy, expected);
+        }
+
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(false, false, false)]
         public async Task Or_Static(bool left, bool right, bool expected)
         {
             var policy = Policy.Or(new FakeBoolPolicy(left), new FakeBoolPolicy(right));
@@ -55,7 +79,8 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             var services = new Mock<IServiceProvider>();
             var set = await policy.Resolve(services.Object, CancellationToken.None);
-            Assert.Equal(expected, set.IsGranted());
+            var evaluated = set.Evaluate(new NullFormatter());
+            Assert.Equal(expected, evaluated.Outcome == RuleOutcome.Allow);
         }
 
         private class FakeBoolPolicy : IPolicy
@@ -71,6 +96,19 @@ namespace Pipaslot.Mediator.Tests.Authorization
             {
                 var set = new RuleSet(new Rule("FakeName", "FakeValue", _value));
                 return Task.FromResult(set);
+            }
+        }
+
+        private class NullFormatter : IRuleFormatter
+        {
+            public IRule FormatSingle(IRule rule, RuleOutcome outcome)
+            {
+                return rule;
+            }
+
+            public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
+            {
+                return rules.First();
             }
         }
     }

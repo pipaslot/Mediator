@@ -1,4 +1,6 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,20 @@ namespace Pipaslot.Mediator.Authorization
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
-            var rules = ruleSet.RulesRecursive;
-            if (!rules.Any())
+
+            var formatter = services.GetRequiredService<IRuleFormatter>();
+            var aggregatedRule = ruleSet
+                .Evaluate(formatter);
+            var access = aggregatedRule
+                .Outcome
+                .ToAccessType();
+            if (ruleSet.RuleSets.Count == 0 && ruleSet.Rules.Count == 0)
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
-            if (rules.Any(r => !r.Granted))
+            if (access != AccessType.Allow)
             {
-                throw AuthorizationException.RuleNotMet(ruleSet);
+                throw AuthorizationRuleNotMetException.Create(ruleSet, aggregatedRule.Value);
             }
         }
 

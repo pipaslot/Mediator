@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace Pipaslot.Mediator.Authorization
         {
             Operator = @operator;
         }
-        
+
         public Policy(Operator @operator, params IPolicy[] policies) : base(policies)
         {
             Operator = @operator;
@@ -44,13 +45,25 @@ namespace Pipaslot.Mediator.Authorization
 
         public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
+            var tasks = this
+                .Select(policy => policy.Resolve(services, cancellationToken))
+                .ToArray();
+            await Task.WhenAll(tasks);
             var res = new RuleSet(Operator);
-            foreach (var policy in this)
-            {
-                var ruleSet = await policy.Resolve(services, cancellationToken);
-                res.RuleSets.Add(ruleSet);
-            }
+            res.RuleSets.AddRange(tasks.Select(t => t.Result));
             return res;
         }
+
+#if !NETSTANDARD
+        public static IPolicy operator &(Policy c1, IPolicy c2)
+        {
+            return c1.And(c2);
+        }
+
+        public static IPolicy operator |(Policy c1, IPolicy c2)
+        {
+            return c1.Or(c2);
+        }
+#endif
     }
 }
