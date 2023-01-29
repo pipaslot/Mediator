@@ -20,7 +20,6 @@ namespace Demo.Server.MediatorMiddlewares
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            // Prevent ActionErrors logged from exceptions in execution middleware
             // Catch all exceptions and provide only unified message
             try
             {
