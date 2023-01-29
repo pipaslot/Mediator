@@ -52,16 +52,14 @@ namespace Pipaslot.Mediator.Middlewares
                 if (e.InnerException != null)
                 {
                     // Unwrap exception
-                    context.AddResult(Notification.ActionError(e.InnerException.Message, context.Action));
                     throw e.InnerException;
                 }
 
                 throw;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 context.Status = ExecutionStatus.Failed;
-                context.AddResult(Notification.ActionError(e.Message, context.Action));
                 throw;
             }
         }
@@ -92,17 +90,15 @@ namespace Pipaslot.Mediator.Middlewares
                 context.Status = ExecutionStatus.Failed;
                 if (e.InnerException != null)
                 {
-                    context.AddResult(Notification.ActionError(e.InnerException.Message, context.Action));
                     // Unwrap exception
                     throw e.InnerException;
                 }
 
                 throw;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 context.Status = ExecutionStatus.Failed;
-                context.AddResult(Notification.ActionError(e.Message, context.Action));
                 throw;
             }
         }

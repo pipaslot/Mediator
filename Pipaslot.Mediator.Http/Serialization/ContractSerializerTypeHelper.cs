@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Http.Serialization
 
         internal static string GetIdentifier(Type type)
         {
-            var strType = type.AssemblyQualifiedName;
+            var strType = type.AssemblyQualifiedName ?? string.Empty;
             if (strType.EndsWith(IgnoredTypeSuffix))
             {
                 return strType.Substring(0, strType.Length - IgnoredTypeSuffix.Length);

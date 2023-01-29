@@ -20,11 +20,9 @@ namespace Demo.Server.MediatorMiddlewares
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            // Prevent ActionErrors logged from exceptions in execution middleware
             // Catch all exceptions and provide only unified message
             try
             {
-                context.IgnoreActionErrors = true;
                 await next(context);
             }
             catch (Exception c) when (c is TaskCanceledException || c is OperationCanceledException)

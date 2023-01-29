@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V2
             };
         }
 
-        public string SerializeRequest(object request)
+        public string SerializeRequest(IMediatorAction request)
         {
             var actionName = ContractSerializerTypeHelper.GetIdentifier(request.GetType());
             var contract = new ContractSerializable(request, actionName);

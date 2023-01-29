@@ -18,7 +18,7 @@ namespace Pipaslot.Mediator
         {
         }
 
-        TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult);
+        TResult IMediatorResponse<TResult>.Result => (TResult)Results.FirstOrDefault(r => r is TResult)!;
     }
 
     public class MediatorResponse : IMediatorResponse
@@ -43,9 +43,6 @@ namespace Pipaslot.Mediator
 
         public bool Success { get; }
         public bool Failure => !Success;
-
-        public string ErrorMessage => this.GetErrorMessage();
-        public string[] ErrorMessages => this.GetErrorMessages().ToArray();
 
         public object? Result => Results.FirstOrDefault();
         public List<object> Results { get; } = new List<object>(1);

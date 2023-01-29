@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Benchmarks
         private class FakeResponse
         {
             public bool Success { get; set; }
-            public object[] Results { get; set; }
+            public object[] Results { get; set; } = Array.Empty<object>();
 
         }
         private class FakeProvider : ICredibleProvider
@@ -74,7 +74,7 @@ namespace Pipaslot.Mediator.Benchmarks
                 Data = Enumerable.Range(1, rows).Select(i => new DataDto(i)).ToList();
             }
 
-            public List<DataDto> Data { get; set; }
+            public List<DataDto> Data { get; set; } = new List<DataDto>();
         }
 
         private class DataDto

@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Notifications
             return other != null &&
                    Source == other.Source &&
                    Content == other.Content &&
-                   Type.ToUnified() == other.Type.ToUnified();
+                   Type == other.Type;
         }
 
         public override int GetHashCode()
@@ -35,16 +35,6 @@ namespace Pipaslot.Mediator.Notifications
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Content);
             hashCode = hashCode * -1521134295 + Type.GetHashCode();
             return hashCode;
-        }
-
-        internal static Notification ActionError(string content, IMediatorAction action)
-        {
-            return new Notification
-            {
-                Type = NotificationType.ActionError,
-                Content = content,
-                Source = action.GetActionName()
-            };
         }
 
         internal static Notification Error(string content, IMediatorAction action)
