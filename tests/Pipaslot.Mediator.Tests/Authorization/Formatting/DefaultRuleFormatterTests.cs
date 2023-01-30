@@ -162,6 +162,21 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
             AssertEqual("AAA AND BBB", root);
         }
 
+        [Fact]
+        public void Format_NestedRuleAndIgnoredRuleWontBeWrappedBecauseItIsNotNecessary()
+        {
+            var nested = RuleSet.Create(Operator.And,
+                Rule.Allow(false, "AAA"),
+                Rule.Allow(false, "BBB")
+                );
+            var nested2 = RuleSet.Create(Operator.And,
+                new Rule(RuleOutcome.Ignored,"")
+                );
+            var root = new RuleSet(nested, nested2);
+
+            AssertEqual("AAA AND BBB", root);
+        }
+
         private void AssertEqual(string expected, Operator @operator, params Rule[] rules)
         {
             var set = RuleSet.Create(@operator, rules);

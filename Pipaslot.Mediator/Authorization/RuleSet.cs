@@ -62,7 +62,10 @@ namespace Pipaslot.Mediator.Authorization
             var evaluatedRules = RuleSets
                 .Select(s => s.Evaluate(formatter))
                 .ToArray();
-            if(evaluatedRules.Length == 1 && Rules.Count == 0)
+            var isOnlyOneAvailableRuleSet = evaluatedRules
+                .Where(r => r.Outcome != RuleOutcome.Ignored)
+                .Count() == 1;
+            if (isOnlyOneAvailableRuleSet && Rules.Count == 0)
             {
                 return evaluatedRules.First();
             }
