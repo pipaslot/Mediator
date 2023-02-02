@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization
 {
@@ -12,7 +14,7 @@ namespace Pipaslot.Mediator.Authorization
     /// Define one or more rules aggregated with AND or OR operator.
     /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
     /// </summary>
-    public class RuleSet
+    public class RuleSet : IPolicy
     {
         public Operator Operator { get; }
         public List<Rule> Rules { get; set; } = new List<Rule>();
@@ -109,7 +111,7 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable,Operator.Or);
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.And);
             }
             if (denied.Any())
             {
@@ -160,6 +162,11 @@ namespace Pipaslot.Mediator.Authorization
                 return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.Or);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
+        }
+
+        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(this);
         }
     }
 }
