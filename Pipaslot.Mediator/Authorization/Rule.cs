@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Microsoft.VisualBasic;
 
 namespace Pipaslot.Mediator.Authorization
 {
@@ -96,5 +97,17 @@ namespace Pipaslot.Mediator.Authorization
         {
             return new Rule(condition ? RuleOutcome.Unavailable : RuleOutcome.Ignored, string.Empty);
         }
+
+#if !NETSTANDARD
+        public static RuleSet operator &(Rule rule1, Rule rule2)
+        {
+            return new RuleSet(Operator.And, new[] { rule1, rule2 });
+        }
+
+        public static RuleSet operator |(Rule rule1, Rule rule2)
+        {
+            return new RuleSet(Operator.Or, new[] { rule1, rule2 });
+        }
+#endif
     }
 }
