@@ -3,8 +3,6 @@ using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Xml.Linq;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
@@ -22,18 +20,18 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         {
             var set1 = RuleSet.Create(
                 Operator.Or,
-                Rule.Allow(false, "Sentence1"),
-                Rule.Allow(false, "Sentence2")
+                Rule.Deny("Sentence1"),
+                Rule.Deny("Sentence2")
                 );
             var set2 = RuleSet.Create(
                 Operator.And,
-                Rule.Allow(false, "Sentence3"),
-                Rule.Allow(true, "Ignored sentence because it is granted")
+                Rule.Deny("Sentence3"),
+                Rule.AllowOrDeny(true, "", "Ignored sentence because it is granted")
                 );
             var set3 = RuleSet.Create(
                 Operator.And,
-                Rule.Allow(false, "Sentence4"),
-                Rule.Allow(false, "Sentence5")
+                Rule.Deny("Sentence4"),
+                Rule.Deny("Sentence5")
                 );
 
             var collection = RuleSet.Create(@operator, set1, set2, set3);
@@ -71,7 +69,7 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         {
             var hiddenSet = RuleSet.Create(
                 Operator.Or,
-                Rule.Allow(true, "", "You did it!"),
+                Rule.AllowOrDeny(true, "You did it!"),
                 new Rule("Claim", "A2")
                 );
             var shownOrSet = RuleSet.Create(
@@ -144,9 +142,9 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         public void Format_EmptyRuleIsIgnored(string first, string second, string third, string expected)
         {
             AssertEqual(expected, Operator.And
-                , Rule.Allow(false, first)
-                , Rule.Allow(false, second)
-                , Rule.Allow(false, third)
+                , Rule.Deny(first)
+                , Rule.Deny(second)
+                , Rule.Deny(third)
                 );
         }
 
@@ -154,8 +152,8 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         public void Format_NestedRuleWontBeWrappedBecauseItIsNotNecessary()
         {
             var nested = RuleSet.Create(Operator.And,
-                Rule.Allow(false, "AAA"),
-                Rule.Allow(false, "BBB")
+                Rule.Deny( "AAA"),
+                Rule.Deny("BBB")
                 );
             var root = new RuleSet(nested);
 
@@ -166,11 +164,11 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         public void Format_NestedRuleAndIgnoredRuleWontBeWrappedBecauseItIsNotNecessary()
         {
             var nested = RuleSet.Create(Operator.And,
-                Rule.Allow(false, "AAA"),
-                Rule.Allow(false, "BBB")
+                Rule.Deny("AAA"),
+                Rule.Deny("BBB")
                 );
             var nested2 = RuleSet.Create(Operator.And,
-                new Rule(RuleOutcome.Ignored,"")
+                new Rule(RuleOutcome.Ignored, "")
                 );
             var root = new RuleSet(nested, nested2);
 

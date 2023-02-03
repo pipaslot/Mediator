@@ -9,9 +9,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void AND_ThreeTimeTheSame()
         {
-            var r1 = Rule.Allow(true, "", "R1");
-            var r2 = Rule.Allow(true, "", "R2");
-            var r3 = Rule.Allow(true, "", "R3");
+            var r1 = Rule.AllowOrDeny(true, "", "R1");
+            var r2 = Rule.AllowOrDeny(true, "", "R2");
+            var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = r1 & r2 & r3;
             AssertRuleSet(combined, Operator.And, 1, r3);
             var subSet = combined.RuleSets.First();
@@ -21,9 +21,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void OR_ThreeTimeTheSame()
         {
-            var r1 = Rule.Allow(true, "", "R1");
-            var r2 = Rule.Allow(true, "", "R2");
-            var r3 = Rule.Allow(true, "", "R3");
+            var r1 = Rule.AllowOrDeny(true, "", "R1");
+            var r2 = Rule.AllowOrDeny(true, "", "R2");
+            var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = r1 | r2 | r3;
             AssertRuleSet(combined, Operator.Or, 1, r3);
             var subSet = combined.RuleSets.First();
@@ -33,9 +33,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void ORANDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
         {
-            var r1 = Rule.Allow(true, "", "R1");
-            var r2 = Rule.Allow(true, "", "R2");
-            var r3 = Rule.Allow(true, "", "R3");
+            var r1 = Rule.AllowOrDeny(true, "", "R1");
+            var r2 = Rule.AllowOrDeny(true, "", "R2");
+            var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = (r1
                          | r2)
                          & r3;
@@ -47,9 +47,9 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void ORAND_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
         {
-            var r1 = Rule.Allow(true, "", "R1");
-            var r2 = Rule.Allow(true, "", "R2");
-            var r3 = Rule.Allow(true, "", "R3");
+            var r1 = Rule.AllowOrDeny(true, "", "R1");
+            var r2 = Rule.AllowOrDeny(true, "", "R2");
+            var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = r1
                          | r2
                          & r3;
@@ -61,10 +61,10 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void CastCombinedRulesToPolicy()
         {
-            IPolicy combined = Rule.Allow(true)
-                | Rule.Allow(true)
-                & Rule.Allow(true)
-                | Rule.Allow(true);
+            IPolicy combined = Rule.AllowOrDeny(true)
+                | Rule.AllowOrDeny(true)
+                & Rule.AllowOrDeny(true)
+                | Rule.AllowOrDeny(true);
 
             Assert.NotNull(combined);
         }
@@ -72,10 +72,10 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [Fact]
         public void CastCombinedRuleSetsToPolicy()
         {
-            var one = Rule.Allow(true)
-                | Rule.Allow(true);
-            var two = Rule.Allow(true)
-                & Rule.Allow(true);
+            var one = Rule.AllowOrDeny(true)
+                | Rule.AllowOrDeny(true);
+            var two = Rule.AllowOrDeny(true)
+                & Rule.AllowOrDeny(true);
 
             IPolicy combined = one | two;
 

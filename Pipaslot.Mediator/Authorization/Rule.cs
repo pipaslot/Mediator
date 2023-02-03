@@ -92,9 +92,77 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
+        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <returns>Returns Allow if the condition is true, otherwise returns Ignored</returns>
+        public static Rule AllowIf(bool condition, string reason = "")
+        {
+            return new Rule(
+                condition ? RuleOutcome.Allow : RuleOutcome.Ignored,
+                condition ? reason : string.Empty);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <param name="condition">Condition</param>
+        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <returns>Returns Deny if the condition is true, otherwise returns Ignored</returns>
+        public static Rule DenyIf(bool condition, string reason = "")
+        {
+            return new Rule(
+                condition ? RuleOutcome.Deny : RuleOutcome.Ignored,
+                condition ? reason : string.Empty);
+        }
+
+        /// <summary>
+        /// Create Rule/Policy depending on application state
+        /// </summary>
+        /// <param name="condition">Condition</param>
+        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <returns>Returns Unavailable if the condition is true, otherwise returns Ignored</returns>
+        public static Rule UnavailableIf(bool condition, string reason = "")
+        {
+            return new Rule(
+                condition ? RuleOutcome.Unavailable : RuleOutcome.Ignored,
+                condition ? reason : string.Empty);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <param name="condition">Condition</param>
+        /// <param name="allowReason">Reason applied when condition is TRUE</param>
+        /// <param name="denyReason">Reason applied when condition is FALSE</param>
+        /// <returns>Returns Allow if the condition is true, otherwise returns Deny</returns>
+        public static Rule AllowOrDeny(bool condition, string allowReason = "", string denyReason = "")
+        {
+            return new Rule(
+                condition ? RuleOutcome.Allow : RuleOutcome.Deny,
+                condition ? allowReason : denyReason);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <param name="condition">Condition</param>
+        /// <param name="denyReason">Reason applied when condition is TRUE</param>
+        /// <param name="allowReason">Reason applied when condition is FALSE</param>
+        /// <returns>Returns Deny if the condition is true, otherwise returns Allow</returns>
+        public static Rule DenyOrAllow(bool condition, string denyReason = "", string allowReason = "")
+        {
+            return new Rule(
+                condition ? RuleOutcome.Deny : RuleOutcome.Allow,
+                condition ? denyReason : allowReason);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <param name="condition">Condition</param>
         /// <param name="denyReason">Reason applied when condition is FALSE</param>
         /// <param name="allowReason">Reason applied when condition is TRUE</param>
         /// <returns>Rule with Allow or Deny outcome</returns>
+        [Obsolete]
         public static Rule Allow(bool condition, string denyReason = "", string allowReason = "")
         {
             return new Rule(
@@ -108,6 +176,7 @@ namespace Pipaslot.Mediator.Authorization
         /// <param name="condition">Condition</param>
         /// <param name="denyReason">Reason applied when condition is TRUE</param>
         /// <returns>Rule with Deny or ignored outcome</returns>
+        [Obsolete]
         public static Rule Deny(bool condition, string denyReason = "")
         {
             return new Rule(
@@ -119,7 +188,8 @@ namespace Pipaslot.Mediator.Authorization
         /// Create Rule/Policy depending on application state
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <returns>Rule with Unavailable or ignored outcome</returns>
+        /// <returns>Return Unavailable outcome if the condition is true, otherwise returns Ignored outcome</returns>
+        [Obsolete]
         public static Rule Unavailable(bool condition)
         {
             return new Rule(condition ? RuleOutcome.Unavailable : RuleOutcome.Ignored, string.Empty);
