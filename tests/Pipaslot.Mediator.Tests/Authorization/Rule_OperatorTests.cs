@@ -1,13 +1,12 @@
 ﻿using Pipaslot.Mediator.Authorization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Authorization
 {
-    public class Rule_ToPolicyCastingTests
+    public class Rule_OperatorTests
     {
         [Fact]
         public void And_TwoRules_AndRuleSet()
