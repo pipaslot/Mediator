@@ -64,6 +64,33 @@ namespace Pipaslot.Mediator.Authorization
         /// <summary>
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
+        /// <returns>Rule with Allow outcome</returns>
+        public static Rule Allow(string reason = "")
+        {
+            return new Rule(RuleOutcome.Allow, reason);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <returns>Rule with Deny outcome</returns>
+        public static Rule Deny(string reason = "")
+        {
+            return new Rule(RuleOutcome.Deny, reason);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
+        /// <returns>Rule with Undefined outcome</returns>
+        public static Rule Unavailable(string reason = "")
+        {
+            return new Rule(RuleOutcome.Unavailable, reason);
+        }
+
+        /// <summary>
+        /// Create a rule/policy depending on the state of the application and provide feedback to the user
+        /// </summary>
         /// <param name="condition">Condition</param>
         /// <param name="denyReason">Reason applied when condition is FALSE</param>
         /// <param name="allowReason">Reason applied when condition is TRUE</param>
