@@ -64,22 +64,7 @@ namespace Pipaslot.Mediator.Authorization
             var evaluatedRules = RuleSets
                 .Select(s => s.Evaluate(formatter))
                 .ToArray();
-            // Reduce nesting
-            var availableRuleSetsFilter = evaluatedRules
-                .Where(r => r.Outcome != RuleOutcome.Ignored);
-            var availableRuleSets = availableRuleSetsFilter.Count();
-            if (availableRuleSets == 1 && Rules.Count == 0)
-            {
-                return availableRuleSetsFilter.First();
-            }
-            //var availableRules = Rules
-            //    .Where(r => r.Outcome != RuleOutcome.Ignored);
-            //if (availableRuleSets == 0 && availableRules.Count() == 1)
-            //{
-            //    var first = availableRules.First();
-            //    return formatter.Format(availableRules.Cast<IRule>().ToList(), first.Outcome, Operator);
-            //}
-            // Process the operation
+            
             var rules = evaluatedRules
                 .Concat(Rules);
             if (Operator == Operator.Add)
