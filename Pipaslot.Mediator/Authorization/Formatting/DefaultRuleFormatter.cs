@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting
                 .Select(g => g.Value)
                 .Where(r => !string.IsNullOrWhiteSpace(r))
                 .ToArray();
-            var joined = $"{string.Join($" {operation} ", sets)}";
+            var joined = $"{string.Join(operation, sets)}";
             return new Rule(Rule.JoinedFormatedRuleName, joined);
         }
 
@@ -77,7 +77,11 @@ namespace Pipaslot.Mediator.Authorization.Formatting
 
         protected virtual string FormatOperator(Operator @operator)
         {
-            return @operator == Operator.And ? "AND" : "OR";
+            return @operator == Operator.And 
+                ? " AND " 
+                : @operator == Operator.Or 
+                    ? " OR " 
+                    : " ";
         }
     }
 }

@@ -25,12 +25,12 @@ namespace Pipaslot.Mediator.Authorization
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
 
-        public RuleSet(Operator @operator = Operator.And)
+        public RuleSet(Operator @operator = Operator.Add)
         {
             Operator = @operator;
         }
 
-        public RuleSet(params RuleSet[] sets) : this(Operator.And, sets)
+        public RuleSet(params RuleSet[] sets) : this(Operator.Add, sets)
         {
         }
 
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Authorization
             Operator = @operator;
             RuleSets.AddRange(sets);
         }
-        public RuleSet(params Rule[] rules) : this(Operator.And, rules)
+        public RuleSet(params Rule[] rules) : this(Operator.Add, rules)
         {
         }
 
@@ -64,15 +64,28 @@ namespace Pipaslot.Mediator.Authorization
             var evaluatedRules = RuleSets
                 .Select(s => s.Evaluate(formatter))
                 .ToArray();
-            var isOnlyOneAvailableRuleSet = evaluatedRules
-                .Where(r => r.Outcome != RuleOutcome.Ignored)
-                .Count() == 1;
-            if (isOnlyOneAvailableRuleSet && Rules.Count == 0)
+            // Reduce nesting
+            var availableRuleSetsFilter = evaluatedRules
+                .Where(r => r.Outcome != RuleOutcome.Ignored);
+            var availableRuleSets = availableRuleSetsFilter.Count();
+            if (availableRuleSets == 1 && Rules.Count == 0)
             {
-                return evaluatedRules.First();
+                return availableRuleSetsFilter.First();
             }
+            //var availableRules = Rules
+            //    .Where(r => r.Outcome != RuleOutcome.Ignored);
+            //if (availableRuleSets == 0 && availableRules.Count() == 1)
+            //{
+            //    var first = availableRules.First();
+            //    return formatter.Format(availableRules.Cast<IRule>().ToList(), first.Outcome, Operator);
+            //}
+            // Process the operation
             var rules = evaluatedRules
                 .Concat(Rules);
+            if (Operator == Operator.Add)
+            {
+                return ReduceWithAdd(rules, formatter);
+            }
             if (Operator == Operator.And)
             {
                 return ReduceWithAnd(rules, formatter);
@@ -81,11 +94,12 @@ namespace Pipaslot.Mediator.Authorization
             {
                 return ReduceWithOr(rules, formatter);
             }
-            throw new NotImplementedException($"Unknown operator '{Operator}'");
+            throw new NotSupportedException($"Operator '{Operator}' can not be used for RuleSet.");
         }
 
-        private IEvaluatedRule ReduceWithAnd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+        private IEvaluatedRule ReduceWithAdd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
         {
+            var finalOperator = Operator.Add;
             var denied = new List<IRule>();
             var unavailable = new List<IRule>();
             var allowed = new List<IRule>();
@@ -111,21 +125,58 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.And);
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
             }
             if (denied.Any())
             {
-                return formatter.Format(denied, RuleOutcome.Deny, Operator.And);
+                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
             }
             if (allowed.Any())
             {
-                return formatter.Format(allowed, RuleOutcome.Allow, Operator.And);
+                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
+        }
+        private IEvaluatedRule ReduceWithAnd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+        {
+            var finalOperator = Operator.And;
+            var denied = new List<IRule>();
+            var unavailable = new List<IRule>();
+            var allowed = new List<IRule>();
+            foreach (var rule in rules)
+            {
+                var outcome = rule.Outcome;
+                if (outcome == RuleOutcome.Unavailable)
+                {
+                    unavailable.Add(rule);
+                }
+                if (outcome == RuleOutcome.Deny || outcome == RuleOutcome.Ignored)
+                {
+                    denied.Add(rule);
+                }
+                if (outcome == RuleOutcome.Allow)
+                {
+                    allowed.Add(rule);
+                }
+            }
+            if (unavailable.Any())
+            {
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
+            }
+            if (denied.Any())
+            {
+                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
+            }
+            if (allowed.Any())
+            {
+                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
+            }
+            return new Rule(RuleOutcome.Deny, string.Empty);
         }
 
         private IEvaluatedRule ReduceWithOr(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
         {
+            var finalOperator = Operator.Or;
             var denied = new List<IRule>();
             var unavailable = new List<IRule>();
             var allowed = new List<IRule>();
@@ -151,15 +202,15 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (allowed.Any())
             {
-                return formatter.Format(allowed, RuleOutcome.Allow, Operator.Or);
+                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
             }
             if (denied.Any())
             {
-                return formatter.Format(denied, RuleOutcome.Deny, Operator.Or);
+                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
             }
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable, Operator.Or);
+                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
             }
             return new Rule(RuleOutcome.Ignored, string.Empty);
         }
@@ -170,24 +221,24 @@ namespace Pipaslot.Mediator.Authorization
         }
 
 #if !NETSTANDARD
-        public static RuleSet operator &(RuleSet set, Rule rule)
+        public static RuleSet operator +(RuleSet set, Rule rule)
         {
-            var res = new RuleSet(Operator.And);
+            var res = new RuleSet(Operator.Add);
             res.RuleSets.Add(set);
             res.Rules.Add(rule);
             return res;
         }
-        public static RuleSet operator &(Rule rule, RuleSet set)
+        public static RuleSet operator +(Rule rule, RuleSet set)
         {
-            var res = new RuleSet(Operator.And);
+            var res = new RuleSet(Operator.Add);
             res.RuleSets.Add(set);
             res.Rules.Add(rule);
             return res;
         }
 
-        public static RuleSet operator &(RuleSet set1, RuleSet set2)
+        public static RuleSet operator +(RuleSet set1, RuleSet set2)
         {
-            var res = new RuleSet(Operator.And);
+            var res = new RuleSet(Operator.Add);
             res.RuleSets.Add(set1);
             res.RuleSets.Add(set2);
             return res;

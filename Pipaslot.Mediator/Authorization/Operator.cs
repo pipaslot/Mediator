@@ -2,6 +2,7 @@
 {
     public enum Operator
     {
+        Add,
         And,
         Or,
     }

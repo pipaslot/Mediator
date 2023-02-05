@@ -7,15 +7,15 @@ namespace Pipaslot.Mediator.Tests.Authorization
     public class RuleSet_OperatorTests
     {
         [Fact]
-        public void AND_ThreeTimeTheSame()
+        public void ADD_ThreeTimeTheSame()
         {
             var r1 = Rule.AllowOrDeny(true, "", "R1");
             var r2 = Rule.AllowOrDeny(true, "", "R2");
             var r3 = Rule.AllowOrDeny(true, "", "R3");
-            var combined = r1 & r2 & r3;
-            AssertRuleSet(combined, Operator.And, 1, r3);
+            var combined = r1 + r2 + r3;
+            AssertRuleSet(combined, Operator.Add, 1, r3);
             var subSet = combined.RuleSets.First();
-            AssertRuleSet(subSet, Operator.And, 0, r1, r2);
+            AssertRuleSet(subSet, Operator.Add, 0, r1, r2);
         }
 
         [Fact]
@@ -31,31 +31,31 @@ namespace Pipaslot.Mediator.Tests.Authorization
         }
 
         [Fact]
-        public void ORANDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+        public void ORADDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
         {
             var r1 = Rule.AllowOrDeny(true, "", "R1");
             var r2 = Rule.AllowOrDeny(true, "", "R2");
             var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = (r1
                          | r2)
-                         & r3;
-            AssertRuleSet(combined, Operator.And, 1, r3);
+                         + r3;
+            AssertRuleSet(combined, Operator.Add, 1, r3);
             var subSet = combined.RuleSets.First();
             AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
         }
 
         [Fact]
-        public void ORAND_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+        public void ORADD_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
         {
             var r1 = Rule.AllowOrDeny(true, "", "R1");
             var r2 = Rule.AllowOrDeny(true, "", "R2");
             var r3 = Rule.AllowOrDeny(true, "", "R3");
             var combined = r1
                          | r2
-                         & r3;
+                         + r3;
             AssertRuleSet(combined, Operator.Or, 1, r1);
             var subSet = combined.RuleSets.First();
-            AssertRuleSet(subSet, Operator.And, 0, r2, r3);
+            AssertRuleSet(subSet, Operator.Add, 0, r2, r3);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
         {
             IPolicy combined = Rule.AllowOrDeny(true)
                 | Rule.AllowOrDeny(true)
-                & Rule.AllowOrDeny(true)
+                + Rule.AllowOrDeny(true)
                 | Rule.AllowOrDeny(true);
 
             Assert.NotNull(combined);
@@ -75,7 +75,7 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var one = Rule.AllowOrDeny(true)
                 | Rule.AllowOrDeny(true);
             var two = Rule.AllowOrDeny(true)
-                & Rule.AllowOrDeny(true);
+                + Rule.AllowOrDeny(true);
 
             IPolicy combined = one | two;
 

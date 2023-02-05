@@ -1,19 +1,15 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Authorization
 {
     public class Rule_OperatorTests
     {
         [Fact]
-        public void And_TwoRules_AndRuleSet()
+        public void Add_TwoRules_AndRuleSet()
         {
             var combined = Rule.AllowOrDeny(true)
-                         & Rule.AllowOrDeny(true);
-            AssertTwoRules(combined, Operator.And);
+                         + Rule.AllowOrDeny(true);
+            AssertTwoRules(combined, Operator.Add);
         }
 
         [Fact]
