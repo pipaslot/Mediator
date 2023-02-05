@@ -18,7 +18,7 @@ namespace Demo.Server.Handlers.Auth
         {
             return IdentityPolicy.Authenticated()
                 & Rule.UnavailableIf(!action.IsAvailable, "Sorry, not available!")
-                & Rule.DenyOrAllow(action.IsInvalid, "Model state does not allow to perform this operation.", "Go one!");
+                + Rule.DenyOrAllow(action.IsInvalid, "Model state does not allow to perform this operation.", "Go one!");
         }
 
         public Task Handle(CustomPolicyMessage action, CancellationToken cancellationToken)

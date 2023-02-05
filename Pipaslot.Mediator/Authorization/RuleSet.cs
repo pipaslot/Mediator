@@ -25,7 +25,11 @@ namespace Pipaslot.Mediator.Authorization
         /// </summary>
         public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
 
-        public RuleSet(Operator @operator = Operator.Add)
+        public RuleSet() : this(Operator.Add)
+        {
+        }
+
+        public RuleSet(Operator @operator)
         {
             Operator = @operator;
         }
@@ -64,7 +68,7 @@ namespace Pipaslot.Mediator.Authorization
             var evaluatedRules = RuleSets
                 .Select(s => s.Evaluate(formatter))
                 .ToArray();
-            
+
             var rules = evaluatedRules
                 .Concat(Rules);
             if (Operator == Operator.Add)
@@ -224,6 +228,29 @@ namespace Pipaslot.Mediator.Authorization
         public static RuleSet operator +(RuleSet set1, RuleSet set2)
         {
             var res = new RuleSet(Operator.Add);
+            res.RuleSets.Add(set1);
+            res.RuleSets.Add(set2);
+            return res;
+        }
+
+        public static RuleSet operator &(RuleSet set, Rule rule)
+        {
+            var res = new RuleSet(Operator.And);
+            res.RuleSets.Add(set);
+            res.Rules.Add(rule);
+            return res;
+        }
+        public static RuleSet operator &(Rule rule, RuleSet set)
+        {
+            var res = new RuleSet(Operator.And);
+            res.RuleSets.Add(set);
+            res.Rules.Add(rule);
+            return res;
+        }
+
+        public static RuleSet operator &(RuleSet set1, RuleSet set2)
+        {
+            var res = new RuleSet(Operator.And);
             res.RuleSets.Add(set1);
             res.RuleSets.Add(set2);
             return res;
