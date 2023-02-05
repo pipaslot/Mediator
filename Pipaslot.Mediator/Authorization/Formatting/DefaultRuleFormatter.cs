@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 
 namespace Pipaslot.Mediator.Authorization.Formatting
 {
@@ -10,17 +9,33 @@ namespace Pipaslot.Mediator.Authorization.Formatting
     {
         public virtual IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
         {
+            var notEmpty = rules
+                .Where(r=>!string.IsNullOrWhiteSpace(r.Value))
+                .ToArray();
+            if(notEmpty.Length == 0)
+            {
+                return new Rule(outcome, string.Empty);
+            }
+            if (notEmpty.Length == 1)
+            {
+                return FormatSingle(notEmpty.First(), outcome, false);
+            }
             var operation = FormatOperator(@operator);
             var sets = rules
-                .Select(g => FormatSingle(g, outcome))
+                .Select(g => FormatSingle(g, outcome, true))
                 .Select(g => g.Value)
                 .Where(r => !string.IsNullOrWhiteSpace(r))
                 .ToArray();
-            var joined = $"{string.Join($" {operation} ", sets)}";
+            var joined = $"{string.Join(operation, sets)}";
             return new Rule(Rule.JoinedFormatedRuleName, joined);
         }
 
         public virtual IRule FormatSingle(IRule rule, RuleOutcome outcome)
+        {
+            return FormatSingle(rule, outcome, false);
+        }
+
+        protected virtual IRule FormatSingle(IRule rule, RuleOutcome outcome, bool fromMultiple)
         {
             if (rule.Name == IdentityPolicy.AuthenticationPolicyName)
             {
@@ -43,7 +58,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting
             }
             if (rule.Name == Rule.JoinedFormatedRuleName)
             {
-                return string.IsNullOrWhiteSpace(rule.Value)
+                return string.IsNullOrWhiteSpace(rule.Value) || !fromMultiple
                     ? rule
                     : new Rule(Rule.DefaultName, WrapMultipleRules(rule));
             }
@@ -77,7 +92,11 @@ namespace Pipaslot.Mediator.Authorization.Formatting
 
         protected virtual string FormatOperator(Operator @operator)
         {
-            return @operator == Operator.And ? "AND" : "OR";
+            return @operator == Operator.And 
+                ? " AND " 
+                : @operator == Operator.Or 
+                    ? " OR " 
+                    : " ";
         }
     }
 }

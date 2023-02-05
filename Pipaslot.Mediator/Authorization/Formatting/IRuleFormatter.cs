@@ -35,8 +35,10 @@ namespace Pipaslot.Mediator.Authorization.Formatting
             {
                 throw new ArgumentOutOfRangeException(nameof(rules), "The collection can not be empty.");
             }
-            var casted = rules.Cast<IRule>().ToArray();
-            var pair = rules.Count == 1
+            var casted = rules
+                .Cast<IRule>()
+                .ToArray();
+            var pair = casted.Count() == 1
                 ? formatter.FormatSingle(casted.First(), outcome)
                 : formatter.FormatMultiple(casted, outcome, @operator);
             return new EvaluatedRule(pair, outcome);

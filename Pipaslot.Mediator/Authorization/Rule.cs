@@ -196,6 +196,11 @@ namespace Pipaslot.Mediator.Authorization
         }
 
 #if !NETSTANDARD
+        public static RuleSet operator +(Rule rule1, Rule rule2)
+        {
+            return new RuleSet(Operator.Add, new[] { rule1, rule2 });
+        }
+
         public static RuleSet operator &(Rule rule1, Rule rule2)
         {
             return new RuleSet(Operator.And, new[] { rule1, rule2 });

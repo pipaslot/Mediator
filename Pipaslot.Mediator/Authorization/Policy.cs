@@ -15,6 +15,10 @@ namespace Pipaslot.Mediator.Authorization
 
         public Policy(Operator @operator)
         {
+            if (@operator != Operator.And && @operator != Operator.Or)
+            {
+                throw new NotSupportedException($"Operator '{@operator}' can not be used for Policies.");
+            }
             Operator = @operator;
         }
 
