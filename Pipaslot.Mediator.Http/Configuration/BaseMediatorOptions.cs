@@ -26,7 +26,7 @@ namespace Pipaslot.Mediator.Http.Configuration
         /// </summary>
         public bool DeserializeOnlyCredibleResultTypes { get; set; } = false;
 
-        public SerializerType SerializerType { get; set; } = SerializerType.V2;
+        public SerializerType SerializerType { get; set; } = SerializerType.V3;
 
         #region Credible types
 

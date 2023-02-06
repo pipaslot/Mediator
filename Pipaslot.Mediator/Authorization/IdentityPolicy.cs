@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator.Authorization
         public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
             var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
-            var collection = new RuleSet();
+            var collection = new RuleSet(Operator.And);
             if (_claims.Count() == 0)
             {
                 var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
