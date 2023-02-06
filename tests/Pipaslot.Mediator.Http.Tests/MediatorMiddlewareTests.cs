@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Http.Tests
             mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
-            collection.AddMediatorServer()
+            collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
                 .AddActionsFromAssemblyOf<NopRequest>();
             collection.AddScoped<MediatorMiddleware>();
             collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator.Http.Tests
             mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
-            collection.AddMediatorServer()
+            collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
                 .AddActionsFromAssemblyOf<NopMessage>();
             collection.AddScoped<MediatorMiddleware>();
             collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
