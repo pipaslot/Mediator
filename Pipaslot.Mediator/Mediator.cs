@@ -129,7 +129,7 @@ namespace Pipaslot.Mediator
 
         internal IEnumerable<IMediatorMiddleware> GetPipeline(IMediatorAction action)
         {
-            var middlewareTypes = _configurator.GetMiddlewares(action);
+            var middlewareTypes = _configurator.GetMiddlewares(action, _serviceProvider);
             foreach (var middlewareType in middlewareTypes)
             {
                 var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareType);

@@ -31,5 +31,12 @@ namespace Pipaslot.Mediator.Configuration
         /// <param name="condition"></param>
         /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
         IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
+
+        /// <summary>
+        /// Register middlewares when the condition is met.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
+        IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares);
     }
 }

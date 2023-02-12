@@ -6,6 +6,6 @@ namespace Pipaslot.Mediator.Configuration
 {
     internal interface IMiddlewareResolver
     {
-        public IEnumerable<Type> GetMiddlewares(IMediatorAction action);
+        public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider);
     }
 }

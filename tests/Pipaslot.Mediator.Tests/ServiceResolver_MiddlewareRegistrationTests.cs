@@ -29,6 +29,17 @@ namespace Pipaslot.Mediator.Tests
                 );
             });
         }
+        [Fact]
+        public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntDifferentePipeline2_ThrowException()
+        {
+            Assert.Throws<MediatorException>(() =>
+            {
+                Factory.CreateServiceProvider(c => c
+                    .Use<FakeMiddleware>(ServiceLifetime.Scoped)
+                    .UseWhen((a, s) => true, s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
+                );
+            });
+        }
 
         private class FakeMiddleware : IMediatorMiddleware
         {

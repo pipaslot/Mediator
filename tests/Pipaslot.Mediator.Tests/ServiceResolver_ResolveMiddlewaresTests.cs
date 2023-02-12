@@ -57,6 +57,23 @@ namespace Pipaslot.Mediator.Tests
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
+        [Theory]
+        [InlineData(1, true, typeof(QueryMiddleware))]
+        [InlineData(2, true, typeof(Query2Middleware))]
+        [InlineData(3, true, typeof(HandlerExecutionMiddleware))]
+
+        [InlineData(1, false, typeof(HandlerExecutionMiddleware))]
+        public void UseWhen(int position, bool applyCustom, Type expectedMiddleware)
+        {
+            var sut = Factory.CreateInternalMediator(c =>
+            {
+                c.UseWhen(a => applyCustom, s => s.Use<QueryMiddleware>());
+                c.UseWhen((a,s) => applyCustom, s => s.Use<Query2Middleware>());
+            });
+            var middlewares = sut.GetPipeline(new FakeNotification());
+            VerifyMiddleware(middlewares, position, expectedMiddleware);
+        }
+
         private void VerifyMiddleware(IEnumerable<IMediatorMiddleware> middlewares, int position, Type expectedMiddleware)
         {
             var actual = middlewares.Skip(position - 1).First().GetType();

@@ -111,11 +111,17 @@ namespace Pipaslot.Mediator.Configuration
             return this;
         }
 
+        public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            _middlewares.UseWhen(condition, subMiddlewares);
+            return this;
+        }
+
         public IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares, string? identifier = null)
         {
             var collection = new MiddlewareCollection(Services);
             subMiddlewares(collection);
-            if(identifier != null)
+            if (identifier != null)
             {
                 _pipelines.RemoveAll(p => p.Identifier == identifier);
             }
@@ -139,7 +145,7 @@ namespace Pipaslot.Mediator.Configuration
             return FilterAssignableToRequest(_actionMarkerTypes);
         }
 
-        public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
+        public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             var pipelines = _pipelines
                 .Where(p => p.Condition(action))
@@ -150,9 +156,9 @@ namespace Pipaslot.Mediator.Configuration
             }
             else if (pipelines.Length == 1)
             {
-                return pipelines.First().Middlewares.GetMiddlewares(action);
+                return pipelines.First().Middlewares.GetMiddlewares(action, serviceProvider);
             }
-            return _middlewares.GetMiddlewares(action);
+            return _middlewares.GetMiddlewares(action, serviceProvider);
         }
 
         internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)

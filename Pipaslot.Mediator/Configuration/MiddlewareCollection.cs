@@ -34,19 +34,11 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public MiddlewareCollection AddCondition(Func<IMediatorAction, bool> condition)
-        {
-            var subCollection = new MiddlewareCollection(_services);
-            var definition = new ConditionDefinition(condition, subCollection);
-            _middlewareTypes.Add(definition);
-            return subCollection;
-        }
-
-        public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
+        public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             foreach (var res in _middlewareTypes)
             {
-                foreach (var a in res.GetMiddlewares(action))
+                foreach (var a in res.GetMiddlewares(action, serviceProvider))
                 {
                     yield return a;
                 }
@@ -68,21 +60,32 @@ namespace Pipaslot.Mediator.Configuration
 
         public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            var config = AddCondition(condition);
+            var config = new MiddlewareCollection(_services);
+            var definition = new ConditionDefinition(condition, config);
+            _middlewareTypes.Add(definition);
+            subMiddlewares(config);
+            return this;
+        }
+
+        public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            var config = new MiddlewareCollection(_services);
+            var definition = new DynamicDefinition(condition, config);
+            _middlewareTypes.Add(definition);
             subMiddlewares(config);
             return this;
         }
 
         private class MiddlewareDefinition : IMiddlewareResolver
         {
-            private Type _middlewareType;
+            private readonly Type _middlewareType;
 
             public MiddlewareDefinition(Type middlewareType)
             {
                 _middlewareType = middlewareType;
             }
 
-            public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
+            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
             {
                 yield return _middlewareType;
             }
@@ -90,9 +93,9 @@ namespace Pipaslot.Mediator.Configuration
 
         private class ConditionDefinition : IMiddlewareResolver
         {
-            private Func<IMediatorAction, bool> _condition;
+            private readonly Func<IMediatorAction, bool> _condition;
 
-            public MiddlewareCollection _middlewares;
+            private readonly MiddlewareCollection _middlewares;
 
             public ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares)
             {
@@ -100,11 +103,34 @@ namespace Pipaslot.Mediator.Configuration
                 _middlewares = middlewares;
             }
 
-            public IEnumerable<Type> GetMiddlewares(IMediatorAction action)
+            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
             {
                 if (_condition(action))
                 {
-                    foreach (var type in _middlewares.GetMiddlewares(action))
+                    foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
+                    {
+                        yield return type;
+                    }
+                }
+            }
+        }
+
+        private class DynamicDefinition : IMiddlewareResolver
+        {
+            private readonly Func<IMediatorAction, IServiceProvider, bool> _condition;
+            private readonly MiddlewareCollection _middlewares;
+
+            public DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
+            {
+                _condition = condition;
+                _middlewares = middlewares;
+            }
+
+            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+            {
+                if (_condition(action, serviceProvider))
+                {
+                    foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
                     {
                         yield return type;
                     }
