@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
+using Pipaslot.Mediator.Middlewares;
+using System;
 
 namespace Pipaslot.Mediator.Http
 {
@@ -41,6 +45,38 @@ namespace Pipaslot.Mediator.Http
         public static IMiddlewareRegistrator UseDirectHttpCallProtection(this IMiddlewareRegistrator config)
         {
             return config.Use<DirectHttpCallProtectionMiddleware>(ServiceLifetime.Scoped);
+        }
+
+        /// <summary>
+        /// Use middleware when the provider action is first in line directly from HTTP.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenDirectHttpCall<TMiddleware>(this IMiddlewareRegistrator config)
+            where TMiddleware : IMediatorMiddleware
+        {
+            return config.UseWhen((a, s) => IsFromHttp(s), m => m.Use<TMiddleware>());
+        }
+
+        /// <summary>
+        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return config.UseWhen((a, s) => IsFromHttp(s), subMiddlewares);
+        }
+
+        /// <summary>
+        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// </summary>
+        public static IMiddlewareRegistrator UseAuthorizationWhenDirectHttpCall(this IMiddlewareRegistrator config)
+        {
+            return config.UseWhen((a, s) => IsFromHttp(s), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
+        }
+
+        private static bool IsFromHttp(IServiceProvider sp)
+        {
+            var hca = sp.GetRequiredService<IHttpContextAccessor>();
+            var mca = sp.GetRequiredService<IMediatorContextAccessor>();
+            return DirectHttpCallProtectionMiddleware.IsApplicable(mca, hca);
         }
     }
 }

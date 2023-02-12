@@ -20,12 +20,17 @@ namespace Pipaslot.Mediator.Http.Middlewares
 
         public Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            // We test for count to be 1 because the actual action is already counted
-            if (_contextAccessor.ContextStack.Count == 1 && _httpContextAccessor.HttpContext != null)
+            if (IsApplicable(_contextAccessor, _httpContextAccessor))
             {
                 throw MediatorException.CreateForForbidenDirectCall();
             }
             return next(context);
+        }
+
+        internal static bool IsApplicable(IMediatorContextAccessor contextAccessor, IHttpContextAccessor httpContextAccessor)
+        {
+            // We test for count to be 1 because the actual action is already counted
+            return contextAccessor.ContextStack.Count == 1 && httpContextAccessor.HttpContext != null;
         }
     }
 }
