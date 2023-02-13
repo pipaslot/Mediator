@@ -1,6 +1,8 @@
-﻿namespace Demo.Shared.Playground
+﻿using Pipaslot.Mediator;
+using Pipaslot.Mediator.Authorization;
+
+namespace Demo.Shared.Playground
 {
-    public class CustomInternalRequest : IInternalRequest<bool>
-    {
-    }
+    [AnonymousPolicy]
+    public record CustomInternalRequest : IRequest<bool>;
 }
