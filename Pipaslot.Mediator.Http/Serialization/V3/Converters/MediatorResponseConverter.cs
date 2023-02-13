@@ -18,7 +18,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
         public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var success = false;
-            var errorMessages = new string[0];
             var results = new object[0];
             while (reader.Read())
             {
@@ -92,6 +91,25 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 throw new JsonException("Type value can not be null");
             }
             var resultType = ContractSerializerTypeHelper.GetType(typeValue);
+            if (AsPrimitive(resultType))
+            {
+                readerClone.Read();
+                if (readerClone.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Property was expected");
+                }
+                propertyName = readerClone.GetString();
+                if (propertyName != "Value")
+                {
+                    throw new JsonException("Property with name 'Value' was expected");
+                }
+                reader.Read();
+                reader.Read();
+                reader.Read();
+                return JsonSerializer.Deserialize(ref reader, resultType, options)
+                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+            }
+
             var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
             if (arrayItemType != null)
             {
@@ -109,7 +127,7 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 propertyName = readerClone.GetString();
                 if (propertyName != "Items")
                 {
-                    throw new JsonException("Property with name Items was expected");
+                    throw new JsonException("Property with name 'Items' was expected");
                 }
                 reader.Read();
                 reader.Read();
@@ -123,7 +141,6 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 return JsonSerializer.Deserialize(ref reader, resultType, options)
                     ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
             }
-
         }
 
         public override void Write(Utf8JsonWriter writer, IMediatorResponse value, JsonSerializerOptions options)
@@ -138,7 +155,12 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 writer.WriteStartObject();
                 var resultType = result.GetType();
                 writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(resultType));
-                if (ContractSerializerTypeHelper.IsEnumerable(resultType))
+                if (AsPrimitive(resultType))
+                {
+                    writer.WritePropertyName("Value");
+                    writer.WriteRawValue(JsonSerializer.Serialize(result, resultType, options));
+                }
+                else if (ContractSerializerTypeHelper.IsEnumerable(resultType))
                 {
                     writer.WritePropertyName("Items");
                     JsonSerializer.Serialize(writer, result, resultType, options);
@@ -152,6 +174,11 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
             writer.WriteEndArray();
 
             writer.WriteEndObject();
+        }
+
+        private bool AsPrimitive(Type type)
+        {
+            return type.IsPrimitive || type == typeof(string);
         }
     }
 }
