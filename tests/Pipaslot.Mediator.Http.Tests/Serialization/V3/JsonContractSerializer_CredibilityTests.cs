@@ -51,7 +51,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
         {
             var contract = new Contract();
-            var action = new MessageWithInterfaceCollectionProperty
+            var action = new MessageWithInterfaceArrayProperty
             {
                 Contracts = new IContract[] { contract }
             };

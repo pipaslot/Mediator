@@ -1,5 +1,6 @@
 ﻿using Pipaslot.Mediator.Http.Configuration;
 using System;
+using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,11 +17,10 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 
         public override bool CanConvert(Type typeToConvert)
         {
-            if (typeToConvert.IsInterface)
-            {
-                return true;
-            }
-            return typeToConvert.IsInterface;
+            return typeToConvert.IsInterface
+                //Ignore collection interfaces
+                && !typeof(IEnumerable).IsAssignableFrom(typeToConvert)
+               ;
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)

@@ -40,9 +40,14 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             public IContract Contract { get; set; } = null!;
         }
 
-        public class MessageWithInterfaceCollectionProperty : IMessage
+        public class MessageWithInterfaceArrayProperty : IMessage
         {
             public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
+        }
+
+        public class MessageWithInterfaceCollectionProperty : IMessage
+        {
+            public List<IContract> Contracts { get; set; } = new List<IContract>();
         }
 
         public new interface IContract
