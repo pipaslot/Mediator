@@ -16,9 +16,9 @@ namespace Pipaslot.Mediator
         /// </summary>
         public IMediatorResponse Response { get; }
         
-        public MediatorExecutionException(string message, MediatorContext context) : base(message)
+        public MediatorExecutionException(string message, MediatorContext? context) : base(message)
         {
-            Response = new MediatorResponse(false, context.Results);
+            Response = new MediatorResponse(false, context?.Results ?? Array.Empty<object>());
         }
 
         public MediatorExecutionException(string message, IMediatorResponse response) : base($"{message} Errors: ['{GetErrors(response.Results)}']")
@@ -44,6 +44,11 @@ namespace Pipaslot.Mediator
         internal static MediatorExecutionException CreateForMissingResult(MediatorContext context, Type type)
         {
             return new MediatorExecutionException($"Extected result type '{type}' was missing in result collection. Ensure that executed action has its handler.", context);
+        }
+
+        internal static MediatorExecutionException CreateForNoHandler(Type? type, MediatorContext? context = null)
+        {
+            return new MediatorExecutionException("No handler was found for " + type, context);
         }
 
         private static string GetErrors(IReadOnlyCollection<object> results)

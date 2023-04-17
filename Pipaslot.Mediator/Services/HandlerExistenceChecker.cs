@@ -110,7 +110,7 @@ namespace Pipaslot.Mediator.Services
                 {
                     return;
                 }
-                _errors.Add(MediatorException.CreateForNoHandler(subject).Message);
+                _errors.Add(MediatorExecutionException.CreateForNoHandler(subject, null).Message);
             }
             var anyIsSequence = false;
             var anyIsConcurrent = false;

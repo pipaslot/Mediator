@@ -40,7 +40,7 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, context);
                 if (context.Status == ExecutionStatus.NoHandlerFound)
                 {
-                    throw MediatorException.CreateForNoHandler(message.GetType());
+                    throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
                 }
                 var success = !context.HasError();
                 return new MediatorResponse(success, context.Results);
@@ -64,7 +64,7 @@ namespace Pipaslot.Mediator
             await ProcessPipeline(pipeline, context);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
-                throw MediatorException.CreateForNoHandler(message.GetType());
+                throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
             }
             if (context.HasError())
             {
@@ -84,12 +84,11 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-                //TODO Uncomment and synchronize the behavior with Dispatch methods
                 //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
-                //if (context.Status == ExecutionStatus.NoHandlerFound)
-                //{
-                //    throw MediatorException.CreateForNoHandler(request.GetType());
-                //}
+                if (context.Status == ExecutionStatus.NoHandlerFound)
+                {
+                    throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+                }
                 var success = !context.HasError();
                 if (success && !context.Results.Any(r => r is TResult))
                 {
@@ -114,12 +113,11 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
-            //TODO Uncomment and synchronize the behavior with Dispatch methods
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
-            //if (context.Status == ExecutionStatus.NoHandlerFound)
-            //{
-            //    throw MediatorException.CreateForNoHandler(request.GetType());
-            //}
+            if (context.Status == ExecutionStatus.NoHandlerFound)
+            {
+                throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+            }
             var success = !context.HasError();
             if (success && !context.Results.Any(r => r is TResult))
             {

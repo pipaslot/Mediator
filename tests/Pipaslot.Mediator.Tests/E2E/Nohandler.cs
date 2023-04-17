@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests.E2E
             var result = await sut.Execute(action);
             Assert.False(result.Success);
             var context = Factory.FakeContext(action);
-            Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, result.GetErrorMessage());
+            Assert.Equal(MediatorExecutionException.CreateForNoHandler(action.GetType()).Message, result.GetErrorMessage());
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator.Tests.E2E
                     await sut.ExecuteUnhandled(action);
                 });
             var context = Factory.FakeContext(action);
-            Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, ex.Message);
+            Assert.Equal(MediatorExecutionException.CreateForNoHandler(action.GetType()).Message, ex.Message);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator.Tests.E2E
             var action = new MessageWithoutHandler();
             var result = await sut.Dispatch(action);
             Assert.False(result.Success);
-            Assert.Equal(MediatorException.CreateForNoHandler(action.GetType()).Message, result.GetErrorMessage());
+            Assert.Equal(MediatorExecutionException.CreateForNoHandler(action.GetType()).Message, result.GetErrorMessage());
         }
 
         [Fact]
@@ -46,12 +46,12 @@ namespace Pipaslot.Mediator.Tests.E2E
             var sut = Factory.CreateMediator();
             var action = new RequestWithoutHandler();
             var ex =
-                await Assert.ThrowsAsync<MediatorException>(async () =>
+                await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
                 {
                     await sut.DispatchUnhandled(action);
                 });
             var context = Factory.FakeContext(action);
-            Assert.Equal(MediatorException.CreateForNoHandler(action.GetType()).Message, ex.Message);
+            Assert.Equal(MediatorExecutionException.CreateForNoHandler(action.GetType()).Message, ex.Message);
         }
     }
 }
