@@ -42,8 +42,7 @@ namespace Pipaslot.Mediator
                 {
                     throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
                 }
-                var success = !context.HasError();
-                return new MediatorResponse(success, context.Results);
+                return new MediatorResponse(context.Status == ExecutionStatus.Succeeded, context.Results);
             }
             catch (Exception e)
             {
@@ -66,7 +65,7 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
             }
-            if (context.HasError())
+            if (context.Status != ExecutionStatus.Succeeded)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
@@ -89,7 +88,7 @@ namespace Pipaslot.Mediator
                 {
                     throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
                 }
-                var success = !context.HasError();
+                var success = context.Status == ExecutionStatus.Succeeded;
                 if (success && !context.Results.Any(r => r is TResult))
                 {
                     return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
@@ -118,12 +117,12 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
             }
-            var success = !context.HasError();
+            var success = context.Status == ExecutionStatus.Succeeded;
             if (success && !context.Results.Any(r => r is TResult))
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
-            if (context.HasError())
+            if (!success)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
