@@ -89,6 +89,19 @@ namespace Pipaslot.Mediator.Tests
             Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, result.GetErrorMessage());
         }
 
+        /// <summary>
+        /// Do not add or override the error if failure was already detected
+        /// </summary>
+        [Fact]
+        public async Task Execute_NoResultAndContextStatusFailed_DoNotReturnNoResultError()
+        {
+            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var action = new BlockedRequest();
+            var result = await sut.Execute(action);
+            Assert.False(result.Success);
+            Assert.Empty(result.Results);
+        }
+
         #endregion
 
         #region ExecuteUnhandled single handler
@@ -143,6 +156,22 @@ namespace Pipaslot.Mediator.Tests
             });
             var context = Factory.FakeContext(action);
             Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, ex.Message);
+        }
+
+        /// <summary>
+        /// Do not add or override the error if failure was already detected
+        /// </summary>
+        [Fact]
+        public async Task ExecuteUnhandled_NoResultAndContextStatusFailed_DoNotReturnNoResultError()
+        {
+            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var action = new BlockedRequest();
+            var ex =
+                await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+                {
+                    await sut.ExecuteUnhandled(action);
+                });
+            Assert.Equal(string.Empty, ex.Message);
         }
 
         #endregion

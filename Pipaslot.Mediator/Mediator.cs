@@ -84,11 +84,17 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-                if(!context.Results.Any(r => r is TResult))
+                //TODO Uncomment and synchronize the behavior with Dispatch methods
+                //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
+                //if (context.Status == ExecutionStatus.NoHandlerFound)
+                //{
+                //    throw MediatorException.CreateForNoHandler(request.GetType());
+                //}
+                var success = !context.HasError();
+                if (success && !context.Results.Any(r => r is TResult))
                 {
                     return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
                 }
-                var success = !context.HasError();
                 return new MediatorResponse<TResult>(success, context.Results);
             }
             catch (Exception e)
@@ -108,7 +114,14 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
-            if (!context.Results.Any(r => r is TResult))
+            //TODO Uncomment and synchronize the behavior with Dispatch methods
+            //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
+            //if (context.Status == ExecutionStatus.NoHandlerFound)
+            //{
+            //    throw MediatorException.CreateForNoHandler(request.GetType());
+            //}
+            var success = !context.HasError();
+            if (success && !context.Results.Any(r => r is TResult))
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
