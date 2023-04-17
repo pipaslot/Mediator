@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Tests
             {
                 sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
             });
-            CompareExceptions(MediatorException.CreateForNoHandler(subject), exception);
+            CompareExceptions(MediatorExecutionException.CreateForNoHandler(subject), exception);
         }
 
         [Theory]

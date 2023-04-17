@@ -40,10 +40,9 @@ namespace Pipaslot.Mediator
                 await ProcessPipeline(pipeline, context);
                 if (context.Status == ExecutionStatus.NoHandlerFound)
                 {
-                    throw MediatorException.CreateForNoHandler(message.GetType());
+                    throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
                 }
-                var success = !context.HasError();
-                return new MediatorResponse(success, context.Results);
+                return new MediatorResponse(context.Status == ExecutionStatus.Succeeded, context.Results);
             }
             catch (Exception e)
             {
@@ -64,9 +63,9 @@ namespace Pipaslot.Mediator
             await ProcessPipeline(pipeline, context);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
-                throw MediatorException.CreateForNoHandler(message.GetType());
+                throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
             }
-            if (context.HasError())
+            if (context.Status != ExecutionStatus.Succeeded)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
@@ -84,11 +83,16 @@ namespace Pipaslot.Mediator
             try
             {
                 await ProcessPipeline(pipeline, context);
-                if(!context.Results.Any(r => r is TResult))
+                //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
+                if (context.Status == ExecutionStatus.NoHandlerFound)
+                {
+                    throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+                }
+                var success = context.Status == ExecutionStatus.Succeeded;
+                if (success && !context.Results.Any(r => r is TResult))
                 {
                     return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
                 }
-                var success = !context.HasError();
                 return new MediatorResponse<TResult>(success, context.Results);
             }
             catch (Exception e)
@@ -108,11 +112,17 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context);
-            if (!context.Results.Any(r => r is TResult))
+            //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
+            if (context.Status == ExecutionStatus.NoHandlerFound)
+            {
+                throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+            }
+            var success = context.Status == ExecutionStatus.Succeeded;
+            if (success && !context.Results.Any(r => r is TResult))
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
-            if (context.HasError())
+            if (!success)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
@@ -122,7 +132,7 @@ namespace Pipaslot.Mediator
                 .FirstOrDefault();
             if (result == null)
             {
-                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
+                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
             }
             return result;
         }

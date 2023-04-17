@@ -1,20 +1,24 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 using System;
 
 namespace Pipaslot.Mediator
 {
+    /// <summary>
+    /// General mediator exception
+    /// </summary>
     public class MediatorException : Exception
     {
         internal static string FormatDataKey(int number)
         {
             return $"Error:{number}";
         }
+
         public MediatorException(string message) : base(message)
         {
         }
 
-        public static MediatorException CreateForNoHandler(Type? type)
+        [Obsolete("User MediatorExcetuionException.CreateForNoHandler instead")]
+        public static MediatorException CreateForNoHandler2(Type? type)
         {
             return new MediatorException("No handler was found for " + type);
         }

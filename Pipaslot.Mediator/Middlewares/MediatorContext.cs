@@ -99,6 +99,7 @@ namespace Pipaslot.Mediator.Middlewares
             AddResults(response.Results);
         }
 
+        [Obsolete("Use Status != ExecutionStatus.Succeeded")]
         public bool HasError()
         {
             return Status == ExecutionStatus.Failed;
