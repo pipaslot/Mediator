@@ -133,7 +133,7 @@ namespace Pipaslot.Mediator
                 .FirstOrDefault();
             if (result == null)
             {
-                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from pipeline", context);
+                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
             }
             return result;
         }
