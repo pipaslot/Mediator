@@ -4,6 +4,9 @@ using System;
 
 namespace Pipaslot.Mediator
 {
+    /// <summary>
+    /// General mediator exception
+    /// </summary>
     public class MediatorException : Exception
     {
         internal static string FormatDataKey(int number)
