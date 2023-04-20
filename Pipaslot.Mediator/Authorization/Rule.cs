@@ -92,7 +92,7 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
         /// <returns>Returns Allow if the condition is true, otherwise returns Ignored</returns>
         public static Rule AllowIf(bool condition, string reason = "")
         {
@@ -105,7 +105,7 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
         /// <returns>Returns Deny if the condition is true, otherwise returns Ignored</returns>
         public static Rule DenyIf(bool condition, string reason = "")
         {
@@ -118,7 +118,7 @@ namespace Pipaslot.Mediator.Authorization
         /// Create Rule/Policy depending on application state
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="reason">Reason applied when condition is TRUE</param>
+        /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
         /// <returns>Returns Unavailable if the condition is true, otherwise returns Ignored</returns>
         public static Rule UnavailableIf(bool condition, string reason = "")
         {
@@ -131,8 +131,8 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="allowReason">Reason applied when condition is TRUE</param>
-        /// <param name="denyReason">Reason applied when condition is FALSE</param>
+        /// <param name="allowReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
+        /// <param name="denyReason">Reason applied when condition is FALSE.</param>
         /// <returns>Returns Allow if the condition is true, otherwise returns Deny</returns>
         public static Rule AllowOrDeny(bool condition, string allowReason = "", string denyReason = "")
         {
@@ -145,8 +145,8 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="denyReason">Reason applied when condition is TRUE</param>
-        /// <param name="allowReason">Reason applied when condition is FALSE</param>
+        /// <param name="denyReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
+        /// <param name="allowReason">Reason applied when condition is FALSE.</param>
         /// <returns>Returns Deny if the condition is true, otherwise returns Allow</returns>
         public static Rule DenyOrAllow(bool condition, string denyReason = "", string allowReason = "")
         {
@@ -159,8 +159,8 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="denyReason">Reason applied when condition is FALSE</param>
-        /// <param name="allowReason">Reason applied when condition is TRUE</param>
+        /// <param name="denyReason">Reason applied when condition is FALSE.</param>
+        /// <param name="allowReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
         /// <returns>Rule with Allow or Deny outcome</returns>
         [Obsolete]
         public static Rule Allow(bool condition, string denyReason = "", string allowReason = "")
@@ -174,7 +174,7 @@ namespace Pipaslot.Mediator.Authorization
         /// Create a rule/policy depending on the state of the application and provide feedback to the user
         /// </summary>
         /// <param name="condition">Condition</param>
-        /// <param name="denyReason">Reason applied when condition is TRUE</param>
+        /// <param name="denyReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
         /// <returns>Rule with Deny or ignored outcome</returns>
         [Obsolete]
         public static Rule Deny(bool condition, string denyReason = "")
