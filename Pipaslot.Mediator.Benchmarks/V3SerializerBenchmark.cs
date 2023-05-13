@@ -17,7 +17,8 @@ namespace Pipaslot.Mediator.Benchmarks
         {
             _result = new DataResult(5000);
             var credibleProviderMock = new FakeProvider();
-            _V3Serializer = new JsonContractSerializer(credibleProviderMock);
+            var options = new ClientMediatorOptions();
+            _V3Serializer = new JsonContractSerializer(credibleProviderMock, options);
             _V2Serializer = new FullJsonContractSerializer(credibleProviderMock);
             _options = new JsonSerializerOptions()
             {

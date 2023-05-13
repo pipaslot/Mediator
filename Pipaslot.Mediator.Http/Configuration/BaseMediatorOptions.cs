@@ -6,13 +6,6 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
-    /// <summary>
-    /// Options configured and availabl as singleton instance
-    /// </summary>
-    public interface IMediatorOptions
-    {
-        public bool IgnoreReadOnlyProperties { get; }
-    }
 
     public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
     {
@@ -27,9 +20,7 @@ namespace Pipaslot.Mediator.Http.Configuration
             }
         }
 
-        /// <summary>
-        /// Configure the serializer to ignore read only properties. This may break deserialization for objects with constructor initializing the properties via private setters.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IgnoreReadOnlyProperties { get; set; }
 
         /// <summary>
