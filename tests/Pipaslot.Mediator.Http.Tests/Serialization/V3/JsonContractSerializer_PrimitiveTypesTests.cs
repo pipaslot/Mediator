@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Http.Configuration;
+﻿using Moq;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 
@@ -8,7 +9,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
     {
         protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
         {
-            return new JsonContractSerializer(provider);
+            var optionsMock = new Mock<IMediatorOptions>();
+            return new JsonContractSerializer(provider, optionsMock.Object);
         }
     }
     }

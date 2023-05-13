@@ -14,10 +14,11 @@ namespace Pipaslot.Mediator.Http.Serialization.V3
             PropertyNamingPolicy = null
         };
 
-        public JsonContractSerializer(ICredibleProvider credibleProvider)
+        public JsonContractSerializer(ICredibleProvider credibleProvider, IMediatorOptions mediatorOptions)
         {
             _serializationOptions = new()
-            {
+            {                
+                IgnoreReadOnlyProperties = mediatorOptions.IgnoreReadOnlyProperties,
                 PropertyNamingPolicy = null,
                 Converters =
                 {

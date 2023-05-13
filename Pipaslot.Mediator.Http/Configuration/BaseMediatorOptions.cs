@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,15 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration
 {
-    public class BaseMediatorOptions<TBuilder> where TBuilder : BaseMediatorOptions<TBuilder>
+    /// <summary>
+    /// Options configured and availabl as singleton instance
+    /// </summary>
+    public interface IMediatorOptions
+    {
+        public bool IgnoreReadOnlyProperties { get; }
+    }
+
+    public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
     {
         private string _endpoint = MediatorConstants.Endpoint;
 
@@ -19,6 +26,11 @@ namespace Pipaslot.Mediator.Http.Configuration
                 _endpoint = notNulValue.StartsWith("/") ? notNulValue : $"/{notNulValue}";
             }
         }
+
+        /// <summary>
+        /// Configure the serializer to ignore read only properties. This may break deserialization for objects with constructor initializing the properties via private setters.
+        /// </summary>
+        public bool IgnoreReadOnlyProperties { get; set; }
 
         /// <summary>
         /// Protect deserialization process by check whether target type is credible. 

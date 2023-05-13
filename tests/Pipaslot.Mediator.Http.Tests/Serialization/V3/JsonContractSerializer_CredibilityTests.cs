@@ -11,7 +11,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
     {
         protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
         {
-            return new JsonContractSerializer(provider);
+            var optionsMock = new Mock<IMediatorOptions>();
+            return new JsonContractSerializer(provider, optionsMock.Object);
         }
 
         [Fact]

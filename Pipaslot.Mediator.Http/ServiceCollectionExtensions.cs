@@ -48,6 +48,7 @@ namespace Pipaslot.Mediator.Http
             var options = new ClientMediatorOptions();
             configure(options);
             services.AddSingleton(options);
+            services.AddSingleton((IMediatorOptions)options);
             if (options.DeserializeOnlyCredibleResultTypes)
             {
                 services.AddSingleton<ICredibleProvider>(s =>
@@ -95,6 +96,7 @@ namespace Pipaslot.Mediator.Http
             var options = new ServerMediatorOptions();
             configure(options);
             services.AddSingleton(options);
+            services.AddSingleton((IMediatorOptions)options);
             if (options.DeserializeOnlyCredibleActionTypes)
             {
                 services.AddSingleton<ICredibleProvider>(s =>

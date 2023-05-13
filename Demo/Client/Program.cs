@@ -20,6 +20,7 @@ services.AddScoped<AuthenticationStateProvider, AuthService>(provider => provide
 services.AddMediatorClient(o =>
 {
     o.Endpoint = Constants.CustomMediatorUrl;
+    o.IgnoreReadOnlyProperties = true;
     o.SerializerType = SerializerType.V3;
     o.AddCredibleResultType<CommonResult>();
 })

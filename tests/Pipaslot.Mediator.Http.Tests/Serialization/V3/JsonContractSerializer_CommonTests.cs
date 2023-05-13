@@ -1,6 +1,4 @@
 ﻿using Moq;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
@@ -33,7 +31,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
 
             Assert.True(Match(deserialized.Result));
-        }       
+        }
 
         public class MessageWithInterfaceProperty : IMessage
         {
@@ -65,7 +63,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
         protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
         {
-            return new JsonContractSerializer(provider);
+            var optionsMock = new Mock<IMediatorOptions>();
+            return new JsonContractSerializer(provider, optionsMock.Object);
         }
     }
 }
