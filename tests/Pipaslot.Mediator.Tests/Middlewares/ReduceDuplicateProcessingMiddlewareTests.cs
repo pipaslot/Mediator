@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunSingleAction_ShouldRunOnce()
         {
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });
@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunTheSameInstanceActionTwice_ShouldRunOnce()
         {
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         public async void RunDuplicateTheSameTypeAction_ShouldRuntTwice()
         {
             var action = new FakeAction() { Value = 1 };
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });
@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
         {
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });
@@ -69,7 +69,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
         {
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });
@@ -86,7 +86,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
         [Fact]
         public async void RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
         {
-            var mediator = Factory.CreateMediator(s =>
+            var mediator = Factory.CreateConfiguredMediator(s =>
             {
                 s.Use<ReduceDuplicateProcessingMiddleware>();
             });

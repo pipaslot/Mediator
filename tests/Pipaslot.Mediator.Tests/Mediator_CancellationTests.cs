@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task Execute_TaskCancelled_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(s => s.Use<TaskCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.False(result.Success);
             Assert.Equal(new TaskCanceledException().Message, result.GetErrorMessage());
@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task Execute_OperationCancelled_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(s => s.Use<OperationCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.False(result.Success);
             Assert.Equal(new OperationCanceledException().Message, result.GetErrorMessage());
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task ExecuteUnhandled_TaskCancelled_ReturnsResult()
         {
-            var sut = Factory.CreateMediator(s => s.Use<TaskCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
             {
                 await sut.ExecuteUnhandled(new SingleHandler.Request(true));
@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task ExecuteUnhandled_OperationCancelled_ReturnsResult()
         {
-            var sut = Factory.CreateMediator(s => s.Use<OperationCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
             await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             {
                 await sut.ExecuteUnhandled(new SingleHandler.Request(true));
@@ -59,7 +59,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task Dispatch_TaskCancelled_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(s => s.Use<TaskCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
             var result = await sut.Dispatch(new SingleHandler.Message(true));
             Assert.False(result.Success);
             Assert.Equal(new TaskCanceledException().Message, result.GetErrorMessage());
@@ -68,7 +68,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task Dispatch_OperationCancelled_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(s => s.Use<OperationCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
             var result = await sut.Dispatch(new SingleHandler.Message(true));
             Assert.False(result.Success);
             Assert.Equal(new OperationCanceledException().Message, result.GetErrorMessage());
@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task DispatchUnhandled_TaskCancelled_ReturnsResult()
         {
-            var sut = Factory.CreateMediator(s => s.Use<TaskCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
             {
                 await sut.DispatchUnhandled(new SingleHandler.Message(true));
@@ -92,7 +92,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task DispatchUnhandled_OperationCancelled_ReturnsResult()
         {
-            var sut = Factory.CreateMediator(s => s.Use<OperationCancelledMediatorException>());
+            var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
             await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             {
                 await sut.DispatchUnhandled(new SingleHandler.Message(true));

@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.False(result.Success);
             Assert.Equal(Error, result.GetErrorMessage());
@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task ExecuteUnhandled_ThrowException()
         {
-            var sut = Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
             var action = new SingleHandler.Request(true);
             var ex = await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
             {
@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatch_SuccessAsFalse()
         {
-            var sut = Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
             var result = await sut.Dispatch(new SingleHandler.Message(true));
             Assert.False(result.Success);
             Assert.Equal(Error, result.GetErrorMessage());
@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatchnhandled_ThrowException()
         {
-            var sut = Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
             var action = new SingleHandler.Message(true);
             var ex = await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
             {
