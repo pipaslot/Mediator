@@ -17,6 +17,7 @@ namespace Pipaslot.Mediator.Http
         /// <param name="checkExistingPolicies">Check that every action or action handler has at least one Authorization policy to prevent runtime exceptions</param>
         public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers = false, bool checkExistingPolicies = false)
         {
+            ClearTemporaryConfigurationData();
             RegisterMiddleware(app);
             ExecuteChecker(app, new ExistenceCheckerSetting
             {
@@ -34,6 +35,7 @@ namespace Pipaslot.Mediator.Http
         /// <param name="ignoredPolicyCheckTypes">If set, check that every action or action handler has at least one Authorization policy to prevent runtime exceptions. All the specified types will be ignored during the check.</param>
         public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers, params Type[] ignoredPolicyCheckTypes)
         {
+            ClearTemporaryConfigurationData();
             RegisterMiddleware(app);
             ExecuteChecker(app, new ExistenceCheckerSetting
             {
@@ -42,6 +44,13 @@ namespace Pipaslot.Mediator.Http
                 IgnoredPolicyChecks = new HashSet<Type>(ignoredPolicyCheckTypes)
             });
             return app;
+        }
+        /// <summary>
+        /// Clear data applicable only during mediator configuration. They does not need to be held during runetime.
+        /// </summary>
+        private static void ClearTemporaryConfigurationData()
+        {
+            ServiceProviderExtensions.RegisteredHandlers.Clear();
         }
 
         private static void RegisterMiddleware(IApplicationBuilder app)

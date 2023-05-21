@@ -9,6 +9,10 @@ namespace Pipaslot.Mediator
     public static class ServiceProviderExtensions
     {
         /// <summary>
+        /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
+        /// </summary>
+        internal static Dictionary<Type, ServiceLifetime> RegisteredHandlers = new Dictionary<Type, ServiceLifetime>();
+        /// <summary>
         /// Resolve all action handlers
         /// </summary>
         public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
@@ -79,6 +83,17 @@ namespace Pipaslot.Mediator
                 });
             foreach (var pair in types)
             {
+                if (RegisteredHandlers.TryGetValue(pair.Type, out var existingLifetime))
+                {
+                    if (existingLifetime != serviceLifetime)
+                    {
+                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, existingLifetime, serviceLifetime);
+                    }
+                }
+                else
+                {
+                    RegisteredHandlers[pair.Type] = serviceLifetime;
+                }
                 foreach (var iface in pair.Interfaces)
                 {
                     var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
