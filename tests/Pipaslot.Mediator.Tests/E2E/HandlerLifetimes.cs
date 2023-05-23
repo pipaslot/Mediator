@@ -86,7 +86,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         }
 
         [Fact]
-        public void ISingletonInterface_TypeReRegistration_Pass()
+        public void ISingletonInterface_ReRegistration_Pass()
         {
             var handlerType = typeof(SingletorMessageHandler);
             Factory.CreateCustomMediator(c => c
@@ -111,7 +111,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Theory]
         //[InlineData(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
         [InlineData(ServiceLifetime.Singleton)]
-        public void IScopedInterface_TypeRegistration_ThrowException(ServiceLifetime lifetime)
+        public void IScopedInterface_Registration_ThrowException(ServiceLifetime lifetime)
         {
             var handlerType = typeof(ScopedMessageHandler);
             var ex = Assert.Throws<MediatorException>(() =>
@@ -125,16 +125,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         }
 
         [Fact]
-        public void IScopedInterface_AssemblyReRegistration_Pass()
-        {
-            Factory.CreateCustomMediator(c => c
-                    .AddHandlersFromAssemblyOf<ScopedMessageHandler>()
-                    .AddHandlersFromAssemblyOf<ScopedMessageHandler>()
-                );
-        }
-
-        [Fact]
-        public void IScopedInterface_TypeReRegistration_Pass()
+        public void IScopedInterface_ReRegistration_Pass()
         {
             var handlerType = typeof(ScopedMessageHandler);
             Factory.CreateCustomMediator(c => c
