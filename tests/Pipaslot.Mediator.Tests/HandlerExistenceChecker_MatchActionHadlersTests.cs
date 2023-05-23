@@ -73,7 +73,7 @@ namespace Pipaslot.Mediator.Tests
             var collection = new ServiceCollection();
             collection.AddLogging();
             collection.AddMediator();
-            collection.RegisterHandlers(handlers, ServiceLifetime.Scoped);
+            collection.RegisterHandlers(handlers);
             collection.AddSingleton<IActionTypeProvider>(new FakeActionTypeProvider(subject));
             var sp = collection.BuildServiceProvider();
             return sp.GetService<IHandlerExistenceChecker>();

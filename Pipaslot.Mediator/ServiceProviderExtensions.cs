@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
         /// </summary>
-        internal static Dictionary<Type, ServiceLifetime> RegisteredHandlers = new Dictionary<Type, ServiceLifetime>();
+        internal static ConcurrentDictionary<Type, ServiceLifetime> RegisteredHandlers = new ();
         /// <summary>
         /// Resolve all action handlers
         /// </summary>
