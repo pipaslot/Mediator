@@ -50,7 +50,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         private static void ClearTemporaryConfigurationData()
         {
-            ServiceProviderExtensions.RegisteredHandlers.Clear();
+            ServiceProviderExtensions.RegisteredHandlers.Value?.Clear();
         }
 
         private static void RegisterMiddleware(IApplicationBuilder app)

@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Tests
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
-            collection.RegisterHandlers(handlers, ServiceLifetime.Transient);
+            collection.RegisterHandlers(handlers);
             return collection.BuildServiceProvider();
         }
 

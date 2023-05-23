@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Pipaslot.Mediator
 {
@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator
         /// <summary>
         /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
         /// </summary>
-        internal static ConcurrentDictionary<Type, ServiceLifetime> RegisteredHandlers = new ();
+        internal static AsyncLocal<Dictionary<Type, ServiceLifetime>> RegisteredHandlers = new ();
         /// <summary>
         /// Resolve all action handlers
         /// </summary>
@@ -73,31 +73,53 @@ namespace Pipaslot.Mediator
                 typeof(IMediatorHandler<,>),
                 typeof(IMediatorHandler<>)
             };
+            var singletonType = typeof(ISingleton);
+            var scopedType = typeof(IScoped);
             var types = allTypes
                 .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
-                .Select(t => new
+                .Select(t =>
                 {
-                    Type = t,
-                    Interfaces = t.GetInterfaces()
-                        .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
-                });
+                    var interfaces = t.GetInterfaces();
+                    return new
+                    {
+                        Type = t,
+                        AllInterfaces = interfaces,
+                        Interfaces = interfaces
+                            .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
+                            .ToArray(),
+                        Lifetime = interfaces.Contains(singletonType)
+                            ? ServiceLifetime.Singleton
+                            : interfaces.Contains(scopedType)
+                                ? ServiceLifetime.Scoped
+                                : serviceLifetime
+                    };
+                })
+                .Where(t => t.Interfaces.Any());
+            var registered = RegisteredHandlers.Value ??= new Dictionary<Type, ServiceLifetime> ();
             foreach (var pair in types)
             {
-                if (RegisteredHandlers.TryGetValue(pair.Type, out var existingLifetime))
+                if(pair.Lifetime != serviceLifetime)
                 {
-                    if (existingLifetime != serviceLifetime)
+                    // Only throw when not the default one
+                    // TODO We should consider to change the serviceLifetime type to nullable and do the same also on interfaces in next major version
+                    if(serviceLifetime != ServiceLifetime.Transient) { 
+                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, serviceLifetime);
+                    }
+                }
+                if (registered.TryGetValue(pair.Type, out var existingLifetime))
+                {
+                    if (existingLifetime != pair.Lifetime)
                     {
-                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, existingLifetime, serviceLifetime);
+                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, existingLifetime, pair.Lifetime);
                     }
                 }
                 else
                 {
-                    RegisteredHandlers[pair.Type] = serviceLifetime;
+                    registered[pair.Type] = pair.Lifetime;
                 }
                 foreach (var iface in pair.Interfaces)
                 {
-                    var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
+                    var item = new ServiceDescriptor(iface, pair.Type, pair.Lifetime);
                     services.Add(item);
                 }
             }

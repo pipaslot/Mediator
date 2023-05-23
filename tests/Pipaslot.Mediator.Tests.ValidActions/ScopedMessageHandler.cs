@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Pipaslot.Mediator.Tests.ValidActions
 {
-    public class ScopedMessageHandler : IMessageHandler<ScopedMessage>, ISingleton
+    public class ScopedMessageHandler : IMessageHandler<ScopedMessage>, IScoped
     {
         public static HashSet<ScopedMessageHandler> Instances = new HashSet<ScopedMessageHandler>();
         public Task Handle(ScopedMessage action, CancellationToken cancellationToken)
