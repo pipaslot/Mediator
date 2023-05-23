@@ -14,7 +14,10 @@ namespace Pipaslot.Mediator
         {
             var name = string.Join("-", actionTypes.Select(t => t.ToString()));
             return configurator.AddPipeline(action =>
-                actionTypes.Any(mt => mt.IsAssignableFrom(action.GetType())),
+            {
+                var actionType = action.GetType();
+                return actionTypes.Any(mt => mt.IsAssignableFrom(actionType));
+            },
                 subMiddlewares,
                 name);
         }
