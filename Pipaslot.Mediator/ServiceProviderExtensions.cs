@@ -7,7 +7,7 @@ using System.Linq;
 namespace Pipaslot.Mediator
 {
     public static class ServiceProviderExtensions
-    {
+    {        
         /// <summary>
         /// Resolve all action handlers
         /// </summary>
@@ -61,27 +61,59 @@ namespace Pipaslot.Mediator
                 .ToArray();
         }
 
-        internal static void RegisterHandlers(this IServiceCollection services, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        internal static void RegisterHandlers(this IServiceCollection services, Dictionary<Type, ServiceLifetime> registeredHandler, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var handlerTypes = new[]
             {
                 typeof(IMediatorHandler<,>),
                 typeof(IMediatorHandler<>)
             };
+            var singletonType = typeof(ISingleton);
+            var scopedType = typeof(IScoped);
             var types = allTypes
                 .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition())))
-                .Select(t => new
+                .Select(t =>
                 {
-                    Type = t,
-                    Interfaces = t.GetInterfaces()
-                        .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
-                });
+                    var interfaces = t.GetInterfaces();
+                    return new
+                    {
+                        Type = t,
+                        AllInterfaces = interfaces,
+                        Interfaces = interfaces
+                            .Where(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()))
+                            .ToArray(),
+                        Lifetime = interfaces.Contains(singletonType)
+                            ? ServiceLifetime.Singleton
+                            : interfaces.Contains(scopedType)
+                                ? ServiceLifetime.Scoped
+                                : serviceLifetime
+                    };
+                })
+                .Where(t => t.Interfaces.Any());
             foreach (var pair in types)
             {
+                if(pair.Lifetime != serviceLifetime)
+                {
+                    // Only throw when not the default one
+                    // TODO We should consider to change the serviceLifetime type to nullable and do the same also on interfaces in next major version
+                    if(serviceLifetime != ServiceLifetime.Transient) { 
+                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, serviceLifetime);
+                    }
+                }
+                if (registeredHandler.TryGetValue(pair.Type, out var existingLifetime))
+                {
+                    if (existingLifetime != pair.Lifetime)
+                    {
+                        throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, existingLifetime, pair.Lifetime);
+                    }
+                }
+                else
+                {
+                    registeredHandler[pair.Type] = pair.Lifetime;
+                }
                 foreach (var iface in pair.Interfaces)
                 {
-                    var item = new ServiceDescriptor(iface, pair.Type, serviceLifetime);
+                    var item = new ServiceDescriptor(iface, pair.Type, pair.Lifetime);
                     services.Add(item);
                 }
             }

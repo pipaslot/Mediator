@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_SuccessAsTrue()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.True(result.Success);
         }
@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_EmptyErrorMessage()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.Equal(string.Empty, result.GetErrorMessage());
         }
@@ -24,7 +24,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_ResultReturnsDataFromHandler()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.Execute(new SingleHandler.Request(true));
             Assert.Equal(SingleHandler.Response.Instance, result.Result);
         }
@@ -32,7 +32,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task ExecuteUnhandled_ReturnsResult()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.ExecuteUnhandled(new SingleHandler.Request(true));
             Assert.Equal(SingleHandler.Response.Instance, result);
         }
@@ -40,7 +40,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatch_SuccessAsTrue()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.Dispatch(new SingleHandler.Message(true));
             Assert.True(result.Success);
         }
@@ -48,7 +48,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatch_EmptyErrorMessage()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var result = await sut.Dispatch(new SingleHandler.Message(true));
             Assert.Equal(string.Empty, result.GetErrorMessage());
         }
@@ -56,7 +56,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task DispatchUnhandled_NoAction()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             await sut.DispatchUnhandled(new SingleHandler.Message(true));
         }
     }

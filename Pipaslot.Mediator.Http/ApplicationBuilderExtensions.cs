@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
@@ -17,6 +18,7 @@ namespace Pipaslot.Mediator.Http
         /// <param name="checkExistingPolicies">Check that every action or action handler has at least one Authorization policy to prevent runtime exceptions</param>
         public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers = false, bool checkExistingPolicies = false)
         {
+            ClearTemporaryConfigurationData(app);
             RegisterMiddleware(app);
             ExecuteChecker(app, new ExistenceCheckerSetting
             {
@@ -34,6 +36,7 @@ namespace Pipaslot.Mediator.Http
         /// <param name="ignoredPolicyCheckTypes">If set, check that every action or action handler has at least one Authorization policy to prevent runtime exceptions. All the specified types will be ignored during the check.</param>
         public static IApplicationBuilder UseMediator(this IApplicationBuilder app, bool checkMatchingHandlers, params Type[] ignoredPolicyCheckTypes)
         {
+            ClearTemporaryConfigurationData(app);
             RegisterMiddleware(app);
             ExecuteChecker(app, new ExistenceCheckerSetting
             {
@@ -42,6 +45,14 @@ namespace Pipaslot.Mediator.Http
                 IgnoredPolicyChecks = new HashSet<Type>(ignoredPolicyCheckTypes)
             });
             return app;
+        }
+        /// <summary>
+        /// Clear data applicable only during mediator configuration. They does not need to be held during runetime.
+        /// </summary>
+        private static void ClearTemporaryConfigurationData(IApplicationBuilder app)
+        {
+            var conf = app.ApplicationServices.GetRequiredService<MediatorConfigurator>();
+            conf.ClearTempData();
         }
 
         private static void RegisterMiddleware(IApplicationBuilder app)

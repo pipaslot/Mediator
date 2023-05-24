@@ -2,7 +2,6 @@
 using Demo.Server.Handlers.Auth;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
-using Demo.Shared.Playground;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;

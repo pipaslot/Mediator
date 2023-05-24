@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task PreviousMiddlewareEndsProcessing_TestedMiddlewareWontBeConstructed()
         {
-            var sut = Factory.CreateMediator(m =>
+            var sut = Factory.CreateConfiguredMediator(m =>
             {
                 m
                 .Use<BlockingMiddleware>()

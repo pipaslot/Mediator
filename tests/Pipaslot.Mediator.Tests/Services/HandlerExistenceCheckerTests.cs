@@ -3,8 +3,6 @@ using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Linq;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Services
 {
