@@ -15,11 +15,20 @@ namespace Pipaslot.Mediator.Configuration
         private List<Type> _actionMarkerTypes = new();
         private MiddlewareCollection _middlewares;
         private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
+        /// <summary>
+        /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
+        /// </summary>
+        private Dictionary<Type, ServiceLifetime> _registeredHandlers = new();
 
         public MediatorConfigurator(IServiceCollection services)
         {
             Services = services;
             _middlewares = new MiddlewareCollection(services);
+        }
+
+        public void ClearTempData()
+        {
+            _registeredHandlers.Clear();
         }
 
         public IMediatorConfigurator AddActions(IEnumerable<Type> actionTypes)
@@ -74,7 +83,7 @@ namespace Pipaslot.Mediator.Configuration
                     throw MediatorException.CreateForNoHandlerType(handlerType);
                 }
             }
-            Services.RegisterHandlers(handlers, serviceLifetime);
+            Services.RegisterHandlers(_registeredHandlers, handlers, serviceLifetime);
             return this;
         }
 
@@ -91,7 +100,7 @@ namespace Pipaslot.Mediator.Configuration
         private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var types = assemblies.SelectMany(a => a.GetTypes());
-            Services.RegisterHandlers(types, serviceLifetime);
+            Services.RegisterHandlers(_registeredHandlers, types, serviceLifetime);
             return this;
         }
 

@@ -3,16 +3,11 @@ using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace Pipaslot.Mediator
 {
     public static class ServiceProviderExtensions
-    {
-        /// <summary>
-        /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
-        /// </summary>
-        internal static AsyncLocal<Dictionary<Type, ServiceLifetime>> RegisteredHandlers = new ();
+    {        
         /// <summary>
         /// Resolve all action handlers
         /// </summary>
@@ -66,7 +61,7 @@ namespace Pipaslot.Mediator
                 .ToArray();
         }
 
-        internal static void RegisterHandlers(this IServiceCollection services, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        internal static void RegisterHandlers(this IServiceCollection services, Dictionary<Type, ServiceLifetime> registeredHandler, IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             var handlerTypes = new[]
             {
@@ -95,7 +90,6 @@ namespace Pipaslot.Mediator
                     };
                 })
                 .Where(t => t.Interfaces.Any());
-            var registered = RegisteredHandlers.Value ??= new Dictionary<Type, ServiceLifetime> ();
             foreach (var pair in types)
             {
                 if(pair.Lifetime != serviceLifetime)
@@ -106,7 +100,7 @@ namespace Pipaslot.Mediator
                         throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, serviceLifetime);
                     }
                 }
-                if (registered.TryGetValue(pair.Type, out var existingLifetime))
+                if (registeredHandler.TryGetValue(pair.Type, out var existingLifetime))
                 {
                     if (existingLifetime != pair.Lifetime)
                     {
@@ -115,7 +109,7 @@ namespace Pipaslot.Mediator
                 }
                 else
                 {
-                    registered[pair.Type] = pair.Lifetime;
+                    registeredHandler[pair.Type] = pair.Lifetime;
                 }
                 foreach (var iface in pair.Interfaces)
                 {

@@ -5,6 +5,7 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -84,7 +85,7 @@ namespace Pipaslot.Mediator.Tests
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
-            collection.RegisterHandlers(handlers);
+            collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(),handlers);
             return collection.BuildServiceProvider();
         }
 
