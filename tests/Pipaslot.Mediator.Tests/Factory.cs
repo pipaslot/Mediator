@@ -5,20 +5,20 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Pipaslot.Mediator.Tests
 {
     internal class Factory
     {
-        public static IMediator CreateMediator()
+        public static IMediator CreateConfiguredMediator()
         {
-            return CreateMediator(c => { });
+            return CreateConfiguredMediator(c => { });
         }
 
-        public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
+        public static IMediator CreateConfiguredMediator(Action<IMediatorConfigurator> setup)
         {
             var services = CreateServiceProvider(c =>
             {
@@ -85,7 +85,7 @@ namespace Pipaslot.Mediator.Tests
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
-            collection.RegisterHandlers(handlers, ServiceLifetime.Scoped);
+            collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(),handlers);
             return collection.BuildServiceProvider();
         }
 

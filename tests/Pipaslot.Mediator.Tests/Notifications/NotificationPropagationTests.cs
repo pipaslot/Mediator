@@ -16,7 +16,7 @@ namespace Pipaslot.Mediator.Tests.Notifications
         [Fact]
         public async Task GetNotificationFromRootHandler()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var res = await sut.Dispatch(new NotifyingAction());
             var hasNotification = res.Results.Any(r => r is Notification n && n.Content == NotificationContent);
             Assert.True(hasNotification);
@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator.Tests.Notifications
         [Fact]
         public async Task GetNotificationFromNestedHandler()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var res = await sut.Dispatch(new CallNotifyingAction());
             var hasNotification = res.Results.Any(r => r is Notification n && n.Content == NotificationContent);
             Assert.True(hasNotification);

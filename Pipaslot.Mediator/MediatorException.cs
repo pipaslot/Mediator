@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using System;
 
 namespace Pipaslot.Mediator
@@ -72,6 +73,11 @@ namespace Pipaslot.Mediator
         public static MediatorException CreateForForbidenDirectCall()
         {
             return new MediatorException($"Executed action can not be executed directly. It is expected to be used as nested call only (inside another handler or middleware).");
+        }
+
+        public static MediatorException CreateForWrongHandlerServiceLifetime(Type handlerType, ServiceLifetime expected, ServiceLifetime actual)
+        {
+            return new MediatorException($"Handler type {handlerType} can be registered only with '{expected}' ServiceLifetime but was registered as '{actual}'.");
         }
     }
 }

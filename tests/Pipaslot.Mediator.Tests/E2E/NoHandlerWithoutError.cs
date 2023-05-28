@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_FailedWithoutError()
         {
-            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
             var action = new BlockedRequest();
             var result = await sut.Execute(action);
             Assert.False(result.Success);
@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task ExecuteUnhandled_FailedWithoutError()
         {
-            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
             var action = new BlockedRequest();
             var ex =
                 await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
@@ -36,7 +36,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatch_FailedWithoutError()
         {
-            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
             var action = new BlockedRequest();
             var result = await sut.Dispatch(action);
             Assert.False(result.Success);
@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task DispatchUnhandled_Exception()
         {
-            var sut = Factory.CreateMediator(c => c.Use<BlockRequestMilldeware>());
+            var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
             var action = new BlockedRequest();
             var ex =
                 await Assert.ThrowsAsync<MediatorExecutionException>(async () =>

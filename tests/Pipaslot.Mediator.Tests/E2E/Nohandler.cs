@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Execute_ReturnFailureBecauseNotResultWasFound()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var action = new RequestWithoutHandler();
             var result = await sut.Execute(action);
             Assert.False(result.Success);
@@ -19,7 +19,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task ExecuteUnhandled_ThrowMissingResultException()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var action = new RequestWithoutHandler();
             var ex =
                 await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
@@ -33,7 +33,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task Dispatch_ReturnFailureBecauseNotHandlerWasExecuted()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var action = new MessageWithoutHandler();
             var result = await sut.Dispatch(action);
             Assert.False(result.Success);
@@ -43,7 +43,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         [Fact]
         public async Task DispatchUnhandled_ThrowNoHandlerException()
         {
-            var sut = Factory.CreateMediator();
+            var sut = Factory.CreateConfiguredMediator();
             var action = new RequestWithoutHandler();
             var ex =
                 await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
