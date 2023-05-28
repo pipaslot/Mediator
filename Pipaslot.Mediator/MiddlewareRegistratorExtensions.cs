@@ -6,6 +6,7 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using System;
+using System.Linq;
 
 namespace Pipaslot.Mediator
 {
@@ -19,6 +20,8 @@ namespace Pipaslot.Mediator
         {
             return configurator.UseWhen(condition, m => m.Use<TMiddleware>());
         }
+
+        #region UseWhenAction
 
         /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
@@ -37,6 +40,38 @@ namespace Pipaslot.Mediator
             return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
         }
 
+        #endregion
+
+        #region UseWhenActions
+
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2) }, subMiddlewares);
+        }
+
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2, TActionMarker3>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2), typeof(TActionMarker3) }, subMiddlewares);
+        }
+
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions implementing any actionMarker type
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenActions(this IMiddlewareRegistrator configurator, Type[] actionMarkers, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhen(action => actionMarkers.Any(t => t.IsAssignableFrom(action.GetType())), subMiddlewares);
+        }
+
+        #endregion
+
+        #region UseWhenNotAction
+
         /// <summary>
         /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
         /// </summary>
@@ -53,6 +88,8 @@ namespace Pipaslot.Mediator
         {
             return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()) == false, subMiddlewares);
         }
+
+        #endregion
 
         /// <summary>
         /// Execute handlers. No more middlewares will be executed.

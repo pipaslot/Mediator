@@ -47,6 +47,8 @@ namespace Pipaslot.Mediator.Http
             return config.Use<DirectHttpCallProtectionMiddleware>(ServiceLifetime.Scoped);
         }
 
+        #region UseWhenDirectHttpCall
+
         /// <summary>
         /// Use middleware when the provider action is first in line directly from HTTP.
         /// </summary>
@@ -64,6 +66,10 @@ namespace Pipaslot.Mediator.Http
             return config.UseWhen((a, s) => IsFromHttp(s), subMiddlewares);
         }
 
+        #endregion
+
+        #region UseWhenNotDirectHttpCall
+
         /// <summary>
         /// Use middleware when the provider action is first in line directly from HTTP.
         /// </summary>
@@ -80,6 +86,8 @@ namespace Pipaslot.Mediator.Http
         {
             return config.UseWhen((a, s) => IsFromHttp(s) == false, subMiddlewares);
         }
+
+        #endregion
 
         /// <summary>
         /// Use middlewares when the provider action is first in line directly from HTTP.
