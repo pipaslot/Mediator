@@ -38,6 +38,23 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
+        /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
+             where TMiddleware : IMediatorMiddleware
+        {
+            return configurator.UseWhenNotAction<TActionMarker>(m => m.Use<TMiddleware>());
+        }
+
+        /// <summary>
+        /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()) == false, subMiddlewares);
+        }
+
+        /// <summary>
         /// Execute handlers. No more middlewares will be executed.
         /// </summary>
         public static IMiddlewareRegistrator UseHandlerExecution(this IMiddlewareRegistrator config)

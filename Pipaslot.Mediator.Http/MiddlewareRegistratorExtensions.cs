@@ -53,7 +53,7 @@ namespace Pipaslot.Mediator.Http
         public static IMiddlewareRegistrator UseWhenDirectHttpCall<TMiddleware>(this IMiddlewareRegistrator config)
             where TMiddleware : IMediatorMiddleware
         {
-            return config.UseWhen((a, s) => IsFromHttp(s), m => m.Use<TMiddleware>());
+            return config.UseWhenDirectHttpCall(m => m.Use<TMiddleware>());
         }
 
         /// <summary>
@@ -62,6 +62,23 @@ namespace Pipaslot.Mediator.Http
         public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return config.UseWhen((a, s) => IsFromHttp(s), subMiddlewares);
+        }
+
+        /// <summary>
+        /// Use middleware when the provider action is first in line directly from HTTP.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenNotDirectHttpCall<TMiddleware>(this IMiddlewareRegistrator config)
+            where TMiddleware : IMediatorMiddleware
+        {
+            return config.UseWhenNotDirectHttpCall(m => m.Use<TMiddleware>());
+        }
+
+        /// <summary>
+        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// </summary>
+        public static IMiddlewareRegistrator UseWhenNotDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return config.UseWhen((a, s) => IsFromHttp(s) == false, subMiddlewares);
         }
 
         /// <summary>
