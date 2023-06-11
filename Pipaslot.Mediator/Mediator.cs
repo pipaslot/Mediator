@@ -129,11 +129,8 @@ namespace Pipaslot.Mediator
             var result = context.Results
                 .Where(r => r is TResult)
                 .Cast<TResult>()
-                .FirstOrDefault();
-            if (result == null)
-            {
-                throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
-            }
+                .FirstOrDefault()
+                ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
             return result;
         }
 

@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator.Http
             }
         }
 
-        private IMediator CreateMediator(HttpContext context)
+        private static IMediator CreateMediator(HttpContext context)
         {
             if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolver)
             {
@@ -81,7 +81,7 @@ namespace Pipaslot.Mediator.Http
             return resolver;
         }
 
-        private async Task<string> GetBody(HttpContext context)
+        private static async Task<string> GetBody(HttpContext context)
         {
             using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
             var body = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -92,7 +92,7 @@ namespace Pipaslot.Mediator.Http
             return body;
         }
 
-        private async Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
+        private static async Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
         {
             try
             {
@@ -107,11 +107,8 @@ namespace Pipaslot.Mediator.Http
 
         private async Task<IMediatorResponse> ExecuteRequest(IMediator mediator, object query, CancellationToken cancellationToken)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType());
-            if (resultType == null)
-            {
-                throw new MediatorHttpException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
-            }
+            var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType()) 
+                ?? throw new MediatorHttpException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
             var method = mediator.GetType()
                     .GetMethod(nameof(IMediator.Execute))!
                 .MakeGenericMethod(resultType);

@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
         }
 
-        private string Serialize(object? obj)
+        private static string Serialize(object? obj)
         {
             if (obj == null)
             {

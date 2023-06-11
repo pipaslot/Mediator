@@ -204,7 +204,7 @@ namespace Pipaslot.Mediator.Middlewares
             return anyIsConcurrent;
         }
 
-        private object[] Sort(object[] handlers)
+        private static object[] Sort(object[] handlers)
         {
             return handlers
                 .Select(h => new

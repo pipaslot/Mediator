@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator.Middlewares
             }
         }
 
-        private Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
+        private static Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
         {
             var contextCopy = context.CopyEmpty();
             Task<MediatorContext> task;
@@ -58,13 +58,13 @@ namespace Pipaslot.Mediator.Middlewares
             return task;
         }
 
-        private async Task<MediatorContext> Run(MediatorContext context, MiddlewareDelegate next)
+        private static async Task<MediatorContext> Run(MediatorContext context, MiddlewareDelegate next)
         {
             await next(context).ConfigureAwait(false);
             return context;
         }
 
-        private void Remove(Type actionType, int hashCode)
+        private static void Remove(Type actionType, int hashCode)
         {
             if (_running.TryGetValue(actionType, out var instances) && instances != null)
             {

@@ -8,18 +8,18 @@ namespace Pipaslot.Mediator.Benchmarks
 {
     public class SerializationBenchmark
     {
-        private DataResult _result;
-        private JsonContractSerializer _V3Serializer;
-        private FullJsonContractSerializer _V2Serializer;
-        private JsonSerializerOptions _options;
+        private readonly DataResult _result;
+        private readonly JsonContractSerializer _v3Serializer;
+        private readonly FullJsonContractSerializer _v2Serializer;
+        private readonly JsonSerializerOptions _options;
 
         public SerializationBenchmark()
         {
             _result = new DataResult(5000);
             var credibleProviderMock = new FakeProvider();
             var options = new ClientMediatorOptions();
-            _V3Serializer = new JsonContractSerializer(credibleProviderMock, options);
-            _V2Serializer = new FullJsonContractSerializer(credibleProviderMock);
+            _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
+            _v2Serializer = new FullJsonContractSerializer(credibleProviderMock);
             _options = new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = null
@@ -31,23 +31,23 @@ namespace Pipaslot.Mediator.Benchmarks
         {
             var resp = new FakeResponse { Success = true, Results = new object[] { _result } };
             var str = JsonSerializer.Serialize(resp, _options);
-            var des = JsonSerializer.Deserialize(str, typeof(FakeResponse), _options);
+            JsonSerializer.Deserialize(str, typeof(FakeResponse), _options);
         }
 
         [Benchmark]
         public void V2Serializer()
         {
             var resp = new MediatorResponse(true, new object[] { _result });
-            var str = _V2Serializer.SerializeResponse(resp);
-            var des = _V2Serializer.DeserializeResponse<DataResult>(str);
+            var str = _v2Serializer.SerializeResponse(resp);
+            _v2Serializer.DeserializeResponse<DataResult>(str);
         }
 
         [Benchmark]
         public void V3Serializer()
         {
             var resp = new MediatorResponse(true, new object[] { _result });
-            var str = _V3Serializer.SerializeResponse(resp);
-            var des = _V3Serializer.DeserializeResponse<DataResult>(str);
+            var str = _v3Serializer.SerializeResponse(resp);
+            _v3Serializer.DeserializeResponse<DataResult>(str);
         }
 
         private class FakeResponse

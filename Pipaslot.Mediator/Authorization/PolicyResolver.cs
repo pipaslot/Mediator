@@ -118,29 +118,20 @@ namespace Pipaslot.Mediator.Authorization
                     {
                         var method = handlerType.GetMethod(nameof(IHandlerAuthorization<IMediatorAction>.Authorize));
                         var methodResult = method!.Invoke(handler, new object[] { action })!;
-                        var policy = methodResult as IPolicy;
-                        if (policy == null)
-                        {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
-                        }
+                        var policy = methodResult as IPolicy 
+                            ?? throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         result.Add(policy);
                         isAuthorized = true;
                     }
                     if (interfaces.Any(i => i.GetGenericTypeDefinition() == asyncType))
                     {
                         var method = handlerType.GetMethod(nameof(IHandlerAuthorizationAsync<IMediatorAction>.AuthorizeAsync));
-                        var task = (Task?)method!.Invoke(handler, new object[] { action, cancellationToken })!;
-                        if (task == null)
-                        {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
-                        }
+                        var task = (Task?)method!.Invoke(handler, new object[] { action, cancellationToken })!
+                            ?? throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         await task.ConfigureAwait(false);
                         var resultProperty = task.GetType().GetProperty("Result");
-                        var taskResult = resultProperty?.GetValue(task) as IPolicy;
-                        if (taskResult == null)
-                        {
-                            throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
-                        }
+                        var taskResult = resultProperty?.GetValue(task) as IPolicy
+                            ?? throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                         result.Add(taskResult);
                         isAuthorized = true;
                     }
