@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator.Authorization
     {
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
-            var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken);
+            var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken).ConfigureAwait(false);
 
             var formatter = services.GetRequiredService<IRuleFormatter>();
             var aggregatedRule = ruleSet
@@ -33,8 +33,8 @@ namespace Pipaslot.Mediator.Authorization
 
         public static async Task<RuleSet> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
-            var policies = await GetPolicies(action, handlers, cancellationToken);
-            return await ConvertPoliciesToRules(policies, services, cancellationToken); ;
+            var policies = await GetPolicies(action, handlers, cancellationToken).ConfigureAwait(false);
+            return await ConvertPoliciesToRules(policies, services, cancellationToken).ConfigureAwait(false);
         }
 
         private static async Task<RuleSet> ConvertPoliciesToRules(ICollection<IPolicy> policies, IServiceProvider services, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator.Authorization
             var rules = new RuleSet(Operator.And);
             foreach (var policy in policies)
             {
-                var resolvedRules = await policy.Resolve(services, cancellationToken);
+                var resolvedRules = await policy.Resolve(services, cancellationToken).ConfigureAwait(false);
                 rules.RuleSets.Add(resolvedRules);
             }
             return rules;
@@ -54,7 +54,7 @@ namespace Pipaslot.Mediator.Authorization
             var actionPolicies = GetActionPolicies(action);
             result.AddRange(actionPolicies);
 
-            var handlerPolicies = await GetHandlerPolicies(action, handlers, cancellationToken);
+            var handlerPolicies = await GetHandlerPolicies(action, handlers, cancellationToken).ConfigureAwait(false);
             result.AddRange(handlerPolicies);
 
             return result;

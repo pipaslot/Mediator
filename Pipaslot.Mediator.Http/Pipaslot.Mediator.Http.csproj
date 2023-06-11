@@ -18,6 +18,10 @@
 		<LangVersion>11</LangVersion>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<WarningsAsErrors>$(WarningsAsErrors);NU1605;CAC001</WarningsAsErrors>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
 	</ItemGroup>
@@ -43,5 +47,12 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Pipaslot.Mediator.Benchmarks" />
 		<InternalsVisibleTo Include="Pipaslot.Mediator.Http.Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	</ItemGroup>
 </Project>

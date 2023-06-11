@@ -26,7 +26,7 @@ namespace Pipaslot.Mediator.Middlewares
 
             try
             {
-                var innerContext = await task;
+                var innerContext = await task.ConfigureAwait(false);
                 context.Append(innerContext);
             }
             finally
@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         private async Task<MediatorContext> Run(MediatorContext context, MiddlewareDelegate next)
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return context;
         }
 

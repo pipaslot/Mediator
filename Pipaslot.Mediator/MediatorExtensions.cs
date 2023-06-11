@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator
         /// <returns>Action result type or its defaut implementation</returns>
         public static async Task<TResult?> ExecuteOrDefault<TResult>(this IMediator mediator, IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(request, cancellationToken);
+            var response = await mediator.Execute(request, cancellationToken).ConfigureAwait(false);
             return response.Success ? response.Result : default;
         }
 
@@ -25,7 +25,7 @@ namespace Pipaslot.Mediator
         /// <returns>Action result type or default value</returns>
         public static async Task<TResult> ExecuteOrDefault<TResult>(this IMediator mediator, IMediatorAction<TResult> request, TResult defaultValue, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(request, cancellationToken);
+            var response = await mediator.Execute(request, cancellationToken).ConfigureAwait(false);
             return response.Success ? response.Result : defaultValue;
         }
 
@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator
         public static async Task<TResult> ExecuteOrNew<TResult>(this IMediator mediator, IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
             where TResult : new()
         {
-            var response = await mediator.Execute(request, cancellationToken);
+            var response = await mediator.Execute(request, cancellationToken).ConfigureAwait(false);
             return response.Success
                 ? response.Result ?? new TResult()
                 : new TResult();
@@ -48,7 +48,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         public static async Task<bool> IsAuthorized(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken);
+            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken).ConfigureAwait(false);
             return response.Success && response.Result.Access == AccessType.Allow;
         }
 
@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator
         /// </summary>
         public static async Task<AuthorizeRequestResponse> Authorize(this IMediator mediator, IMediatorAction action, CancellationToken cancellationToken = default)
         {
-            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken);
+            var response = await mediator.Execute(new AuthorizeRequest(action), cancellationToken).ConfigureAwait(false);
             return response.Success
                 ? response.Result
                 : new AuthorizeRequestResponse

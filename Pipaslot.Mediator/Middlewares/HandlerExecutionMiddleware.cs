@@ -23,11 +23,11 @@ namespace Pipaslot.Mediator.Middlewares
         {
             if (context.HasActionReturnValue)
             {
-                await HandleRequest(context);
+                await HandleRequest(context).ConfigureAwait(false);
             }
             else
             {
-                await HandleMessage(context);
+                await HandleMessage(context).ConfigureAwait(false);
             }
         }
 
@@ -42,7 +42,7 @@ namespace Pipaslot.Mediator.Middlewares
                 var task = (Task?)method!.Invoke(handler, new object[] { context.Action, context.CancellationToken })!;
                 if (task != null)
                 {
-                    await task;
+                    await task.ConfigureAwait(false);
                 }
 
             }
@@ -115,14 +115,14 @@ namespace Pipaslot.Mediator.Middlewares
                     var tasks = handlers
                     .Select(handler => ExecuteMessage(handler, context))
                     .ToArray();
-                    await Task.WhenAll(tasks);
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
                 else
                 {
                     var sortedHandlers = Sort(handlers);
                     foreach (var handler in sortedHandlers)
                     {
-                        await ExecuteMessage(handler, context);
+                        await ExecuteMessage(handler, context).ConfigureAwait(false);
                     }
                 }
             }
@@ -145,11 +145,11 @@ namespace Pipaslot.Mediator.Middlewares
                     .Select(async handler =>
                     {
                         var resp = context.CopyEmpty();
-                        await ExecuteRequest(handler, resp);
+                        await ExecuteRequest(handler, resp).ConfigureAwait(false);
                         return resp;
                     })
                     .ToArray();
-                    var tasksResults = await Task.WhenAll(tasks);
+                    var tasksResults = await Task.WhenAll(tasks).ConfigureAwait(false);
                     foreach (var taskResult in tasksResults)
                     {
                         if (taskResult != null)
@@ -163,7 +163,7 @@ namespace Pipaslot.Mediator.Middlewares
                     var sortedHandlers = Sort(handlers);
                     foreach (var handler in sortedHandlers)
                     {
-                        await ExecuteRequest(handler, context);
+                        await ExecuteRequest(handler, context).ConfigureAwait(false);
                     }
                 }
             }

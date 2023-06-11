@@ -52,7 +52,7 @@ namespace Pipaslot.Mediator.Authorization
             var tasks = this
                 .Select(policy => policy.Resolve(services, cancellationToken))
                 .ToArray();
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
             var res = new RuleSet(Operator);
             res.RuleSets.AddRange(tasks.Select(t => t.Result));
             return res;

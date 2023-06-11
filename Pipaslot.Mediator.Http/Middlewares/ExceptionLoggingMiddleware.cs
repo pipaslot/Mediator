@@ -23,7 +23,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
         {
             try
             {
-                await next(context);
+                await next(context).ConfigureAwait(false);
             }
             catch (Exception ce) when (ce is TaskCanceledException || ce is OperationCanceledException)
             {

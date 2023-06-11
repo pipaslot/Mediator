@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            var response = await SendRequest<object>(context);
+            var response = await SendRequest<object>(context).ConfigureAwait(false);
             context.Append(response);
         }
 
@@ -46,7 +46,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
                 var url = _options.Endpoint + $"?type={context.ActionIdentifier}";
                 var json = _serializer.SerializeRequest(context.Action);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                response = await _httpClient.PostAsync(url, content, context.CancellationToken);
+                response = await _httpClient.PostAsync(url, content, context.CancellationToken).ConfigureAwait(false);
                 // We do not check for successfull status code.
                 // It is completelly up to server configuration what status code will be sent when action processing failed on server.
                 // We just expect that server will return JSON in Mediator response format
@@ -59,12 +59,12 @@ namespace Pipaslot.Mediator.Http.Middlewares
             catch (Exception e)
             {
                 context.Status = ExecutionStatus.Failed;
-                return await ProcessRuntimeError<TResult>(context, e);
+                return await ProcessRuntimeError<TResult>(context, e).ConfigureAwait(false);
             }
             IMediatorResponse<TResult> result;
             try
             {
-                var serializedResult = await response.Content.ReadAsStringAsync();
+                var serializedResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 result = _serializer.DeserializeResponse<TResult>(serializedResult);
 
                 context.Status = result.Success ? ExecutionStatus.Succeeded : ExecutionStatus.Failed;
@@ -72,9 +72,9 @@ namespace Pipaslot.Mediator.Http.Middlewares
             catch (Exception e)
             {
                 context.Status = ExecutionStatus.Failed;
-                return await ProcessParsingError<TResult>(context, response, e);
+                return await ProcessParsingError<TResult>(context, response, e).ConfigureAwait(false);
             }
-            return await ProcessSuccessfullResult(context, response, result);
+            return await ProcessSuccessfullResult(context, response, result).ConfigureAwait(false);
         }
 
         protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorContext context, HttpResponseMessage response, IMediatorResponse<TResult> result)

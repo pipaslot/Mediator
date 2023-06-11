@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator.Authorization
         public async Task<AuthorizeRequestResponse> Handle(AuthorizeRequest action, CancellationToken cancellationToken)
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
-            var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken);
+            var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken).ConfigureAwait(false);
             var formatter = _serviceProvider.GetRequiredService<IRuleFormatter>();
             var combinedRule = policyResult.Evaluate(formatter);
             var accessType = combinedRule.Outcome.ToAccessType();

@@ -18,6 +18,10 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <WarningsAsErrors>$(WarningsAsErrors);NU1605;CAC001</WarningsAsErrors>
+	</PropertyGroup>
+
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
 	</ItemGroup>
@@ -33,6 +37,13 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Pipaslot.Mediator.Tests" />
 		<InternalsVisibleTo Include="Pipaslot.Mediator.Http" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>

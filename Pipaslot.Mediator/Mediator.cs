@@ -37,7 +37,7 @@ namespace Pipaslot.Mediator
             var context = CreateContext(message, cancellationToken);
             try
             {
-                await ProcessPipeline(pipeline, context);
+                await ProcessPipeline(pipeline, context).ConfigureAwait(false);
                 if (context.Status == ExecutionStatus.NoHandlerFound)
                 {
                     throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -60,7 +60,7 @@ namespace Pipaslot.Mediator
             var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
 
-            await ProcessPipeline(pipeline, context);
+            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
                 throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -82,7 +82,7 @@ namespace Pipaslot.Mediator
             var context = CreateContext(request, cancellationToken);
             try
             {
-                await ProcessPipeline(pipeline, context);
+                await ProcessPipeline(pipeline, context).ConfigureAwait(false);
                 //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
                 if (context.Status == ExecutionStatus.NoHandlerFound)
                 {
@@ -111,7 +111,7 @@ namespace Pipaslot.Mediator
 
             var pipeline = GetPipeline(request);
             var context = CreateContext(request, cancellationToken);
-            await ProcessPipeline(pipeline, context);
+            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
@@ -168,7 +168,7 @@ namespace Pipaslot.Mediator
                     }
                     return Task.CompletedTask;
                 };
-                await next(context);
+                await next(context).ConfigureAwait(false);
             }
             finally
             {

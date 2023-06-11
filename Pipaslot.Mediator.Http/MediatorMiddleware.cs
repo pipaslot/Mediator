@@ -31,7 +31,7 @@ namespace Pipaslot.Mediator.Http
             var isGet = method == "GET";
             if (context.Request.Path == _option.Endpoint && (isPost || isGet))
             {
-                var mediatorResponse = await SafeExecute(context, isPost);
+                var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
                 var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
                 // Change status code only if has default value (200: OK)
                 if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
@@ -41,12 +41,12 @@ namespace Pipaslot.Mediator.Http
                 if (!context.Response.HasStarted)
                 {
                     context.Response.ContentType = "application/json; charset=utf-8";
-                    await context.Response.WriteAsync(serializedResponse);
+                    await context.Response.WriteAsync(serializedResponse).ConfigureAwait(false);
                 }
             }
             else
             {
-                await _next(context);
+                await _next(context).ConfigureAwait(false);
             }
         }
 
@@ -55,15 +55,15 @@ namespace Pipaslot.Mediator.Http
             try
             {
                 var body = isPost
-                    ? await GetBody(context)
+                    ? await GetBody(context).ConfigureAwait(false)
                     : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
                         ? actionQuery.ToString()
                         : "";
                 var mediator = CreateMediator(context);
                 var action = _serializer.DeserializeRequest(body);
                 var mediatorResponse = action is IMediatorActionProvidingData req
-                    ? await ExecuteRequest(mediator, req, context.RequestAborted)
-                    : await ExecuteMessage(mediator, action, context.RequestAborted);
+                    ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
+                    : await ExecuteMessage(mediator, action, context.RequestAborted).ConfigureAwait(false);
                 return mediatorResponse;
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Http
         private async Task<string> GetBody(HttpContext context)
         {
             using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
-            var body = await reader.ReadToEndAsync();
+            var body = await reader.ReadToEndAsync().ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(body))
             {
                 throw MediatorHttpException.CreateForInvalidRequest(body);
@@ -96,7 +96,7 @@ namespace Pipaslot.Mediator.Http
         {
             try
             {
-                return await mediator.Dispatch(message, cancellationToken);
+                return await mediator.Dispatch(message, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e)
             {

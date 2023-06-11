@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator.Middlewares
             AddToQueue(context);
             try
             {
-                await next(context);
+                await next(context).ConfigureAwait(false);
             }
             finally
             {

@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Notifications
 
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
 
             var notifications = context.Results
                 .Where(r => r is Notification)
