@@ -110,7 +110,7 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
-        /// Track actions processed by middleware through exposed events
+        /// Track actions processed by middleware through exposed events <see cref="ActionEventsMiddleware.ActionStarted"/> <see cref="ActionEventsMiddleware.ProcessingStarted"/>, <see cref="ActionEventsMiddleware.ProcessingCompleted"/> and  <see cref="ActionEventsMiddleware.ActionCompleted"/>
         /// </summary>
         public static IMiddlewareRegistrator UseActionEvents(this IMiddlewareRegistrator config)
         {
@@ -118,7 +118,8 @@ namespace Pipaslot.Mediator
         }
 
         /// <summary>
-        /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
+        /// Expose all notifications sent as action results via event handler <see cref="INotificationReceiver.NotificationReceived"/>. 
+        /// You can then inject the <see cref="INotificationReceiver"/> and process/show all notifications via your own notification component (push notifications).
         /// </summary>
         public static IMiddlewareRegistrator UseNotificationReceiver(this IMiddlewareRegistrator config)
         {
@@ -138,7 +139,7 @@ namespace Pipaslot.Mediator
 
         /// <summary>
         /// Prevent direct calls for action which are not part of your application API. 
-        /// Can be used as protection for queries placed in app demilitarized zone. Such a actions lacks authentication, authorization or different security checks.
+        /// Can be used as protection for queries placed in app demilitarized zone (such a actions lacks authentication, authorization or different security checks).
         /// </summary>
         public static IMiddlewareRegistrator UseDirectCallProtection(this IMiddlewareRegistrator config)
         {
