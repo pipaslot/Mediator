@@ -81,73 +81,10 @@ namespace Pipaslot.Mediator.Middlewares
             return copy;
         }
 
-        /// <summary>
-        /// Append result properties from context
-        /// </summary>
-        /// <param name="context"></param>
-        public void Append(MediatorContext context)
-        {
-            AddResults(context.Results);
-        }
-
-        /// <summary>
-        /// Append result properties from response
-        /// </summary>
-        /// <param name="response"></param>
-        public void Append(IMediatorResponse response)
-        {
-            AddResults(response.Results);
-        }
-
         [Obsolete("Use Status != ExecutionStatus.Succeeded")]
         public bool HasError()
         {
             return Status == ExecutionStatus.Failed;
-        }
-
-        /// <summary>
-        /// Register processing errors. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="messages">The contents</param>
-        public void AddErrors(IEnumerable<string> messages)
-        {
-            foreach (var message in messages)
-            {
-                AddError(message);
-            }
-        }
-
-        /// <summary>
-        /// Register processing error. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="message">The content</param>
-        public void AddError(string message)
-        {
-            var notification = Notification.Error(message, Action);
-            AddResult(notification);
-        }
-
-        /// <summary>
-        /// Register processing error. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="message">The content</param>
-        /// <param name="source">Source name or title</param>
-        public void AddError(string message, string source)
-        {
-            var notification = Notification.Error(message, source);
-            AddResult(notification);
-        }
-
-        /// <summary>
-        /// Register processing results
-        /// </summary>
-        /// <param name="result"></param>
-        public void AddResults(IEnumerable<object> result)
-        {
-            foreach(var res in result)
-            {
-                AddResult(res);
-            }
         }
 
         /// <summary>
