@@ -23,38 +23,38 @@ namespace Pipaslot.Mediator
 
         #region UseWhenAction
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing TActionMarker.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenAction"/>
         public static IMiddlewareRegistrator UseWhenAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
              where TMiddleware : IMediatorMiddleware
         {
             return configurator.UseWhenAction<TActionMarker>(m => m.Use<TMiddleware>());
         }
 
+        /// <inheritdoc cref="UseWhenAction"/>
+        public static IMiddlewareRegistrator UseWhenAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenAction(typeof(TActionMarker), subMiddlewares);
+        }
+
         /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator UseWhenAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenAction(this IMiddlewareRegistrator configurator, Type action, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
+            return configurator.UseWhen(a => action.IsAssignableFrom(a.GetType()), subMiddlewares);
         }
 
         #endregion
 
         #region UseWhenActions
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenActions"/>
         public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2) }, subMiddlewares);
         }
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenActions"/>
         public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2, TActionMarker3>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2), typeof(TActionMarker3) }, subMiddlewares);
@@ -72,38 +72,36 @@ namespace Pipaslot.Mediator
 
         #region UseWhenNotAction
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenNotAction"/>
         public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
              where TMiddleware : IMediatorMiddleware
         {
             return configurator.UseWhenNotAction<TActionMarker>(m => m.Use<TMiddleware>());
         }
 
+        /// <inheritdoc cref="UseWhenNotAction"/>
+        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenNotAction(typeof(TActionMarker), subMiddlewares);
+        }
+
         /// <summary>
         /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenNotAction(this IMiddlewareRegistrator configurator, Type action, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()) == false, subMiddlewares);
+            return configurator.UseWhen(a => action.IsAssignableFrom(a.GetType()) == false, subMiddlewares);
         }
 
         #endregion
 
-        /// <summary>
-        /// Execute handlers. No more middlewares will be executed.
-        /// </summary>
+        /// <inheritdoc cref="HandlerExecutionMiddleware"/>
         public static IMiddlewareRegistrator UseHandlerExecution(this IMiddlewareRegistrator config)
         {
             return config.Use<HandlerExecutionMiddleware>();
         }
 
-        /// <summary>
-        /// Reduce action processing to only one at the same time for the same action type with the same properties.
-        /// This is useful when you know that your application executes the same action multiple times but you want to reduce the server load. 
-        /// IMPORTANT!: object method GetHashcode() is used for evaluating object similarities
-        /// </summary>
+        /// <inheritdoc cref="ReduceDuplicateProcessingMiddleware"/>
         public static IMiddlewareRegistrator UseReduceDuplicateProcessing(this IMiddlewareRegistrator config)
         {
             return config.Use<ReduceDuplicateProcessingMiddleware>();
@@ -117,10 +115,7 @@ namespace Pipaslot.Mediator
             return config.Use<ActionEventsMiddleware>(ServiceLifetime.Singleton);
         }
 
-        /// <summary>
-        /// Expose all notifications sent as action results via event handler <see cref="INotificationReceiver.NotificationReceived"/>. 
-        /// You can then inject the <see cref="INotificationReceiver"/> and process/show all notifications via your own notification component (push notifications).
-        /// </summary>
+        /// <inheritdoc cref="NotificationReceiverMiddleware"/>
         public static IMiddlewareRegistrator UseNotificationReceiver(this IMiddlewareRegistrator config)
         {
             return config.Use<NotificationReceiverMiddleware>(services =>
@@ -129,18 +124,13 @@ namespace Pipaslot.Mediator
             });
         }
 
-        /// <summary>
-        /// Register authorization middleware evaluating policies for actions and their handlers
-        /// </summary>
+        /// <inheritdoc cref="AuthorizationMiddleware"/>
         public static IMiddlewareRegistrator UseAuthorization(this IMiddlewareRegistrator config)
         {
             return config.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton);
         }
 
-        /// <summary>
-        /// Prevent direct calls for action which are not part of your application API. 
-        /// Can be used as protection for queries placed in app demilitarized zone (such a actions lacks authentication, authorization or different security checks).
-        /// </summary>
+        /// <inheritdoc cref="DirectCallProtectionMiddleware"/>
         public static IMiddlewareRegistrator UseDirectCallProtection(this IMiddlewareRegistrator config)
         {
             return config.Use<DirectCallProtectionMiddleware>(ServiceLifetime.Singleton);

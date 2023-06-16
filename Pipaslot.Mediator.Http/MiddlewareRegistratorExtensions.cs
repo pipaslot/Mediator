@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Middlewares;
 using Pipaslot.Mediator.Middlewares;
 using System;
@@ -10,27 +11,21 @@ namespace Pipaslot.Mediator.Http
 {
     public static class MiddlewareRegistratorExtensions
     {
-        /// <summary>
-        /// Register exception logging middleware writting all error into ILogger
-        /// </summary>
+        /// <inheritdoc cref="ExceptionLoggingMiddleware"/>
         public static IMiddlewareRegistrator UseExceptionLogging(this IMiddlewareRegistrator configurator, ServiceLifetime lifetime = ServiceLifetime.Scoped)
         {
             configurator.Use<ExceptionLoggingMiddleware>(lifetime);
             return configurator;
         }
 
-        /// <summary>
-        /// Register middleware sending actions over HTTP client to mediator server implementation. Not further middleware will be executed after this one.
-        /// </summary>
+        /// <inheritdoc cref="HttpClientExecutionMiddleware"/>
         public static IMiddlewareRegistrator UseHttpClient(this IMiddlewareRegistrator configurator)
         {
             configurator.Use<HttpClientExecutionMiddleware>();
             return configurator;
         }
 
-        /// <summary>
-        /// Register middleware sending actions over HTTP client to mediator server implementation. Not further middleware will be executed after this one.
-        /// </summary>
+        /// <inheritdoc cref="UseHttpClient"/>
         public static IMiddlewareRegistrator UseHttpClient<THttpClientExecutionMiddleware>(this IMiddlewareRegistrator configurator)
             where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
@@ -38,10 +33,7 @@ namespace Pipaslot.Mediator.Http
             return configurator;
         }
 
-        /// <summary>
-        /// Prevent direct calls for action which are not part of your application REST API. 
-        /// Can be used as protection for queries placed in app demilitarized zone. Such a actions lacks authentication, authorization or different security checks.
-        /// </summary>
+        /// <inheritdoc cref="DirectHttpCallProtectionMiddleware"/>
         public static IMiddlewareRegistrator UseDirectHttpCallProtection(this IMiddlewareRegistrator config)
         {
             return config.Use<DirectHttpCallProtectionMiddleware>(ServiceLifetime.Scoped);
@@ -49,9 +41,7 @@ namespace Pipaslot.Mediator.Http
 
         #region UseWhenDirectHttpCall
 
-        /// <summary>
-        /// Use middleware when the provider action is first in line directly from HTTP.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenDirectHttpCall"/>
         public static IMiddlewareRegistrator UseWhenDirectHttpCall<TMiddleware>(this IMiddlewareRegistrator config)
             where TMiddleware : IMediatorMiddleware
         {
@@ -59,20 +49,20 @@ namespace Pipaslot.Mediator.Http
         }
 
         /// <summary>
-        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// Applies Middlewares if the mediator action was invoked directly from any HTTP request. 
+        /// It will not be applied to nested actions.
+        /// <para>This is useful for cases of defining a demilitarized zone of an application where we want to secure all calls from outside but no longer need to re-verify security on internal or nested calls.</para>
         /// </summary>
         public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return config.UseWhen((a, s) => IsFromHttp(s), subMiddlewares);
+            return config.UseWhen((a, s) => IsFirstActionFromHttp(s), subMiddlewares);
         }
 
         #endregion
 
         #region UseWhenNotDirectHttpCall
 
-        /// <summary>
-        /// Use middleware when the provider action is first in line directly from HTTP.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenNotDirectHttpCall"/>
         public static IMiddlewareRegistrator UseWhenNotDirectHttpCall<TMiddleware>(this IMiddlewareRegistrator config)
             where TMiddleware : IMediatorMiddleware
         {
@@ -80,28 +70,30 @@ namespace Pipaslot.Mediator.Http
         }
 
         /// <summary>
-        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// Applies Middlewares if the mediator action was NOT invoked directly from any HTTP request or it was used as nested call.. 
         /// </summary>
         public static IMiddlewareRegistrator UseWhenNotDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return config.UseWhen((a, s) => IsFromHttp(s) == false, subMiddlewares);
+            return config.UseWhen((a, s) => IsFirstActionFromHttp(s) == false, subMiddlewares);
         }
 
         #endregion
 
         /// <summary>
-        /// Use middlewares when the provider action is first in line directly from HTTP.
+        /// Applies <see cref="AuthorizationMiddleware"/> if the mediator action was invoked directly from any HTTP request. 
+        /// <para>For more details see: <see cref="UseWhenDirectHttpCall"/></para>
         /// </summary>
         public static IMiddlewareRegistrator UseAuthorizationWhenDirectHttpCall(this IMiddlewareRegistrator config)
         {
-            return config.UseWhen((a, s) => IsFromHttp(s), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
+            return config.UseWhen((a, s) => IsFirstActionFromHttp(s), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
         }
 
-        private static bool IsFromHttp(IServiceProvider sp)
+        private static bool IsFirstActionFromHttp(IServiceProvider sp)
         {
             var hca = sp.GetRequiredService<IHttpContextAccessor>();
             var mca = sp.GetRequiredService<IMediatorContextAccessor>();
-            return DirectHttpCallProtectionMiddleware.IsApplicable(mca, hca);
+            //var mop = sp.GetRequiredService<ServerMediatorOptions>();
+            return mca.IsFirstAction() && hca.GetExecutionEndpoint(null) != HttpExecutionEndpoint.NoEndpoint;
         }
     }
 }

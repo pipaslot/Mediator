@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Notifications;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator.Middlewares
 {
     /// <summary>
-    /// Pipeline executing one handler for request implementing TMarker type
+    /// Execute handlers. No more middlewares will be executed.
     /// </summary>
     public class HandlerExecutionMiddleware : IExecutionMiddleware
     {

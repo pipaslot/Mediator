@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares
 {
+    /// <summary>
+    /// Register exception logging middleware writting all error into <see cref="ILogger"/>
+    /// </summary>
     public class ExceptionLoggingMiddleware : IMediatorMiddleware
     {
         private readonly ILogger _logger;
