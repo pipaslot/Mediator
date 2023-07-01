@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Notifications;
 using System.Collections.Generic;
 using System.Threading;
@@ -40,24 +39,24 @@ namespace Pipaslot.Mediator
 
         #region Mediator 
 
-        public Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            return _mediator.Dispatch(message, cancellationToken, defaultFeatures);
+            return _mediator.Dispatch(message, cancellationToken);
         }
 
-        public Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
-            return _mediator.DispatchUnhandled(message, cancellationToken, defaultFeatures);
+            return _mediator.DispatchUnhandled(message, cancellationToken);
         }
 
-        public Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            return _mediator.Execute(request, cancellationToken, defaultFeatures);
+            return _mediator.Execute(request, cancellationToken);
         }
 
-        public Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
-            return _mediator.ExecuteUnhandled(request, cancellationToken, defaultFeatures);
+            return _mediator.ExecuteUnhandled(request, cancellationToken);
         }
 
         #endregion

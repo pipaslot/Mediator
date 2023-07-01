@@ -43,20 +43,6 @@ namespace Pipaslot.Mediator.Tests.E2E
             await sut.DispatchUnhandled(new NopMessage());
         }
 
-        [Fact]
-        public async Task DoNotFallbackToDefaultFeatures()
-        {
-            var sut = Factory.CreateCustomMediator(s =>
-            {
-                s.UseWithParameters<AssertAndChangeMiddleware>(new MutableParameter());
-                s.UseWithParameters<AssertAndChangeMiddleware>(new MutableParameter());
-                s.Use<AssertNoParameterMiddleware>();
-            });
-            var features = new FeatureCollection();
-            features.Set(new MiddlewareParametersFeature(new[] { "Try to fake parent, but wont have any affect" }));
-            await sut.DispatchUnhandled(new NopMessage());
-        }
-
         private class AssertStringMiddleware : IMediatorMiddleware
         {
             public static string Value = "string 1";

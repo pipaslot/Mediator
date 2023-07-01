@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator
             _configurator = configurator;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             if (message is null)
             {
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(message);
-            var context = CreateContext(message, cancellationToken, defaultFeatures);
+            var context = CreateContext(message, cancellationToken);
             try
             {
                 await ProcessPipeline(pipeline, context).ConfigureAwait(false);
@@ -52,14 +52,14 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
         {
             if (message is null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
             var pipeline = GetPipeline(message);
-            var context = CreateContext(message, cancellationToken, defaultFeatures);
+            var context = CreateContext(message, cancellationToken);
 
             await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             if (request is null)
             {
@@ -80,7 +80,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(request);
-            var context = CreateContext(request, cancellationToken, defaultFeatures);
+            var context = CreateContext(request, cancellationToken);
             try
             {
                 await ProcessPipeline(pipeline, context).ConfigureAwait(false);
@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
+        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
         {
             if (request is null)
             {
@@ -111,7 +111,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(request);
-            var context = CreateContext(request, cancellationToken, defaultFeatures);
+            var context = CreateContext(request, cancellationToken);
             await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
@@ -189,9 +189,9 @@ namespace Pipaslot.Mediator
             }
         }
 
-        private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken, IFeatureCollection? defaultFeatures)
+        private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
         {
-            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, defaultFeatures);
+            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, null);
         }
     }
 }
