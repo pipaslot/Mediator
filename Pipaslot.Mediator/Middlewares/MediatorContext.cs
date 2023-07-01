@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,11 @@ namespace Pipaslot.Mediator.Middlewares
         /// Cancellation token
         /// </summary>
         public CancellationToken CancellationToken { get; private set; }
+
+        private IFeatureCollection? _features;
+
+        /// <inheritdoc cref="IFeatureCollection"/>
+        public IFeatureCollection Features => _features ??= new FeatureCollection();
 
         public IMediator Mediator { get; }
 
