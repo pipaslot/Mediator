@@ -114,7 +114,7 @@ namespace Pipaslot.Mediator.Http
                 .MakeGenericMethod(resultType);
             try
             {
-                var task = (Task)method.Invoke(mediator, new[] { query, cancellationToken })!;
+                var task = (Task)method.Invoke(mediator, new[] { query, cancellationToken, null })!;
                 await task.ConfigureAwait(false);
 
                 var resultProperty = task.GetType().GetProperty("Result");

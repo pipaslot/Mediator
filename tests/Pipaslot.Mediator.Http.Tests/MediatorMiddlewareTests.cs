@@ -47,7 +47,7 @@ namespace Pipaslot.Mediator.Http.Tests
         {
             var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, Array.Empty<object>()));
             var mediatorMock = new Mock<IMediator>();
-            mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+            mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>(), It.IsAny<Mediator.Middlewares.Features.IFeatureCollection>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
             collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
@@ -62,14 +62,14 @@ namespace Pipaslot.Mediator.Http.Tests
             context.RequestServices = services;
             await sut.Invoke(context);
 
-            mediatorMock.Verify(m => m.Execute(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>()));
+            mediatorMock.Verify(m => m.Execute(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>(), It.IsAny<Mediator.Middlewares.Features.IFeatureCollection>()));
         }
 
         private async Task ExecuteMessage(HttpRequest request)
         {
             var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
             var mediatorMock = new Mock<IMediator>();
-            mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+            mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>(), It.IsAny<Mediator.Middlewares.Features.IFeatureCollection>())).Returns(mediatorResponse);
             var collection = new ServiceCollection();
             collection.AddLogging();
             collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Http.Tests
             context.RequestServices = services;
             await sut.Invoke(context);
 
-            mediatorMock.Verify(m => m.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>()));
+            mediatorMock.Verify(m => m.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>(), It.IsAny<Mediator.Middlewares.Features.IFeatureCollection>()));
         }
 
         private class FakeContext : HttpContext

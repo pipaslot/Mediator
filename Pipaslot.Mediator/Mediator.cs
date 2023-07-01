@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator
             _configurator = configurator;
         }
 
-        public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
         {
             if (message is null)
             {
@@ -35,7 +35,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(message);
-            var context = CreateContext(message, cancellationToken);
+            var context = CreateContext(message, cancellationToken, defaultFeatures);
             try
             {
                 await ProcessPipeline(pipeline, context).ConfigureAwait(false);
@@ -52,14 +52,14 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
+        public async Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
         {
             if (message is null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
             var pipeline = GetPipeline(message);
-            var context = CreateContext(message, cancellationToken);
+            var context = CreateContext(message, cancellationToken, defaultFeatures);
 
             await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
@@ -72,7 +72,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
         {
             if (request is null)
             {
@@ -80,7 +80,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(request);
-            var context = CreateContext(request, cancellationToken);
+            var context = CreateContext(request, cancellationToken, defaultFeatures);
             try
             {
                 await ProcessPipeline(pipeline, context).ConfigureAwait(false);
@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator
             }
         }
 
-        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default, IFeatureCollection? defaultFeatures = null)
         {
             if (request is null)
             {
@@ -111,7 +111,7 @@ namespace Pipaslot.Mediator
             }
 
             var pipeline = GetPipeline(request);
-            var context = CreateContext(request, cancellationToken);
+            var context = CreateContext(request, cancellationToken, defaultFeatures);
             await ProcessPipeline(pipeline, context).ConfigureAwait(false);
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
@@ -163,10 +163,20 @@ namespace Pipaslot.Mediator
                     if (enumerator.MoveNext())
                     {
                         var current = enumerator.Current;
-                        var feature = current.Parameters == null
-                            ? MiddlewareParametersFeature.Default
-                            : new MiddlewareParametersFeature(current.Parameters);
-                        ctx.Features.Set(feature);
+                        if(current.Parameters == null)
+                        {
+                            var feature = ctx.Features.Get<MiddlewareParametersFeature>();
+                            // Prevent increasing revision number when not necessary
+                            if(feature != MiddlewareParametersFeature.Default)
+                            {
+                                ctx.Features.Set(MiddlewareParametersFeature.Default);
+                            }
+                        }
+                        else
+                        {
+                            var feature = new MiddlewareParametersFeature(current.Parameters);
+                            ctx.Features.Set(feature);
+                        }
                         return current.Instance.Invoke(ctx, next);
                     }
                     return Task.CompletedTask;
@@ -179,9 +189,9 @@ namespace Pipaslot.Mediator
             }
         }
 
-        private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
+        private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken, IFeatureCollection? defaultFeatures)
         {
-            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken);
+            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, defaultFeatures);
         }
     }
 }

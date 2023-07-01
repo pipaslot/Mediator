@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
             }
         }
 
-        public class MessageHandler : IMessageHandler<SingleHandler.Message>
+        public class MessageHandler : IMessageHandler<Message>
         {
             public Task Handle(Message request, CancellationToken cancellationToken)
             {

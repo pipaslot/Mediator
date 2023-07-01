@@ -44,7 +44,7 @@ namespace Pipaslot.Mediator.Tests.E2E
         }
 
         [Fact]
-        public async Task ZvazitOverloadMediatoruNaOdpalovaniAkciSVychoziKolekciFeatures()
+        public async Task DoNotFallbackToDefaultFeatures()
         {
             var sut = Factory.CreateCustomMediator(s =>
             {
@@ -64,7 +64,7 @@ namespace Pipaslot.Mediator.Tests.E2E
             {
                 var actual = context.Features.Get<MiddlewareParametersFeature>().Parameters.FirstOrDefault();
                 Assert.Equal(Value, actual);
-                return Task.CompletedTask;
+                return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
             }
         }
 
@@ -73,7 +73,7 @@ namespace Pipaslot.Mediator.Tests.E2E
             public Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
                 Assert.Empty(context.Features.Get<MiddlewareParametersFeature>().Parameters);
-                return Task.CompletedTask;
+                return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
             }
         }
 
@@ -84,7 +84,7 @@ namespace Pipaslot.Mediator.Tests.E2E
                 var actual = context.Features.Get<MiddlewareParametersFeature>().Parameters.First() as MutableParameter;
                 Assert.Equal(MutableParameter.DefaultValue, actual.Value);
                 actual.Mutate();
-                return Task.CompletedTask;
+                return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
             }
         }
 

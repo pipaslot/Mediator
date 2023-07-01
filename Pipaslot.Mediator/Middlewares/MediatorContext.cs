@@ -63,7 +63,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         private object[]? _handlers = null;
 
-        internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
+        internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
         {
             Mediator = mediator;
             _contextAccessor = contextAccessor;
@@ -71,6 +71,7 @@ namespace Pipaslot.Mediator.Middlewares
             Action = action ?? throw new System.ArgumentNullException(nameof(action));
             CancellationToken = cancellationToken;
             _handlers = handlers;
+            _features = defaultFeatures;
         }
 
         public IEnumerable<string> ErrorMessages => _results
@@ -83,7 +84,7 @@ namespace Pipaslot.Mediator.Middlewares
         /// <returns></returns>
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers);
+            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers, _features);
             return copy;
         }
 
