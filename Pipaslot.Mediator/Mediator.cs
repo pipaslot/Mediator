@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -134,24 +135,24 @@ namespace Pipaslot.Mediator
             return result;
         }
 
-        internal IEnumerable<IMediatorMiddleware> GetPipeline(IMediatorAction action)
+        internal IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> GetPipeline(IMediatorAction action)
         {
-            var middlewareTypes = _configurator.GetMiddlewares(action, _serviceProvider);
-            foreach (var middlewareType in middlewareTypes)
+            var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
+            foreach (var middlewareDefinition in middlewareDefinitions)
             {
-                var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareType);
-                yield return middlewareInstance;
+                var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareDefinition.Type);
+                yield return (middlewareInstance, middlewareDefinition.Parameters);
                 if (middlewareInstance is IExecutionMiddleware)
                 {
                     yield break;
                 }
             }
 
-            yield return _serviceProvider.GetRequiredService<IExecutionMiddleware>();
+            yield return (_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
 
         }
 
-        private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
+        private async Task ProcessPipeline(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> pipeline, MediatorContext context)
         {
             _mediatorContextAccessor.Push(context);
             try
@@ -161,7 +162,12 @@ namespace Pipaslot.Mediator
                 {
                     if (enumerator.MoveNext())
                     {
-                        return enumerator.Current.Invoke(ctx, next);
+                        var current = enumerator.Current;
+                        var feature = current.Parameters == null
+                            ? MiddlewareParametersFeature.Default
+                            : new MiddlewareParametersFeature(current.Parameters);
+                        ctx.Features.Set(feature);
+                        return current.Instance.Invoke(ctx, next);
                     }
                     return Task.CompletedTask;
                 };

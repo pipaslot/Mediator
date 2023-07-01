@@ -34,9 +34,9 @@ namespace Pipaslot.Mediator.Tests
             VerifyMiddleware(middlewares, position, expectedMiddleware);
         }
 
-        private void VerifyMiddleware(IEnumerable<IMediatorMiddleware> middlewares, int position, Type expectedMiddleware)
+        private void VerifyMiddleware(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> middlewares, int position, Type expectedMiddleware)
         {
-            var actual = middlewares.Skip(position - 1).First().GetType();
+            var actual = middlewares.Skip(position - 1).First().Instance.GetType();
             Assert.Equal(expectedMiddleware, actual);
         }
 

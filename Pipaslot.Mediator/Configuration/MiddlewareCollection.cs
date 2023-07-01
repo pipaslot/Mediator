@@ -17,9 +17,9 @@ namespace Pipaslot.Mediator.Configuration
             _services = services;
         }
 
-        public void AddMiddleware(Type middlewareType, ServiceLifetime lifetime)
+        private void AddMiddleware(Type middlewareType, ServiceLifetime lifetime, object[]? parameters = null)
         {
-            _middlewareTypes.Add(new MiddlewareDefinition(middlewareType));
+            _middlewareTypes.Add(new MiddlewareDefinition(middlewareType, parameters));
             var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
             if (existingDescriptor != null)
             {
@@ -34,7 +34,7 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             foreach (var res in _middlewareTypes)
             {
@@ -45,16 +45,16 @@ namespace Pipaslot.Mediator.Configuration
             }
         }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
         {
-            AddMiddleware(typeof(TMiddleware), lifetime);
+            AddMiddleware(typeof(TMiddleware), lifetime, parameters);
             return this;
         }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
         {
             setupDependencies(_services);
-            AddMiddleware(typeof(TMiddleware), lifetime);
+            AddMiddleware(typeof(TMiddleware), lifetime, parameters);
             return this;
         }
 
@@ -76,20 +76,7 @@ namespace Pipaslot.Mediator.Configuration
             return this;
         }
 
-        private class MiddlewareDefinition : IMiddlewareResolver
-        {
-            private readonly Type _middlewareType;
-
-            public MiddlewareDefinition(Type middlewareType)
-            {
-                _middlewareType = middlewareType;
-            }
-
-            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
-            {
-                yield return _middlewareType;
-            }
-        }
+        
 
         private class ConditionDefinition : IMiddlewareResolver
         {
@@ -103,7 +90,7 @@ namespace Pipaslot.Mediator.Configuration
                 _middlewares = middlewares;
             }
 
-            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+            public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
             {
                 if (_condition(action))
                 {
@@ -126,7 +113,7 @@ namespace Pipaslot.Mediator.Configuration
                 _middlewares = middlewares;
             }
 
-            public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+            public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
             {
                 if (_condition(action, serviceProvider))
                 {
