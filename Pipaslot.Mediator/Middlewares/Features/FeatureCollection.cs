@@ -45,7 +45,7 @@ namespace Pipaslot.Mediator.Middlewares.Features
         }
 
         /// <inheritdoc />
-        public virtual int Revision => _containerRevision;
+        public virtual int Revision => _containerRevision + (_defaults?.Revision ?? 0);
 
         /// <inheritdoc />
         public object? this[Type key]
@@ -57,7 +57,7 @@ namespace Pipaslot.Mediator.Middlewares.Features
                     throw new ArgumentNullException(nameof(key));
                 }
 
-                return _features != null && _features.TryGetValue(key, out var result) ? result : null;
+                return _features != null && _features.TryGetValue(key, out var result) ? result : _defaults?[key];
             }
             set
             {
