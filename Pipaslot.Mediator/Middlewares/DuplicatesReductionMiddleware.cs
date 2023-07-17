@@ -28,6 +28,7 @@ namespace Pipaslot.Mediator.Middlewares
             {
                 var innerContext = await task.ConfigureAwait(false);
                 context.Append(innerContext);
+                context.Status = innerContext.Status;
             }
             finally
             {
