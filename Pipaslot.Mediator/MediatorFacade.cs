@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +22,9 @@ namespace Pipaslot.Mediator
         }
 
         #region MediatorContextAccessor
-
-        public MediatorContext? MediatorContext => _mediatorContextAccessor.MediatorContext;
+        [Obsolete("Use Context instead")]
+        public MediatorContext? MediatorContext => _mediatorContextAccessor.Context;
+        public MediatorContext? Context => _mediatorContextAccessor.Context;
 
         public IReadOnlyCollection<MediatorContext> ContextStack => _mediatorContextAccessor.ContextStack;
 

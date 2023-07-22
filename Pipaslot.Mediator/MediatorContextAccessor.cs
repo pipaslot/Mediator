@@ -18,9 +18,15 @@ namespace Pipaslot.Mediator
             _serviceProvider = serviceProvider;
         }
 
-        public MediatorContext? MediatorContext
+        public MediatorContext? Context
         {
             get => _asyncLocal.Value?.Peek();
+        }
+
+        [Obsolete]
+        public MediatorContext? MediatorContext
+        {
+            get => Context;
         }
 
         public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? Array.Empty<MediatorContext>();

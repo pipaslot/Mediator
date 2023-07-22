@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {
@@ -36,7 +32,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public void NoAction_ContextIsNull()
         {
-            Assert.Null(_contextAccessor.MediatorContext);
+            Assert.Null(_contextAccessor.Context);
             Assert.Empty(_contextAccessor.ContextStack);
         }
 
@@ -44,7 +40,7 @@ namespace Pipaslot.Mediator.Tests
         public async Task ExecutionCompleted_ContextIsNull()
         {
             await _mediator.Dispatch(new RootAction());
-            Assert.Null(_contextAccessor.MediatorContext);
+            Assert.Null(_contextAccessor.Context);
             Assert.Empty(_contextAccessor.ContextStack);
         }
 
@@ -67,19 +63,19 @@ namespace Pipaslot.Mediator.Tests
             public void AssertZero()
             {
                 Assert.Empty(_accessor.ContextStack);
-                Assert.Null(_accessor.MediatorContext);
+                Assert.Null(_accessor.Context);
             }
 
             public void AssertSingle()
             {
-                Assert.Equal(typeof(RootAction), _accessor.MediatorContext.GetType());
+                Assert.Equal(typeof(RootAction), _accessor.Context.GetType());
                 Assert.Single(_accessor.ContextStack);
                 Assert.Equal(typeof(RootAction), _accessor.ContextStack.First().GetType());
             }
 
             public void AssertTwo()
             {
-                Assert.Equal(typeof(RootAction), _accessor.MediatorContext.GetType());
+                Assert.Equal(typeof(RootAction), _accessor.Context.GetType());
                 Assert.Equal(2,_accessor.ContextStack.Count);
                 Assert.Equal(typeof(RootAction), _accessor.ContextStack.First().GetType());
                 Assert.Equal(typeof(NestedAction), _accessor.ContextStack.Skip(1).First().GetType());
