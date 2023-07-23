@@ -137,6 +137,8 @@ namespace Pipaslot.Mediator
 
         internal IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> GetPipeline(IMediatorAction action)
         {
+            yield return (new NotificationPropagationMiddleware(), Array.Empty<object>());
+
             var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
             foreach (var middlewareDefinition in middlewareDefinitions)
             {

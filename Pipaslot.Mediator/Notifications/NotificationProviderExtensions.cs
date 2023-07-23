@@ -2,33 +2,70 @@
 {
     public static class NotificationProviderExtensions
     {
-        public static void Add(this INotificationProvider provider, string content, string source, NotificationType type)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="type"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void Add(this INotificationProvider provider, string content, string source, NotificationType type, bool stopPropagation = false)
         {
             provider.Add(new Notification
             {
                 Content = content,
                 Source = source,
-                Type = type
+                Type = type,
+                StopPropagation = stopPropagation
             });
         }
-        public static void AddError(this INotificationProvider provider, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddError(this INotificationProvider provider, string content, string source = "", bool stopPropagation = false)
         {
-            provider.Add(content, source, NotificationType.Error);
+            provider.Add(content, source, NotificationType.Error, stopPropagation);
         }
 
-        public static void AddWarning(this INotificationProvider provider, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddWarning(this INotificationProvider provider, string content, string source = "", bool stopPropagation = false)
         {
-            provider.Add(content, source, NotificationType.Warning);
+            provider.Add(content, source, NotificationType.Warning, stopPropagation);
         }
 
-        public static void AddInformation(this INotificationProvider provider, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddInformation(this INotificationProvider provider, string content, string source = "", bool stopPropagation = false)
         {
-            provider.Add(content, source, NotificationType.Information);
+            provider.Add(content, source, NotificationType.Information, stopPropagation);
         }
 
-        public static void AddSuccess(this INotificationProvider provider, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddSuccess(this INotificationProvider provider, string content, string source = "", bool stopPropagation = false)
         {
-            provider.Add(content, source, NotificationType.Success);
+            provider.Add(content, source, NotificationType.Success, stopPropagation);
         }
     }
 }

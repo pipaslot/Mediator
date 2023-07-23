@@ -13,6 +13,12 @@ namespace Pipaslot.Mediator.Notifications
         /// </summary>
         public string Source { get; set; } = "";
         public string Content { get; set; } = "";
+
+        /// <summary>
+        /// If False, then the notification will be propagated from nested mediator calls to the callers. 
+        /// The notifications will be aggregated in the root action call.
+        /// </summary>
+        public bool StopPropagation { get; set; }
         public NotificationType Type { get; set; } = NotificationType.Information;
 
         public override bool Equals(object? obj)
@@ -37,23 +43,25 @@ namespace Pipaslot.Mediator.Notifications
             return hashCode;
         }
 
-        internal static Notification Error(string content, IMediatorAction action)
+        internal static Notification Error(string content, IMediatorAction action, bool stopPropagation = false)
         {
             return new Notification
             {
                 Type = NotificationType.Error,
                 Content = content,
-                Source = action.GetActionName()
+                Source = action.GetActionName(),
+                StopPropagation = stopPropagation
             };
         }
 
-        internal static Notification Error(string content, string source = "")
+        internal static Notification Error(string content, string source = "", bool stopPropagation = false)
         {
             return new Notification
             {
                 Type = NotificationType.Error,
                 Content = content,
-                Source = source
+                Source = source,
+                StopPropagation = stopPropagation
             };
         }
     }

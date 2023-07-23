@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Pipaslot.Mediator
@@ -44,8 +43,7 @@ namespace Pipaslot.Mediator
 
         public void Add(Notification notification)
         {
-            var stack = ContextStack;
-            if(stack.Count == 0)
+            if(Context is null)
             {
                 // Notification provider is called independently of the mediator
                 var messageReceiver = _serviceProvider.GetService<NotificationReceiverMiddleware>();
@@ -56,11 +54,7 @@ namespace Pipaslot.Mediator
             }
             else
             {
-                // Propagate the notifications up in call tree to be handed over to client app
-                foreach(var context in stack)
-                {
-                    context.AddResult(notification);
-                }
+                Context.AddResult(notification);
             }            
         }
     }

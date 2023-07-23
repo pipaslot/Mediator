@@ -1,26 +1,26 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests
 {
     public class ServiceResolver_ResolveMiddlewaresTests
     {
         [Theory]
-        [InlineData(false, 1, typeof(BeforeMiddleware))]
-        [InlineData(false, 2, typeof(QueryMiddleware))]
-        [InlineData(false, 3, typeof(Query2Middleware))]
-        [InlineData(false, 4, typeof(DefaultMiddleware))]
-        [InlineData(false, 5, typeof(HandlerExecutionMiddleware))]
+        [InlineData(false, 1, typeof(NotificationPropagationMiddleware))]
+        [InlineData(false, 2, typeof(BeforeMiddleware))]
+        [InlineData(false, 3, typeof(QueryMiddleware))]
+        [InlineData(false, 4, typeof(Query2Middleware))]
+        [InlineData(false, 5, typeof(DefaultMiddleware))]
+        [InlineData(false, 6, typeof(HandlerExecutionMiddleware))]
 
-        [InlineData(true, 1, typeof(BeforeMiddleware))]
-        [InlineData(true, 2, typeof(QueryMiddleware))]
-        [InlineData(true, 3, typeof(HandlerExecutionMiddleware))]
+        [InlineData(true, 1, typeof(NotificationPropagationMiddleware))]
+        [InlineData(true, 2, typeof(BeforeMiddleware))]
+        [InlineData(true, 3, typeof(QueryMiddleware))]
+        [InlineData(true, 4, typeof(HandlerExecutionMiddleware))]
         public void QueryPath(bool executeHanldersInFirstMap, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
@@ -29,16 +29,18 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Theory]
-        [InlineData(true, 1, typeof(BeforeMiddleware))]
-        [InlineData(true, 2, typeof(CommandMiddleware))]
-        [InlineData(true, 3, typeof(CommandNestedMiddleware))]
-        [InlineData(true, 4, typeof(DefaultMiddleware))]
-        [InlineData(true, 5, typeof(HandlerExecutionMiddleware))]
+        [InlineData(true, 1, typeof(NotificationPropagationMiddleware))]
+        [InlineData(true, 2, typeof(BeforeMiddleware))]
+        [InlineData(true, 3, typeof(CommandMiddleware))]
+        [InlineData(true, 4, typeof(CommandNestedMiddleware))]
+        [InlineData(true, 5, typeof(DefaultMiddleware))]
+        [InlineData(true, 6, typeof(HandlerExecutionMiddleware))]
 
-        [InlineData(false, 1, typeof(BeforeMiddleware))]
-        [InlineData(false, 2, typeof(CommandMiddleware))]
-        [InlineData(false, 3, typeof(DefaultMiddleware))]
-        [InlineData(false, 4, typeof(HandlerExecutionMiddleware))]
+        [InlineData(false, 1, typeof(NotificationPropagationMiddleware))]
+        [InlineData(false, 2, typeof(BeforeMiddleware))]
+        [InlineData(false, 3, typeof(CommandMiddleware))]
+        [InlineData(false, 4, typeof(DefaultMiddleware))]
+        [InlineData(false, 5, typeof(HandlerExecutionMiddleware))]
         public void CommandPath(bool enableNested, int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
@@ -47,9 +49,10 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Theory]
-        [InlineData(1, typeof(BeforeMiddleware))]
-        [InlineData(2, typeof(DefaultMiddleware))]
-        [InlineData(3, typeof(HandlerExecutionMiddleware))]
+        [InlineData(1, typeof(NotificationPropagationMiddleware))]
+        [InlineData(2, typeof(BeforeMiddleware))]
+        [InlineData(3, typeof(DefaultMiddleware))]
+        [InlineData(4, typeof(HandlerExecutionMiddleware))]
         public void DefaultPath(int position, Type expectedMiddleware)
         {
             var sut = CreateServiceResolver();
@@ -58,17 +61,19 @@ namespace Pipaslot.Mediator.Tests
         }
 
         [Theory]
-        [InlineData(1, true, typeof(QueryMiddleware))]
-        [InlineData(2, true, typeof(Query2Middleware))]
-        [InlineData(3, true, typeof(HandlerExecutionMiddleware))]
+        [InlineData(1, true, typeof(NotificationPropagationMiddleware))]
+        [InlineData(2, true, typeof(QueryMiddleware))]
+        [InlineData(3, true, typeof(Query2Middleware))]
+        [InlineData(4, true, typeof(HandlerExecutionMiddleware))]
 
-        [InlineData(1, false, typeof(HandlerExecutionMiddleware))]
+        [InlineData(1, false, typeof(NotificationPropagationMiddleware))]
+        [InlineData(2, false, typeof(HandlerExecutionMiddleware))]
         public void UseWhen(int position, bool applyCustom, Type expectedMiddleware)
         {
             var sut = Factory.CreateInternalMediator(c =>
             {
                 c.UseWhen(a => applyCustom, s => s.Use<QueryMiddleware>());
-                c.UseWhen((a,s) => applyCustom, s => s.Use<Query2Middleware>());
+                c.UseWhen((a, s) => applyCustom, s => s.Use<Query2Middleware>());
             });
             var middlewares = sut.GetPipeline(new FakeNotification());
             VerifyMiddleware(middlewares, position, expectedMiddleware);

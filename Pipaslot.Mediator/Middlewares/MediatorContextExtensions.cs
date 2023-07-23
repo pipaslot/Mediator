@@ -30,11 +30,12 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         /// <param name="context"></param>
         /// <param name="messages">The contents</param>
-        public static void AddErrors(this MediatorContext context, IEnumerable<string> messages)
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddErrors(this MediatorContext context, IEnumerable<string> messages, bool stopPropagation = false)
         {
             foreach (var message in messages)
             {
-                context.AddError(message);
+                context.AddError(message, stopPropagation);
             }
         }
 
@@ -43,9 +44,10 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         /// <param name="context"></param>
         /// <param name="message">The content</param>
-        public static void AddError(this MediatorContext context, string message)
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddError(this MediatorContext context, string message, bool stopPropagation = false)
         {
-            var notification = Notification.Error(message, context.Action);
+            var notification = Notification.Error(message, context.Action, stopPropagation);
             context.AddResult(notification);
         }
 
@@ -55,9 +57,10 @@ namespace Pipaslot.Mediator.Middlewares
         /// <param name="context"></param>
         /// <param name="message">The content</param>
         /// <param name="source">Source name or title</param>
-        public static void AddError(this MediatorContext context, string message, string source)
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddError(this MediatorContext context, string message, string source, bool stopPropagation = false)
         {
-            var notification = Notification.Error(message, source);
+            var notification = Notification.Error(message, source, stopPropagation);
             context.AddResult(notification);
         }
 
