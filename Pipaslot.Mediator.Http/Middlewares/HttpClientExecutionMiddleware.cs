@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator.Http.Middlewares
 {
     /// <summary>
-    /// Middleware sending actions over HTTP client to mediator server implementation. Not further middleware will be executed after this one.
+    /// Middleware sending actions over HTTP client to mediator server implementation. No further middleware will be executed after this one.
     /// </summary>
     public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlFormatter
     {
