@@ -104,14 +104,14 @@ namespace Pipaslot.Mediator.Configuration
             return this;
         }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
         {
-            return _middlewares.Use<TMiddleware>(setupDependencies, lifetime);
+            return _middlewares.Use<TMiddleware>(setupDependencies, lifetime, parameters);
         }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped) where TMiddleware : IMediatorMiddleware
+        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
         {
-            return _middlewares.Use<TMiddleware>(lifetime);
+            return _middlewares.Use<TMiddleware>(lifetime, parameters);
         }
 
         public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
@@ -154,7 +154,12 @@ namespace Pipaslot.Mediator.Configuration
             return FilterAssignableToRequest(_actionMarkerTypes);
         }
 
-        public IEnumerable<Type> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        IEnumerable<MiddlewareDefinition> IMiddlewareResolver.GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        {
+            return GetMiddlewares(action, serviceProvider);
+        }
+
+        internal IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             var pipelines = _pipelines
                 .Where(p => p.Condition(action))

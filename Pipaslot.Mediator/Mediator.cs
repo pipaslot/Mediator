@@ -2,6 +2,7 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -134,24 +135,26 @@ namespace Pipaslot.Mediator
             return result;
         }
 
-        internal IEnumerable<IMediatorMiddleware> GetPipeline(IMediatorAction action)
+        internal IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> GetPipeline(IMediatorAction action)
         {
-            var middlewareTypes = _configurator.GetMiddlewares(action, _serviceProvider);
-            foreach (var middlewareType in middlewareTypes)
+            yield return (new NotificationPropagationMiddleware(), null);
+
+            var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
+            foreach (var middlewareDefinition in middlewareDefinitions)
             {
-                var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareType);
-                yield return middlewareInstance;
+                var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareDefinition.Type);
+                yield return (middlewareInstance, middlewareDefinition.Parameters);
                 if (middlewareInstance is IExecutionMiddleware)
                 {
                     yield break;
                 }
             }
 
-            yield return _serviceProvider.GetRequiredService<IExecutionMiddleware>();
+            yield return (_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
 
         }
 
-        private async Task ProcessPipeline(IEnumerable<IMediatorMiddleware> pipeline, MediatorContext context)
+        private async Task ProcessPipeline(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> pipeline, MediatorContext context)
         {
             _mediatorContextAccessor.Push(context);
             try
@@ -161,7 +164,22 @@ namespace Pipaslot.Mediator
                 {
                     if (enumerator.MoveNext())
                     {
-                        return enumerator.Current.Invoke(ctx, next);
+                        var current = enumerator.Current;
+                        if(current.Parameters == null)
+                        {
+                            var feature = ctx.Features.Get<MiddlewareParametersFeature>();
+                            // Prevent increasing revision number when not necessary
+                            if(feature != MiddlewareParametersFeature.Default)
+                            {
+                                ctx.Features.Set(MiddlewareParametersFeature.Default);
+                            }
+                        }
+                        else
+                        {
+                            var feature = new MiddlewareParametersFeature(current.Parameters);
+                            ctx.Features.Set(feature);
+                        }
+                        return current.Instance.Invoke(ctx, next);
                     }
                     return Task.CompletedTask;
                 };
@@ -175,7 +193,7 @@ namespace Pipaslot.Mediator
 
         private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
         {
-            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken);
+            return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, null);
         }
     }
 }

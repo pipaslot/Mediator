@@ -58,7 +58,7 @@ namespace Pipaslot.Mediator.Tests.Notifications
             var mediator = new Mock<IMediator>();
             var sut = services.GetService<NotificationReceiverMiddleware>();
             var mcaMock = new Mock<IMediatorContextAccessor>();
-            var context = new MediatorContext(mediator.Object, mcaMock.Object, services, new NopMessage(), CancellationToken.None);
+            var context = new MediatorContext(mediator.Object, mcaMock.Object, services, new NopMessage(), CancellationToken.None, null, null);
             setup(context);
             await sut.Invoke(context, c => Task.CompletedTask);
             Assert.Equal(expected, received);

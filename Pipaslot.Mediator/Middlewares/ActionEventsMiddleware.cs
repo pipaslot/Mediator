@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Middlewares
         private readonly ConcurrentDictionary<Guid, IMediatorAction> _runningActions = new();
 
         /// <summary>
-        /// Event fired when Action is getting executed or dispatched
+        /// Event fired when every Action is getting executed or dispatched. Allows trackin all actions executed via mediator.
         /// </summary>
         public event EventHandler<ActionStartedEventArgs>? ActionStarted;
         /// <summary>
@@ -24,12 +24,13 @@ namespace Pipaslot.Mediator.Middlewares
         public event EventHandler? ProcessingStarted;
 
         /// <summary>
-        /// Event fired after the action completes 
+        /// Event fired after every action completion. Allows trackin all actions executed via mediator.
         /// </summary>
         public event EventHandler<ActionCompletedEventArgs>? ActionCompleted;
 
         /// <summary>
-        /// Event fired once all actions are completed
+        /// Event fired once all actions are completed. 
+        /// Usefull for hiding global spinner.
         /// </summary>
         public event EventHandler? ProcessingCompleted;
 

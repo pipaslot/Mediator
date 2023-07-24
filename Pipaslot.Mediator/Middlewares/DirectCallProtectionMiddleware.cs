@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares
 {
     /// <summary>
-    /// Prevent direct calls for action which are not part of your application API
+    /// Prevent direct calls for action which are not part of your application API. 
+    /// Can be used as protection for queries placed in app demilitarized zone (such a actions lacks authentication, authorization or different security checks).
     /// </summary>
     public class DirectCallProtectionMiddleware : IMediatorMiddleware
     {

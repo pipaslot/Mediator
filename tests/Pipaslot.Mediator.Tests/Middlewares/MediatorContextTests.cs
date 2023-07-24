@@ -29,7 +29,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             var mediator = new Mock<IMediator>();
             var spMock = new Mock<IServiceProvider>();
             var mcaMock = new Mock<IMediatorContextAccessor>();
-            return new MediatorContext(mediator.Object, mcaMock.Object, spMock.Object, action, CancellationToken.None);
+            return new MediatorContext(mediator.Object, mcaMock.Object, spMock.Object, action, CancellationToken.None, null, null);
         }
     }
 }

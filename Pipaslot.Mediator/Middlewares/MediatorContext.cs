@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,11 @@ namespace Pipaslot.Mediator.Middlewares
         /// </summary>
         public CancellationToken CancellationToken { get; private set; }
 
+        private IFeatureCollection? _features;
+
+        /// <inheritdoc cref="IFeatureCollection"/>
+        public IFeatureCollection Features => _features ??= new FeatureCollection();
+
         public IMediator Mediator { get; }
 
         /// <summary>
@@ -57,7 +63,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         private object[]? _handlers = null;
 
-        internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers = null)
+        internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
         {
             Mediator = mediator;
             _contextAccessor = contextAccessor;
@@ -65,6 +71,7 @@ namespace Pipaslot.Mediator.Middlewares
             Action = action ?? throw new System.ArgumentNullException(nameof(action));
             CancellationToken = cancellationToken;
             _handlers = handlers;
+            _features = defaultFeatures;
         }
 
         public IEnumerable<string> ErrorMessages => _results
@@ -77,77 +84,14 @@ namespace Pipaslot.Mediator.Middlewares
         /// <returns></returns>
         public MediatorContext CopyEmpty()
         {
-            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers);
+            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers, _features);
             return copy;
-        }
-
-        /// <summary>
-        /// Append result properties from context
-        /// </summary>
-        /// <param name="context"></param>
-        public void Append(MediatorContext context)
-        {
-            AddResults(context.Results);
-        }
-
-        /// <summary>
-        /// Append result properties from response
-        /// </summary>
-        /// <param name="response"></param>
-        public void Append(IMediatorResponse response)
-        {
-            AddResults(response.Results);
         }
 
         [Obsolete("Use Status != ExecutionStatus.Succeeded")]
         public bool HasError()
         {
             return Status == ExecutionStatus.Failed;
-        }
-
-        /// <summary>
-        /// Register processing errors. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="messages">The contents</param>
-        public void AddErrors(IEnumerable<string> messages)
-        {
-            foreach (var message in messages)
-            {
-                AddError(message);
-            }
-        }
-
-        /// <summary>
-        /// Register processing error. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="message">The content</param>
-        public void AddError(string message)
-        {
-            var notification = Notification.Error(message, Action);
-            AddResult(notification);
-        }
-
-        /// <summary>
-        /// Register processing error. Ignores duplicate entries.
-        /// </summary>
-        /// <param name="message">The content</param>
-        /// <param name="source">Source name or title</param>
-        public void AddError(string message, string source)
-        {
-            var notification = Notification.Error(message, source);
-            AddResult(notification);
-        }
-
-        /// <summary>
-        /// Register processing results
-        /// </summary>
-        /// <param name="result"></param>
-        public void AddResults(IEnumerable<object> result)
-        {
-            foreach(var res in result)
-            {
-                AddResult(res);
-            }
         }
 
         /// <summary>

@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Notifications
 {
+    /// <summary>
+    /// Expose all notifications sent as action results via event handler <see cref="INotificationReceiver.NotificationReceived"/>. 
+    /// You can then inject the <see cref="INotificationReceiver"/> and process/show all notifications via your own notification component (push notifications).
+    /// </summary>
     public class NotificationReceiverMiddleware : IMediatorMiddleware, INotificationReceiver
     {
         public event EventHandler<NotificationReceivedEventArgs>? NotificationReceived;

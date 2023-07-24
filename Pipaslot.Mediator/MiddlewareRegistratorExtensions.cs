@@ -4,6 +4,7 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Linq;
@@ -12,6 +13,31 @@ namespace Pipaslot.Mediator
 {
     public static class MiddlewareRegistratorExtensions
     {
+        /// <summary>
+        /// Register middleware in pipeline for all actions and propagate parameters to the middlewate. 
+        /// <para>The parameters are available in <see cref="MediatorContext.Features"/> under type <see cref="MiddlewareParametersFeature"/></para>
+        /// </summary>
+        /// <typeparam name="TMiddleware">Middleware type</typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="parameters">Parameters passed to <see cref="MediatorContext.Features"/> right before middleware execution and available under type <see cref="MiddlewareParametersFeature"/></param>
+        public static IMiddlewareRegistrator UseWithParameters<TMiddleware>(this IMiddlewareRegistrator configurator, params object[] parameters) where TMiddleware : IMediatorMiddleware
+        {
+            return configurator.Use<TMiddleware>(ServiceLifetime.Scoped, parameters);
+        }
+
+        /// <summary>
+        /// Register middleware in pipeline for all actions. 
+        /// <para>The parameters are available in <see cref="MediatorContext.Features"/> under type <see cref="MiddlewareParametersFeature"/></para>
+        /// </summary>
+        /// <typeparam name="TMiddleware">Middleware type</typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="setupDependencies">Additional dependencies registered with middleware</param>
+        /// <param name="parameters">Parameters passed to <see cref="MediatorContext.Features"/> right before middleware execution and available under type <see cref="MiddlewareParametersFeature"/></param>
+        public static IMiddlewareRegistrator UseWithParameters<TMiddleware>(this IMiddlewareRegistrator configurator, Action<IServiceCollection> setupDependencies, params object[] parameters) where TMiddleware : IMediatorMiddleware
+        {
+            return configurator.Use<TMiddleware>(setupDependencies, ServiceLifetime.Scoped, parameters);
+        }
+
         /// <summary>
         /// Register middlewares applied only for actions passing the condition.
         /// </summary>
@@ -23,38 +49,38 @@ namespace Pipaslot.Mediator
 
         #region UseWhenAction
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing TActionMarker.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenAction"/>
         public static IMiddlewareRegistrator UseWhenAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
              where TMiddleware : IMediatorMiddleware
         {
             return configurator.UseWhenAction<TActionMarker>(m => m.Use<TMiddleware>());
         }
 
+        /// <inheritdoc cref="UseWhenAction"/>
+        public static IMiddlewareRegistrator UseWhenAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenAction(typeof(TActionMarker), subMiddlewares);
+        }
+
         /// <summary>
         /// Register action-specific middlewares applied only for actions implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator UseWhenAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenAction(this IMiddlewareRegistrator configurator, Type action, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()), subMiddlewares);
+            return configurator.UseWhen(a => action.IsAssignableFrom(a.GetType()), subMiddlewares);
         }
 
         #endregion
 
         #region UseWhenActions
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenActions"/>
         public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2) }, subMiddlewares);
         }
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions implementing any actionMarker type.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenActions"/>
         public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2, TActionMarker3>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
         {
             return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2), typeof(TActionMarker3) }, subMiddlewares);
@@ -72,54 +98,50 @@ namespace Pipaslot.Mediator
 
         #region UseWhenNotAction
 
-        /// <summary>
-        /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
-        /// </summary>
+        /// <inheritdoc cref="UseWhenNotAction"/>
         public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker, TMiddleware>(this IMiddlewareRegistrator configurator)
              where TMiddleware : IMediatorMiddleware
         {
             return configurator.UseWhenNotAction<TActionMarker>(m => m.Use<TMiddleware>());
         }
 
+        /// <inheritdoc cref="UseWhenNotAction"/>
+        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        {
+            return configurator.UseWhenNotAction(typeof(TActionMarker), subMiddlewares);
+        }
+
         /// <summary>
         /// Register action-specific middlewares applied only for actions not-implementing TActionMarker.
         /// </summary>
-        public static IMiddlewareRegistrator UseWhenNotAction<TActionMarker>(this IMiddlewareRegistrator configurator, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenNotAction(this IMiddlewareRegistrator configurator, Type action, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return configurator.UseWhen(action => typeof(TActionMarker).IsAssignableFrom(action.GetType()) == false, subMiddlewares);
+            return configurator.UseWhen(a => action.IsAssignableFrom(a.GetType()) == false, subMiddlewares);
         }
 
         #endregion
 
-        /// <summary>
-        /// Execute handlers. No more middlewares will be executed.
-        /// </summary>
+        /// <inheritdoc cref="HandlerExecutionMiddleware"/>
         public static IMiddlewareRegistrator UseHandlerExecution(this IMiddlewareRegistrator config)
         {
             return config.Use<HandlerExecutionMiddleware>();
         }
 
-        /// <summary>
-        /// Reduce action processing to only one at the same time for the same action type with the same properties.
-        /// This is useful when you know that your application executes the same action multiple times but you want to reduce the server load. 
-        /// IMPORTANT!: object method GetHashcode() is used for evaluating object similarities
-        /// </summary>
+        /// <inheritdoc cref="ReduceDuplicateProcessingMiddleware"/>
         public static IMiddlewareRegistrator UseReduceDuplicateProcessing(this IMiddlewareRegistrator config)
         {
             return config.Use<ReduceDuplicateProcessingMiddleware>();
         }
 
         /// <summary>
-        /// Track actions processed by middleware through exposed events
+        /// Track actions processed by middleware through exposed events <see cref="ActionEventsMiddleware.ActionStarted"/> <see cref="ActionEventsMiddleware.ProcessingStarted"/>, <see cref="ActionEventsMiddleware.ProcessingCompleted"/> and  <see cref="ActionEventsMiddleware.ActionCompleted"/>
         /// </summary>
         public static IMiddlewareRegistrator UseActionEvents(this IMiddlewareRegistrator config)
         {
             return config.Use<ActionEventsMiddleware>(ServiceLifetime.Singleton);
         }
 
-        /// <summary>
-        /// Middleware listening for error messages and <see cref="Notification"/> in action results which are exposed via event handler <see cref="INotificationReceiver.NotificationReceived"/>
-        /// </summary>
+        /// <inheritdoc cref="NotificationReceiverMiddleware"/>
         public static IMiddlewareRegistrator UseNotificationReceiver(this IMiddlewareRegistrator config)
         {
             return config.Use<NotificationReceiverMiddleware>(services =>
@@ -128,18 +150,13 @@ namespace Pipaslot.Mediator
             });
         }
 
-        /// <summary>
-        /// Register authorization middleware evaluating policies for actions and their handlers
-        /// </summary>
+        /// <inheritdoc cref="AuthorizationMiddleware"/>
         public static IMiddlewareRegistrator UseAuthorization(this IMiddlewareRegistrator config)
         {
             return config.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton);
         }
 
-        /// <summary>
-        /// Prevent direct calls for action which are not part of your application API. 
-        /// Can be used as protection for queries placed in app demilitarized zone. Such a actions lacks authentication, authorization or different security checks.
-        /// </summary>
+        /// <inheritdoc cref="DirectCallProtectionMiddleware"/>
         public static IMiddlewareRegistrator UseDirectCallProtection(this IMiddlewareRegistrator config)
         {
             return config.Use<DirectCallProtectionMiddleware>(ServiceLifetime.Singleton);

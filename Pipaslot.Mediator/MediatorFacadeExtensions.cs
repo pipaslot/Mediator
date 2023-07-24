@@ -4,44 +4,90 @@ namespace Pipaslot.Mediator
 {
     public static class MediatorFacadeExtensions
     {
-        public static void AddNotification(this IMediatorFacade provider, string content, string source, NotificationType type)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="type"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddNotification(this IMediatorFacade facade, string content, string source, NotificationType type, bool stopPropagation = false)
         {
-            provider.AddNotification(new Notification
+            facade.AddNotification(new Notification
             {
                 Content = content,
                 Source = source,
-                Type = type
+                Type = type,
+                StopPropagation = stopPropagation
             });
         }
 
-        public static void AddNotification(this IMediatorFacade provider, string content, NotificationType type, string? source = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="type"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddNotification(this IMediatorFacade facade, string content, NotificationType type, string? source = null, bool stopPropagation = false)
         {
-            provider.AddNotification(new Notification
+            facade.AddNotification(new Notification
             {
                 Content = content,
                 Source = source ?? string.Empty,
-                Type = type
+                Type = type,
+                StopPropagation = stopPropagation
             });
         }
 
-        public static void AddErrorNotification(this IMediatorFacade facade, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddErrorNotification(this IMediatorFacade facade, string content, string source = "", bool stopPropagation = false)
         {
-            facade.AddNotification(content, source, NotificationType.Error);
+            facade.AddNotification(content, source, NotificationType.Error, stopPropagation);
         }
 
-        public static void AddWarningNotification(this IMediatorFacade facade, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddWarningNotification(this IMediatorFacade facade, string content, string source = "", bool stopPropagation = false)
         {
-            facade.AddNotification(content, source, NotificationType.Warning);
+            facade.AddNotification(content, source, NotificationType.Warning, stopPropagation);
         }
 
-        public static void AddInformationNotification(this IMediatorFacade facade, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddInformationNotification(this IMediatorFacade facade, string content, string source = "", bool stopPropagation = false)
         {
-            facade.AddNotification(content, source, NotificationType.Information);
+            facade.AddNotification(content, source, NotificationType.Information, stopPropagation);
         }
 
-        public static void AddSuccessNotification(this IMediatorFacade facade, string content, string source = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="facade"></param>
+        /// <param name="content"></param>
+        /// <param name="source"></param>
+        /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>
+        public static void AddSuccessNotification(this IMediatorFacade facade, string content, string source = "", bool stopPropagation = false)
         {
-            facade.AddNotification(content, source, NotificationType.Success);
+            facade.AddNotification(content, source, NotificationType.Success, stopPropagation);
         }
     }
 }
