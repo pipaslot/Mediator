@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator
 
         public static MediatorExecutionException CreateForUnhandledError(string errors, MediatorContext context)
         {
-            return new MediatorExecutionException($"An error occurred during processing. Errors: [{errors}]", context);
+            return new MediatorExecutionException($"Handler or middlewares set the ExecutionStatus to {ExecutionStatus.Failed}. To prevent this exception, user methods Mediator.Dispatch or Mediator.Execute instead. Error messages: [{errors}]", context);
         }
 
         internal static MediatorExecutionException CreateForMissingResult(MediatorContext context, Type type)

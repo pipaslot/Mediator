@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace Pipaslot.Mediator
         /// <param name="request">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Returns data from handler</returns>
+        /// <exception cref="MediatorExecutionException"></exception>
         Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -41,6 +43,7 @@ namespace Pipaslot.Mediator
         /// <param name="message">Object managing input parameters</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Does not returns either data nor state</returns>
+        /// <exception cref="MediatorExecutionException"></exception>
         Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default);
     }
 }
