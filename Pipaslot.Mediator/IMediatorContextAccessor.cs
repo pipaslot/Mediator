@@ -19,6 +19,8 @@ namespace Pipaslot.Mediator
 
         /// <summary>
         /// All action context executed recursively
+        /// First is the root action
+        /// Last is the actual action
         /// </summary>
         IReadOnlyCollection<MediatorContext> ContextStack { get; }
     }
