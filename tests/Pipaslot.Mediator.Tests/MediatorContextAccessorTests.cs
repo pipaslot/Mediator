@@ -8,9 +8,9 @@ namespace Pipaslot.Mediator.Tests
 {
     public class MediatorContextAccessorTests
     {
-        private IMediator _mediator;
-        private IMediatorContextAccessor _contextAccessor;
-        private FakeService _service;
+        private readonly IMediator _mediator;
+        private readonly IMediatorContextAccessor _contextAccessor;
+        private readonly FakeService _service;
 
         public MediatorContextAccessorTests()
         {
@@ -39,7 +39,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task ExecutionCompleted_ContextIsNull()
         {
-            await _mediator.Dispatch(new RootAction());
+            await _mediator.DispatchUnhandled(new RootAction(RootActionTestCase.SingleNested));
             Assert.Null(_contextAccessor.Context);
             Assert.Empty(_contextAccessor.ContextStack);
         }
@@ -48,9 +48,16 @@ namespace Pipaslot.Mediator.Tests
         public async Task Flow()
         {
             _service.AssertZero();
-            await _mediator.Dispatch(new RootAction());
+            await _mediator.DispatchUnhandled(new RootAction(RootActionTestCase.SingleNested));
             _service.AssertZero();
         }
+
+        [Fact]
+        public async Task NestedParallelTask_TheContextsAreNotOverlapping()
+        {
+            await _mediator.DispatchUnhandled(new RootAction(RootActionTestCase.ConcurrentNested));
+        }
+
         private class FakeService
         {
             private readonly IMediatorContextAccessor _accessor;
@@ -64,28 +71,42 @@ namespace Pipaslot.Mediator.Tests
             {
                 Assert.Empty(_accessor.ContextStack);
                 Assert.Null(_accessor.Context);
+                // Verify that helper classes returns the same result as well
+                Assert.Null(_accessor.GetRootContext());
+                Assert.Empty(_accessor.GetParentContexts());
             }
 
             public void AssertSingle()
             {
-                Assert.Equal(typeof(RootAction), _accessor.Context.GetType());
+                Assert.Equal(typeof(RootAction), _accessor.Context?.Action?.GetType());
                 Assert.Single(_accessor.ContextStack);
-                Assert.Equal(typeof(RootAction), _accessor.ContextStack.First().GetType());
+                Assert.Equal(typeof(RootAction), _accessor.ContextStack.First().Action.GetType());
+                // Verify that helper classes returns the same result as well
+                Assert.Equal(typeof(RootAction), _accessor.GetRootContext()?.Action?.GetType());
+                Assert.Empty(_accessor.GetParentContexts());
             }
 
             public void AssertTwo()
             {
-                Assert.Equal(typeof(RootAction), _accessor.Context.GetType());
-                Assert.Equal(2,_accessor.ContextStack.Count);
-                Assert.Equal(typeof(RootAction), _accessor.ContextStack.First().GetType());
-                Assert.Equal(typeof(NestedAction), _accessor.ContextStack.Skip(1).First().GetType());
+                Assert.Equal(typeof(NestedAction), _accessor.Context?.Action?.GetType());
+                Assert.Equal(2, _accessor.ContextStack.Count);
+                Assert.Equal(typeof(NestedAction), _accessor.ContextStack.First().Action.GetType());
+                Assert.Equal(typeof(RootAction), _accessor.ContextStack.Skip(1).First().Action.GetType());
+                // Verify that helper classes returns the same result as well
+                Assert.Equal(typeof(RootAction), _accessor.GetRootContext()?.Action?.GetType());
+                Assert.Single(_accessor.GetParentContexts());
+                Assert.Equal(typeof(RootAction), _accessor.GetParentContexts()?.First()?.Action?.GetType());
             }
         }
 
-        private class RootAction : IMediatorAction
+        private enum RootActionTestCase
         {
-
+            SingleNested,
+            ConcurrentNested
         }
+
+        private record RootAction(RootActionTestCase Case) : IMediatorAction;
+
         private class RootActionHandler : IMediatorHandler<RootAction>
         {
             private readonly FakeService _service;
@@ -100,14 +121,28 @@ namespace Pipaslot.Mediator.Tests
             public async Task Handle(RootAction action, CancellationToken cancellationToken)
             {
                 _service.AssertSingle();
-                await _mediator.Dispatch(new NestedAction());
+                if (action.Case == RootActionTestCase.SingleNested)
+                {
+                    await _mediator.DispatchUnhandled(new NestedAction());
+                }
+                else
+                {
+                    var actions = new[]
+                    {
+                        new NestedAction(), new NestedAction(), new NestedAction(), new NestedAction(),
+                        new NestedAction(),
+                    };
+                    // Test concurrency
+                    var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a));
+                    await Task.WhenAll(tasks);
+                }
+
                 _service.AssertSingle();
             }
         }
-        private class NestedAction : IMediatorAction
-        {
 
-        }
+        private record NestedAction : IMediatorAction;
+
         private class NestedActionHandler : IMediatorHandler<NestedAction>
         {
             private readonly FakeService _service;
@@ -124,6 +159,4 @@ namespace Pipaslot.Mediator.Tests
             }
         }
     }
-
-
 }
