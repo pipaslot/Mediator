@@ -54,9 +54,9 @@ namespace Pipaslot.Mediator.Middlewares
         /// Parent action contexts. 
         /// Will be empty if current action is executed independently. 
         /// Will contain parent contexts of actions which executed current action as nested call. 
-        /// First member is always the root action.
+        /// The last member is always the root action.
         /// </summary>
-        public MediatorContext[] ParentContexts => _contextAccessor.ContextStack.Skip(1).ToArray();
+        public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
 
         private readonly IMediatorContextAccessor _contextAccessor;
         internal IServiceProvider Services { get; }
