@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Test(result);
         }
 
-        private void Test<T>(T result) where T : notnull
+        protected void Test<T>(T result) where T : notnull
         {
             var sut = CreateSerializer();
             var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
