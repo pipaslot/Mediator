@@ -178,7 +178,11 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
 
         private bool AsPrimitive(Type type)
         {
-            return type.IsPrimitive || type == typeof(string);
+            return type.IsPrimitive 
+                   || type == typeof(string) 
+                   || type == typeof(decimal) 
+                   || type == typeof(DateTime)
+                   || type == typeof(DateTimeOffset);
         }
     }
 }

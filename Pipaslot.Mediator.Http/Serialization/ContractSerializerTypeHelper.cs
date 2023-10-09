@@ -106,7 +106,7 @@ namespace Pipaslot.Mediator.Http.Serialization
             }
             else
             {
-                throw new NotSupportedException($"Can not serialize type '{type}' as object because the class inherits from collection type.");
+                throw new NotSupportedException($"Data type '{type}' is not supported for result serialization in the Mediator. Also avoid returning NULL.");
             }
         }
     }
