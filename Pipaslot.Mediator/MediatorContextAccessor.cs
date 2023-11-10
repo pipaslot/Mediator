@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator
             get => _asyncLocal.Value?.Peek();
         }
 
-        [Obsolete]
+        [Obsolete("Use Context instead")]
         public MediatorContext? MediatorContext
         {
             get => Context;

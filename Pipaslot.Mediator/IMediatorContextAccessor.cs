@@ -37,6 +37,7 @@ namespace Pipaslot.Mediator
         {
             return accessor.ContextStack.LastOrDefault();
         }
+        
         /// <summary>
         /// Parent action contexts. 
         /// Will be empty if current action is executed independently. 
