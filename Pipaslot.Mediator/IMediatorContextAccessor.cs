@@ -48,5 +48,31 @@ namespace Pipaslot.Mediator
         {
             return accessor.ContextStack.Skip(1).ToArray();
         }
+        
+        /// <summary>
+        /// Get feature from root context
+        /// </summary>
+        public static TFeature? GetRootContextFeature<TFeature>(this IMediatorContextAccessor accessor)
+        {
+            var context = accessor.GetRootContext();
+            if(context is not null)
+            {
+                return context.Features.Get<TFeature>();
+            }
+
+            return default;
+        }
+        
+        public static bool SetRootContextFeature<TFeature>(this IMediatorContextAccessor accessor, TFeature feature)
+        {
+            var context = accessor.GetRootContext();
+            if(context is not null)
+            {
+                context.Features.Set<TFeature>(feature);
+                return true;
+            }
+
+            return false;
+        }
     }
 }
