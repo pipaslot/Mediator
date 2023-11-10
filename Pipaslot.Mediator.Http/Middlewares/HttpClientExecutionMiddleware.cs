@@ -38,7 +38,7 @@ namespace Pipaslot.Mediator.Http.Middlewares
         {
             var serialized = _serializer.SerializeRequest(action);
             var decoded = WebUtility.UrlDecode(serialized);
-            return $"{_options.Endpoint}?type={action.GetType()}&{MediatorConstants.ActionQueryParamName}={decoded}";
+            return $"{_options.Endpoint}?{MediatorConstants.ActionQueryParamName}={decoded}";
         }
 
         protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context)
