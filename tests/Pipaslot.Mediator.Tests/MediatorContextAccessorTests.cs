@@ -57,14 +57,7 @@ namespace Pipaslot.Mediator.Tests
         [Fact]
         public async Task NestedParallelTask_KnownFailingCase()
         {
-            // AsyncLocal accessor causes issues because all the action are pushed into one context stack, instead of being separated
-            // We do not have solution at the moment
-            // The only workaround is to access the context before first await in the called handler
-            // TODO: Prevent this issue and solve the exception 
-            await Assert.ThrowsAsync<EqualException>(async () =>
-            {
-                await _mediator.DispatchUnhandled(new RootAction(RootActionTestCase.ConcurrentNested));
-            });
+            await _mediator.DispatchUnhandled(new RootAction(RootActionTestCase.ConcurrentNested));
         }
 
         private class FakeService
@@ -132,7 +125,7 @@ namespace Pipaslot.Mediator.Tests
                 _service.AssertSingle();
                 if (action.Case == RootActionTestCase.SingleNested)
                 {
-                    await _mediator.DispatchUnhandled(new NestedAction());
+                    await _mediator.DispatchUnhandled(new NestedAction(), cancellationToken);
                 }
                 else
                 {
@@ -145,7 +138,7 @@ namespace Pipaslot.Mediator.Tests
                         new NestedAction(TimeSpan.FromMilliseconds(10)),
                     };
                     // Test concurrency
-                    var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a));
+                    var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a, cancellationToken));
                     await Task.WhenAll(tasks);
                 }
 
@@ -166,6 +159,7 @@ namespace Pipaslot.Mediator.Tests
 
             public async Task Handle(NestedAction action, CancellationToken cancellationToken)
             {
+                _service.AssertTwo();
                 if (action.Delay.HasValue)
                 {
                     await Task.Delay(action.Delay.Value, cancellationToken);
