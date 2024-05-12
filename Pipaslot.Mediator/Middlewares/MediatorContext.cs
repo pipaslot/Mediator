@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Pipaslot.Mediator.Middlewares
@@ -17,7 +16,7 @@ namespace Pipaslot.Mediator.Middlewares
 
         public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
 
-        private List<object> _results = new List<object>(1);
+        private readonly List<object> _results = new(1);
         /// <summary>
         /// Handler result objects and object collected during middleware processing
         /// </summary>
@@ -61,7 +60,7 @@ namespace Pipaslot.Mediator.Middlewares
         private readonly IMediatorContextAccessor _contextAccessor;
         internal IServiceProvider Services { get; }
 
-        private object[]? _handlers = null;
+        private object[]? _handlers;
 
         internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
         {
@@ -73,7 +72,7 @@ namespace Pipaslot.Mediator.Middlewares
             _handlers = handlers;
             _features = defaultFeatures;
         }
-
+        
         public IEnumerable<string> ErrorMessages => _results
                 .GetNotifications()
                 .GetErrorMessages();
