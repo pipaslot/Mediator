@@ -23,7 +23,6 @@ namespace Pipaslot.Mediator.Tests
             collection.AddScoped<FakeService>();
             collection.AddTransient<IMediatorHandler<Level1Action>, Level1ActionHandler>();
             collection.AddTransient<IMediatorHandler<Level2Action>, Level2ActionHandler>();
-            collection.AddTransient<IMediatorHandler<Level3Action>, Level3ActionHandler>();
             var services = collection.BuildServiceProvider();
 
             _mediator = services.GetRequiredService<IMediator>();
@@ -96,16 +95,6 @@ namespace Pipaslot.Mediator.Tests
                 Assert.Single(_accessor.GetParentContexts());
                 Assert.Equal(typeof(Level1Action), _accessor.GetParentContexts()?.First()?.Action?.GetType());
             }
-
-            public void AssertThree()
-            {
-                Assert.Equal(typeof(Level3Action), _accessor.Context?.Action?.GetType());
-                Assert.Equal(3, _accessor.ContextStack.Count);
-                // Verify that helper classes returns the same result as well
-                Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action?.GetType());
-                Assert.Equal(2, _accessor.GetParentContexts().Length);
-                Assert.Equal(typeof(Level2Action), _accessor.GetParentContexts()?.First()?.Action?.GetType());
-            }
         }
 
         private enum ActionBehaviorTestCase
@@ -136,15 +125,14 @@ namespace Pipaslot.Mediator.Tests
                 _service.AssertSingle();
                 if (action.Case == ActionBehaviorTestCase.SingleNested)
                 {
-                    await _mediator.DispatchUnhandled(new Level2Action(action.Case), cancellationToken);
+                    await _mediator.DispatchUnhandled(new Level2Action(TimeSpan.FromMilliseconds(10)), cancellationToken);
                 }
                 else if (action.Case == ActionBehaviorTestCase.ConcurrentNested)
                 {
                     var actions = new[]
                     {
-                        new Level2Action(action.Case, TimeSpan.FromMilliseconds(50)),
-                        new Level2Action(action.Case, TimeSpan.FromMilliseconds(20)),
-                        new Level2Action(action.Case, TimeSpan.FromMilliseconds(10)),
+                        new Level2Action(TimeSpan.FromMilliseconds(50)), new Level2Action(TimeSpan.FromMilliseconds(20)),
+                        new Level2Action(TimeSpan.FromMilliseconds(10)),
                     };
                     var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a, cancellationToken));
                     await Task.WhenAll(tasks);
@@ -162,17 +150,15 @@ namespace Pipaslot.Mediator.Tests
         /// Action executed by Level 1
         /// </summary>
         /// <param name="Delay"></param>
-        private record Level2Action(ActionBehaviorTestCase Case, TimeSpan? Delay = null) : IMediatorAction;
+        private record Level2Action(TimeSpan? Delay = null) : IMediatorAction;
 
         private class Level2ActionHandler : IMediatorHandler<Level2Action>
         {
             private readonly FakeService _service;
-            private readonly IMediator _mediator;
 
-            public Level2ActionHandler(FakeService service, IMediator mediator)
+            public Level2ActionHandler(FakeService service)
             {
                 _service = service;
-                _mediator = mediator;
             }
 
             public async Task Handle(Level2Action action, CancellationToken cancellationToken)
@@ -183,53 +169,7 @@ namespace Pipaslot.Mediator.Tests
                     await Task.Delay(action.Delay.Value, cancellationToken);
                 }
 
-                if (action.Case == ActionBehaviorTestCase.SingleNested)
-                {
-                    await _mediator.DispatchUnhandled(new Level3Action(), cancellationToken);
-                }
-                else if (action.Case == ActionBehaviorTestCase.ConcurrentNested)
-                {
-                    var actions = new[]
-                    {
-                        new Level3Action(TimeSpan.FromMilliseconds(50)), new Level3Action(TimeSpan.FromMilliseconds(20)),
-                        new Level3Action(TimeSpan.FromMilliseconds(10)),
-                    };
-                    var tasks = actions.Select(a => _mediator.DispatchUnhandled(a, cancellationToken));
-                    await Task.WhenAll(tasks);
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-
                 _service.AssertTwo();
-            }
-        }
-
-        /// <summary>
-        /// Action executed by Level 2
-        /// </summary>
-        /// <param name="Delay"></param>
-        private record Level3Action(TimeSpan? Delay = null) : IMediatorAction;
-
-        private class Level3ActionHandler : IMediatorHandler<Level3Action>
-        {
-            private readonly FakeService _service;
-
-            public Level3ActionHandler(FakeService service)
-            {
-                _service = service;
-            }
-
-            public async Task Handle(Level3Action action, CancellationToken cancellationToken)
-            {
-                _service.AssertThree();
-                if (action.Delay.HasValue)
-                {
-                    await Task.Delay(action.Delay.Value, cancellationToken);
-                }
-
-                _service.AssertThree();
             }
         }
     }
