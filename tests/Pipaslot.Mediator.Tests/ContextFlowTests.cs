@@ -18,7 +18,7 @@ public class ContextFlowTests
         _flow.Add(CreateContext(2));
         AssertDepth(2, _flow.GetCurrent());
     }
-    
+
     [Fact]
     public void ToArray_FirstIsTheCurrent()
     {
@@ -26,7 +26,7 @@ public class ContextFlowTests
         _flow.Add(CreateContext(2));
         AssertDepth(2, _flow.ToArray().First());
     }
-    
+
     [Fact]
     public void ToArray_LastIsTheRootOne()
     {
@@ -34,7 +34,7 @@ public class ContextFlowTests
         _flow.Add(CreateContext(2));
         AssertDepth(1, _flow.ToArray().Last());
     }
-    
+
     [Fact]
     public async Task Flow_AddInSequence()
     {
@@ -44,7 +44,7 @@ public class ContextFlowTests
         await TriggerAction(1, AssertCountFunc(1));
         AssertCount(0);
     }
-    
+
     /// <summary>
     /// Simulate use case when we trigger another action from already processed action
     /// </summary>
@@ -71,7 +71,7 @@ public class ContextFlowTests
         });
         AssertCount(0);
     }
-    
+
     [Fact]
     public async Task Flow_AddInParallel()
     {
@@ -82,7 +82,7 @@ public class ContextFlowTests
         await Task.WhenAll(actions);
         AssertCount(0);
     }
-    
+
     /// <summary>
     /// Simulate use case when we trigger another action from already processed action (in paralle/concurrently)
     /// </summary>
@@ -91,7 +91,7 @@ public class ContextFlowTests
     {
         AssertCount(0);
         var actions = Enumerable.Range(1, 2)
-            .Select(i => TriggerAction(1,async () =>
+            .Select(i => TriggerAction(1, async () =>
             {
                 AssertCount(1);
                 await TriggerAction(2, AssertCountFunc(2));
@@ -103,7 +103,7 @@ public class ContextFlowTests
         await Task.WhenAll(actions);
         AssertCount(0);
     }
-    
+
     /// <summary>
     /// Prevent System.InvalidOperationException: Collection was modified after the enumerator was instantiated.
     /// </summary>
@@ -111,7 +111,7 @@ public class ContextFlowTests
     public async Task ConcurrencyAccess_ShouldNotFail()
     {
         var actions = Enumerable.Range(1, 1000)
-            .Select(i => TriggerAction(1,async () =>
+            .Select(i => TriggerAction(1, async () =>
             {
                 await TriggerAction(2, () =>
                 {
@@ -141,7 +141,7 @@ public class ContextFlowTests
 
     private Func<Task> AssertCountFunc(int expected)
     {
-        return ()=>
+        return () =>
         {
             AssertCount(expected);
             return Task.CompletedTask;
