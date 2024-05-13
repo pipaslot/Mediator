@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator
     /// </summary>
     internal class MediatorContextAccessor : IMediatorContextAccessor, INotificationProvider
     {
-        private static readonly AsyncLocal<Stack<MediatorContext>> _asyncLocal = new();
+        private static readonly AsyncLocal<ContextFlow> _asyncLocal = new();
         private readonly IServiceProvider _serviceProvider;
 
         public MediatorContextAccessor(IServiceProvider serviceProvider)
@@ -20,7 +20,7 @@ namespace Pipaslot.Mediator
             _serviceProvider = serviceProvider;
         }
 
-        public MediatorContext? Context => _asyncLocal.Value?.Peek();
+        public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
         [Obsolete("Use Context instead")]
         public MediatorContext? MediatorContext => Context;
@@ -29,13 +29,8 @@ namespace Pipaslot.Mediator
 
         public void Push(MediatorContext context)
         {
-            var stack = _asyncLocal.Value ??= new();
-            stack.Push(context);
-        }
-
-        public void Pop()
-        {
-            _asyncLocal.Value?.Pop();
+            var flow = _asyncLocal.Value ??= new();
+            flow.Add(context);
         }
 
         public void Add(Notification notification)
