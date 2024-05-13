@@ -21,7 +21,10 @@ internal class ContextFlow
     {
         var flowMark = new AsyncLocal<bool>
         {
-            Value = true //Only the single context will see this flag, for other it will be null
+            // For tracking path of the current thread. 
+            // Will be true for the current threads and its child/tested threads.
+            // For concurrent branches it will be null
+            Value = true
         };
         _semaphore.Wait();
         try
