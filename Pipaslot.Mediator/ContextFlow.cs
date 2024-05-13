@@ -11,7 +11,8 @@ namespace Pipaslot.Mediator;
 internal class ContextFlow
 {
     private readonly Stack<(AsyncLocal<bool> FlowMark, MediatorContext Context)> _stack = new();
-    //TODO: add semaphor
+    private readonly object _lock = new();
+    
     /// <summary>
     /// Add new context to the flow, representing action under execution
     /// </summary>
@@ -22,7 +23,9 @@ internal class ContextFlow
         {
             Value = true //Only the single context will see this flag, for other it will be null
         };
-        _stack.Push((flowMark, context));
+        lock(_lock){
+            _stack.Push((flowMark, context));
+        }
     }
 
     /// <summary>
@@ -30,7 +33,9 @@ internal class ContextFlow
     /// </summary>
     public MediatorContext? GetCurrent()
     {
-        return GetRelevant().FirstOrDefault();
+        lock(_lock){
+            return GetRelevant().FirstOrDefault();
+        }
     }
 
     /// <summary>
@@ -39,7 +44,9 @@ internal class ContextFlow
     /// <returns></returns>
     public MediatorContext[] ToArray()
     {
-        return GetRelevant().ToArray();
+        lock(_lock){
+            return GetRelevant().ToArray();
+        }
     }
     
     /// <summary>

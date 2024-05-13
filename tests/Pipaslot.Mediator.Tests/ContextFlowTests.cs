@@ -103,6 +103,31 @@ public class ContextFlowTests
         await Task.WhenAll(actions);
         AssertCount(0);
     }
+    
+    /// <summary>
+    /// Prevent System.InvalidOperationException: Collection was modified after the enumerator was instantiated.
+    /// </summary>
+    [Fact]
+    public async Task ConcurrencyAccess_ShouldNotFail()
+    {
+        var actions = Enumerable.Range(1, 1000)
+            .Select(i => TriggerAction(1,async () =>
+            {
+                await TriggerAction(2, () =>
+                {
+                    var current = _flow.GetCurrent();
+                    return Task.CompletedTask;
+                });
+                await TriggerAction(2, () =>
+                {
+                    var current = _flow.GetCurrent();
+                    // Assert.NotNull(current);
+                    return Task.CompletedTask;
+                });
+            }))
+            .ToArray();
+        await Task.WhenAll(actions);
+    }
 
     /// <summary>
     /// Simulate action execution with handler
