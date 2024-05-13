@@ -7,9 +7,12 @@ using System.Threading;
 
 namespace Pipaslot.Mediator
 {
+    /// <summary>
+    /// Scoped service which uses AsyncLocal for thread isolation for the context stack
+    /// </summary>
     internal class MediatorContextAccessor : IMediatorContextAccessor, INotificationProvider
     {
-        private static AsyncLocal<Stack<MediatorContext>> _asyncLocal = new();
+        private static readonly AsyncLocal<ContextFlow> _asyncLocal = new();
         private readonly IServiceProvider _serviceProvider;
 
         public MediatorContextAccessor(IServiceProvider serviceProvider)
@@ -17,33 +20,22 @@ namespace Pipaslot.Mediator
             _serviceProvider = serviceProvider;
         }
 
-        public MediatorContext? Context
-        {
-            get => _asyncLocal.Value?.Peek();
-        }
+        public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
         [Obsolete("Use Context instead")]
-        public MediatorContext? MediatorContext
-        {
-            get => Context;
-        }
+        public MediatorContext? MediatorContext => Context;
 
         public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? Array.Empty<MediatorContext>();
 
         public void Push(MediatorContext context)
         {
-            var stack = _asyncLocal.Value ??= new();
-            stack.Push(context);
-        }
-
-        public void Pop()
-        {
-            _asyncLocal.Value?.Pop();
+            var flow = _asyncLocal.Value ??= new();
+            flow.Add(context);
         }
 
         public void Add(Notification notification)
         {
-            if(Context is null)
+            if (Context is null)
             {
                 // Notification provider is called independently of the mediator
                 var messageReceiver = _serviceProvider.GetService<NotificationReceiverMiddleware>();
@@ -55,7 +47,7 @@ namespace Pipaslot.Mediator
             else
             {
                 Context.AddResult(notification);
-            }            
+            }
         }
     }
 }

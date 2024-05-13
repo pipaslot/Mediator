@@ -43,6 +43,7 @@ namespace Pipaslot.Mediator
                 {
                     throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
                 }
+
                 return new MediatorResponse(context.Status == ExecutionStatus.Succeeded, context.Results);
             }
             catch (Exception e)
@@ -58,6 +59,7 @@ namespace Pipaslot.Mediator
             {
                 throw new ArgumentNullException(nameof(message));
             }
+
             var pipeline = GetPipeline(message);
             var context = CreateContext(message, cancellationToken);
 
@@ -66,13 +68,15 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
             }
+
             if (context.Status != ExecutionStatus.Succeeded)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
         }
 
-        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
+        public async Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request,
+            CancellationToken cancellationToken = default)
         {
             if (request is null)
             {
@@ -89,11 +93,13 @@ namespace Pipaslot.Mediator
                 {
                     throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
                 }
+
                 var success = context.Status == ExecutionStatus.Succeeded;
                 if (success && !context.Results.Any(r => r is TResult))
                 {
                     return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
                 }
+
                 return new MediatorResponse<TResult>(success, context.Results);
             }
             catch (Exception e)
@@ -118,20 +124,24 @@ namespace Pipaslot.Mediator
             {
                 throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
             }
+
             var success = context.Status == ExecutionStatus.Succeeded;
             if (success && !context.Results.Any(r => r is TResult))
             {
                 throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
             }
+
             if (!success)
             {
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
+
             var result = context.Results
-                .Where(r => r is TResult)
-                .Cast<TResult>()
-                .FirstOrDefault()
-                ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
+                             .Where(r => r is TResult)
+                             .Cast<TResult>()
+                             .FirstOrDefault()
+                         ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.",
+                             context);
             return result;
         }
 
@@ -151,44 +161,40 @@ namespace Pipaslot.Mediator
             }
 
             yield return (_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
-
         }
 
         private async Task ProcessPipeline(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> pipeline, MediatorContext context)
         {
             _mediatorContextAccessor.Push(context);
-            try
+            var enumerator = pipeline.GetEnumerator();
+
+            Task Next(MediatorContext ctx)
             {
-                var enumerator = pipeline.GetEnumerator();
-                Task next(MediatorContext ctx)
+                if (enumerator.MoveNext())
                 {
-                    if (enumerator.MoveNext())
+                    var current = enumerator.Current;
+                    if (current.Parameters == null)
                     {
-                        var current = enumerator.Current;
-                        if(current.Parameters == null)
+                        var feature = ctx.Features.Get<MiddlewareParametersFeature>();
+                        // Prevent increasing revision number when not necessary
+                        if (feature != MiddlewareParametersFeature.Default)
                         {
-                            var feature = ctx.Features.Get<MiddlewareParametersFeature>();
-                            // Prevent increasing revision number when not necessary
-                            if(feature != MiddlewareParametersFeature.Default)
-                            {
-                                ctx.Features.Set(MiddlewareParametersFeature.Default);
-                            }
+                            ctx.Features.Set(MiddlewareParametersFeature.Default);
                         }
-                        else
-                        {
-                            var feature = new MiddlewareParametersFeature(current.Parameters);
-                            ctx.Features.Set(feature);
-                        }
-                        return current.Instance.Invoke(ctx, next);
                     }
-                    return Task.CompletedTask;
-                };
-                await next(context).ConfigureAwait(false);
+                    else
+                    {
+                        var feature = new MiddlewareParametersFeature(current.Parameters);
+                        ctx.Features.Set(feature);
+                    }
+
+                    return current.Instance.Invoke(ctx, Next);
+                }
+
+                return Task.CompletedTask;
             }
-            finally
-            {
-                _mediatorContextAccessor.Pop();
-            }
+
+            await Next(context).ConfigureAwait(false);
         }
 
         private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
