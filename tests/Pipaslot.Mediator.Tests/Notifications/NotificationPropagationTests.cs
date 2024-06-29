@@ -103,7 +103,7 @@ namespace Pipaslot.Mediator.Tests.Notifications
                     }
                     else if (action.ServiceType == ServiceType.ContextAccessor)
                     {
-                        _contextAccessor.Context.AddResult(notifiaction);
+                        _contextAccessor.Context!.AddResult(notifiaction);
                     }
                     else if (action.ServiceType == ServiceType.Facade)
                     {

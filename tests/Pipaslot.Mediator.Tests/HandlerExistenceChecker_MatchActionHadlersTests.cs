@@ -76,20 +76,20 @@ namespace Pipaslot.Mediator.Tests
             collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
             collection.AddSingleton<IActionTypeProvider>(new FakeActionTypeProvider(subject));
             var sp = collection.BuildServiceProvider();
-            return sp.GetService<IHandlerExistenceChecker>();
+            return sp.GetRequiredService<IHandlerExistenceChecker>();
         }
 
         private void CompareExceptions(MediatorException expected, MediatorException actual)
         {
             var data = actual.Data.GetEnumerator();
             data.MoveNext();
-            var msg = (string)data.Value;
+            var msg = (string)(data.Value ?? string.Empty);
             Assert.Equal(expected.Message, msg);
         }
 
         private class FakeActionTypeProvider : IActionTypeProvider
         {
-            private Type[] _types;
+            private readonly Type[] _types;
 
             public FakeActionTypeProvider(params Type[] types)
             {

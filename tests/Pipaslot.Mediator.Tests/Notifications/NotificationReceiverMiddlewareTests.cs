@@ -50,13 +50,13 @@ namespace Pipaslot.Mediator.Tests.Notifications
         {
             var received = false;
             var services = Factory.CreateServiceProvider(c => c.UseNotificationReceiver());
-            var provider = services.GetService<INotificationReceiver>();
+            var provider = services.GetRequiredService<INotificationReceiver>();
             provider.NotificationReceived += (a, b) =>
             {
                 received = true;
             };
             var mediator = new Mock<IMediator>();
-            var sut = services.GetService<NotificationReceiverMiddleware>();
+            var sut = services.GetRequiredService<NotificationReceiverMiddleware>();
             var mcaMock = new Mock<IMediatorContextAccessor>();
             var context = new MediatorContext(mediator.Object, mcaMock.Object, services, new NopMessage(), CancellationToken.None, null, null);
             setup(context);

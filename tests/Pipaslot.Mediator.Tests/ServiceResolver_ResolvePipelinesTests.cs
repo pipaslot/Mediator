@@ -65,10 +65,11 @@ namespace Pipaslot.Mediator.Tests
                 c.AddPipelineForAction<ICommand>(x => { });
                 c.AddPipeline(x => true, x => { });
             });
-            var sut = (Mediator)sp.GetService<IMediator>();
+            var sut = (Mediator)sp.GetRequiredService<IMediator>();
             Assert.Throws<MediatorException>(() =>
             {
-                sut.GetPipeline(new FakeCommand()).ToArray();
+                var pipeline = sut.GetPipeline(new FakeCommand()).ToArray();
+                Assert.NotNull(pipeline);
             });
         }
 

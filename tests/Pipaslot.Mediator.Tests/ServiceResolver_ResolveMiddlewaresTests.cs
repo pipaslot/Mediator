@@ -101,7 +101,7 @@ namespace Pipaslot.Mediator.Tests
                     .UseWhenAction<IQuery, Query2Middleware>()
                     .Use<DefaultMiddleware>()
                 );
-            return (Mediator)sp.GetService<IMediator>();
+            return (Mediator)sp.GetRequiredService<IMediator>();
         }
 
         public interface IQuery : IRequest { }

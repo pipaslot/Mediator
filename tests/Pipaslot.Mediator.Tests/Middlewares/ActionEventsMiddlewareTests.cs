@@ -128,12 +128,12 @@ namespace Pipaslot.Mediator.Tests.Middlewares
             return mediator;
         }
 
-        private void OnStarted(object sender, ActionStartedEventArgs args)
+        private void OnStarted(object? sender, ActionStartedEventArgs args)
         {
             _started.Add(args);
         }
 
-        private void OnCompleted(object sender, ActionCompletedEventArgs args)
+        private void OnCompleted(object? sender, ActionCompletedEventArgs args)
         {
             _completed.Add(args);
         }

@@ -78,7 +78,7 @@ namespace Pipaslot.Mediator.Tests
         private static async Task<IMediatorResponse> Dispatch(IServiceProvider services, Type actionType)
         {
             var mediator = services.GetRequiredService<IMediator>();
-            var action = (IMediatorAction)Activator.CreateInstance(actionType);
+            var action = (IMediatorAction)Activator.CreateInstance(actionType)!;
             var response = await mediator.Dispatch(action);
             return response;
         }

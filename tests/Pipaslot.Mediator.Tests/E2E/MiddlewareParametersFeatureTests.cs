@@ -48,7 +48,8 @@ namespace Pipaslot.Mediator.Tests.E2E
             public static string Value = "string 1";
             public Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
-                var actual = context.Features.Get<MiddlewareParametersFeature>().Parameters.FirstOrDefault();
+                var actual = context.Features.Get<MiddlewareParametersFeature>()?.Parameters.FirstOrDefault();
+                Assert.NotNull(actual);
                 Assert.Equal(Value, actual);
                 return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
             }
@@ -58,7 +59,9 @@ namespace Pipaslot.Mediator.Tests.E2E
         {
             public Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
-                Assert.Empty(context.Features.Get<MiddlewareParametersFeature>().Parameters);
+                var parameters = context.Features.Get<MiddlewareParametersFeature>()?.Parameters;
+                Assert.NotNull(parameters);
+                Assert.Empty(parameters);
                 return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
             }
         }
@@ -67,7 +70,8 @@ namespace Pipaslot.Mediator.Tests.E2E
         {
             public Task Invoke(MediatorContext context, MiddlewareDelegate next)
             {
-                var actual = context.Features.Get<MiddlewareParametersFeature>().Parameters.First() as MutableParameter;
+                var actual = context.Features.Get<MiddlewareParametersFeature>()?.Parameters.FirstOrDefault() as MutableParameter;
+                Assert.NotNull(actual);
                 Assert.Equal(MutableParameter.DefaultValue, actual.Value);
                 actual.Mutate();
                 return Task.CompletedTask;// Do not call await next(context) to keep the test simple without need to register handlers
