@@ -54,7 +54,7 @@ namespace Pipaslot.Mediator.Tests
                 )
                 .Use<AfterMiddleware>();
             });
-            return (Mediator)sp.GetService<IMediator>();
+            return (Mediator)sp.GetRequiredService<IMediator>();
         }
 
         [Fact]

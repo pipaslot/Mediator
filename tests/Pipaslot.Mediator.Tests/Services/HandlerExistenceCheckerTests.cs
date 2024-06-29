@@ -60,7 +60,8 @@ namespace Pipaslot.Mediator.Tests.Services
             {
                 sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
             });
-            Assert.Equal(MediatorExecutionException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, ex.Data["Error:1"].ToString());
+            var actualMessage = ex.Data["Error:1"]?.ToString() ?? string.Empty;
+            Assert.Equal(MediatorExecutionException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
         }
 
         [Fact]
