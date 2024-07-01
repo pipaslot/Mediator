@@ -30,14 +30,16 @@ namespace Pipaslot.Mediator.Http.Middlewares
             }
             catch (Exception ce) when (ce is TaskCanceledException || ce is OperationCanceledException)
             {
+                _logger.LogWarning(ce, $"Action {context.ActionIdentifier} was canceled.");
                 var serializedData = Serialize(context.Action);
-                _logger.LogWarning(ce, $"Action {context.ActionIdentifier} was canceled. Action content: {serializedData}");
+                _logger.LogDebug($"The failed Mediator action'{context.ActionIdentifier}' was executed with content: {serializedData}");
                 throw;
             }
             catch (Exception e)
             {
+                _logger.LogError(e, @$"Exception occured during Mediator execution for action '{context.ActionIdentifier}' with message: '{e.Message}'.");
                 var serializedData = Serialize(context.Action);
-                _logger.LogError(e, @$"Exception occured during Mediator execution for action '{context.ActionIdentifier}' with message: '{e.Message}'. Action content: {serializedData}");
+                _logger.LogDebug($"The failed Mediator action'{context.ActionIdentifier}' was executed with content: {serializedData}");
                 throw;
             }
         }
