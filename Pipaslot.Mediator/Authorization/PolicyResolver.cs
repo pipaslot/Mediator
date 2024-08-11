@@ -27,7 +27,7 @@ namespace Pipaslot.Mediator.Authorization
             }
             if (access != AccessType.Allow)
             {
-                throw AuthorizationRuleNotMetException.Create(ruleSet, aggregatedRule.Value);
+                throw new AuthorizationRuleNotMetException(ruleSet, "Policy rules not matched for the current user: "+aggregatedRule.Value);
             }
         }
 
