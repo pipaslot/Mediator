@@ -1,16 +1,14 @@
 ﻿using System.Threading.Tasks;
 using System.Threading;
 using System;
-using Microsoft.VisualBasic;
 
 namespace Pipaslot.Mediator.Authorization
 {
     /// <summary>
     /// Rule and RuleImpact can lead in three different states: Unavailable, Deny, Allow
     /// Default state is Deny. This state is applied also when no rule was defined.
-    /// Unavailable state can occure when
     /// </summary>
-    public class Rule : IPolicy, IEvaluatedRule
+    public class Rule : IPolicy
     {
         public RuleScope Scope { get; } = RuleScope.State;
 
@@ -20,14 +18,12 @@ namespace Pipaslot.Mediator.Authorization
         /// Default rule name if not specified. It is used in cases where the value should serve as a sentence or when we want to prevent additional formatting.
         /// </summary>
         public const string DefaultName = "RuleWithReasoning";
-        /// <summary>
-        /// Rule name used in situation when multiple rules were joined by operator to be later detected by the formatter
-        /// </summary>
-        public const string JoinedFormatedRuleName = "JoinedFormatedRuleName";
+        
         /// <summary>
         /// Name can be used also as kind like Authentication, Claim, Role or any custom name.
         /// </summary>
         public string Name { get; }
+
         /// <summary>
         /// Represents subject of the validation depending on the rule name. 
         /// It can contain name of role or claim required for the operation.

@@ -18,7 +18,7 @@ namespace Pipaslot.Mediator.Authorization
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
-            var formatter = services.GetRequiredService<IRuleFormatter>();
+            var formatter = services.GetRequiredService<IEvaluatedNodeFormatter>();
             var aggregatedRule = ruleSet
                 .Evaluate(formatter);
             var access = aggregatedRule

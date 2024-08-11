@@ -7,20 +7,21 @@ namespace Pipaslot.Mediator.Authorization.Formatting
     /// <summary>
     /// Service intercepting rule evaluation. Can be used for message/reason customization or for translations
     /// </summary>
-    public interface IRuleFormatter
+    public interface IEvaluatedNodeFormatter
     {
         /// <summary>
         /// Format/Convert single incoming rule
         /// </summary>
-        IRule FormatSingle(IRule rule, RuleOutcome outcome);
+        FormatedNode FormatSingle(EvaluatedNode node, RuleOutcome outcome);
+
         /// <summary>
         /// Format multiple rules having the same <see cref="RuleOutcome"/>. The minimal amount of incoming rules is 2.
         /// </summary>
-        /// <param name="rules">Rules with the same outcome</param>
+        /// <param name="nodes">Rules with the same outcome</param>
         /// <param name="outcome">Outcome of the all rules</param>
         /// <param name="operator">Relation between the rules</param>
         /// <returns>Reduced rules to single one</returns>
-        IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator);
+        FormatedNode FormatMultiple(EvaluatedNode[] nodes, RuleOutcome outcome, Operator @operator);
     }
 
     public static class RuleFormatterExtensions
@@ -29,19 +30,20 @@ namespace Pipaslot.Mediator.Authorization.Formatting
         /// Format one or more rules with the same outcome
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IEvaluatedRule Format(this IRuleFormatter formatter, List<IRule> rules, RuleOutcome outcome, Operator @operator)
+        public static EvaluatedNode Format(this IEvaluatedNodeFormatter formatter, List<EvaluatedNode> nodes, RuleOutcome outcome, Operator @operator)
         {
-            if (rules.Count == 0)
+            if (nodes.Count == 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(rules), "The collection can not be empty.");
+                throw new ArgumentOutOfRangeException(nameof(nodes), "The collection can not be empty.");
             }
-            var casted = rules
-                .Cast<IRule>()
+
+            var casted = nodes
+                .Cast<EvaluatedNode>()
                 .ToArray();
             var pair = casted.Count() == 1
                 ? formatter.FormatSingle(casted.First(), outcome)
                 : formatter.FormatMultiple(casted, outcome, @operator);
-            return new EvaluatedRule(pair, outcome);
+            return new EvaluatedNode(pair.Kind, outcome, pair.Reason);
         }
     }
 }

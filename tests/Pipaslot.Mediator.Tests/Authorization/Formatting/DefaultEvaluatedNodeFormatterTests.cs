@@ -1,16 +1,14 @@
 ﻿using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
-    public class DefaultRuleFormatterTests
+    public class DefaultEvaluatedNodeFormatterTests
     {
-        private DefaultRuleFormatter Create()
+        private DefaultEvaluatedNodeFormatter Create()
         {
-            return new DefaultRuleFormatter();
+            return new DefaultEvaluatedNodeFormatter();
         }
 
         [Theory]

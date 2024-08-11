@@ -99,16 +99,17 @@ namespace Pipaslot.Mediator.Tests.Authorization
             }
         }
 
-        private class NullFormatter : IRuleFormatter
+        private class NullFormatter : IEvaluatedNodeFormatter
         {
-            public IRule FormatSingle(IRule rule, RuleOutcome outcome)
+            public FormatedNode FormatSingle(EvaluatedNode node, RuleOutcome outcome)
             {
-                return rule;
+                return new FormatedNode(node.Kind, node.Value);
             }
 
-            public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
+            public FormatedNode FormatMultiple(EvaluatedNode[] nodes, RuleOutcome outcome, Operator @operator)
             {
-                return rules.First();
+                var node = nodes.First();
+                return new FormatedNode(node.Kind, node.Value);
             }
         }
     }
