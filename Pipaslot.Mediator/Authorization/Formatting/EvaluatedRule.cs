@@ -2,7 +2,7 @@
 {
     public class EvaluatedRule : IEvaluatedRule
     {
-        private IRule _pair;
+        private readonly IRule _pair;
 
         public EvaluatedRule(IRule pair, RuleOutcome outcome)
         {
