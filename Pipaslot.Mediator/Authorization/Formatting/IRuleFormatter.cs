@@ -10,11 +10,11 @@ namespace Pipaslot.Mediator.Authorization.Formatting
     public interface IRuleFormatter
     {
         /// <summary>
-        /// Format/Convert single incomming rule
+        /// Format/Convert single incoming rule
         /// </summary>
         IRule FormatSingle(IRule rule, RuleOutcome outcome);
         /// <summary>
-        /// Format multiple rules having the same <see cref="RuleOutcome"/>. The minimal amount of incomming rules is 2.
+        /// Format multiple rules having the same <see cref="RuleOutcome"/>. The minimal amount of incoming rules is 2.
         /// </summary>
         /// <param name="rules">Rules with the same outcome</param>
         /// <param name="outcome">Outcome of the all rules</param>
