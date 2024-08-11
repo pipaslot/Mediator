@@ -1,5 +1,8 @@
 ﻿namespace Pipaslot.Mediator.Authorization.Formatting
 {
+    /// <summary>
+    /// The smallest unit in the authorization process. Define operation and status/value used for evaluation.
+    /// </summary>
     public interface IRule
     {
         /// <summary>
