@@ -18,15 +18,15 @@ namespace Pipaslot.Mediator.Authorization
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
-            var formatter = services.GetRequiredService<IEvaluatedNodeFormatter>();
-            var aggregatedRule = ruleSet
-                .Evaluate(formatter);
-            var access = aggregatedRule
+            var rootNode = ruleSet.Reduce();
+            var access = rootNode
                 .Outcome
                 .ToAccessType();
             if (access != AccessType.Allow)
             {
-                throw new AuthorizationRuleNotMetException(ruleSet, "Policy rules not matched for the current user: "+aggregatedRule.Value);
+                var formatter = services.GetRequiredService<INodeFormatter>();
+                var reason = formatter.Format(rootNode);
+                throw new AuthorizationRuleNotMetException(ruleSet, reason);
             }
         }
 

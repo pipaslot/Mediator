@@ -4,11 +4,16 @@ using System.Security.Claims;
 
 namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
-    public class DefaultEvaluatedNodeFormatterTests
+    public class DefaultNodeFormatterTests
     {
-        private DefaultEvaluatedNodeFormatter Create()
+        private DefaultNodeFormatter Create(bool clearNegativeMessages = true)
         {
-            return new DefaultEvaluatedNodeFormatter();
+            var formatter = new DefaultNodeFormatter();
+            if (clearNegativeMessages)
+            {
+                formatter.NegativeOutcomeMessagePrefix = string.Empty;
+            }
+            return formatter;
         }
 
         [Theory]
@@ -189,6 +194,16 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 
             AssertEqual(expected, root);
         }
+        
+        [Fact]
+        public void Format_AllowWithReason_ReasonIsPropagated()
+        {
+            var reason = "Because system allows it";
+            var root = RuleSet.Create(Operator.And,
+                Rule.Allow(reason)
+            );
+            AssertEqual(reason, root);
+        }
 
         private void AssertEqual(string expected, Operator @operator, params Rule[] rules)
         {
@@ -199,8 +214,9 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
         private void AssertEqual(string expected, RuleSet ruleSet)
         {
             var sut = Create();
-            var eval = ruleSet.Evaluate(sut);
-            Assert.Equal(expected, eval.Value);
+            var node = ruleSet.Reduce();
+            var reason = sut.Format(node);
+            Assert.Equal(expected, reason);
         }
     }
 }

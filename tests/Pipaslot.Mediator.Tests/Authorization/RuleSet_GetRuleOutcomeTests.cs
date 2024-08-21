@@ -57,22 +57,8 @@ namespace Pipaslot.Mediator.Tests.Authorization
             var sut = new RuleSet(@operator);
             sut.Rules.AddRange(outcomes.Select(o => new Rule(o, string.Empty)));
 
-            var result = sut.Evaluate(new NullFormatter());
+            var result = sut.Reduce();
             Assert.Equal(expected, result.Outcome);
-        }
-
-        private class NullFormatter : IEvaluatedNodeFormatter
-        {
-            public FormatedNode FormatSingle(EvaluatedNode node, RuleOutcome outcome)
-            {
-                return new FormatedNode(node.Kind, node.Value);
-            }
-
-            public FormatedNode FormatMultiple(EvaluatedNode[] nodes, RuleOutcome outcome, Operator @operator)
-            {
-                var node = nodes.First();
-                return new FormatedNode(node.Kind, node.Value);
-            }
         }
     }
 }
