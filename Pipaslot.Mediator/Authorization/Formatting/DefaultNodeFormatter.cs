@@ -13,7 +13,7 @@ public class DefaultNodeFormatter : INodeFormatter
 
     public string Format(IRecursiveNode node)
     {
-        var formated = LoopThroughRecursion(node);
+        var formated = ConvertRecursive(node);
         return (node.Outcome == RuleOutcome.Allow
             ? PositiveOutcomeMessagePrefix
             : NegativeOutcomeMessagePrefix) + formated.Reason.Trim();
@@ -23,85 +23,102 @@ public class DefaultNodeFormatter : INodeFormatter
     /// Recursion converting the processing from "from root to leaves" to "from leaves to root"
     /// Recursion starting from children to the root and formating the reason
     /// </summary>
-    private INode LoopThroughRecursion(IRecursiveNode current, IRecursiveNode? parent = null)
+    protected virtual FormatedNode ConvertRecursive(IRecursiveNode current, IRecursiveNode? parent = null)
     {
         var children = current.Children
-            .Select(n => LoopThroughRecursion(n, current))
+            .Select(n => ConvertRecursive(n, current))
             .Where(n => !string.IsNullOrWhiteSpace(n.Reason))
             .ToArray();
 
         if (children.Length == 0)
         {
             // The current node is the final one
-            return FormatNode(current);
+            return ConvertNode(current);
         }
 
         if (children.Length == 1)
         {
-            return FormatNode(children.First());
+            return children.First();
         }
 
-        var currentNodeWillBeCombined = (parent?.Children.Select(n => LoopThroughRecursion(n, current)).Count(n => !string.IsNullOrWhiteSpace(n.Reason)) ?? 1) > 1;
-        return FormatJoin(current.Operator, children, currentNodeWillBeCombined);
+        var nonEmptyChildrenCount = parent?.Children
+            .Select(n => ConvertRecursive(n, current))
+            .Count(n => !string.IsNullOrWhiteSpace(n.Reason)) ?? 1;
+        var currentNodeWillBeCombined =  nonEmptyChildrenCount > 1;
+        return ConvertJoin(current.Operator, children, currentNodeWillBeCombined);
     }
 
-    protected virtual FormatedNode FormatJoin(Operator @operator, INode[] nodes, bool wrapStatement)
+    protected virtual FormatedNode ConvertJoin(Operator @operator, FormatedNode[] nodes, bool wrapStatement)
     {
         var operation = FormatOperator(@operator);
         var formatedNodes = nodes
-            .Select(FormatNode)
             .Select(n => n.Reason);
         var joined = string.Join(operation, formatedNodes);
         if (wrapStatement)
         {
-            return new FormatedNode(WrapJoinNode(joined));
+            return new FormatedNode(FormatJoin(joined));
         }
 
         return new FormatedNode(joined);
     }
 
-    private INode FormatNode(INode node)
+    protected virtual FormatedNode ConvertNode(INode node)
     {
-        if (node is FormatedNode)
+        if (node is FormatedNode formatedNode)
         {
             // The rule was not transformed, and we only propagate it from the tree leaves to the root
-            return node;
+            return formatedNode;
         }
 
         if (node is RuleNode ruleNode)
         {
-            if (ruleNode.Rule.Name == Rule.DefaultName)
-            {
-                // Raw rule containing user-friendly message already
-                return new FormatedNode(ruleNode.Rule.Value);
-            }
+            return ConvertRuleNode(ruleNode);
+        }
 
-            if (ruleNode.Rule.Name == IdentityPolicy.AuthenticationPolicyName)
-            {
-                return new FormatedNode(FormatAuthentication(ruleNode));
-            }
-
-            if (ruleNode.Rule.Name == ClaimTypes.Role)
-            {
-                // The node represent evaluation of user role from his identity
-                return new FormatedNode(FormatRole(ruleNode));
-            }
-            return new FormatedNode(FormatRule(ruleNode));
+        if (node is RuleSetNode)
+        {
+            return new FormatedNode(string.Empty);
         }
 
         // Not recognized node. Format it as required Role or Claim
-        return new FormatedNode(FormatDefault(node));
+        return new FormatedNode(FormatUnknown(node));
     }
 
-    protected virtual string WrapJoinNode(string reason)
+    protected virtual FormatedNode ConvertRuleNode(RuleNode ruleNode)
     {
-        return $"({reason})";
+        if (ruleNode.Rule.Name == Rule.DefaultName)
+        {
+            // Raw rule containing user-friendly message already
+            return new FormatedNode(ruleNode.Rule.Value);
+        }
+
+        if (ruleNode.Rule.Name == IdentityPolicy.AuthenticationPolicyName)
+        {
+            return new FormatedNode(FormatAuthenticationRule(ruleNode));
+        }
+
+        if (ruleNode.Rule.Name == ClaimTypes.Role)
+        {
+            // The node represent evaluation of user role from his identity
+            return new FormatedNode(FormatRoleRule(ruleNode));
+        }
+        return new FormatedNode(FormatDefaultRule(ruleNode));
+    }
+
+    /// <summary>
+    /// Wrap multiple reasons when combining with another set of reasons. For example wraps "A AND B" when applied with C in statement like "(A AND B) OR C"
+    /// </summary>
+    /// <param name="reasons">Combination of two or more reasons.</param>
+    /// <returns></returns>
+    protected virtual string FormatJoin(string reasons)
+    {
+        return $"({reasons})";
     }
 
     /// <summary>
     /// Format mandatory role
     /// </summary>
-    protected virtual string FormatRole(RuleNode node)
+    protected virtual string FormatRoleRule(RuleNode node)
     {
         if ( node.Outcome == RuleOutcome.Allow)
         {
@@ -110,16 +127,7 @@ public class DefaultNodeFormatter : INodeFormatter
         return $"Role '{node.Rule.Value}' is required.";
     }
 
-    private string FormatRule(RuleNode node)
-    {
-        if (node.Outcome == RuleOutcome.Allow)
-        {
-            return string.Empty;
-        }
-        return $"{node.Rule.Name} '{node.Rule.Value}' is required.";
-    }
-
-    private string FormatAuthentication(RuleNode ruleNode)
+    protected virtual string FormatAuthenticationRule(RuleNode ruleNode)
     {
         if (ruleNode.Outcome == RuleOutcome.Allow)
         {
@@ -131,9 +139,18 @@ public class DefaultNodeFormatter : INodeFormatter
             return FormatRequiredAuthentication(ruleNode);
         }
 
-        return FormatRule(ruleNode);
+        return FormatDefaultRule(ruleNode);
     }
     
+
+    protected virtual string FormatDefaultRule(RuleNode node)
+    {
+        if (node.Outcome == RuleOutcome.Allow)
+        {
+            return string.Empty;
+        }
+        return $"{node.Rule.Name} '{node.Rule.Value}' is required.";
+    }
     /// <summary>
     /// Convert the value "Anonymous" to sentence informing that the authentication is not needed. ( we keep it empty because nobody cares about such a reason)
     /// </summary>
@@ -154,9 +171,9 @@ public class DefaultNodeFormatter : INodeFormatter
     /// <summary>
     /// Format default required claim/node with unknown kind
     /// </summary>
-    protected virtual string FormatDefault(INode node)
+    protected virtual string FormatUnknown(INode node)
     {
-        return node.Reason;
+        return "Unknown node type " + node.GetType().Name;
     }
 
     /// <summary>

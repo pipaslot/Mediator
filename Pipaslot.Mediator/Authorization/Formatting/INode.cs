@@ -6,8 +6,4 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// </summary>
 public interface INode
 {
-    /// <summary>
-    /// Child nodes resulting in the current outcome
-    /// </summary>
-    string Reason { get; }
 }
