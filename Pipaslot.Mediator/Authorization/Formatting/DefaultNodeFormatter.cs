@@ -54,10 +54,10 @@ public class DefaultNodeFormatter : INodeFormatter
         var joined = string.Join(operation, formatedNodes);
         if (wrapStatement)
         {
-            return FormatedNode.Create(WrapJoinNode(joined));
+            return new FormatedNode(WrapJoinNode(joined));
         }
 
-        return FormatedNode.Create(joined);
+        return new FormatedNode(joined);
     }
 
     private INode FormatNode(INode node)
@@ -73,24 +73,24 @@ public class DefaultNodeFormatter : INodeFormatter
             if (ruleNode.Rule.Name == Rule.DefaultName)
             {
                 // Raw rule containing user-friendly message already
-                return FormatedNode.Create(ruleNode.Rule.Value);
+                return new FormatedNode(ruleNode.Rule.Value);
             }
 
             if (ruleNode.Rule.Name == IdentityPolicy.AuthenticationPolicyName)
             {
-                return FormatedNode.Create(FormatAuthentication(ruleNode));
+                return new FormatedNode(FormatAuthentication(ruleNode));
             }
 
             if (ruleNode.Rule.Name == ClaimTypes.Role)
             {
                 // The node represent evaluation of user role from his identity
-                return FormatedNode.Create(FormatRole(ruleNode));
+                return new FormatedNode(FormatRole(ruleNode));
             }
-            return FormatedNode.Create(FormatRule(ruleNode));
+            return new FormatedNode(FormatRule(ruleNode));
         }
 
         // Not recognized node. Format it as required Role or Claim
-        return FormatedNode.Create(FormatDefault(node));
+        return new FormatedNode(FormatDefault(node));
     }
 
     protected virtual string WrapJoinNode(string reason)
