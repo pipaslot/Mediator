@@ -45,7 +45,7 @@ public class DefaultNodeFormatter : INodeFormatter
         return FormatJoin(current.Operator, children, currentNodeWillBeCombined);
     }
 
-    protected virtual JoinNode FormatJoin(Operator @operator, INode[] nodes, bool wrapStatement)
+    protected virtual FormatedNode FormatJoin(Operator @operator, INode[] nodes, bool wrapStatement)
     {
         var operation = FormatOperator(@operator);
         var formatedNodes = nodes
@@ -54,15 +54,15 @@ public class DefaultNodeFormatter : INodeFormatter
         var joined = string.Join(operation, formatedNodes);
         if (wrapStatement)
         {
-            return new JoinNode(WrapJoinNode(joined));
+            return FormatedNode.Create(WrapJoinNode(joined));
         }
 
-        return new JoinNode(joined);
+        return FormatedNode.Create(joined);
     }
 
     private INode FormatNode(INode node)
     {
-        if (node is FormatedNode or JoinNode)
+        if (node is FormatedNode)
         {
             // The rule was not transformed, and we only propagate it from the tree leaves to the root
             return node;
