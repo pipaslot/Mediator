@@ -8,15 +8,17 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// </summary>
 public class DefaultNodeFormatter : INodeFormatter
 {
-    public string NegativeOutcomeMessagePrefix = "Policy rules not matched for the current user: ";
-    public string PositiveOutcomeMessagePrefix = "";
-
     public string Format(IRecursiveNode node)
     {
         var formated = ConvertRecursive(node);
-        return (node.Outcome == RuleOutcome.Allow
-            ? PositiveOutcomeMessagePrefix
-            : NegativeOutcomeMessagePrefix) + formated.Reason.Trim();
+        return FormatMessagePrefix(node.Outcome) + formated.Reason.Trim();
+    }
+
+    protected virtual string FormatMessagePrefix(RuleOutcome outcome)
+    {
+        return outcome == RuleOutcome.Allow
+            ? ""
+            : "Policy rules not matched for the current user: ";
     }
 
     /// <summary>
