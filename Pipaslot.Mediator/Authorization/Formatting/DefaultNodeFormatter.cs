@@ -8,7 +8,11 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// </summary>
 public class DefaultNodeFormatter : INodeFormatter
 {
-    public string Format(IRecursiveNode node)
+    public virtual string NegativeOutcomeMessagePrefix { get; set; }= "Policy rules not matched for the current user: ";
+    public virtual string PositiveOutcomeMessagePrefix { get; set; }= "";
+    public virtual MultipleRuleWrapType MultipleRuleWrapType { get; set; } = MultipleRuleWrapType.Always;
+    
+    public virtual string Format(IRecursiveNode node)
     {
         var formated = ConvertRecursive(node);
         return FormatMessagePrefix(node.Outcome) + formated.Reason.Trim();
@@ -17,8 +21,8 @@ public class DefaultNodeFormatter : INodeFormatter
     protected virtual string FormatMessagePrefix(RuleOutcome outcome)
     {
         return outcome == RuleOutcome.Allow
-            ? ""
-            : "Policy rules not matched for the current user: ";
+            ? PositiveOutcomeMessagePrefix
+            : NegativeOutcomeMessagePrefix;
     }
 
     /// <summary>
@@ -40,30 +44,35 @@ public class DefaultNodeFormatter : INodeFormatter
 
         if (children.Length == 1)
         {
+            // pull the node closer to the root of the tree without formating, because it was already formated.
             return children.First();
         }
 
         var nonEmptyChildrenCount = parent?.Children
             .Select(n => ConvertRecursive(n, current))
             .Count(n => !string.IsNullOrWhiteSpace(n.Reason)) ?? 1;
-        var currentNodeWillBeCombined =  nonEmptyChildrenCount > 1;
-        return ConvertJoin(current.Operator, children, currentNodeWillBeCombined);
+        var currentNodeWillBeCombined = nonEmptyChildrenCount > 1;
+        return ConvertJoin(current.Operator, children, currentNodeWillBeCombined, parent?.Operator);
     }
 
-    protected virtual FormatedNode ConvertJoin(Operator @operator, FormatedNode[] nodes, bool wrapStatement)
+    protected virtual FormatedNode ConvertJoin(Operator @operator, FormatedNode[] nodes, bool wrapStatement, Operator? parentOperator)
     {
         var operation = FormatOperator(@operator);
         var formatedNodes = nodes
             .Select(n => n.Reason);
         var joined = string.Join(operation, formatedNodes);
+        var differentOperators = @operator != parentOperator;
         if (wrapStatement)
         {
-            return new FormatedNode(FormatJoin(joined));
+            return new FormatedNode(FormatJoin(joined, differentOperators));
         }
 
         return new FormatedNode(joined);
     }
 
+    /// <summary>
+    /// Convert any node. Initial method starting the formatting.
+    /// </summary>
     protected virtual FormatedNode ConvertNode(INode node)
     {
         if (node is FormatedNode formatedNode)
@@ -86,6 +95,9 @@ public class DefaultNodeFormatter : INodeFormatter
         return new FormatedNode(FormatUnknown(node));
     }
 
+    /// <summary>
+    /// The node was detected as Rule. Convert to the node to Formatted node via Format methods depending on the Rule name
+    /// </summary>
     protected virtual FormatedNode ConvertRuleNode(RuleNode ruleNode)
     {
         if (ruleNode.Rule.Name == Rule.DefaultName)
@@ -104,6 +116,7 @@ public class DefaultNodeFormatter : INodeFormatter
             // The node represent evaluation of user role from his identity
             return new FormatedNode(FormatRoleRule(ruleNode));
         }
+
         return new FormatedNode(FormatDefaultRule(ruleNode));
     }
 
@@ -111,8 +124,26 @@ public class DefaultNodeFormatter : INodeFormatter
     /// Wrap multiple reasons when combining with another set of reasons. For example wraps "A AND B" when applied with C in statement like "(A AND B) OR C"
     /// </summary>
     /// <param name="reasons">Combination of two or more reasons.</param>
-    /// <returns></returns>
-    protected virtual string FormatJoin(string reasons)
+    /// <param name="differentOperators">The reasons are coming from ruleset having different operator. Example "(Rule1 AND Rule2) OR (Rule3 AND Rule4)"</param>
+    protected virtual string FormatJoin(string reasons, bool differentOperators)
+    {
+        if (MultipleRuleWrapType == MultipleRuleWrapType.Always)
+        {
+            return WrapMultipleRules(reasons);
+        }
+
+        if (MultipleRuleWrapType == MultipleRuleWrapType.DifferentOperator && differentOperators)
+        {
+            return WrapMultipleRules(reasons);
+        }
+        // Never wrap case
+        return reasons;
+    }
+    
+    /// <summary>
+    /// Format multiple rules, when starting applying with another rule set. See: <see cref="MultipleRuleWrapType"/> to control the flow.
+    /// </summary>
+    protected virtual string WrapMultipleRules(string reasons)
     {
         return $"({reasons})";
     }
@@ -122,13 +153,17 @@ public class DefaultNodeFormatter : INodeFormatter
     /// </summary>
     protected virtual string FormatRoleRule(RuleNode node)
     {
-        if ( node.Outcome == RuleOutcome.Allow)
+        if (node.Outcome == RuleOutcome.Allow)
         {
             return string.Empty;
         }
+
         return $"Role '{node.Rule.Value}' is required.";
     }
 
+    /// <summary>
+    /// Format rule detecting if the user is anonymous or authenticated and whether the authentication is mandatory.
+    /// </summary>
     protected virtual string FormatAuthenticationRule(RuleNode ruleNode)
     {
         if (ruleNode.Outcome == RuleOutcome.Allow)
@@ -143,16 +178,20 @@ public class DefaultNodeFormatter : INodeFormatter
 
         return FormatDefaultRule(ruleNode);
     }
-    
 
+    /// <summary>
+    /// The rule was not recognized as any standard rule.
+    /// </summary>
     protected virtual string FormatDefaultRule(RuleNode node)
     {
         if (node.Outcome == RuleOutcome.Allow)
         {
             return string.Empty;
         }
+
         return $"{node.Rule.Name} '{node.Rule.Value}' is required.";
     }
+
     /// <summary>
     /// Convert the value "Anonymous" to sentence informing that the authentication is not needed. ( we keep it empty because nobody cares about such a reason)
     /// </summary>

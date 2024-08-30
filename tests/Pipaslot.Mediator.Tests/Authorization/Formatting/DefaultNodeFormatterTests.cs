@@ -6,13 +6,14 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 {
     public class DefaultNodeFormatterTests
     {
-        private DefaultNodeFormatter Create(bool clearNegativeMessages = true)
+        private DefaultNodeFormatter Create(bool clearNegativeMessages = true, MultipleRuleWrapType wrapType = MultipleRuleWrapType.Always)
         {
             var formatter = new DefaultNodeFormatter();
             if (clearNegativeMessages)
             {
                 formatter.NegativeOutcomeMessagePrefix = string.Empty;
             }
+            formatter.MultipleRuleWrapType = wrapType;
             return formatter;
         }
 
@@ -40,6 +41,60 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
 
             var collection = RuleSet.Create(@operator, set1, set2, set3);
             AssertEqual(expected, collection);
+        }
+        
+        [Theory]
+        // Add
+        [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.And, "Sentence1 AND Sentence2 Sentence3 AND Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.Or, "Sentence1 OR Sentence2 Sentence3 OR Sentence4")]
+        // And
+        [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.Add, "Sentence1 Sentence2 AND Sentence3 Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.Or, "Sentence1 OR Sentence2 AND Sentence3 OR Sentence4")]
+        // Or
+        [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.Add, "Sentence1 Sentence2 OR Sentence3 Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.And, "Sentence1 AND Sentence2 OR Sentence3 AND Sentence4")]
+        [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
+        // Add
+        [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.Add, "(Sentence1 Sentence2) (Sentence3 Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
+        // And
+        [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.And, "(Sentence1 AND Sentence2) AND (Sentence3 AND Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
+        // Or
+        [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
+        [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.Or, "(Sentence1 OR Sentence2) OR (Sentence3 OR Sentence4)")]
+        // Add
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
+        // And
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
+        // Or
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
+        [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
+        public void Format_CombineRuleSetsWithMultipleRulesAndApplyWrapType(MultipleRuleWrapType wrapType, Operator parentOperator, Operator childOperator, string expected)
+        {
+            var set1 = RuleSet.Create(
+                childOperator,
+                Rule.Deny("Sentence1"),
+                Rule.Deny("Sentence2")
+            );
+            var set2 = RuleSet.Create(
+                childOperator,
+                Rule.Deny("Sentence3"),
+                Rule.Deny("Sentence4")
+            );
+
+            var collection = RuleSet.Create(parentOperator, set1, set2);
+            AssertEqual(expected, collection, wrapType);
         }
 
         [Theory]
@@ -211,9 +266,9 @@ namespace Pipaslot.Mediator.Tests.Authorization.Formatting
             AssertEqual(expected, set);
         }
 
-        private void AssertEqual(string expected, RuleSet ruleSet)
+        private void AssertEqual(string expected, RuleSet ruleSet, MultipleRuleWrapType wrapType = MultipleRuleWrapType.Always)
         {
-            var sut = Create();
+            var sut = Create(true, wrapType);
             var node = ruleSet.Reduce();
             var reason = sut.Format(node);
             Assert.Equal(expected, reason);
