@@ -8,10 +8,10 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// </summary>
 public class DefaultNodeFormatter : INodeFormatter
 {
-    public virtual string NegativeOutcomeMessagePrefix { get; set; }= "Policy rules not matched for the current user: ";
-    public virtual string PositiveOutcomeMessagePrefix { get; set; }= "";
+    public virtual string NegativeOutcomeMessagePrefix { get; set; } = "Policy rules not matched for the current user: ";
+    public virtual string PositiveOutcomeMessagePrefix { get; set; } = "";
     public virtual MultipleRuleWrapType MultipleRuleWrapType { get; set; } = MultipleRuleWrapType.Always;
-    
+
     public virtual string Format(IRecursiveNode node)
     {
         var formated = ConvertRecursive(node);
@@ -136,10 +136,11 @@ public class DefaultNodeFormatter : INodeFormatter
         {
             return WrapMultipleRules(reasons);
         }
+
         // Never wrap case
         return reasons;
     }
-    
+
     /// <summary>
     /// Format multiple rules, when starting applying with another rule set. See: <see cref="MultipleRuleWrapType"/> to control the flow.
     /// </summary>

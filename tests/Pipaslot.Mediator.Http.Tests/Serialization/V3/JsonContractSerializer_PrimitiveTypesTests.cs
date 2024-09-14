@@ -22,7 +22,9 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             Assert.Throws<NullReferenceException>(() =>
             {
                 DateTime? value = null;
+#pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
                 Test(value);
+#pragma warning restore CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
             });
         }
         
