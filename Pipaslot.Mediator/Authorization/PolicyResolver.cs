@@ -14,20 +14,19 @@ namespace Pipaslot.Mediator.Authorization
         internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
         {
             var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken).ConfigureAwait(false);
-
-            var formatter = services.GetRequiredService<IRuleFormatter>();
-            var aggregatedRule = ruleSet
-                .Evaluate(formatter);
-            var access = aggregatedRule
-                .Outcome
-                .ToAccessType();
             if (ruleSet.RuleSets.Count == 0 && ruleSet.Rules.Count == 0)
             {
                 throw AuthorizationException.NoAuthorization(action.GetActionName());
             }
+            var rootNode = ruleSet.Reduce();
+            var access = rootNode
+                .Outcome
+                .ToAccessType();
             if (access != AccessType.Allow)
             {
-                throw AuthorizationRuleNotMetException.Create(ruleSet, aggregatedRule.Value);
+                var formatter = services.GetRequiredService<INodeFormatter>();
+                var reason = formatter.Format(rootNode);
+                throw new AuthorizationRuleNotMetException(ruleSet, reason);
             }
         }
 

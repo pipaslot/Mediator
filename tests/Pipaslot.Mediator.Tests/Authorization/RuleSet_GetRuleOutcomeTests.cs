@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Tests.Authorization
@@ -53,26 +52,13 @@ namespace Pipaslot.Mediator.Tests.Authorization
         [InlineData(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.Add, RuleOutcome.Deny)]
         [InlineData(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.And, RuleOutcome.Deny)]
         [InlineData(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.Or, RuleOutcome.Allow)]
-        public void GetRuleOutcome_Combinatinsy(RuleOutcome[] outcomes, Operator @operator, RuleOutcome expected)
+        public void GetRuleOutcome_Combinations(RuleOutcome[] outcomes, Operator @operator, RuleOutcome expected)
         {
             var sut = new RuleSet(@operator);
             sut.Rules.AddRange(outcomes.Select(o => new Rule(o, string.Empty)));
 
-            var result = sut.Evaluate(new NullFormatter());
+            var result = sut.Reduce();
             Assert.Equal(expected, result.Outcome);
-        }
-
-        private class NullFormatter : IRuleFormatter
-        {
-            public IRule FormatSingle(IRule rule, RuleOutcome outcome)
-            {
-                return rule;
-            }
-
-            public IRule FormatMultiple(IRule[] rules, RuleOutcome outcome, Operator @operator)
-            {
-                return rules.First();
-            }
         }
     }
 }

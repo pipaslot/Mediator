@@ -6,11 +6,11 @@
     public enum Operator
     {
         /// <summary>
-        /// Final result will be Allowed when all rules or sub-rulesets will be allowed. Ignored. The calcullation skips ignored rules.
+        /// Final result will be Allowed when all rules or sub-rulesets will be allowed or Ignored. The calculation skips ignored rules.
         /// </summary>
         Add,
         /// <summary>
-        /// Final result will be Allowed when all rules or sub-rulesets will be allowed. The calcullation do not accept ignored rules.
+        /// Final result will be Allowed when all rules or sub-rulesets will be allowed. The calculation do not accept ignored rules.
         /// </summary>
         And,
         /// <summary>

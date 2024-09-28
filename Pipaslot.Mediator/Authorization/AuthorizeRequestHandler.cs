@@ -21,14 +21,14 @@ namespace Pipaslot.Mediator.Authorization
         {
             var handlers = _serviceProvider.GetActionHandlers(action.Action);
             var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken).ConfigureAwait(false);
-            var formatter = _serviceProvider.GetRequiredService<IRuleFormatter>();
-            var combinedRule = policyResult.Evaluate(formatter);
-            var accessType = combinedRule.Outcome.ToAccessType();
-            var isAuthorized = accessType == AccessType.Allow;
+            var rootNode = policyResult.Reduce();
+            var formatter = _serviceProvider.GetRequiredService<INodeFormatter>();
+            var reason = formatter.Format(rootNode);
+            var accessType = rootNode.Outcome.ToAccessType();
             return new AuthorizeRequestResponse
             {
                 Access = accessType,
-                Reason = combinedRule.Value,
+                Reason = reason,
                 IsIdentityStatic = policyResult.RulesRecursive.All(r => r.Scope == RuleScope.Identity)
             };
         }

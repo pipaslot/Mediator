@@ -1,14 +1,12 @@
 ﻿using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization
 {
-
     /// <summary>
     /// Provides connection between policies and rules
     /// Define one or more rules aggregated with AND or OR operator.
@@ -43,6 +41,7 @@ namespace Pipaslot.Mediator.Authorization
             Operator = @operator;
             RuleSets.AddRange(sets);
         }
+
         public RuleSet(params Rule[] rules) : this(Operator.Add, rules)
         {
         }
@@ -63,75 +62,87 @@ namespace Pipaslot.Mediator.Authorization
             return new RuleSet(@operator, set);
         }
 
-        public IEvaluatedRule Evaluate(IRuleFormatter formatter)
+        public IRecursiveNode Reduce()
         {
-            var evaluatedRules = RuleSets
-                .Select(s => s.Evaluate(formatter))
+            var children = RuleSets
+                .Select(s => s.Reduce())
                 .ToArray();
 
-            var rules = evaluatedRules
-                .Concat(Rules);
+            var rules = Rules
+                .Select(r => (IRecursiveNode)new RuleNode(r));
+                
+            var combined = children
+                .Concat(rules)
+                .ToList();
             if (Operator == Operator.Add)
             {
-                return ReduceWithAdd(rules, formatter);
+                return ReduceWithAdd(combined);
             }
+
             if (Operator == Operator.And)
             {
-                return ReduceWithAnd(rules, formatter);
+                return ReduceWithAnd(combined);
             }
+
             if (Operator == Operator.Or)
             {
-                return ReduceWithOr(rules, formatter);
+                return ReduceWithOr(combined);
             }
+
             throw new NotSupportedException($"Operator '{Operator}' can not be used for RuleSet.");
         }
 
-        private IEvaluatedRule ReduceWithAdd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+        private RuleSetNode ReduceWithAdd(IEnumerable<IRecursiveNode> children)
         {
-            var finalOperator = Operator.Add;
-            var denied = new List<IRule>();
-            var unavailable = new List<IRule>();
-            var allowed = new List<IRule>();
-            foreach (var rule in rules)
+            var denied = new List<IRecursiveNode>();
+            var unavailable = new List<IRecursiveNode>();
+            var allowed = new List<IRecursiveNode>();
+            foreach (var rule in children)
             {
                 var outcome = rule.Outcome;
                 if (outcome == RuleOutcome.Ignored)
                 {
                     continue;
                 }
+
                 if (outcome == RuleOutcome.Unavailable)
                 {
                     unavailable.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Deny)
                 {
                     denied.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Allow)
                 {
                     allowed.Add(rule);
                 }
             }
+
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
+                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
             }
+
             if (denied.Any())
             {
-                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
+                return new RuleSetNode(this, denied, RuleOutcome.Deny);
             }
+
             if (allowed.Any())
             {
-                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
+                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
             }
-            return new Rule(RuleOutcome.Ignored, string.Empty);
+            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
         }
-        private IEvaluatedRule ReduceWithAnd(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+
+        private RuleSetNode ReduceWithAnd(IEnumerable<IRecursiveNode> rules)
         {
-            var finalOperator = Operator.And;
-            var denied = new List<IRule>();
-            var unavailable = new List<IRule>();
-            var allowed = new List<IRule>();
+            var denied = new List<IRecursiveNode>();
+            var unavailable = new List<IRecursiveNode>();
+            var allowed = new List<IRecursiveNode>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -139,36 +150,41 @@ namespace Pipaslot.Mediator.Authorization
                 {
                     unavailable.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Deny || outcome == RuleOutcome.Ignored)
                 {
                     denied.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Allow)
                 {
                     allowed.Add(rule);
                 }
             }
+
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
+                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
             }
+
             if (denied.Any())
             {
-                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
+                return new RuleSetNode(this, denied, RuleOutcome.Deny);
             }
+
             if (allowed.Any())
             {
-                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
+                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
             }
-            return new Rule(RuleOutcome.Deny, string.Empty);
+
+            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Deny);
         }
 
-        private IEvaluatedRule ReduceWithOr(IEnumerable<IEvaluatedRule> rules, IRuleFormatter formatter)
+        private RuleSetNode ReduceWithOr(IEnumerable<IRecursiveNode> rules)
         {
-            var finalOperator = Operator.Or;
-            var denied = new List<IRule>();
-            var unavailable = new List<IRule>();
-            var allowed = new List<IRule>();
+            var denied = new List<IRecursiveNode>();
+            var unavailable = new List<IRecursiveNode>();
+            var allowed = new List<IRecursiveNode>();
             foreach (var rule in rules)
             {
                 var outcome = rule.Outcome;
@@ -176,32 +192,39 @@ namespace Pipaslot.Mediator.Authorization
                 {
                     continue;
                 }
+
                 if (outcome == RuleOutcome.Allow)
                 {
                     allowed.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Unavailable)
                 {
                     unavailable.Add(rule);
                 }
+
                 if (outcome == RuleOutcome.Deny)
                 {
                     denied.Add(rule);
                 }
             }
+
             if (allowed.Any())
             {
-                return formatter.Format(allowed, RuleOutcome.Allow, finalOperator);
+                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
             }
+
             if (denied.Any())
             {
-                return formatter.Format(denied, RuleOutcome.Deny, finalOperator);
+                return new RuleSetNode(this, denied, RuleOutcome.Deny);
             }
+
             if (unavailable.Any())
             {
-                return formatter.Format(unavailable, RuleOutcome.Unavailable, finalOperator);
+                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
             }
-            return new Rule(RuleOutcome.Ignored, string.Empty);
+
+            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
         }
 
         public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
