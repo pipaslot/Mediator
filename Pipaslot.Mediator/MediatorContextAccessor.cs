@@ -22,9 +22,6 @@ namespace Pipaslot.Mediator
 
         public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
-        [Obsolete("Use Context instead")]
-        public MediatorContext? MediatorContext => Context;
-
         public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? Array.Empty<MediatorContext>();
 
         public void Push(MediatorContext context)

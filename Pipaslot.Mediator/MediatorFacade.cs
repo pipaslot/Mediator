@@ -22,8 +22,7 @@ namespace Pipaslot.Mediator
         }
 
         #region MediatorContextAccessor
-        [Obsolete("Use Context instead")]
-        public MediatorContext? MediatorContext => _mediatorContextAccessor.Context;
+        
         public MediatorContext? Context => _mediatorContextAccessor.Context;
 
         public IReadOnlyCollection<MediatorContext> ContextStack => _mediatorContextAccessor.ContextStack;

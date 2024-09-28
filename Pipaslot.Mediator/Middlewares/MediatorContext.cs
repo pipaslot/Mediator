@@ -87,12 +87,6 @@ namespace Pipaslot.Mediator.Middlewares
             return copy;
         }
 
-        [Obsolete("Use Status != ExecutionStatus.Succeeded")]
-        public bool HasError()
-        {
-            return Status == ExecutionStatus.Failed;
-        }
-
         /// <summary>
         /// Register processing result
         /// </summary>

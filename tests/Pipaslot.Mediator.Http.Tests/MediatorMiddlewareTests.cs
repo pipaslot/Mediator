@@ -106,8 +106,10 @@ namespace Pipaslot.Mediator.Http.Tests
             public override ConnectionInfo Connection => throw new NotImplementedException();
 
             public override WebSocketManager WebSockets => throw new NotImplementedException();
-            [Obsolete]
+            
+#pragma warning disable CS0618 // Type or member is obsolete
             public override AuthenticationManager Authentication => throw new NotImplementedException();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public override IDictionary<object, object> Items { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

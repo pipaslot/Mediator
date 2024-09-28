@@ -8,12 +8,6 @@ namespace Pipaslot.Mediator
     public interface IMediatorContextAccessor
     {
         /// <summary>
-        /// Returns context of actual executed action
-        /// </summary>
-        [Obsolete("Use Context instead.")]
-        MediatorContext? MediatorContext { get; }
-
-        /// <summary>
         /// Returns context of actual executed action.
         /// WARNING: If you need to access the context in the handlers, make sure that you access it before first awaited method call.
         /// In case of concurrent mediator calls you may get different context depending by the raise condition and thread ordering caused by async/await state machine.
