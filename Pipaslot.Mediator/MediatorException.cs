@@ -18,12 +18,6 @@ namespace Pipaslot.Mediator
         {
         }
 
-        [Obsolete("User MediatorExcetuionException.CreateForNoHandler instead")]
-        public static MediatorException CreateForNoHandler2(Type? type)
-        {
-            return new MediatorException("No handler was found for " + type);
-        }
-
         public static MediatorException CreateForDuplicateHandlers(Type subject, object[] handlers)
         {
             return new MediatorException($"Multiple handlers were registered for one action type: {subject}. Only one handler was expected. Remove one from defined type: {string.Join(" OR ", handlers)}");

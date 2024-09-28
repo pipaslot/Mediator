@@ -151,46 +151,6 @@ namespace Pipaslot.Mediator.Authorization
                 condition ? denyReason : allowReason);
         }
 
-        /// <summary>
-        /// Create a rule/policy depending on the state of the application and provide feedback to the user
-        /// </summary>
-        /// <param name="condition">Condition</param>
-        /// <param name="denyReason">Reason applied when condition is FALSE.</param>
-        /// <param name="allowReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
-        /// <returns>Rule with Allow or Deny outcome</returns>
-        [Obsolete]
-        public static Rule Allow(bool condition, string denyReason = "", string allowReason = "")
-        {
-            return new Rule(
-                condition ? RuleOutcome.Allow : RuleOutcome.Deny,
-                condition ? allowReason : denyReason);
-        }
-
-        /// <summary>
-        /// Create a rule/policy depending on the state of the application and provide feedback to the user
-        /// </summary>
-        /// <param name="condition">Condition</param>
-        /// <param name="denyReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
-        /// <returns>Rule with Deny or ignored outcome</returns>
-        [Obsolete]
-        public static Rule Deny(bool condition, string denyReason = "")
-        {
-            return new Rule(
-                condition ? RuleOutcome.Deny : RuleOutcome.Ignored,
-                condition ? denyReason : string.Empty);
-        }
-
-        /// <summary>
-        /// Create Rule/Policy depending on application state
-        /// </summary>
-        /// <param name="condition">Condition</param>
-        /// <returns>Return Unavailable outcome if the condition is true, otherwise returns Ignored outcome</returns>
-        [Obsolete]
-        public static Rule Unavailable(bool condition)
-        {
-            return new Rule(condition ? RuleOutcome.Unavailable : RuleOutcome.Ignored, string.Empty);
-        }
-
 #if !NETSTANDARD
         public static RuleSet operator +(Rule rule1, Rule rule2)
         {
