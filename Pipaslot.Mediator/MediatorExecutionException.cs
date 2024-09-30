@@ -43,7 +43,7 @@ namespace Pipaslot.Mediator
 
         internal static MediatorExecutionException CreateForMissingResult(MediatorContext context, Type type)
         {
-            return new MediatorExecutionException($"Extected result type '{type}' was missing in result collection. Ensure that executed action has its handler.", context);
+            return new MediatorExecutionException($"Expected result type '{type}' was missing in result collection. Ensure that executed action has its handler.", context);
         }
 
         internal static MediatorExecutionException CreateForNoHandler(Type? type, MediatorContext? context = null)
