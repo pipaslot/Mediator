@@ -11,13 +11,6 @@ namespace Pipaslot.Mediator.Middlewares
     /// </summary>
     public class HandlerExecutionMiddleware : IExecutionMiddleware
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public HandlerExecutionMiddleware(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
             if (context.HasActionReturnValue)
