@@ -18,16 +18,26 @@ namespace Pipaslot.Mediator.Tests
             return CreateConfiguredMediator(c => { });
         }
 
+        public static IMediator CreateConfiguredMediator<THandler>()
+        {
+            var services = CreateServiceProvider(c =>
+                {
+                    c.AddHandlers([typeof(THandler)]);
+                }
+            );
+            return services.GetRequiredService<IMediator>();
+        }
+
         public static IMediator CreateConfiguredMediator(Action<IMediatorConfigurator> setup)
         {
             var services = CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssemblyOf<Factory>()
-                .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                .AddHandlersFromAssemblyOf<Factory>()
-                .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
-                setup(c);
-            }
+                {
+                    c.AddActionsFromAssemblyOf<Factory>()
+                        .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                        .AddHandlersFromAssemblyOf<Factory>()
+                        .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
+                    setup(c);
+                }
             );
             return services.GetRequiredService<IMediator>();
         }
@@ -85,7 +95,7 @@ namespace Pipaslot.Mediator.Tests
         public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
         {
             var collection = new ServiceCollection();
-            collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(),handlers);
+            collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
             return collection.BuildServiceProvider();
         }
 
