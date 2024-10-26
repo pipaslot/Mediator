@@ -1,15 +1,9 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 
-namespace Pipaslot.Mediator.Authorization
-{
-    [AnonymousPolicy]
-    public class AuthorizeRequest : IMediatorAction<AuthorizeRequestResponse>
-    {
-        public IMediatorAction Action { get; }
+namespace Pipaslot.Mediator.Authorization;
 
-        public AuthorizeRequest(IMediatorAction action)
-        {
-            Action = action;
-        }
-    }
+[AnonymousPolicy]
+public class AuthorizeRequest(IMediatorAction action) : IMediatorAction<AuthorizeRequestResponse>
+{
+    public IMediatorAction Action { get; } = action;
 }
