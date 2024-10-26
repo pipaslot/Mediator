@@ -1,7 +1,6 @@
-﻿namespace Pipaslot.Mediator.Authorization
+﻿namespace Pipaslot.Mediator.Authorization;
+
+public interface IActionAuthorization
 {
-    public interface IActionAuthorization
-    {
-        public IPolicy Authorize();
-    }
+    public IPolicy Authorize();
 }

@@ -8,21 +8,21 @@
 
 <h5>Execute and Dispatch</h5>
 <p>
-    Requests:<br />
+    Requests:<br/>
     <button class="btn btn-primary btn-sm" @onclick="() => Execute(new WeatherForecast.Request())">Run Passing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Execute(new Failing.Request())">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Mediator.ExecuteUnhandled(new Failing.Request())">Run Failing unhandled</button>
 </p>
 <p>
-    Messages:<br />
+    Messages:<br/>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage() { Fail = false })">Run Passing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage() { Fail = true })">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Mediator.DispatchUnhandled(new Failing.Message())">Run Failing unhandled</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Mediator.DispatchUnhandled(new ActionUnknownByBackend())">Run unknown action</button>
 </p>
 <p>
-    Message with cascading calling of another failed message:<br />
-    <button class="btn btn-primary btn-sm" @onclick="()=>Dispatch(new CascadingToAnotherFailingRequestMessage())">Run Failing cascading message</button>
+    Message with cascading calling of another failed message:<br/>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CascadingToAnotherFailingRequestMessage())">Run Failing cascading message</button>
 </p>
 
 <h5>File download through HTTP GET</h5>
@@ -32,7 +32,7 @@
 
 <h5>UseReduceDuplicateProcessing middleware</h5>
 <p>
-    Reduce duplicate calls by middleware. Only one server request will be executed at the same time.<br />
+    Reduce duplicate calls by middleware. Only one server request will be executed at the same time.<br/>
     <button class="btn btn-primary btn-sm" @onclick="RunDuplicateClassQuery">3x With class types</button>
     <button class="btn btn-primary btn-sm" @onclick="RunDuplicateRecordQuery">3x With record types</button>
 </p>
@@ -40,7 +40,7 @@
 <h5>Notifications from handlers or services</h5>
 <p>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification())">Run Passing</button>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification{Fail = true})">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification { Fail = true })">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CallingNestedNotificationMessage())">Nested handler notification</button>
 </p>
 <h5>Protecting actions to be directly called from HTTP</h5>
@@ -64,24 +64,29 @@
 </code>
 
 @inject Pipaslot.Mediator.Http.IMediatorUrlFormatter _mediatorUrlFormatter
+
 @code {
     private MarkupString _serializedReponse;
-    private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
+
+    private readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        WriteIndented = true
+    };
+
     private async Task Dispatch(IMediatorAction action)
     {
         _serializedReponse = new MarkupString("");
         var result = await Mediator.Dispatch(action);
         _serializedReponse = Serialize(result.Results);
     }
+
     private async Task Execute<TResult>(IMediatorAction<TResult> action)
     {
         _serializedReponse = new MarkupString("");
         var result = await Mediator.Execute(action);
         _serializedReponse = Serialize(result.Results);
     }
+
     private async Task RunDuplicateClassQuery()
     {
         var date = DateTime.Now;
@@ -105,8 +110,9 @@
     private MarkupString Serialize(object value)
     {
         var serialized = JsonSerializer.Serialize(value, _serializerOptions)
-        .Replace(" \"", "&nbsp; &nbsp;\"")
-        .Replace("\n", "<br />");
+            .Replace(" \"", "&nbsp; &nbsp;\"")
+            .Replace("\n", "<br />");
         return new MarkupString(serialized);
     }
+
 }

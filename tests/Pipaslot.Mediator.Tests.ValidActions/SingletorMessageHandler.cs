@@ -6,7 +6,8 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public class SingletorMessageHandler : IMessageHandler<SingletorMessage>, ISingleton
     {
-        public static HashSet<SingletorMessageHandler> Instances = new HashSet<SingletorMessageHandler>();
+        public static HashSet<SingletorMessageHandler> Instances = new();
+
         public Task Handle(SingletorMessage action, CancellationToken cancellationToken)
         {
             Instances.Add(this);
@@ -16,6 +17,5 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 
     public class SingletorMessage : IMessage
     {
-
     }
 }

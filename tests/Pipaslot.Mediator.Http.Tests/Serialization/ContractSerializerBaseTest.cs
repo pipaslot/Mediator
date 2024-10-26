@@ -8,6 +8,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
     {
         protected Mock<ICredibleProvider> CredibleProviderMock = new();
         protected abstract IContractSerializer CreateSerializer(ICredibleProvider provider);
+
         protected IContractSerializer CreateSerializer()
         {
             return CreateSerializer(CredibleProviderMock.Object);

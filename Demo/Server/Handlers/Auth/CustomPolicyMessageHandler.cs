@@ -3,28 +3,27 @@ using Pipaslot.Mediator;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Notifications;
 
-namespace Demo.Server.Handlers.Auth
+namespace Demo.Server.Handlers.Auth;
+
+public class CustomPolicyMessageHandler : IMessageHandler<CustomPolicyMessage>, IHandlerAuthorization<CustomPolicyMessage>
 {
-    public class CustomPolicyMessageHandler : IMessageHandler<CustomPolicyMessage>, IHandlerAuthorization<CustomPolicyMessage>
+    private readonly INotificationProvider _notification;
+
+    public CustomPolicyMessageHandler(INotificationProvider notification)
     {
-        private readonly INotificationProvider _notification;
+        _notification = notification;
+    }
 
-        public CustomPolicyMessageHandler(INotificationProvider notification)
-        {
-            _notification = notification;
-        }
+    public IPolicy Authorize(CustomPolicyMessage action)
+    {
+        return IdentityPolicy.Authenticated()
+               & (Rule.UnavailableIf(!action.IsAvailable, "Sorry, not available!")
+                  + Rule.DenyOrAllow(action.IsInvalid, "Model state does not allow to perform this operation.", "Go one!"));
+    }
 
-        public IPolicy Authorize(CustomPolicyMessage action)
-        {
-            return IdentityPolicy.Authenticated()
-                & Rule.UnavailableIf(!action.IsAvailable, "Sorry, not available!")
-                + Rule.DenyOrAllow(action.IsInvalid, "Model state does not allow to perform this operation.", "Go one!");
-        }
-
-        public Task Handle(CustomPolicyMessage action, CancellationToken cancellationToken)
-        {
-            _notification.AddSuccess("Handler was executed");
-            return Task.CompletedTask;
-        }
+    public Task Handle(CustomPolicyMessage action, CancellationToken cancellationToken)
+    {
+        _notification.AddSuccess("Handler was executed");
+        return Task.CompletedTask;
     }
 }

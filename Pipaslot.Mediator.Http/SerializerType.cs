@@ -1,8 +1,7 @@
-﻿namespace Pipaslot.Mediator.Http
+﻿namespace Pipaslot.Mediator.Http;
+
+public enum SerializerType
 {
-    public enum SerializerType
-    {
-        V2,
-        V3
-    }
+    V2,
+    V3
 }

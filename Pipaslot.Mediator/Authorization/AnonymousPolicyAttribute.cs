@@ -2,14 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Authorization
+namespace Pipaslot.Mediator.Authorization;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+public class AnonymousPolicyAttribute : Attribute, IPolicy
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-    public class AnonymousPolicyAttribute : Attribute, IPolicy
+    public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
     {
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
-        {
-            return IdentityPolicy.Anonymous().Resolve(services, cancellationToken);
-        }
+        return IdentityPolicy.Anonymous().Resolve(services, cancellationToken);
     }
 }

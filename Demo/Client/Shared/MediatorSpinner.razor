@@ -1,9 +1,10 @@
 ﻿@using Demo.Client.Shared.Components
 @using Pipaslot.Mediator.Middlewares
-<Spinner Show="_show" />
+<Spinner Show="_show"/>
 
 @implements IDisposable
 @inject ActionEventsMiddleware ActionEvents;
+
 @code {
     private bool _show;
 
@@ -12,6 +13,7 @@
         ActionEvents.ProcessingStarted += OnStarted;
         ActionEvents.ProcessingCompleted += OnFinished;
     }
+
     public void Dispose()
     {
         ActionEvents.ProcessingStarted -= OnStarted;
@@ -23,9 +25,11 @@
         _show = true;
         StateHasChanged();
     }
+
     private void OnFinished(object? sender, EventArgs args)
     {
         _show = false;
         StateHasChanged();
     }
+
 }

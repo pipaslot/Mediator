@@ -6,6 +6,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
     public class NopMessage : IMessage
     {
     }
+
     public class NopMesageHandler : IMessageHandler<NopMessage>
     {
         public Task Handle(NopMessage action, CancellationToken cancellationToken)

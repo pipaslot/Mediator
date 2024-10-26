@@ -2,25 +2,26 @@
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Authorization;
 
-namespace Demo.Server.Handlers.Auth
+namespace Demo.Server.Handlers.Auth;
+
+public class ConditionalAuthorizationMessageHandler : IMessageHandler<ConditionalAuthorizationMessage>,
+    IHandlerAuthorization<ConditionalAuthorizationMessage>
 {
-    public class ConditionalAuthorizationMessageHandler : IMessageHandler<ConditionalAuthorizationMessage>, IHandlerAuthorization<ConditionalAuthorizationMessage>
+    public IPolicy Authorize(ConditionalAuthorizationMessage action)
     {
-        public IPolicy Authorize(ConditionalAuthorizationMessage action)
+        var policy = action.RequireAuthentication
+            ? IdentityPolicy.Authenticated()
+            : IdentityPolicy.Anonymous();
+        if (!string.IsNullOrWhiteSpace(action.RequiredRole))
         {
-            var policy = action.RequireAuthentication
-                ? IdentityPolicy.Authenticated()
-                : IdentityPolicy.Anonymous();
-            if (!string.IsNullOrWhiteSpace(action.RequiredRole))
-            {
-                policy.HasRole(action.RequiredRole);
-            }
-            return policy;
+            policy.HasRole(action.RequiredRole);
         }
 
-        public Task Handle(ConditionalAuthorizationMessage action, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        return policy;
+    }
+
+    public Task Handle(ConditionalAuthorizationMessage action, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 }

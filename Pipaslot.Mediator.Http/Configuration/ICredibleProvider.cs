@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Pipaslot.Mediator.Http.Configuration
+namespace Pipaslot.Mediator.Http.Configuration;
+
+public interface ICredibleProvider
 {
-    public interface ICredibleProvider
-    {
-        void VerifyCredibility(Type type);
-    }
+    void VerifyCredibility(Type type);
 }

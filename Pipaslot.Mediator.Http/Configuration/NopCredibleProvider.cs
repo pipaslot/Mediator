@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Pipaslot.Mediator.Http.Configuration
+namespace Pipaslot.Mediator.Http.Configuration;
+
+internal class NopCredibleProvider : ICredibleProvider
 {
-    internal class NopCredibleProvider : ICredibleProvider
+    public void VerifyCredibility(Type actionType)
     {
-        public void VerifyCredibility(Type actionType)
-        {
-            //No operation
-        }
+        //No operation
     }
 }

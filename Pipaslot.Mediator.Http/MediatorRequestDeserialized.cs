@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace Pipaslot.Mediator.Http
-{
-    public class MediatorRequestDeserialized
-    {
-        public object? Content { get; }
-        public Type? ActionType { get; }
-        public string ObjectName { get; }
+namespace Pipaslot.Mediator.Http;
 
-        public MediatorRequestDeserialized(object? content, Type? actionType, string? objectName)
-        {
-            Content = content;
-            ActionType = actionType;
-            ObjectName = objectName ?? string.Empty;
-        }
+public class MediatorRequestDeserialized
+{
+    public object? Content { get; }
+    public Type? ActionType { get; }
+    public string ObjectName { get; }
+
+    public MediatorRequestDeserialized(object? content, Type? actionType, string? objectName)
+    {
+        Content = content;
+        ActionType = actionType;
+        ObjectName = objectName ?? string.Empty;
     }
 }

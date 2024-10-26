@@ -4,79 +4,77 @@ using Pipaslot.Mediator.Http.Serialization.V3.Converters;
 using System;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http.Serialization.V3
+namespace Pipaslot.Mediator.Http.Serialization.V3;
+
+internal class JsonContractSerializer : IContractSerializer
 {
-    internal class JsonContractSerializer : IContractSerializer
+    private readonly JsonSerializerOptions _serializationOptions;
+    internal static readonly JsonSerializerOptions SerializationOptionsWithoutConverters = new() { PropertyNamingPolicy = null };
+
+    public JsonContractSerializer(ICredibleProvider credibleProvider, IMediatorOptions mediatorOptions)
     {
-        private readonly JsonSerializerOptions _serializationOptions;
-        internal readonly static JsonSerializerOptions SerializationOptionsWithoutConverters = new()
+        _serializationOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = null
+            IgnoreReadOnlyProperties = mediatorOptions.IgnoreReadOnlyProperties,
+            PropertyNamingPolicy = null,
+            Converters =
+            {
+                new InterfaceConverter<IMediatorAction>(credibleProvider),
+                new MediatorResponseConverter(credibleProvider),
+                new InterfaceConverterFactory(credibleProvider)
+            }
         };
+    }
 
-        public JsonContractSerializer(ICredibleProvider credibleProvider, IMediatorOptions mediatorOptions)
-        {
-            _serializationOptions = new()
-            {                
-                IgnoreReadOnlyProperties = mediatorOptions.IgnoreReadOnlyProperties,
-                PropertyNamingPolicy = null,
-                Converters =
-                {
-                    new InterfaceConverter<IMediatorAction>(credibleProvider),
-                    new MediatorResponseConverter(credibleProvider),
-                    new InterfaceConverterFactory(credibleProvider)
-                }
-            };
-        }
+    public string SerializeRequest(IMediatorAction request)
+    {
+        return JsonSerializer.Serialize(request, typeof(IMediatorAction), _serializationOptions);
+    }
 
-        public string SerializeRequest(IMediatorAction request)
+    public IMediatorAction DeserializeRequest(string body)
+    {
+        if (!string.IsNullOrWhiteSpace(body))
         {
-            return JsonSerializer.Serialize(request, typeof(IMediatorAction), _serializationOptions);
-        }
-
-        public IMediatorAction DeserializeRequest(string body)
-        {
-            if (!string.IsNullOrWhiteSpace(body))
+            try
             {
-                try
+                var contract = JsonSerializer.Deserialize<IMediatorAction>(body, _serializationOptions);
+                if (contract != null)
                 {
-                    var contract = JsonSerializer.Deserialize<IMediatorAction>(body, _serializationOptions);
-                    if (contract != null)
-                    {
-                        return contract;
-                    }
-                }
-                catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
-                {
-                    throw MediatorHttpException.CreateForInvalidRequest(body, e);
+                    return contract;
                 }
             }
-            throw MediatorHttpException.CreateForInvalidRequest(body);
-        }
-
-        public string SerializeResponse(IMediatorResponse response)
-        {
-            return JsonSerializer.Serialize(response, _serializationOptions);
-        }
-
-        public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
-        {
-            if (!string.IsNullOrWhiteSpace(response))
+            catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
             {
-                try
+                throw MediatorHttpException.CreateForInvalidRequest(body, e);
+            }
+        }
+
+        throw MediatorHttpException.CreateForInvalidRequest(body);
+    }
+
+    public string SerializeResponse(IMediatorResponse response)
+    {
+        return JsonSerializer.Serialize(response, _serializationOptions);
+    }
+
+    public IMediatorResponse<TResult> DeserializeResponse<TResult>(string response)
+    {
+        if (!string.IsNullOrWhiteSpace(response))
+        {
+            try
+            {
+                var serializedResult = JsonSerializer.Deserialize<IMediatorResponse>(response, _serializationOptions);
+                if (serializedResult != null)
                 {
-                    var serializedResult = JsonSerializer.Deserialize<IMediatorResponse>(response, _serializationOptions);
-                    if (serializedResult != null)
-                    {
-                        return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results);
-                    }
-                }
-                catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
-                {
-                    throw MediatorHttpException.CreateForInvalidResponse(response, e);
+                    return new MediatorResponse<TResult>(serializedResult.Success, serializedResult.Results);
                 }
             }
-            throw MediatorHttpException.CreateForInvalidResponse(response);
+            catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
+            {
+                throw MediatorHttpException.CreateForInvalidResponse(response, e);
+            }
         }
+
+        throw MediatorHttpException.CreateForInvalidResponse(response);
     }
 }

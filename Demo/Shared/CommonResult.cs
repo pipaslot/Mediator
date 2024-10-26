@@ -1,7 +1,6 @@
-﻿namespace Demo.Shared
+﻿namespace Demo.Shared;
+
+public class CommonResult
 {
-    public class CommonResult
-    {
-        public string? Description { get; set; }
-    }
+    public string? Description { get; set; }
 }

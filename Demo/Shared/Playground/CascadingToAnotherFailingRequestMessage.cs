@@ -1,10 +1,9 @@
 ﻿using Pipaslot.Mediator;
 using Pipaslot.Mediator.Authorization;
 
-namespace Demo.Shared.Playground
+namespace Demo.Shared.Playground;
+
+[AnonymousPolicy]
+public class CascadingToAnotherFailingRequestMessage : IMessage
 {
-    [AnonymousPolicy]
-    public class CascadingToAnotherFailingRequestMessage : IMessage
-    {
-    }
 }

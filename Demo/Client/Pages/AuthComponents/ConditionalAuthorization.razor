@@ -3,17 +3,17 @@
 @using Pipaslot.Mediator.Notifications
 
 <EditForm Model="@Model" OnValidSubmit="@Submit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
     <div>
         <label>
-            <InputCheckbox Value="@Model.RequireAuthentication" ValueExpression="()=>Model.RequireAuthentication" ValueChanged="e=>OnRequireAuthenticationChanged(e)" /> Require authenticated user
+            <InputCheckbox Value="@Model.RequireAuthentication" ValueExpression="() => Model.RequireAuthentication" ValueChanged="e => OnRequireAuthenticationChanged(e)"/> Require authenticated user
         </label>
     </div>
     <div>
         <label>
             Required role name:
-            <InputText Value="@Model.RequiredRole" ValueExpression="()=>Model.RequiredRole" ValueChanged="e=>OnRequiredRoleChanged(e)" />
+            <InputText Value="@Model.RequiredRole" ValueExpression="() => Model.RequiredRole" ValueChanged="e => OnRequiredRoleChanged(e)"/>
         </label>
     </div>
     <div class="mt-2">
@@ -32,17 +32,23 @@
             <span class="me-1">Submit (alternative)</span>
         </button>
 
-        <div><i>Reason:</i></div>
+        <div>
+            <i>Reason:</i>
+        </div>
         <div>@_auth.Reason</div>
     </div>
 </EditForm>
 
 @inject INotificationProvider Notifications
+
 @code {
-    [Parameter, EditorRequired]
+
+    [Parameter]
+    [EditorRequired]
     public ConditionalAuthorizationMessage Model { get; set; } = null!;
 
     private AuthorizeRequestResponse _auth = new();
+
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -54,11 +60,13 @@
         Model.RequireAuthentication = value;
         await OnChange();
     }
+
     private async Task OnRequiredRoleChanged(string value)
     {
         Model.RequiredRole = value;
         await OnChange();
     }
+
     private async Task OnChange()
     {
         _auth = await Mediator.Authorize(Model);
@@ -72,4 +80,5 @@
             Notifications.AddSuccess("Validation passed");
         }
     }
+
 }

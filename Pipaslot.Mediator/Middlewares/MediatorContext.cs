@@ -5,143 +5,147 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Pipaslot.Mediator.Middlewares
+namespace Pipaslot.Mediator.Middlewares;
+
+public class MediatorContext
 {
-    public class MediatorContext
+    /// <summary>
+    /// Unique context identifier
+    /// </summary>
+    public Guid Guid { get; } = Guid.NewGuid();
+
+    public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
+
+    private readonly List<object> _results = new(1);
+
+    /// <summary>
+    /// Handler result objects and object collected during middleware processing
+    /// </summary>
+    public IReadOnlyCollection<object> Results => _results;
+
+    /// <summary>
+    /// Executed/Dispatched action
+    /// </summary>
+    public IMediatorAction Action { get; }
+
+    /// <summary>
+    /// Unique action identifier
+    /// </summary>
+    public string ActionIdentifier => Action.GetActionName();
+
+    /// <summary>
+    /// Returns true for Request types and false for Message types
+    /// </summary>
+    public bool HasActionReturnValue => Action is IMediatorActionProvidingData;
+
+    /// <summary>
+    /// Cancellation token
+    /// </summary>
+    public CancellationToken CancellationToken { get; private set; }
+
+    private IFeatureCollection? _features;
+
+    /// <inheritdoc cref="IFeatureCollection"/>
+    public IFeatureCollection Features => _features ??= new FeatureCollection();
+
+    public IMediator Mediator { get; }
+
+    /// <summary>
+    /// Parent action contexts. 
+    /// Will be empty if current action is executed independently. 
+    /// Will contain parent contexts of actions which executed current action as nested call. 
+    /// The last member is always the root action.
+    /// </summary>
+    public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
+
+    private readonly IMediatorContextAccessor _contextAccessor;
+    internal IServiceProvider Services { get; }
+
+    private object[]? _handlers;
+
+    internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action,
+        CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
     {
-        /// <summary>
-        /// Unique context identifier
-        /// </summary>
-        public Guid Guid { get; } = Guid.NewGuid();
+        Mediator = mediator;
+        _contextAccessor = contextAccessor;
+        Services = serviceProvider;
+        Action = action ?? throw new ArgumentNullException(nameof(action));
+        CancellationToken = cancellationToken;
+        _handlers = handlers;
+        _features = defaultFeatures;
+    }
 
-        public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
+    public IEnumerable<string> ErrorMessages => _results
+        .GetNotifications()
+        .GetErrorMessages();
 
-        private readonly List<object> _results = new(1);
-        /// <summary>
-        /// Handler result objects and object collected during middleware processing
-        /// </summary>
-        public IReadOnlyCollection<object> Results => _results;
+    /// <summary>
+    /// Copy context without result data
+    /// </summary>
+    /// <returns></returns>
+    public MediatorContext CopyEmpty()
+    {
+        var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers, _features);
+        return copy;
+    }
 
-        /// <summary>
-        /// Executed/Dispatched action
-        /// </summary>
-        public IMediatorAction Action { get; }
-
-        /// <summary>
-        /// Unique action identifier
-        /// </summary>
-        public string ActionIdentifier => Action.GetActionName();
-
-        /// <summary>
-        /// Returns true for Request types and false for Message types
-        /// </summary>
-        public bool HasActionReturnValue => Action is IMediatorActionProvidingData;
-
-        /// <summary>
-        /// Cancellation token
-        /// </summary>
-        public CancellationToken CancellationToken { get; private set; }
-
-        private IFeatureCollection? _features;
-
-        /// <inheritdoc cref="IFeatureCollection"/>
-        public IFeatureCollection Features => _features ??= new FeatureCollection();
-
-        public IMediator Mediator { get; }
-
-        /// <summary>
-        /// Parent action contexts. 
-        /// Will be empty if current action is executed independently. 
-        /// Will contain parent contexts of actions which executed current action as nested call. 
-        /// The last member is always the root action.
-        /// </summary>
-        public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
-
-        private readonly IMediatorContextAccessor _contextAccessor;
-        internal IServiceProvider Services { get; }
-
-        private object[]? _handlers;
-
-        internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action, CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
+    /// <summary>
+    /// Register processing result
+    /// </summary>
+    /// <param name="result"></param>
+    public void AddResult(object result)
+    {
+        if (result is Notification notification)
         {
-            Mediator = mediator;
-            _contextAccessor = contextAccessor;
-            Services = serviceProvider;
-            Action = action ?? throw new System.ArgumentNullException(nameof(action));
-            CancellationToken = cancellationToken;
-            _handlers = handlers;
-            _features = defaultFeatures;
-        }
-        
-        public IEnumerable<string> ErrorMessages => _results
-                .GetNotifications()
-                .GetErrorMessages();
-
-        /// <summary>
-        /// Copy context without result data
-        /// </summary>
-        /// <returns></returns>
-        public MediatorContext CopyEmpty()
-        {
-            var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers, _features);
-            return copy;
-        }
-
-        /// <summary>
-        /// Register processing result
-        /// </summary>
-        /// <param name="result"></param>
-        public void AddResult(object result)
-        {
-            if (result is Notification notification)
+            if (notification.Type.IsError())
             {
-                if (notification.Type.IsError())
-                {
-                    Status = ExecutionStatus.Failed;
-                }
-                if (!ContainsNotification(notification))
-                {
-                    _results.Add(notification);
-                }
+                Status = ExecutionStatus.Failed;
             }
-            else
+
+            if (!ContainsNotification(notification))
             {
-                _results.Add(result);
+                _results.Add(notification);
+            }
+        }
+        else
+        {
+            _results.Add(result);
+        }
+    }
+
+    private bool ContainsNotification(Notification notification)
+    {
+        foreach (var res in Results)
+        {
+            if (res is Notification n && n.Equals(notification))
+            {
+                return true;
             }
         }
 
-        private bool ContainsNotification(Notification notification)
+        return false;
+    }
+
+    /// <summary>
+    /// Resolve all handlers for action execution
+    /// </summary>
+    /// <returns></returns>
+    public object[] GetHandlers()
+    {
+        if (_handlers == null)
         {
-            foreach (var res in Results)
-            {
-                if (res is Notification n && n.Equals(notification))
-                {
-                    return true;
-                }
-            }
-            return false;
+            _handlers = Services.GetActionHandlers(Action);
         }
 
-        /// <summary>
-        /// Resolve all handlers for action execution
-        /// </summary>
-        /// <returns></returns>
-        public object[] GetHandlers()
-        {
-            if (_handlers == null)
-            {
-                _handlers = Services.GetActionHandlers(Action);
-            }
-            return _handlers;
-        }
+        return _handlers;
+    }
 
-        /// <summary>
-        /// Replace actual cancellation token by own one. 
-        /// Can be used as hooking to application events to cancel operations relevat to leaved pages/requests.
-        /// </summary>
-        public void SetCancellationToken(CancellationToken cancellationToken)
-        {
-            CancellationToken = cancellationToken;
-        }
+    /// <summary>
+    /// Replace actual cancellation token by own one. 
+    /// Can be used as hooking to application events to cancel operations relevat to leaved pages/requests.
+    /// </summary>
+    public void SetCancellationToken(CancellationToken cancellationToken)
+    {
+        CancellationToken = cancellationToken;
     }
 }

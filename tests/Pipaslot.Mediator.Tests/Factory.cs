@@ -9,107 +9,106 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests
+namespace Pipaslot.Mediator.Tests;
+
+internal class Factory
 {
-    internal class Factory
+    public static IMediator CreateConfiguredMediator()
     {
-        public static IMediator CreateConfiguredMediator()
-        {
-            return CreateConfiguredMediator(c => { });
-        }
+        return CreateConfiguredMediator(c => { });
+    }
 
-        public static IMediator CreateConfiguredMediator<THandler>()
-        {
-            var services = CreateServiceProvider(c =>
-                {
-                    c.AddHandlers([typeof(THandler)]);
-                }
-            );
-            return services.GetRequiredService<IMediator>();
-        }
-
-        public static IMediator CreateConfiguredMediator(Action<IMediatorConfigurator> setup)
-        {
-            var services = CreateServiceProvider(c =>
-                {
-                    c.AddActionsFromAssemblyOf<Factory>()
-                        .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                        .AddHandlersFromAssemblyOf<Factory>()
-                        .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
-                    setup(c);
-                }
-            );
-            return services.GetRequiredService<IMediator>();
-        }
-
-        public static Mediator CreateInternalMediator(Action<IMediatorConfigurator> setup)
-        {
-            var services = CreateServiceProvider(c =>
+    public static IMediator CreateConfiguredMediator<THandler>()
+    {
+        var services = CreateServiceProvider(c =>
             {
-                setup(c);
-            });
-            return (Mediator)services.GetRequiredService<IMediator>();
-        }
+                c.AddHandlers([typeof(THandler)]);
+            }
+        );
+        return services.GetRequiredService<IMediator>();
+    }
 
-        public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
-        {
-            var services = CreateServiceProvider(c =>
+    public static IMediator CreateConfiguredMediator(Action<IMediatorConfigurator> setup)
+    {
+        var services = CreateServiceProvider(c =>
             {
+                c.AddActionsFromAssemblyOf<Factory>()
+                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                    .AddHandlersFromAssemblyOf<Factory>()
+                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
                 setup(c);
-            });
-            return services.GetRequiredService<IMediator>();
-        }
+            }
+        );
+        return services.GetRequiredService<IMediator>();
+    }
 
-        public static IServiceProvider CreateServiceProvider()
+    public static Mediator CreateInternalMediator(Action<IMediatorConfigurator> setup)
+    {
+        var services = CreateServiceProvider(c =>
         {
-            return CreateServiceProvider(_ => { });
-        }
+            setup(c);
+        });
+        return (Mediator)services.GetRequiredService<IMediator>();
+    }
 
-        public static MediatorConfigurator CreateMediatorConfigurator(Action<IMediatorConfigurator> setup)
+    public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
+    {
+        var services = CreateServiceProvider(c =>
         {
-            var sp = CreateServiceProvider(setup);
-            return sp.GetRequiredService<MediatorConfigurator>();
-        }
+            setup(c);
+        });
+        return services.GetRequiredService<IMediator>();
+    }
 
-        public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator> setup)
-        {
-            var collection = new ServiceCollection();
-            collection.AddLogging();
-            setup(collection.AddMediator());
-            return collection.BuildServiceProvider();
-        }
+    public static IServiceProvider CreateServiceProvider()
+    {
+        return CreateServiceProvider(_ => { });
+    }
 
-        public static IServiceProvider CreateServiceProviderWithHandlers<THandler1>()
-        {
-            return CreateServiceProviderWithHandlers(typeof(THandler1));
-        }
+    public static MediatorConfigurator CreateMediatorConfigurator(Action<IMediatorConfigurator> setup)
+    {
+        var sp = CreateServiceProvider(setup);
+        return sp.GetRequiredService<MediatorConfigurator>();
+    }
 
-        public static IServiceProvider CreateServiceProviderWithHandlers<THandler1, THandler2>()
-        {
-            return CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
-        }
+    public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator> setup)
+    {
+        var collection = new ServiceCollection();
+        collection.AddLogging();
+        setup(collection.AddMediator());
+        return collection.BuildServiceProvider();
+    }
 
-        /// <summary>
-        /// Simulate handler registration in service provider
-        /// </summary>
-        public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
-        {
-            var collection = new ServiceCollection();
-            collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
-            return collection.BuildServiceProvider();
-        }
+    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1>()
+    {
+        return CreateServiceProviderWithHandlers(typeof(THandler1));
+    }
 
-        public static MiddlewareDelegate CreateMiddlewareDelegate()
-        {
-            return (MediatorContext ctx) => Task.CompletedTask;
-        }
+    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1, THandler2>()
+    {
+        return CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
+    }
 
-        public static MediatorContext FakeContext(IMediatorAction action)
-        {
-            var services = CreateServiceProvider();
-            var mediator = new Mock<IMediator>();
-            var mcaMock = new Mock<IMediatorContextAccessor>();
-            return new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None, null, null);
-        }
+    /// <summary>
+    /// Simulate handler registration in service provider
+    /// </summary>
+    public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
+    {
+        var collection = new ServiceCollection();
+        collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
+        return collection.BuildServiceProvider();
+    }
+
+    public static MiddlewareDelegate CreateMiddlewareDelegate()
+    {
+        return (MediatorContext ctx) => Task.CompletedTask;
+    }
+
+    public static MediatorContext FakeContext(IMediatorAction action)
+    {
+        var services = CreateServiceProvider();
+        var mediator = new Mock<IMediator>();
+        var mcaMock = new Mock<IMediatorContextAccessor>();
+        return new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None, null, null);
     }
 }
