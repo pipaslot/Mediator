@@ -12,16 +12,16 @@
     </Authorized>
 </AuthorizeView>
 <hr />
-<h4>Conditional authenthorization</h4>
-<ConditionalAuthorization Model="_formModel1" @key="@($"form1-{isAuthenticated}")" />
+<h4>Conditional authorization</h4>
+<ConditionalAuthorization Model="_formModel1" @key="@($"form1-{_isAuthenticated}")" />
 <br /><br />
-<IdentityStaticAuthorization @key="@($"form2-{isAuthenticated}")" />
+<IdentityStaticAuthorization @key="@($"form2-{_isAuthenticated}")" />
 <hr />
-<BusinessRuleDependentPolicy @key="@($"form3-{isAuthenticated}")" />
+<BusinessRuleDependentPolicy @key="@($"form3-{_isAuthenticated}")" />
 
 @code {
-    private bool isAuthenticated;
-    private ConditionalAuthorizationMessage _formModel1 = new();
+    private bool _isAuthenticated;
+    private readonly ConditionalAuthorizationMessage _formModel1 = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,7 +45,7 @@
     private async Task UpdateState()
     {
         var state = await AuthService.GetAuthenticationStateAsync();
-        isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
+        _isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
     }
 
 }
