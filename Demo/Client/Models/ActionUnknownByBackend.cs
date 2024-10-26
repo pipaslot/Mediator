@@ -1,8 +1,7 @@
 ﻿using Pipaslot.Mediator;
 
-namespace Demo.Client.Models
+namespace Demo.Client.Models;
+
+public class ActionUnknownByBackend : IMessage
 {
-    public class ActionUnknownByBackend : IMessage
-    {
-    }
 }

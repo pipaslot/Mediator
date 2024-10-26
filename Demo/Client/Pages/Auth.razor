@@ -11,13 +11,13 @@
         <button class="btn btn-primary btn-sm" @onclick="Logout">Logout</button> Your role is: visitor
     </Authorized>
 </AuthorizeView>
-<hr />
+<hr/>
 <h4>Conditional authorization</h4>
-<ConditionalAuthorization Model="_formModel1" @key="@($"form1-{_isAuthenticated}")" />
-<br /><br />
-<IdentityStaticAuthorization @key="@($"form2-{_isAuthenticated}")" />
-<hr />
-<BusinessRuleDependentPolicy @key="@($"form3-{_isAuthenticated}")" />
+<ConditionalAuthorization Model="_formModel1" @key="@($"form1-{_isAuthenticated}")"/>
+<br/><br/>
+<IdentityStaticAuthorization @key="@($"form2-{_isAuthenticated}")"/>
+<hr/>
+<BusinessRuleDependentPolicy @key="@($"form3-{_isAuthenticated}")"/>
 
 @code {
     private bool _isAuthenticated;

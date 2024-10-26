@@ -17,7 +17,7 @@ public class NotNullInteger
         Assert.True(result.Success);
         Assert.Equal(value, result.Result);
     }
-    
+
     [Theory]
     [InlineData(-100)]
     [InlineData(0)]

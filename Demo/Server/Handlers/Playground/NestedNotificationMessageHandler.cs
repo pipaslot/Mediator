@@ -2,21 +2,20 @@
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Notifications;
 
-namespace Demo.Server.Handlers.Playground
+namespace Demo.Server.Handlers.Playground;
+
+public class NestedNotificationMessageHandler : IMessageHandler<NestedNotificationMessage>
 {
-    public class NestedNotificationMessageHandler : IMessageHandler<NestedNotificationMessage>
+    private readonly INotificationProvider _notifications;
+
+    public NestedNotificationMessageHandler(INotificationProvider notifications)
     {
-        private readonly INotificationProvider _notifications;
+        _notifications = notifications;
+    }
 
-        public NestedNotificationMessageHandler(INotificationProvider notifications)
-        {
-            _notifications = notifications;
-        }
-
-        public Task Handle(NestedNotificationMessage action, CancellationToken cancellationToken)
-        {
-            _notifications.AddSuccess("Nested handler was executed");
-            return Task.CompletedTask;
-        }
+    public Task Handle(NestedNotificationMessage action, CancellationToken cancellationToken)
+    {
+        _notifications.AddSuccess("Nested handler was executed");
+        return Task.CompletedTask;
     }
 }

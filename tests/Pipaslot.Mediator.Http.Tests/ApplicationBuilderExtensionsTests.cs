@@ -10,7 +10,7 @@ namespace Pipaslot.Mediator.Http.Tests
 {
     public class ApplicationBuilderExtensionsTests
     {
-        private static Exception _exception = new Exception();
+        private static Exception _exception = new();
 
         [Fact]
         public void UseMediator_CheckMatchingHandlersEnabled_ResolveAndExecuteHandlerExistenceChecker()

@@ -17,7 +17,7 @@ public class NotNullDateTime
         Assert.True(result.Success);
         Assert.Equal(value, result.Result);
     }
-    
+
     [Theory]
     [InlineData("2021-09-01")]
     public async Task ExecuteUnhandled_ShouldPass(string dateString)

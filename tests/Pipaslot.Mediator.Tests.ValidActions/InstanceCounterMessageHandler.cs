@@ -8,7 +8,8 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public class InstanceCounterMessageHandler : IMessageHandler<InstanceCounterMessage>
     {
-        public static HashSet<InstanceCounterMessageHandler> Instances = new HashSet<InstanceCounterMessageHandler>();
+        public static HashSet<InstanceCounterMessageHandler> Instances = new();
+
         public Task Handle(InstanceCounterMessage action, CancellationToken cancellationToken)
         {
             Instances.Add(this);
@@ -18,6 +19,5 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 
     public class InstanceCounterMessage : IMessage
     {
-
     }
 }

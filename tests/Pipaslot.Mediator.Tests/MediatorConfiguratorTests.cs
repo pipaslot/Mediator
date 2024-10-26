@@ -5,48 +5,47 @@ using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using Xunit;
 
-namespace Pipaslot.Mediator.Tests
+namespace Pipaslot.Mediator.Tests;
+
+public class MediatorConfiguratorTests
 {
-    public class MediatorConfiguratorTests
+    [Fact]
+    public void AddActions_NonActionTypePassed_ThrowException()
     {
-        [Fact]
-        public void AddActions_NonActionTypePassed_ThrowException()
+        var sut = Create();
+        Assert.Throws<MediatorException>(() =>
         {
-            var sut = Create();
-            Assert.Throws<MediatorException>(() =>
-            {
-                sut.AddActions(new Type[] { typeof(object) });
-            });
-        }
+            sut.AddActions(new Type[] { typeof(object) });
+        });
+    }
 
-        [Fact]
-        public void AddActions_ActionTypePassed_Pass()
-        {
-            var sut = Create();
-            sut.AddActions(new Type[] { typeof(NopMessage) });
-        }
+    [Fact]
+    public void AddActions_ActionTypePassed_Pass()
+    {
+        var sut = Create();
+        sut.AddActions(new Type[] { typeof(NopMessage) });
+    }
 
-        [Fact]
-        public void AddHandlers_NonHandlerTypePassed_ThrowException()
+    [Fact]
+    public void AddHandlers_NonHandlerTypePassed_ThrowException()
+    {
+        var sut = Create();
+        Assert.Throws<MediatorException>(() =>
         {
-            var sut = Create();
-            Assert.Throws<MediatorException>(() =>
-            {
-                sut.AddHandlers(new Type[] { typeof(object) });
-            });
-        }
+            sut.AddHandlers(new Type[] { typeof(object) });
+        });
+    }
 
-        [Fact]
-        public void AddHandlers_HandlerTypePassed_Pass()
-        {
-            var sut = Create();
-            sut.AddHandlers(new Type[] { typeof(NopMesageHandler) });
-        }
+    [Fact]
+    public void AddHandlers_HandlerTypePassed_Pass()
+    {
+        var sut = Create();
+        sut.AddHandlers(new Type[] { typeof(NopMesageHandler) });
+    }
 
-        private MediatorConfigurator Create()
-        {
-            var sc = new Mock<IServiceCollection>();
-            return new MediatorConfigurator(sc.Object);
-        }
+    private MediatorConfigurator Create()
+    {
+        var sc = new Mock<IServiceCollection>();
+        return new MediatorConfigurator(sc.Object);
     }
 }

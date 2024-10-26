@@ -1,10 +1,9 @@
-﻿namespace Pipaslot.Mediator.Authorization
+﻿namespace Pipaslot.Mediator.Authorization;
+
+public enum AuthorizationExceptionTypes
 {
-    public enum AuthorizationExceptionTypes
-    {
-        Unknown = 0,
-        NoAuthorization = 1,
-        UnauthorizedHandler = 2,
-        RuleNotMet = 3,
-    }
+    Unknown = 0,
+    NoAuthorization = 1,
+    UnauthorizedHandler = 2,
+    RuleNotMet = 3
 }

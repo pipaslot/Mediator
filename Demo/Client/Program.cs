@@ -18,12 +18,12 @@ services.AddScoped<AuthenticationStateProvider, AuthService>(provider => provide
 
 //////// Mediator implementation
 services.AddMediatorClient(o =>
-{
-    o.Endpoint = Constants.CustomMediatorUrl;
-    o.IgnoreReadOnlyProperties = true;
-    o.SerializerType = SerializerType.V3;
-    o.AddCredibleResultType<CommonResult>();
-})
+    {
+        o.Endpoint = Constants.CustomMediatorUrl;
+        o.IgnoreReadOnlyProperties = true;
+        o.SerializerType = SerializerType.V3;
+        o.AddCredibleResultType<CommonResult>();
+    })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipelineForAuthorizationRequest(p =>
     {

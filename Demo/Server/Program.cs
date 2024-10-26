@@ -36,26 +36,25 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = authOptions.Issuer,
                 ValidAudience = authOptions.Audience,
-                IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey),
-
+                IssuerSigningKey = LoginRequestHandler.CreateSymetricKey(authOptions.SecretKey)
             };
     });
 
 //////// Mediator implementation
 services.AddMediatorServer(o =>
-{
-    o.Endpoint = Constants.CustomMediatorUrl;
-    o.IgnoreReadOnlyProperties = true;
-    o.ErrorHttpStatusCode = 500;
-    o.SerializerType = SerializerType.V3;
-})
+    {
+        o.Endpoint = Constants.CustomMediatorUrl;
+        o.IgnoreReadOnlyProperties = true;
+        o.ErrorHttpStatusCode = 500;
+        o.SerializerType = SerializerType.V3;
+    })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
     // Log all unhalded exception via ILogger. Wont catch exception from IMessage as the next middleware provides custom handling for the Messages
-    .UseExceptionLogging()                  
+    .UseExceptionLogging()
     .UseWhenAction<IMessage>(
         p => p.Use<CustomLoggingMiddleware>()
-        )
+    )
     // Configure pipelines for own custom action types. This is CQRS implementaiton Demo 
     //.UseWhen<IQuery>(s => s               // Pipeline specified only for queries
     //    .Use<QuerySpecificMiddleware>()   // Middleare which should be applied only to Queries
@@ -82,6 +81,7 @@ else
 {
     app.UseExceptionHandler("/Error");
 }
+
 app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();

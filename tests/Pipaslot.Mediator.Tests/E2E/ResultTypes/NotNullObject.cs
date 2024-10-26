@@ -25,7 +25,7 @@ public class NotNullObject
         var expectedMessage = MediatorExecutionException.CreateForMissingResult(Factory.FakeContext(action), typeof(FakeResult)).Message;
         Assert.Equal(expectedMessage, result.GetErrorMessage());
     }
-    
+
     [Fact]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
@@ -44,7 +44,7 @@ public class NotNullObject
             var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
             await sut.ExecuteUnhandled(action);
         });
-        
+
         Assert.Equal(expectedMessage, ex.Message);
     }
 

@@ -5,6 +5,7 @@ internal class ResponseDeserialized
     public bool Success { get; set; }
     public object[] Results { get; set; } = [];
 }
+
 internal class ResponseDeserialized<TResult> : IMediatorResponse<TResult>
 {
     public bool Success { get; set; }

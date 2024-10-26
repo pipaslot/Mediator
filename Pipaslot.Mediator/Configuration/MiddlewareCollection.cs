@@ -5,122 +5,123 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipaslot.Mediator.Configuration
+namespace Pipaslot.Mediator.Configuration;
+
+internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrator
 {
-    internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrator
+    private readonly List<IMiddlewareResolver> _middlewareTypes = new();
+    private readonly IServiceCollection _services;
+
+    public MiddlewareCollection(IServiceCollection services)
     {
-        private readonly List<IMiddlewareResolver> _middlewareTypes = new List<IMiddlewareResolver>();
-        private readonly IServiceCollection _services;
+        _services = services;
+    }
 
-        public MiddlewareCollection(IServiceCollection services)
+    private void AddMiddleware(Type middlewareType, ServiceLifetime lifetime, object[]? parameters = null)
+    {
+        _middlewareTypes.Add(new MiddlewareDefinition(middlewareType, parameters));
+        var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
+        if (existingDescriptor != null)
         {
-            _services = services;
+            if (existingDescriptor.Lifetime != lifetime)
+            {
+                throw new MediatorException(
+                    $"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
+            }
         }
-
-        private void AddMiddleware(Type middlewareType, ServiceLifetime lifetime, object[]? parameters = null)
+        else
         {
-            _middlewareTypes.Add(new MiddlewareDefinition(middlewareType, parameters));
-            var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
-            if (existingDescriptor != null)
+            _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+        }
+    }
+
+    public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    {
+        foreach (var res in _middlewareTypes)
+        {
+            foreach (var a in res.GetMiddlewares(action, serviceProvider))
             {
-                if (existingDescriptor.Lifetime != lifetime)
-                {
-                    throw new MediatorException($"Can not register the same middleware with different ServiceLifetime. Service {middlewareType} was already registered with ServiceLifetime {existingDescriptor.Lifetime}.");
-                }
+                yield return a;
             }
-            else
-            {
-                _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
-            }
+        }
+    }
+
+    public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null)
+        where TMiddleware : IMediatorMiddleware
+    {
+        AddMiddleware(typeof(TMiddleware), lifetime, parameters);
+        return this;
+    }
+
+    public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped,
+        object[]? parameters = null) where TMiddleware : IMediatorMiddleware
+    {
+        setupDependencies(_services);
+        AddMiddleware(typeof(TMiddleware), lifetime, parameters);
+        return this;
+    }
+
+    public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+    {
+        var config = new MiddlewareCollection(_services);
+        var definition = new ConditionDefinition(condition, config);
+        _middlewareTypes.Add(definition);
+        subMiddlewares(config);
+        return this;
+    }
+
+    public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
+    {
+        var config = new MiddlewareCollection(_services);
+        var definition = new DynamicDefinition(condition, config);
+        _middlewareTypes.Add(definition);
+        subMiddlewares(config);
+        return this;
+    }
+
+
+    private class ConditionDefinition : IMiddlewareResolver
+    {
+        private readonly Func<IMediatorAction, bool> _condition;
+
+        private readonly MiddlewareCollection _middlewares;
+
+        public ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares)
+        {
+            _condition = condition;
+            _middlewares = middlewares;
         }
 
         public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
-            foreach (var res in _middlewareTypes)
+            if (_condition(action))
             {
-                foreach (var a in res.GetMiddlewares(action, serviceProvider))
+                foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
                 {
-                    yield return a;
+                    yield return type;
                 }
             }
         }
+    }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
+    private class DynamicDefinition : IMiddlewareResolver
+    {
+        private readonly Func<IMediatorAction, IServiceProvider, bool> _condition;
+        private readonly MiddlewareCollection _middlewares;
+
+        public DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
         {
-            AddMiddleware(typeof(TMiddleware), lifetime, parameters);
-            return this;
+            _condition = condition;
+            _middlewares = middlewares;
         }
 
-        public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null) where TMiddleware : IMediatorMiddleware
+        public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
-            setupDependencies(_services);
-            AddMiddleware(typeof(TMiddleware), lifetime, parameters);
-            return this;
-        }
-
-        public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
-        {
-            var config = new MiddlewareCollection(_services);
-            var definition = new ConditionDefinition(condition, config);
-            _middlewareTypes.Add(definition);
-            subMiddlewares(config);
-            return this;
-        }
-
-        public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
-        {
-            var config = new MiddlewareCollection(_services);
-            var definition = new DynamicDefinition(condition, config);
-            _middlewareTypes.Add(definition);
-            subMiddlewares(config);
-            return this;
-        }
-
-        
-
-        private class ConditionDefinition : IMiddlewareResolver
-        {
-            private readonly Func<IMediatorAction, bool> _condition;
-
-            private readonly MiddlewareCollection _middlewares;
-
-            public ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares)
+            if (_condition(action, serviceProvider))
             {
-                _condition = condition;
-                _middlewares = middlewares;
-            }
-
-            public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
-            {
-                if (_condition(action))
+                foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
                 {
-                    foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
-                    {
-                        yield return type;
-                    }
-                }
-            }
-        }
-
-        private class DynamicDefinition : IMiddlewareResolver
-        {
-            private readonly Func<IMediatorAction, IServiceProvider, bool> _condition;
-            private readonly MiddlewareCollection _middlewares;
-
-            public DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
-            {
-                _condition = condition;
-                _middlewares = middlewares;
-            }
-
-            public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
-            {
-                if (_condition(action, serviceProvider))
-                {
-                    foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
-                    {
-                        yield return type;
-                    }
+                    yield return type;
                 }
             }
         }

@@ -1,17 +1,17 @@
 ﻿using Demo.Shared.Playground;
 using Pipaslot.Mediator;
 
-namespace Demo.Server.Handlers.Playground
+namespace Demo.Server.Handlers.Playground;
+
+public class DemoMessageHandler : IMessageHandler<DemoMessage>
 {
-    public class DemoMessageHandler : IMessageHandler<DemoMessage>
+    public Task Handle(DemoMessage request, CancellationToken cancellationToken)
     {
-        public Task Handle(DemoMessage request, CancellationToken cancellationToken)
+        if (request.Fail)
         {
-            if (request.Fail)
-            {
-                throw new Exception("Handler was not able to process MESSAGE sucessfully");
-            }
-            return Task.CompletedTask;
+            throw new Exception("Handler was not able to process MESSAGE sucessfully");
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -2,17 +2,16 @@
 using Pipaslot.Mediator.Authorization;
 using System.Security.Claims;
 
-namespace Pipaslot.Mediator.Http
+namespace Pipaslot.Mediator.Http;
+
+public class ClaimPrincipalAccessor : IClaimPrincipalAccessor
 {
-    public class ClaimPrincipalAccessor : IClaimPrincipalAccessor
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public ClaimPrincipalAccessor(IHttpContextAccessor httpContextAccessor)
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public ClaimPrincipalAccessor(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        public ClaimsPrincipal? Principal => _httpContextAccessor.HttpContext?.User;
+        _httpContextAccessor = httpContextAccessor;
     }
+
+    public ClaimsPrincipal? Principal => _httpContextAccessor.HttpContext?.User;
 }
