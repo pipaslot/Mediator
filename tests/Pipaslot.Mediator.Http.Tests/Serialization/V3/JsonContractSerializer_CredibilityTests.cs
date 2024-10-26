@@ -19,10 +19,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Request_InterfaceProperty_ShouldCallVerifyCredibility()
         {
             var contract = new Contract();
-            var action = new MessageWithInterfaceProperty
-            {
-                Contract = contract
-            };
+            var action = new MessageWithInterfaceProperty { Contract = contract };
             VerifyRequestCredibility(action, action.GetType(), contract.GetType());
         }
 
@@ -30,10 +27,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Response_InterfaceProperty_ShouldCallVerifyCredibility()
         {
             var contract = new Contract();
-            var result = new MessageWithInterfaceProperty
-            {
-                Contract = contract
-            };
+            var result = new MessageWithInterfaceProperty { Contract = contract };
             VerifyResponseCredibility(result, result.GetType(), contract.GetType());
         }
 
@@ -41,10 +35,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Response_InterfaceCollection_ShouldCallVerifyCredibility()
         {
             var contract = new Contract();
-            var result = new IContract[]
-            {
-                contract
-            };
+            var result = new IContract[] { contract };
             VerifyResponseCredibility(result, contract.GetType());
         }
 
@@ -52,10 +43,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
         public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
         {
             var contract = new Contract();
-            var action = new MessageWithInterfaceArrayProperty
-            {
-                Contracts = new IContract[] { contract }
-            };
+            var action = new MessageWithInterfaceArrayProperty { Contracts = new IContract[] { contract } };
             CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
             CredibleProviderMock
                 .Setup(p => p.VerifyCredibility(action.GetType()));

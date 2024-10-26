@@ -3,32 +3,33 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Authorization
+namespace Pipaslot.Mediator.Authorization;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+public class RolePolicyAttribute : Attribute, IPolicy
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-    public class RolePolicyAttribute : Attribute, IPolicy
+    private readonly IdentityPolicy _policy;
+
+    public RolePolicyAttribute(params string[] requiredRoles) : this(Operator.And, requiredRoles)
     {
-        private readonly IdentityPolicy _policy;
-        public RolePolicyAttribute(params string[] requiredRoles) : this(Operator.And, requiredRoles)
+    }
+
+    public RolePolicyAttribute(Operator @operator, params string[] requiredRoles)
+    {
+        if (requiredRoles.Length == 0)
         {
-           
-        }
-        public RolePolicyAttribute(Operator @operator, params string[] requiredRoles)
-        {
-            if (requiredRoles.Length == 0)
-            {
-                throw new ArgumentException("Can not be empty collection", nameof(requiredRoles));
-            }
-            _policy = new IdentityPolicy(@operator);
-            foreach (string role in requiredRoles)
-            {
-                _policy.HasRole(role);
-            }
+            throw new ArgumentException("Can not be empty collection", nameof(requiredRoles));
         }
 
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        _policy = new IdentityPolicy(@operator);
+        foreach (var role in requiredRoles)
         {
-            return _policy.Resolve(services, cancellationToken);
+            _policy.HasRole(role);
         }
+    }
+
+    public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        return _policy.Resolve(services, cancellationToken);
     }
 }

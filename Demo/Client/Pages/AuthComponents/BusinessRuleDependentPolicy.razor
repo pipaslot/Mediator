@@ -4,18 +4,18 @@
 <p>You can use the policies to consider object state. For example for disabling execution in case if invalida model state.</p>
 
 <EditForm Model="@_model" OnValidSubmit="@Submit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
     <div>
         <label>
             <InputCheckbox Value="@_model.IsAvailable"
-                           ValueExpression="()=>_model.IsAvailable"
-                           ValueChanged="e=>OnIsAvailableChanged(e)" /> Is action available
+                           ValueExpression="() => _model.IsAvailable"
+                           ValueChanged="e => OnIsAvailableChanged(e)"/> Is action available
         </label>
         <label>
             <InputCheckbox Value="@_model.IsInvalid"
-                           ValueExpression="()=>_model.IsInvalid"
-                           ValueChanged="e=>OnIsInvalidChanged(e)" /> Make the model invalid
+                           ValueExpression="() => _model.IsInvalid"
+                           ValueChanged="e => OnIsInvalidChanged(e)"/> Make the model invalid
         </label>
     </div>
     <div class="mt-2">
@@ -25,7 +25,9 @@
                 <span class="me-1">Submit</span>
             </button>
         }
-        <div><i>Reason:</i></div>
+        <div>
+            <i>Reason:</i>
+        </div>
         <div>@_auth.Reason</div>
     </div>
 </EditForm>
@@ -34,6 +36,7 @@
     private CustomPolicyMessage _model = new();
 
     private AuthorizeRequestResponse _auth = new();
+
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -65,4 +68,5 @@
             _auth.Reason = "Validation passed";
         }
     }
+
 }

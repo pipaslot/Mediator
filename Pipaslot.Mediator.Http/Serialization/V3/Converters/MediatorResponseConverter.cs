@@ -4,69 +4,130 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
+namespace Pipaslot.Mediator.Http.Serialization.V3.Converters;
+
+internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
 {
-    internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
+    private readonly ICredibleProvider _credibleResults;
+
+    public MediatorResponseConverter(ICredibleProvider credibleResults)
     {
-        private readonly ICredibleProvider _credibleResults;
+        _credibleResults = credibleResults;
+    }
 
-        public MediatorResponseConverter(ICredibleProvider credibleResults)
+    public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var success = false;
+        var results = new object[0];
+        while (reader.Read())
         {
-            _credibleResults = credibleResults;
-        }
-
-        public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var success = false;
-            var results = new object[0];
-            while (reader.Read())
+            if (reader.TokenType == JsonTokenType.EndObject)
             {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    break;
-                }
+                break;
+            }
 
-                if (reader.TokenType == JsonTokenType.PropertyName)
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                var propertyName = reader.GetString() ?? "";
+                reader.Read();
+                switch (propertyName)
                 {
-                    var propertyName = reader.GetString() ?? "";
-                    reader.Read();
-                    switch (propertyName)
-                    {
-                        case nameof(IMediatorResponse.Success):
-                            success = reader.GetBoolean();
-                            break;
-                        case nameof(IMediatorResponse.Results):
-                            results = ReadResults(ref reader, options);
-                            break;
-                    }
+                    case nameof(IMediatorResponse.Success):
+                        success = reader.GetBoolean();
+                        break;
+                    case nameof(IMediatorResponse.Results):
+                        results = ReadResults(ref reader, options);
+                        break;
                 }
             }
-            return new MediatorResponse(success, results);
-        }
-        private object[] ReadResults(ref Utf8JsonReader reader, JsonSerializerOptions options)
-        {
-            var results = new List<object>();
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndArray)
-                {
-                    break;
-                }
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    continue;
-                }
-                results.Add(ReadResult(ref reader, options));
-            }
-            return results.ToArray();
         }
 
-        private object ReadResult(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        return new MediatorResponse(success, results);
+    }
+
+    private object[] ReadResults(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        var results = new List<object>();
+        while (reader.Read())
         {
-            var readerClone = reader;
-            if (readerClone.TokenType != JsonTokenType.StartObject)
+            if (reader.TokenType == JsonTokenType.EndArray)
             {
-                throw new JsonException("StartObject was expected");
+                break;
+            }
+
+            if (reader.TokenType == JsonTokenType.EndObject)
+            {
+                continue;
+            }
+
+            results.Add(ReadResult(ref reader, options));
+        }
+
+        return results.ToArray();
+    }
+
+    private object ReadResult(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        var readerClone = reader;
+        if (readerClone.TokenType != JsonTokenType.StartObject)
+        {
+            throw new JsonException("StartObject was expected");
+        }
+
+        readerClone.Read();
+        if (readerClone.TokenType != JsonTokenType.PropertyName)
+        {
+            throw new JsonException("Property was expected");
+        }
+
+        var propertyName = readerClone.GetString();
+        if (propertyName != "$type")
+        {
+            throw new JsonException("Property with name $type was expected");
+        }
+
+        readerClone.Read();
+        if (readerClone.TokenType != JsonTokenType.String)
+        {
+            throw new JsonException("Value was expected");
+        }
+
+        var typeValue = readerClone.GetString();
+        if (typeValue == null)
+        {
+            throw new JsonException("Type value can not be null");
+        }
+
+        var resultType = ContractSerializerTypeHelper.GetType(typeValue);
+        if (AsPrimitive(resultType))
+        {
+            readerClone.Read();
+            if (readerClone.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException("Property was expected");
+            }
+
+            propertyName = readerClone.GetString();
+            if (propertyName != "Value")
+            {
+                throw new JsonException("Property with name 'Value' was expected");
+            }
+
+            reader.Read();
+            reader.Read();
+            reader.Read();
+            return JsonSerializer.Deserialize(ref reader, resultType, options)
+                   ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+        }
+
+        var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
+        if (arrayItemType != null)
+        {
+            if (!arrayItemType.IsInterface)
+            {
+                // Ignored for arrays because interface array has type specfied for every member
+                // and the type will be verified by interface converter
+                _credibleResults.VerifyCredibility(resultType);
             }
 
             readerClone.Read();
@@ -75,114 +136,67 @@ namespace Pipaslot.Mediator.Http.Serialization.V3.Converters
                 throw new JsonException("Property was expected");
             }
 
-            var propertyName = readerClone.GetString();
-            if (propertyName != "$type")
+            propertyName = readerClone.GetString();
+            if (propertyName != "Items")
             {
-                throw new JsonException("Property with name $type was expected");
-            }
-            readerClone.Read();
-            if (readerClone.TokenType != JsonTokenType.String)
-            {
-                throw new JsonException("Value was expected");
-            }
-            var typeValue = readerClone.GetString();
-            if (typeValue == null)
-            {
-                throw new JsonException("Type value can not be null");
-            }
-            var resultType = ContractSerializerTypeHelper.GetType(typeValue);
-            if (AsPrimitive(resultType))
-            {
-                readerClone.Read();
-                if (readerClone.TokenType != JsonTokenType.PropertyName)
-                {
-                    throw new JsonException("Property was expected");
-                }
-                propertyName = readerClone.GetString();
-                if (propertyName != "Value")
-                {
-                    throw new JsonException("Property with name 'Value' was expected");
-                }
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                return JsonSerializer.Deserialize(ref reader, resultType, options)
-                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+                throw new JsonException("Property with name 'Items' was expected");
             }
 
-            var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
-            if (arrayItemType != null)
+            reader.Read();
+            reader.Read();
+            reader.Read();
+            return JsonSerializer.Deserialize(ref reader, resultType, options)
+                   ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+        }
+        else
+        {
+            _credibleResults.VerifyCredibility(resultType);
+            return JsonSerializer.Deserialize(ref reader, resultType, options)
+                   ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, IMediatorResponse value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteBoolean(nameof(IMediatorResponse.Success), value.Success);
+
+        writer.WritePropertyName(nameof(IMediatorResponse.Results));
+        writer.WriteStartArray();
+        foreach (var result in value.Results)
+        {
+            writer.WriteStartObject();
+            var resultType = result.GetType();
+            writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(resultType));
+            if (AsPrimitive(resultType))
             {
-                if (!arrayItemType.IsInterface)
-                {
-                    // Ignored for arrays because interface array has type specfied for every member
-                    // and the type will be verified by interface converter
-                    _credibleResults.VerifyCredibility(resultType);
-                }
-                readerClone.Read();
-                if (readerClone.TokenType != JsonTokenType.PropertyName)
-                {
-                    throw new JsonException("Property was expected");
-                }
-                propertyName = readerClone.GetString();
-                if (propertyName != "Items")
-                {
-                    throw new JsonException("Property with name 'Items' was expected");
-                }
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                return JsonSerializer.Deserialize(ref reader, resultType, options)
-                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+                writer.WritePropertyName("Value");
+                writer.WriteRawValue(JsonSerializer.Serialize(result, resultType, options));
+            }
+            else if (ContractSerializerTypeHelper.IsEnumerable(resultType))
+            {
+                writer.WritePropertyName("Items");
+                JsonSerializer.Serialize(writer, result, resultType, options);
             }
             else
             {
-                _credibleResults.VerifyCredibility(resultType);
-                return JsonSerializer.Deserialize(ref reader, resultType, options)
-                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+                ContractSerializerTypeHelper.WriteObjectProperties(writer, result, resultType, options);
             }
-        }
-
-        public override void Write(Utf8JsonWriter writer, IMediatorResponse value, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            writer.WriteBoolean(nameof(IMediatorResponse.Success), value.Success);
-
-            writer.WritePropertyName(nameof(IMediatorResponse.Results));
-            writer.WriteStartArray();
-            foreach (var result in value.Results)
-            {
-                writer.WriteStartObject();
-                var resultType = result.GetType();
-                writer.WriteString("$type", ContractSerializerTypeHelper.GetIdentifier(resultType));
-                if (AsPrimitive(resultType))
-                {
-                    writer.WritePropertyName("Value");
-                    writer.WriteRawValue(JsonSerializer.Serialize(result, resultType, options));
-                }
-                else if (ContractSerializerTypeHelper.IsEnumerable(resultType))
-                {
-                    writer.WritePropertyName("Items");
-                    JsonSerializer.Serialize(writer, result, resultType, options);
-                }
-                else
-                {
-                    ContractSerializerTypeHelper.WriteObjectProperties(writer, result, resultType, options);
-                }
-                writer.WriteEndObject();
-            }
-            writer.WriteEndArray();
 
             writer.WriteEndObject();
         }
 
-        private bool AsPrimitive(Type type)
-        {
-            return type.IsPrimitive 
-                   || type == typeof(string) 
-                   || type == typeof(decimal) 
-                   || type == typeof(DateTime)
-                   || type == typeof(DateTimeOffset);
-        }
+        writer.WriteEndArray();
+
+        writer.WriteEndObject();
+    }
+
+    private bool AsPrimitive(Type type)
+    {
+        return type.IsPrimitive
+               || type == typeof(string)
+               || type == typeof(decimal)
+               || type == typeof(DateTime)
+               || type == typeof(DateTimeOffset);
     }
 }

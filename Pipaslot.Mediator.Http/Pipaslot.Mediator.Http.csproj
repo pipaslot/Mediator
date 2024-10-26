@@ -1,65 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>8.0.0-beta01</Version>
-		<PackageId>Pipaslot.Mediator.Http</PackageId>
-		<AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
-		<Authors>Petr Stipek</Authors>
-		<Description>
-			Extends Pipaslot.Mediator to communicate over HTTP
-			7.6.2 - ExceptionLoggingMiddleware.cs Prevent dumping action body when logging errors
-		</Description>
-		<NoWarn>1591</NoWarn>
-		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Version>8.0.0-beta01</Version>
+        <PackageId>Pipaslot.Mediator.Http</PackageId>
+        <AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
+        <Authors>Petr Stipek</Authors>
+        <Description>
+            Extends Pipaslot.Mediator to communicate over HTTP
+            7.6.2 - ExceptionLoggingMiddleware.cs Prevent dumping action body when logging errors
+        </Description>
+        <NoWarn>1591</NoWarn>
+        <RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
-	<PropertyGroup>
-		<WarningsAsErrors>$(WarningsAsErrors);NU1605;CAC001</WarningsAsErrors>
-	</PropertyGroup>
+    <PropertyGroup>
+        <WarningsAsErrors>$(WarningsAsErrors);NU1605;CAC001</WarningsAsErrors>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
+    </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-	</ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="System.Text.Json" Version="6.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1"/>
+    </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-	</ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="System.Text.Json" Version="6.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1"/>
+    </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-		<PackageReference Include="System.Text.Json" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-	</ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0"/>
+    </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-	</ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="System.Text.Json" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<InternalsVisibleTo Include="Pipaslot.Mediator.Benchmarks" />
-		<InternalsVisibleTo Include="Pipaslot.Mediator.Http.Tests" />
-	</ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Pipaslot.Mediator.Benchmarks"/>
+        <InternalsVisibleTo Include="Pipaslot.Mediator.Http.Tests"/>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>

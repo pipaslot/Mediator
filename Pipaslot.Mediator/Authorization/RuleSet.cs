@@ -5,232 +5,233 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Authorization
+namespace Pipaslot.Mediator.Authorization;
+
+/// <summary>
+/// Provides connection between policies and rules
+/// Define one or more rules aggregated with AND or OR operator.
+/// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
+/// </summary>
+public class RuleSet : IPolicy
 {
+    public Operator Operator { get; }
+    public List<Rule> Rules { get; set; } = new();
+    public List<RuleSet> RuleSets { get; set; } = new();
+
     /// <summary>
-    /// Provides connection between policies and rules
-    /// Define one or more rules aggregated with AND or OR operator.
-    /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
+    /// Iterate through all rules and rule sets
     /// </summary>
-    public class RuleSet : IPolicy
+    public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
+
+    public RuleSet() : this(Operator.Add)
     {
-        public Operator Operator { get; }
-        public List<Rule> Rules { get; set; } = new List<Rule>();
-        public List<RuleSet> RuleSets { get; set; } = new List<RuleSet>();
+    }
 
-        /// <summary>
-        /// Iterate through all rules and rule sets
-        /// </summary>
-        public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
+    public RuleSet(Operator @operator)
+    {
+        Operator = @operator;
+    }
 
-        public RuleSet() : this(Operator.Add)
+    public RuleSet(params RuleSet[] sets) : this(Operator.Add, sets)
+    {
+    }
+
+    public RuleSet(Operator @operator, ICollection<RuleSet> sets)
+    {
+        Operator = @operator;
+        RuleSets.AddRange(sets);
+    }
+
+    public RuleSet(params Rule[] rules) : this(Operator.Add, rules)
+    {
+    }
+
+    public RuleSet(Operator @operator, ICollection<Rule> rules)
+    {
+        Operator = @operator;
+        Rules.AddRange(rules);
+    }
+
+    public static RuleSet Create(Operator @operator, params Rule[] set)
+    {
+        return new RuleSet(@operator, set);
+    }
+
+    public static RuleSet Create(Operator @operator, params RuleSet[] set)
+    {
+        return new RuleSet(@operator, set);
+    }
+
+    public IRecursiveNode Reduce()
+    {
+        var children = RuleSets
+            .Select(s => s.Reduce())
+            .ToArray();
+
+        var rules = Rules
+            .Select(r => (IRecursiveNode)new RuleNode(r));
+
+        var combined = children
+            .Concat(rules)
+            .ToList();
+        if (Operator == Operator.Add)
         {
+            return ReduceWithAdd(combined);
         }
 
-        public RuleSet(Operator @operator)
+        if (Operator == Operator.And)
         {
-            Operator = @operator;
+            return ReduceWithAnd(combined);
         }
 
-        public RuleSet(params RuleSet[] sets) : this(Operator.Add, sets)
+        if (Operator == Operator.Or)
         {
+            return ReduceWithOr(combined);
         }
 
-        public RuleSet(Operator @operator, ICollection<RuleSet> sets)
+        throw new NotSupportedException($"Operator '{Operator}' can not be used for RuleSet.");
+    }
+
+    private RuleSetNode ReduceWithAdd(IEnumerable<IRecursiveNode> children)
+    {
+        var denied = new List<IRecursiveNode>();
+        var unavailable = new List<IRecursiveNode>();
+        var allowed = new List<IRecursiveNode>();
+        foreach (var rule in children)
         {
-            Operator = @operator;
-            RuleSets.AddRange(sets);
+            var outcome = rule.Outcome;
+            if (outcome == RuleOutcome.Ignored)
+            {
+                continue;
+            }
+
+            if (outcome == RuleOutcome.Unavailable)
+            {
+                unavailable.Add(rule);
+            }
+
+            if (outcome == RuleOutcome.Deny)
+            {
+                denied.Add(rule);
+            }
+
+            if (outcome == RuleOutcome.Allow)
+            {
+                allowed.Add(rule);
+            }
         }
 
-        public RuleSet(params Rule[] rules) : this(Operator.Add, rules)
+        if (unavailable.Any())
         {
+            return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
         }
 
-        public RuleSet(Operator @operator, ICollection<Rule> rules)
+        if (denied.Any())
         {
-            Operator = @operator;
-            Rules.AddRange(rules);
+            return new RuleSetNode(this, denied, RuleOutcome.Deny);
         }
 
-        public static RuleSet Create(Operator @operator, params Rule[] set)
+        if (allowed.Any())
         {
-            return new RuleSet(@operator, set);
+            return new RuleSetNode(this, allowed, RuleOutcome.Allow);
         }
 
-        public static RuleSet Create(Operator @operator, params RuleSet[] set)
+        return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
+    }
+
+    private RuleSetNode ReduceWithAnd(IEnumerable<IRecursiveNode> rules)
+    {
+        var denied = new List<IRecursiveNode>();
+        var unavailable = new List<IRecursiveNode>();
+        var allowed = new List<IRecursiveNode>();
+        foreach (var rule in rules)
         {
-            return new RuleSet(@operator, set);
+            var outcome = rule.Outcome;
+            if (outcome == RuleOutcome.Unavailable)
+            {
+                unavailable.Add(rule);
+            }
+
+            if (outcome == RuleOutcome.Deny || outcome == RuleOutcome.Ignored)
+            {
+                denied.Add(rule);
+            }
+
+            if (outcome == RuleOutcome.Allow)
+            {
+                allowed.Add(rule);
+            }
         }
 
-        public IRecursiveNode Reduce()
+        if (unavailable.Any())
         {
-            var children = RuleSets
-                .Select(s => s.Reduce())
-                .ToArray();
-
-            var rules = Rules
-                .Select(r => (IRecursiveNode)new RuleNode(r));
-                
-            var combined = children
-                .Concat(rules)
-                .ToList();
-            if (Operator == Operator.Add)
-            {
-                return ReduceWithAdd(combined);
-            }
-
-            if (Operator == Operator.And)
-            {
-                return ReduceWithAnd(combined);
-            }
-
-            if (Operator == Operator.Or)
-            {
-                return ReduceWithOr(combined);
-            }
-
-            throw new NotSupportedException($"Operator '{Operator}' can not be used for RuleSet.");
+            return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
         }
 
-        private RuleSetNode ReduceWithAdd(IEnumerable<IRecursiveNode> children)
+        if (denied.Any())
         {
-            var denied = new List<IRecursiveNode>();
-            var unavailable = new List<IRecursiveNode>();
-            var allowed = new List<IRecursiveNode>();
-            foreach (var rule in children)
-            {
-                var outcome = rule.Outcome;
-                if (outcome == RuleOutcome.Ignored)
-                {
-                    continue;
-                }
-
-                if (outcome == RuleOutcome.Unavailable)
-                {
-                    unavailable.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Deny)
-                {
-                    denied.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Allow)
-                {
-                    allowed.Add(rule);
-                }
-            }
-
-            if (unavailable.Any())
-            {
-                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
-            }
-
-            if (denied.Any())
-            {
-                return new RuleSetNode(this, denied, RuleOutcome.Deny);
-            }
-
-            if (allowed.Any())
-            {
-                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
-            }
-            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
+            return new RuleSetNode(this, denied, RuleOutcome.Deny);
         }
 
-        private RuleSetNode ReduceWithAnd(IEnumerable<IRecursiveNode> rules)
+        if (allowed.Any())
         {
-            var denied = new List<IRecursiveNode>();
-            var unavailable = new List<IRecursiveNode>();
-            var allowed = new List<IRecursiveNode>();
-            foreach (var rule in rules)
-            {
-                var outcome = rule.Outcome;
-                if (outcome == RuleOutcome.Unavailable)
-                {
-                    unavailable.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Deny || outcome == RuleOutcome.Ignored)
-                {
-                    denied.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Allow)
-                {
-                    allowed.Add(rule);
-                }
-            }
-
-            if (unavailable.Any())
-            {
-                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
-            }
-
-            if (denied.Any())
-            {
-                return new RuleSetNode(this, denied, RuleOutcome.Deny);
-            }
-
-            if (allowed.Any())
-            {
-                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
-            }
-
-            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Deny);
+            return new RuleSetNode(this, allowed, RuleOutcome.Allow);
         }
 
-        private RuleSetNode ReduceWithOr(IEnumerable<IRecursiveNode> rules)
+        return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Deny);
+    }
+
+    private RuleSetNode ReduceWithOr(IEnumerable<IRecursiveNode> rules)
+    {
+        var denied = new List<IRecursiveNode>();
+        var unavailable = new List<IRecursiveNode>();
+        var allowed = new List<IRecursiveNode>();
+        foreach (var rule in rules)
         {
-            var denied = new List<IRecursiveNode>();
-            var unavailable = new List<IRecursiveNode>();
-            var allowed = new List<IRecursiveNode>();
-            foreach (var rule in rules)
+            var outcome = rule.Outcome;
+            if (outcome == RuleOutcome.Ignored)
             {
-                var outcome = rule.Outcome;
-                if (outcome == RuleOutcome.Ignored)
-                {
-                    continue;
-                }
-
-                if (outcome == RuleOutcome.Allow)
-                {
-                    allowed.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Unavailable)
-                {
-                    unavailable.Add(rule);
-                }
-
-                if (outcome == RuleOutcome.Deny)
-                {
-                    denied.Add(rule);
-                }
+                continue;
             }
 
-            if (allowed.Any())
+            if (outcome == RuleOutcome.Allow)
             {
-                return new RuleSetNode(this, allowed, RuleOutcome.Allow);
+                allowed.Add(rule);
             }
 
-            if (denied.Any())
+            if (outcome == RuleOutcome.Unavailable)
             {
-                return new RuleSetNode(this, denied, RuleOutcome.Deny);
+                unavailable.Add(rule);
             }
 
-            if (unavailable.Any())
+            if (outcome == RuleOutcome.Deny)
             {
-                return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
+                denied.Add(rule);
             }
-
-            return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
         }
 
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+        if (allowed.Any())
         {
-            return Task.FromResult(this);
+            return new RuleSetNode(this, allowed, RuleOutcome.Allow);
         }
+
+        if (denied.Any())
+        {
+            return new RuleSetNode(this, denied, RuleOutcome.Deny);
+        }
+
+        if (unavailable.Any())
+        {
+            return new RuleSetNode(this, unavailable, RuleOutcome.Unavailable);
+        }
+
+        return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
+    }
+
+    public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(this);
+    }
 
 #if !NETSTANDARD
         public static RuleSet operator +(RuleSet set, Rule rule)
@@ -302,5 +303,4 @@ namespace Pipaslot.Mediator.Authorization
             return res;
         }
 #endif
-    }
 }

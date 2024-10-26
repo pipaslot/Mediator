@@ -16,7 +16,7 @@ public class NotNullBoolean
         Assert.True(result.Success);
         Assert.Equal(value, result.Result);
     }
-    
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

@@ -1,11 +1,10 @@
-﻿namespace Pipaslot.Mediator.Http
+﻿namespace Pipaslot.Mediator.Http;
+
+public class MediatorConstants
 {
-    public class MediatorConstants
-    {
-        public const string Endpoint = "/_mediator/request";
+    public const string Endpoint = "/_mediator/request";
 
-        public const int ErrorHttpStatusCode = 200;
+    public const int ErrorHttpStatusCode = 200;
 
-        public const string ActionQueryParamName = "action";
-    }
+    public const string ActionQueryParamName = "action";
 }

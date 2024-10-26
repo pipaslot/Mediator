@@ -9,34 +9,14 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Response_ResultTypeIsArray_Deserialize()
         {
-            var collection = new Result[]
-            {
-                new Result
-                {
-                   Index = 1,
-                },
-                new Result
-                {
-                   Index = 2,
-                }
-            };
+            var collection = new Result[] { new() { Index = 1 }, new() { Index = 2 } };
             DeserializeCollection(collection);
         }
 
         [Fact]
         public void Response_ResultTypeIsList_Deserialize()
         {
-            var collection = new List<Result>
-            {
-                new Result
-                {
-                   Index = 1,
-                },
-                new Result
-                {
-                   Index = 2,
-                }
-            };
+            var collection = new List<Result> { new() { Index = 1 }, new() { Index = 2 } };
             DeserializeCollection(collection);
         }
 

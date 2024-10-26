@@ -6,6 +6,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
     public static class ConcurrentHandler
     {
         public static int ExecutedCount { get; set; }
+
         public class Request : IRequest<Response>
         {
             public bool Pass { get; }
@@ -15,6 +16,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 Pass = pass;
             }
         }
+
         public class Response
         {
             public static Response Instance = new();
@@ -57,6 +59,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new RequestException();
                 }
+
                 return Task.FromResult(Response.Instance);
             }
         }
@@ -70,6 +73,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new RequestException();
                 }
+
                 return Task.FromResult(Response.Instance);
             }
         }
@@ -83,6 +87,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new MessageException();
                 }
+
                 return Task.CompletedTask;
             }
         }
@@ -96,6 +101,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new MessageException();
                 }
+
                 return Task.CompletedTask;
             }
         }

@@ -46,7 +46,8 @@ namespace Pipaslot.Mediator.Http.Tests
         private void TestMediatorExistence(Action<ServiceCollection> setup)
         {
             var collection = new ServiceCollection();
-            setup(collection); ;
+            setup(collection);
+            ;
             var services = collection.BuildServiceProvider();
 
             Assert.NotNull(services.GetRequiredService<IMediator>());

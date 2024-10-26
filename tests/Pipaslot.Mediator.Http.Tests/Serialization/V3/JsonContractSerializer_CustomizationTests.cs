@@ -56,6 +56,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
             public DtoWithReadOnlyProperties Dto { get; set; } = new();
         }
+
         public class DtoWithReadOnlyProperties
         {
             public string FirstName { get; set; } = "F2";
@@ -65,6 +66,5 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 
             public string GetterOnly { get; private set; } = "P1";
         }
-
     }
 }

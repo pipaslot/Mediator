@@ -2,11 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Authorization
+namespace Pipaslot.Mediator.Authorization;
+
+public interface IPolicy
 {
-    public interface IPolicy
-    {
-        public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken);
+    public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken);
 #if !NETSTANDARD
         public static IPolicy operator &(IPolicy c1, IPolicy c2)
         {
@@ -18,5 +18,4 @@ namespace Pipaslot.Mediator.Authorization
             return c1.Or(c2);
         }
 #endif
-    }
 }

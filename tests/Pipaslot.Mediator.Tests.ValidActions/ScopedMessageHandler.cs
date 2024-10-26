@@ -6,7 +6,8 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 {
     public class ScopedMessageHandler : IMessageHandler<ScopedMessage>, IScoped
     {
-        public static HashSet<ScopedMessageHandler> Instances = new HashSet<ScopedMessageHandler>();
+        public static HashSet<ScopedMessageHandler> Instances = new();
+
         public Task Handle(ScopedMessage action, CancellationToken cancellationToken)
         {
             Instances.Add(this);
@@ -16,6 +17,5 @@ namespace Pipaslot.Mediator.Tests.ValidActions
 
     public class ScopedMessage : IMessage
     {
-
     }
 }

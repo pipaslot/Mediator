@@ -14,7 +14,10 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Assert.Equal(result.GetType(), deserialized.Result.GetType());
         }
 
-        public interface IResult { }
+        public interface IResult
+        {
+        }
+
         public class Result : IResult
         {
             public int Index { get; set; }

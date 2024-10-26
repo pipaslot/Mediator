@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         private const string _name = "JSON name";
         private const int _number = 6;
         private static string[] _collection = new string[] { "AAA", "BBB" };
-        private static Nested _nested = new Nested { Value = 1.2m };
+        private static Nested _nested = new() { Value = 1.2m };
 
         protected Func<IContract, bool> Match = c =>
             c.Name == _name &&
@@ -36,13 +36,15 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+            RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested },
+                Match);
         }
 
         [Fact]
         public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
+            RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
+                Match);
         }
 
         [Fact]
@@ -58,7 +60,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Request_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+            RunRequestTest(
+                new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
@@ -103,13 +106,15 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Response_PublicPropertyGettersAndSetters_WillPass()
         {
-            RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+            RunResponseTest(
+                new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
         public void Response_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
         {
-            RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
+            RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
+                Match);
         }
 
         [Fact]
@@ -125,7 +130,8 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [Fact]
         public void Response_PublicPropertyGetterAndInitSetter_WillPass()
         {
-            RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+            RunResponseTest(
+                new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
         }
 
         [Fact]
@@ -143,7 +149,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             var deserialized = sut.DeserializeResponse<TDto>(serialized);
 
             Assert.True(match(deserialized.Result));
-        }        
+        }
 
         public class Result
         {
@@ -151,7 +157,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         #endregion
-               
+
         #region Actions
 
         public interface IContract : IMediatorAction
@@ -167,12 +173,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             public string Name { get; set; } = "";
             public int Number { get; set; }
             public string[] Collection { get; set; } = new string[0];
-            public Nested Nested { get; set; } = new Nested();
+            public Nested Nested { get; set; } = new();
         }
 
         public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage, IContract
         {
-            public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number, string[] collection, Nested nested)
+            public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number, string[] collection,
+                Nested nested)
             {
                 Name = name;
                 Number = number;
@@ -218,6 +225,5 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         }
 
         #endregion
-
     }
 }

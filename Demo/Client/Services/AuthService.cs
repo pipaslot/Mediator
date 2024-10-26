@@ -5,76 +5,65 @@ using Pipaslot.Mediator;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
-namespace Demo.Client.Services
+namespace Demo.Client.Services;
+
+public class AuthService : AuthenticationStateProvider
 {
-    public class AuthService : AuthenticationStateProvider
+    private readonly HttpClient _httpClient;
+    private readonly IMediator _mediator;
+    private readonly ILocalStorageService _localStorage;
+
+    public AuthService(HttpClient httpClient, IMediator mediator, ILocalStorageService localStorage)
     {
-        private readonly HttpClient _httpClient;
-        private readonly IMediator _mediator;
-        private readonly ILocalStorageService _localStorage;
+        _httpClient = httpClient;
+        _mediator = mediator;
+        _localStorage = localStorage;
+    }
 
-        public AuthService(HttpClient httpClient, IMediator mediator, ILocalStorageService localStorage)
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        var authState = await _localStorage.GetItemAsync<AuthState>(AuthState.Name);
+        if (authState == null
+            || string.IsNullOrWhiteSpace(authState.Username)
+            || string.IsNullOrWhiteSpace(authState.BearerToken)
+            || authState.Expiration < DateTime.Now)
         {
-            _httpClient = httpClient;
-            _mediator = mediator;
-            _localStorage = localStorage;
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        if (authState.BearerToken != null)
         {
-            var authState = await _localStorage.GetItemAsync<AuthState>(AuthState.Name);
-            if (authState == null 
-                || string.IsNullOrWhiteSpace(authState.Username) 
-                || string.IsNullOrWhiteSpace(authState.BearerToken)
-                || authState.Expiration < DateTime.Now)
-            {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-
-            if (authState.BearerToken != null)
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authState.BearerToken);
-            }
-
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, authState.Username),
-            }, "jwt")));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authState.BearerToken);
         }
 
-        public async Task SignIn(string username, string password)
+        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, authState.Username) }, "jwt")));
+    }
+
+    public async Task SignIn(string username, string password)
+    {
+        var response = await _mediator.Execute(new LoginRequest { Login = username, Password = password });
+        if (!response.Success)
         {
-            var response = await _mediator.Execute(new LoginRequest
-            {
-                Login = username,
-                Password = password
-            });
-            if (!response.Success)
-            {
-                throw new Exception("Authentication request failed");
-            }
-            await _localStorage.SetItemAsync(AuthState.Name, new AuthState
-            {
-                Username = username,
-                BearerToken = response.Result.Token,
-                Expiration = response.Result.Expiration
-            });
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            throw new Exception("Authentication request failed");
         }
 
-        public async Task SignOut()
-        {
-            await _localStorage.RemoveItemAsync(AuthState.Name);
-            _httpClient.DefaultRequestHeaders.Authorization = null;
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        }
+        await _localStorage.SetItemAsync(AuthState.Name,
+            new AuthState { Username = username, BearerToken = response.Result.Token, Expiration = response.Result.Expiration });
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
 
-        private class AuthState
-        {
-            internal const string Name = "Auth";
-            public string? BearerToken { get; set; }
-            public string? Username { get; set; }
-            public DateTime Expiration { get; set; }
-        }
+    public async Task SignOut()
+    {
+        await _localStorage.RemoveItemAsync(AuthState.Name);
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    private class AuthState
+    {
+        internal const string Name = "Auth";
+        public string? BearerToken { get; set; }
+        public string? Username { get; set; }
+        public DateTime Expiration { get; set; }
     }
 }

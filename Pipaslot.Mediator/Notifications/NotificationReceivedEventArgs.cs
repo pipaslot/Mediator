@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipaslot.Mediator.Notifications
-{
-    public class NotificationReceivedEventArgs : EventArgs
-    {
-        public IReadOnlyCollection<Notification> Notifications { get; }
+namespace Pipaslot.Mediator.Notifications;
 
-        public NotificationReceivedEventArgs(IReadOnlyCollection<Notification> notifications)
-        {
-            Notifications = notifications;
-        }
+public class NotificationReceivedEventArgs : EventArgs
+{
+    public IReadOnlyCollection<Notification> Notifications { get; }
+
+    public NotificationReceivedEventArgs(IReadOnlyCollection<Notification> notifications)
+    {
+        Notifications = notifications;
     }
 }

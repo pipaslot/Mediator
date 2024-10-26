@@ -19,24 +19,30 @@ namespace Pipaslot.Mediator.Http.Tests
 {
     public class MediatorMiddlewareTests
     {
-        private const string Request = "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
-        private const string Message = "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+        private const string Request =
+            "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+
+        private const string Message =
+            "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
 
         [Fact]
         public async Task PostMessageWillBeProapgatedToMediator()
         {
             await ExecuteMessage(new PostRequest(Message));
         }
+
         [Fact]
         public async Task PostRequestWillBeProapgatedToMediator()
         {
             await ExecuteRequest(new PostRequest(Request));
         }
+
         [Fact]
         public async Task GetMessageWillBeProapgatedToMediator()
         {
             await ExecuteMessage(new GetRequest(Message));
         }
+
         [Fact]
         public async Task GetRequestWillBeProapgatedToMediator()
         {
@@ -106,13 +112,19 @@ namespace Pipaslot.Mediator.Http.Tests
             public override ConnectionInfo Connection => throw new NotImplementedException();
 
             public override WebSocketManager WebSockets => throw new NotImplementedException();
-            
+
 #pragma warning disable CS0618 // Type or member is obsolete
             public override AuthenticationManager Authentication => throw new NotImplementedException();
 #pragma warning restore CS0618 // Type or member is obsolete
 
             public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public override IDictionary<object, object> Items { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public override IDictionary<object, object> Items
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
+
             public override IServiceProvider RequestServices { get; set; }
             public override CancellationToken RequestAborted { get; set; } = CancellationToken.None;
             public override string TraceIdentifier { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -122,6 +134,7 @@ namespace Pipaslot.Mediator.Http.Tests
             {
             }
         }
+
         private class PostRequest : HttpRequest
         {
             public PostRequest(string action)
@@ -144,7 +157,12 @@ namespace Pipaslot.Mediator.Http.Tests
 
             public override IHeaderDictionary Headers => throw new NotImplementedException();
 
-            public override IRequestCookieCollection Cookies { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public override IRequestCookieCollection Cookies
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
+
             public override long? ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public override string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public override Stream Body { get; set; }
@@ -158,6 +176,7 @@ namespace Pipaslot.Mediator.Http.Tests
                 throw new NotImplementedException();
             }
         }
+
         private class GetRequest : PostRequest
         {
             public override string Method { get; set; } = "GET";
@@ -169,7 +188,7 @@ namespace Pipaslot.Mediator.Http.Tests
                 var query = new QueryCollection();
                 query.Add(new KeyValuePair<string, StringValues>("action",
                     new StringValues(action)
-                    ));
+                ));
                 Query = query;
             }
 #pragma warning disable CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
@@ -193,11 +212,13 @@ namespace Pipaslot.Mediator.Http.Tests
                         value = default;
                         return false;
                     }
+
                     value = a.Value;
                     return true;
                 }
             }
         }
+
         private class FakeResponse : HttpResponse
         {
             public override HttpContext HttpContext => throw new NotImplementedException();

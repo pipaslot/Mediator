@@ -1,9 +1,8 @@
 ﻿using System.Security.Claims;
 
-namespace Pipaslot.Mediator.Authorization
+namespace Pipaslot.Mediator.Authorization;
+
+public interface IClaimPrincipalAccessor
 {
-    public interface IClaimPrincipalAccessor
-    {
-        ClaimsPrincipal? Principal { get; }
-    }
+    ClaimsPrincipal? Principal { get; }
 }

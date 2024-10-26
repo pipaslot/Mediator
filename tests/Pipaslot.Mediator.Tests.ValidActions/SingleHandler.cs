@@ -8,6 +8,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
     {
         [ThreadStatic]
         public static int ExecutedCount;
+
         public class Request : IRequest<Response>
         {
             public bool Pass { get; }
@@ -17,6 +18,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 Pass = pass;
             }
         }
+
         public class Response
         {
             public static Response Instance = new();
@@ -32,7 +34,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
             }
         }
 
-        public class RequestException : System.Exception
+        public class RequestException : Exception
         {
             public static string DefaultMessage = "Requesthandler failed";
 
@@ -41,7 +43,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
             }
         }
 
-        public class MessageException : System.Exception
+        public class MessageException : Exception
         {
             public static string DefaultMessage = "Message handler failed";
 
@@ -59,6 +61,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new RequestException();
                 }
+
                 return Task.FromResult(Response.Instance);
             }
         }
@@ -72,6 +75,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new MessageException();
                 }
+
                 return Task.CompletedTask;
             }
         }

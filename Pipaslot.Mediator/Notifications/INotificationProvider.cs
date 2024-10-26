@@ -1,10 +1,9 @@
-﻿namespace Pipaslot.Mediator.Notifications
+﻿namespace Pipaslot.Mediator.Notifications;
+
+/// <summary>
+/// Attach notification to action result collection
+/// </summary>
+public interface INotificationProvider
 {
-    /// <summary>
-    /// Attach notification to action result collection
-    /// </summary>
-    public interface INotificationProvider
-    {
-        public void Add(Notification notification);
-    }
+    public void Add(Notification notification);
 }
