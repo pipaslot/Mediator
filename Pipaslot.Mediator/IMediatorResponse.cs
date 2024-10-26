@@ -28,6 +28,11 @@ namespace Pipaslot.Mediator
 
     public static class MediatorResponseExtensions
     {
+        internal static TResult GetResult<TResult>(this IMediatorResponse response)
+        {
+            return (TResult)response.Results.FirstOrDefault(r => r is TResult)!;
+        }
+        
         internal static IEnumerable<Notification> GetNotifications(this ICollection<object> results)
         {
             return results

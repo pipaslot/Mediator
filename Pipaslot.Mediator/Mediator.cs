@@ -136,12 +136,9 @@ namespace Pipaslot.Mediator
                 throw MediatorExecutionException.CreateForUnhandledError(context);
             }
 
-            var result = context.Results
-                             .Where(r => r is TResult)
-                             .Cast<TResult>()
-                             .FirstOrDefault()
-                         ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.",
-                             context);
+            var response = new MediatorResponse(success, context.Results);
+            var result = response.GetResult<TResult>()
+                   ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
             return result;
         }
 
