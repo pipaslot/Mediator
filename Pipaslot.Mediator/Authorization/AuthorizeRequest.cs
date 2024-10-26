@@ -5,5 +5,5 @@ namespace Pipaslot.Mediator.Authorization;
 [AnonymousPolicy]
 public class AuthorizeRequest(IMediatorAction action) : IMediatorAction<AuthorizeRequestResponse>
 {
-    public IMediatorAction Action { get; } = action;
+    public IMediatorAction Action { get; set; } = action;
 }
