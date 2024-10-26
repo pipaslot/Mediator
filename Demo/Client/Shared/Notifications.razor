@@ -1,5 +1,5 @@
 ﻿@using Pipaslot.Mediator.Abstractions;
- @using Pipaslot.Mediator.Notifications
+@using Pipaslot.Mediator.Notifications
 <div class="toast-container position-fixed top-0 end-0" style="z-index: 11">
     @foreach (var message in _notifications)
     {
@@ -7,7 +7,7 @@
             <div class="toast-header @GetTypeClass(message) row mx-0">
                 <div class="row px-0">
                     <small class="col text-white">@message.Time</small>
-                    <button type="button" class="btn-close" @onclick="()=>{ _notifications.Remove(message); }"></button>
+                    <button type="button" class="btn-close" @onclick="() => { _notifications.Remove(message); }"></button>
                 </div>
                 <strong class="text-white px-0">@message.Source</strong>
             </div>
@@ -20,24 +20,26 @@
 
 @inject INotificationReceiver NotificationMiddleware
 @implements IDisposable
+
 @code {
-    private readonly List<Notification> _notifications = new List<Notification>();
+    private readonly List<Notification> _notifications = new();
 
     /// <summary>
     /// Define durations for notification types in miliseconds
     /// </summary>
-    public Dictionary<NotificationType, double> Durations = new Dictionary<NotificationType, double>()
-        {
-            {NotificationType.Information, 4000 },
-            {NotificationType.Error, 5000 },
-            {NotificationType.Warning, 4000 },
-            {NotificationType.Success, 3000 }
-        };
+    public Dictionary<NotificationType, double> Durations = new()
+    {
+        { NotificationType.Information, 4000 },
+        { NotificationType.Error, 5000 },
+        { NotificationType.Warning, 4000 },
+        { NotificationType.Success, 3000 }
+    };
 
     protected override void OnInitialized()
     {
         NotificationMiddleware.NotificationReceived += OnNotificationReceived;
     }
+
     public void Dispose()
     {
         NotificationMiddleware.NotificationReceived -= OnNotificationReceived;
@@ -61,6 +63,7 @@
                 timer.Start();
             }
         }
+
         StateHasChanged();
     }
 
@@ -70,6 +73,7 @@
         {
             return new System.Timers.Timer(timeout);
         }
+
         return null;
     }
 
@@ -87,4 +91,5 @@
                 return "bg-danger";
         }
     }
+
 }

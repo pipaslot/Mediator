@@ -10,13 +10,14 @@ namespace Pipaslot.Mediator.Http.Tests
         public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
         {
             var services = CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssemblyOf<Factory>()
-                .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                .AddHandlersFromAssemblyOf<Factory>()
-                .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>(); ;
-                setup(c);
-            }
+                {
+                    c.AddActionsFromAssemblyOf<Factory>()
+                        .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                        .AddHandlersFromAssemblyOf<Factory>()
+                        .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
+                    ;
+                    setup(c);
+                }
             );
             return services.GetRequiredService<IMediator>();
         }

@@ -4,14 +4,13 @@ using static Pipaslot.Mediator.Tests.InvalidActions.RequestWithoutHandler;
 
 namespace Pipaslot.Mediator.Tests.InvalidActions
 {
-
     public class RequestWithoutHandler : IRequest<ResultDto>
     {
         public class ResultDto
         {
-
         }
     }
+
     /// <summary>
     /// Simulate that the expected DTO was attached event if the action does not have handler
     /// </summary>
@@ -19,7 +18,7 @@ namespace Pipaslot.Mediator.Tests.InvalidActions
     {
         public Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {
-            context.AddResult(new RequestWithoutHandler.ResultDto());
+            context.AddResult(new ResultDto());
 
             return Task.CompletedTask;
             // If we provide result which should replace the handler execution result, we shouldnt go to the next middleware.

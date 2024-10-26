@@ -43,12 +43,10 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
 
         public class FakeContract : IMessage
         {
-
         }
 
         public class FakeNonContract
         {
-
         }
     }
 }

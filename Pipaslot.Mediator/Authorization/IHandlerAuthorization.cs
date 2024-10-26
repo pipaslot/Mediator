@@ -1,7 +1,6 @@
-﻿namespace Pipaslot.Mediator.Authorization
+﻿namespace Pipaslot.Mediator.Authorization;
+
+public interface IHandlerAuthorization<TAction> : IHandlerAuthorizationMarker
 {
-    public interface IHandlerAuthorization<TAction> : IHandlerAuthorizationMarker
-    {
-        public IPolicy Authorize(TAction action);
-    }
+    public IPolicy Authorize(TAction action);
 }

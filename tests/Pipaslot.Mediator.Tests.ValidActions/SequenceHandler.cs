@@ -17,6 +17,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 Pass = pass;
             }
         }
+
         public class Response
         {
             public static Response Instance = new();
@@ -53,6 +54,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
         public class RequestHandler1 : IRequestHandler<Request, Response>, ISequenceHandler
         {
             public int Order => 1;
+
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
                 ExecutedCount++;
@@ -60,6 +62,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new RequestException();
                 }
+
                 return Task.FromResult(Response.Instance);
             }
         }
@@ -67,6 +70,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
         public class RequestHandler2 : IRequestHandler<Request, Response>, ISequenceHandler
         {
             public int Order => 2;
+
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
                 ExecutedCount++;
@@ -74,6 +78,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new RequestException();
                 }
+
                 return Task.FromResult(Response.Instance);
             }
         }
@@ -89,6 +94,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new MessageException();
                 }
+
                 return Task.CompletedTask;
             }
         }
@@ -96,6 +102,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
         public class MessageHandler2 : IMessageHandler<Message>, ISequenceHandler
         {
             public int Order => 2;
+
             public Task Handle(Message request, CancellationToken cancellationToken)
             {
                 ExecutedCount++;
@@ -103,6 +110,7 @@ namespace Pipaslot.Mediator.Tests.ValidActions
                 {
                     throw new MessageException();
                 }
+
                 return Task.CompletedTask;
             }
         }

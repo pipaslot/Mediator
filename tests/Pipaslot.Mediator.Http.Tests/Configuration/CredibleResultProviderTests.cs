@@ -81,15 +81,14 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration
 
         private class CustomResult
         {
-
         }
+
         private class FakeRequest : IRequest<Result[]>
         {
-
         }
+
         private class Result
         {
-
         }
     }
 }

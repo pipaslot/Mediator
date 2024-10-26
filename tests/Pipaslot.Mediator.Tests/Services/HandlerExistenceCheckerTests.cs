@@ -4,75 +4,74 @@ using Pipaslot.Mediator.Tests.InvalidActions;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 
-namespace Pipaslot.Mediator.Tests.Services
+namespace Pipaslot.Mediator.Tests.Services;
+
+public class HandlerExistenceCheckerTests
 {
-    public class HandlerExistenceCheckerTests
+    [Fact]
+    public void Verify_RegisteredAssemblyWithValidActions_DoesNotThrowExceptions()
     {
-        [Fact]
-        public void Verify_RegisteredAssemblyWithValidActions_DoesNotThrowExceptions()
+        var sp = Factory.CreateServiceProvider(c =>
         {
-            var sp = Factory.CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssemblyOf<NopMessage>();
-                c.AddHandlersFromAssemblyOf<NopMesageHandler>();
-            });
-            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true});
-        }
+            c.AddActionsFromAssemblyOf<NopMessage>();
+            c.AddHandlersFromAssemblyOf<NopMesageHandler>();
+        });
+        var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+        sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
+    }
 
-        [Fact]
-        public void Verify_MessageWithoutHandler_ThrowExceptions()
+    [Fact]
+    public void Verify_MessageWithoutHandler_ThrowExceptions()
+    {
+        ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(MessageWithoutHandler)).Message);
+    }
+
+    [Fact]
+    public void Verify_RequestWithoutHandler_ThrowExceptions()
+    {
+        ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(RequestWithoutHandler)).Message);
+    }
+
+    private void ShouldThrow(string expectedError)
+    {
+        var sp = Factory.CreateServiceProvider(c =>
         {
-            ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(MessageWithoutHandler)).Message);
-        }
-
-        [Fact]
-        public void Verify_RequestWithoutHandler_ThrowExceptions()
+            c.AddActionsFromAssemblyOf<MessageWithoutHandler>();
+            c.AddHandlersFromAssemblyOf<MessageWithoutHandler>();
+        });
+        var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+        var ex = Assert.Throws<MediatorException>(() =>
         {
-            ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(RequestWithoutHandler)).Message);
-        }
+            sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
+        });
 
-        private void ShouldThrow(string expectedError)
+        Assert.Contains(expectedError, ex.Message);
+    }
+
+    [Fact]
+    public void Verify_ActionsWithoutHandlerThrowException()
+    {
+        var sp = Factory.CreateServiceProvider(c =>
         {
-            var sp = Factory.CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssemblyOf<MessageWithoutHandler>();
-                c.AddHandlersFromAssemblyOf<MessageWithoutHandler>();
-            });
-            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            var ex = Assert.Throws<MediatorException>(() =>
-            {
-                sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-            });
-
-            Assert.Contains(expectedError, ex.Message);
-        }
-
-        [Fact]
-        public void Verify_ActionsWithoutHandlerThrowException()
+            c.AddActions(new Type[] { typeof(InvalidActionWithoutHandler) });
+        });
+        var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+        var ex = Assert.Throws<MediatorException>(() =>
         {
-            var sp = Factory.CreateServiceProvider(c =>
-            {
-                c.AddActions(new Type[] { typeof(InvalidActionWithoutHandler) });
-            });
-            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            var ex = Assert.Throws<MediatorException>(() =>
-            {
-                sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-            });
-            var actualMessage = ex.Data["Error:1"]?.ToString() ?? string.Empty;
-            Assert.Equal(MediatorExecutionException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
-        }
+            sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
+        });
+        var actualMessage = ex.Data["Error:1"]?.ToString() ?? string.Empty;
+        Assert.Equal(MediatorExecutionException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
+    }
 
-        [Fact]
-        public void Verify_ActionsWithoutHandlerButWithNoHandlerAttribute_Pass()
+    [Fact]
+    public void Verify_ActionsWithoutHandlerButWithNoHandlerAttribute_Pass()
+    {
+        var sp = Factory.CreateServiceProvider(c =>
         {
-            var sp = Factory.CreateServiceProvider(c =>
-            {
-                c.AddActions(new Type[] { typeof(ValidActionWithoutHandler) });
-            });
-            var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
-            sut.Verify(new ExistenceCheckerSetting { });
-        }
+            c.AddActions(new Type[] { typeof(ValidActionWithoutHandler) });
+        });
+        var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
+        sut.Verify(new ExistenceCheckerSetting { });
     }
 }

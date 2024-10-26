@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
             var optionsMock = new Mock<IMediatorOptions>();
             return new JsonContractSerializer(provider, optionsMock.Object);
         }
-        
+
         [Fact]
         public void Null_NotSupported()
         {
@@ -27,56 +27,55 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
 #pragma warning restore CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
             });
         }
-        
+
         [Fact]
         public void DateOnly_NotSupported()
         {
             // DateOnly and TimeOnly is not part of .NET Standard 
             Assert.Throws<NotSupportedException>(() =>
             {
-                DateOnly value = System.DateOnly.Parse("2023-10-10");
+                var value = DateOnly.Parse("2023-10-10");
                 Test(value);
             });
         }
-        
+
         [Fact]
         public void TimeOnly_NotSupported()
         {
             // DateOnly and TimeOnly is not part of .NET Standard 
             Assert.Throws<NotSupportedException>(() =>
             {
-                TimeOnly value = System.TimeOnly.Parse("10:30:15");
+                var value = TimeOnly.Parse("10:30:15");
                 Test(value);
             });
         }
-        
+
         [Fact]
         public void DateTime()
         {
             var value = System.DateTime.Now;
             Test(value);
         }
-        
+
         [Fact]
         public void DateTimeOffset()
         {
             var value = System.DateTimeOffset.Now;
             Test(value);
         }
-        
+
         [Fact]
         public void ByteArray()
         {
-            var value = new byte[3]{ 1,2,3};
-            Test(value);
-        }
-        
-        [Fact]
-        public void Decimal()
-        {
-            decimal value = 5m;
+            var value = new byte[3] { 1, 2, 3 };
             Test(value);
         }
 
+        [Fact]
+        public void Decimal()
+        {
+            var value = 5m;
+            Test(value);
+        }
     }
 }

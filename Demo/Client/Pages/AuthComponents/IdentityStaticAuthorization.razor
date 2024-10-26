@@ -16,13 +16,16 @@
 
 @code {
     private bool _isAuthorized;
+
     protected override async Task OnParametersSetAsync()
     {
         await Reload();
         await base.OnParametersSetAsync();
     }
+
     private async Task Reload()
     {
         _isAuthorized = await Mediator.IsAuthorized(new IdenitityStaticAuthorizationMessage());
     }
+
 }

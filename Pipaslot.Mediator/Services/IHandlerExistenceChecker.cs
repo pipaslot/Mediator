@@ -1,7 +1,6 @@
-﻿namespace Pipaslot.Mediator.Services
+﻿namespace Pipaslot.Mediator.Services;
+
+public interface IHandlerExistenceChecker
 {
-    public interface IHandlerExistenceChecker
-    {
-        void Verify(ExistenceCheckerSetting setting);
-    }
+    void Verify(ExistenceCheckerSetting setting);
 }

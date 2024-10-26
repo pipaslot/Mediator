@@ -1,37 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
 
-    <IsPackable>false</IsPackable>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-    <PackageReference Include="Moq" Version="4.18.2" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.2.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0"/>
+        <PackageReference Include="Moq" Version="4.18.2"/>
+        <PackageReference Include="xunit" Version="2.4.2"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="3.2.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pipaslot.Mediator.Tests.InvalidActions\Pipaslot.Mediator.Tests.InvalidActions.csproj" />
-    <ProjectReference Include="..\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj" />
-    <ProjectReference Include="..\..\Pipaslot.Mediator\Pipaslot.Mediator.csproj" />
-  </ItemGroup>
-	
-	<ItemGroup>
-		<Using Include="Xunit" />
-		<Using Include="Moq" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Pipaslot.Mediator.Tests.InvalidActions\Pipaslot.Mediator.Tests.InvalidActions.csproj"/>
+        <ProjectReference Include="..\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj"/>
+        <ProjectReference Include="..\..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit"/>
+        <Using Include="Moq"/>
+    </ItemGroup>
 
 </Project>
