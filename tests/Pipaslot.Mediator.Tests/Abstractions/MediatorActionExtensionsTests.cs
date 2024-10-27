@@ -18,7 +18,7 @@ public class MediatorActionExtensionsTests
     [InlineData(5, "Rude.Dude.TheMITUniversityILove_Action", "The")]
     [InlineData(6, "Rude.Dude.TheMITUniversityILove_Action", "")]
     [InlineData(7, "Rude.Dude.TheMITUniversityILove_Action", "")]
-    public void GetActionFriendlyName_WithoutLastWord(int ignoredLastWords, string source, string expected)
+    public void GetActionFriendlyName_WithoutLastWord(int ignoredLastWords, string? source, string expected)
     {
         var name = source.GetActionFriendlyName(ignoredLastWords);
         Assert.Equal(expected, name);

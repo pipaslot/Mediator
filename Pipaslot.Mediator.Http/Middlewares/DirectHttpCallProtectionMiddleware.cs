@@ -9,20 +9,12 @@ namespace Pipaslot.Mediator.Http.Middlewares;
 /// Prevent direct calls for action which are not part of your application REST API. 
 /// <para>Can be used as protection for queries placed in app demilitarized zone. Such a actions lacks authentication, authorization or different security checks.</para>
 /// </summary>
-public class DirectHttpCallProtectionMiddleware : IMediatorMiddleware
+public class DirectHttpCallProtectionMiddleware(IMediatorContextAccessor contextAccessor, IHttpContextAccessor httpContextAccessor)
+    : IMediatorMiddleware
 {
-    private readonly IMediatorContextAccessor _contextAccessor;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public DirectHttpCallProtectionMiddleware(IMediatorContextAccessor contextAccessor, IHttpContextAccessor httpContextAccessor)
-    {
-        _contextAccessor = contextAccessor;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
-        if (IsApplicable(_contextAccessor, _httpContextAccessor))
+        if (IsApplicable(contextAccessor, httpContextAccessor))
         {
             throw MediatorException.CreateForForbidenDirectCall();
         }

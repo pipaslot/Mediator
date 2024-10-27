@@ -26,10 +26,10 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [InlineData(" ")]
         [InlineData("{}")]
         [InlineData(@"{""Content"":"" "",""Type"":"" ""}")]
-        public void Request_InvalidContent_ThrowException(string body)
+        public void Request_InvalidContent_ThrowException(string? body)
         {
             var sut = CreateSerializer();
-            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body));
+            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body!));
             Assert.Equal(MediatorHttpException.CreateForInvalidRequest(body).Message, ex.Message);
         }
 
@@ -88,10 +88,10 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void Response_InvalidContent_ThrowException(string body)
+        public void Response_InvalidContent_ThrowException(string? body)
         {
             var sut = CreateSerializer();
-            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body));
+            var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body!));
             Assert.Equal(MediatorHttpException.CreateForInvalidResponse(body).Message, ex.Message);
         }
 

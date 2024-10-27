@@ -13,21 +13,14 @@ namespace Pipaslot.Mediator.Http.Middlewares;
 /// <summary>
 /// Middleware sending actions over HTTP client to mediator server implementation. No further middleware will be executed after this one.
 /// </summary>
-public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlFormatter
+public class HttpClientExecutionMiddleware(
+    HttpClient httpClient,
+    ClientMediatorOptions options,
+    IContractSerializer serializer,
+    ILogger<HttpClientExecutionMiddleware> logger)
+    : IExecutionMiddleware, IMediatorUrlFormatter
 {
-    private readonly HttpClient _httpClient;
-    private readonly ClientMediatorOptions _options;
-    private readonly IContractSerializer _serializer;
-    private readonly ILogger _logger;
-
-    public HttpClientExecutionMiddleware(HttpClient httpClient, ClientMediatorOptions options, IContractSerializer serializer,
-        ILogger<HttpClientExecutionMiddleware> logger)
-    {
-        _httpClient = httpClient;
-        _options = options;
-        _serializer = serializer;
-        _logger = logger;
-    }
+    private readonly ILogger _logger = logger;
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
@@ -37,9 +30,9 @@ public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlF
 
     public string FormatHttpGet(IMediatorAction action)
     {
-        var serialized = _serializer.SerializeRequest(action);
+        var serialized = serializer.SerializeRequest(action);
         var decoded = WebUtility.UrlDecode(serialized);
-        return $"{_options.Endpoint}?{MediatorConstants.ActionQueryParamName}={decoded}";
+        return $"{options.Endpoint}?{MediatorConstants.ActionQueryParamName}={decoded}";
     }
 
     protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context)
@@ -47,10 +40,10 @@ public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlF
         HttpResponseMessage response;
         try
         {
-            var url = _options.Endpoint + $"?type={context.ActionIdentifier}";
-            var json = _serializer.SerializeRequest(context.Action);
+            var url = options.Endpoint + $"?type={context.ActionIdentifier}";
+            var json = serializer.SerializeRequest(context.Action);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            response = await _httpClient.PostAsync(url, content, context.CancellationToken).ConfigureAwait(false);
+            response = await httpClient.PostAsync(url, content, context.CancellationToken).ConfigureAwait(false);
             // We do not check for successfull status code.
             // It is completelly up to server configuration what status code will be sent when action processing failed on server.
             // We just expect that server will return JSON in Mediator response format
@@ -70,7 +63,7 @@ public class HttpClientExecutionMiddleware : IExecutionMiddleware, IMediatorUrlF
         try
         {
             var serializedResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            result = _serializer.DeserializeResponse<TResult>(serializedResult);
+            result = serializer.DeserializeResponse<TResult>(serializedResult);
 
             context.Status = result.Success ? ExecutionStatus.Succeeded : ExecutionStatus.Failed;
         }

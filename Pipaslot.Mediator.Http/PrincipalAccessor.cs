@@ -4,14 +4,7 @@ using System.Security.Claims;
 
 namespace Pipaslot.Mediator.Http;
 
-public class ClaimPrincipalAccessor : IClaimPrincipalAccessor
+public class ClaimPrincipalAccessor(IHttpContextAccessor httpContextAccessor) : IClaimPrincipalAccessor
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public ClaimPrincipalAccessor(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public ClaimsPrincipal? Principal => _httpContextAccessor.HttpContext?.User;
+    public ClaimsPrincipal? Principal => httpContextAccessor.HttpContext?.User;
 }
