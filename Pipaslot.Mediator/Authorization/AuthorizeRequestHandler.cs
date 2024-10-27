@@ -8,21 +8,14 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization;
 
-public class AuthorizeRequestHandler : IMediatorHandler<AuthorizeRequest, AuthorizeRequestResponse>
+public class AuthorizeRequestHandler(IServiceProvider serviceProvider) : IMediatorHandler<AuthorizeRequest, AuthorizeRequestResponse>
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public AuthorizeRequestHandler(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async Task<AuthorizeRequestResponse> Handle(AuthorizeRequest action, CancellationToken cancellationToken)
     {
-        var handlers = _serviceProvider.GetActionHandlers(action.Action);
-        var policyResult = await PolicyResolver.GetPolicyRules(_serviceProvider, action.Action, handlers, cancellationToken).ConfigureAwait(false);
+        var handlers = serviceProvider.GetActionHandlers(action.Action);
+        var policyResult = await PolicyResolver.GetPolicyRules(serviceProvider, action.Action, handlers, cancellationToken).ConfigureAwait(false);
         var rootNode = policyResult.Reduce();
-        var formatter = _serviceProvider.GetRequiredService<INodeFormatter>();
+        var formatter = serviceProvider.GetRequiredService<INodeFormatter>();
         var reason = formatter.Format(rootNode);
         var accessType = rootNode.Outcome.ToAccessType();
         return new AuthorizeRequestResponse

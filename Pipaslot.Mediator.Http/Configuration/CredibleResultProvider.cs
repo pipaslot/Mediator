@@ -8,19 +8,12 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration;
 
-internal class CredibleResultProvider : ICredibleProvider
+internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
+    : ICredibleProvider
 {
-    private readonly MediatorConfigurator _configurator;
-    private readonly HashSet<Type> _trustedTypes;
-    private readonly HashSet<Assembly> _trustedAssemblies;
+    private readonly HashSet<Type> _trustedTypes = [..trustedTypes];
+    private readonly HashSet<Assembly> _trustedAssemblies = [..trustedAssemblies];
     private HashSet<Type>? _actionResultTypes = null;
-
-    public CredibleResultProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
-    {
-        _configurator = configurator;
-        _trustedTypes = new HashSet<Type>(trustedTypes);
-        _trustedAssemblies = new HashSet<Assembly>(trustedAssemblies);
-    }
 
     public void VerifyCredibility(Type resultType)
     {
@@ -40,7 +33,7 @@ internal class CredibleResultProvider : ICredibleProvider
 
         if (_actionResultTypes == null)
         {
-            _actionResultTypes = new HashSet<Type>(GetActionResultTypes());
+            _actionResultTypes = [..GetActionResultTypes()];
         }
 
         if (_actionResultTypes.Contains(resultType))
@@ -59,7 +52,7 @@ internal class CredibleResultProvider : ICredibleProvider
 
     private IEnumerable<Type> GetActionResultTypes()
     {
-        return _configurator.GetRequestActionTypes()
+        return configurator.GetRequestActionTypes()
             .Select(t => RequestGenericHelpers.GetRequestResultType(t))
             .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t);
     }

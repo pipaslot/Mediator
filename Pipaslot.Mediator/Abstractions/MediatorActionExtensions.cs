@@ -22,7 +22,7 @@ public static class MediatorActionExtensions
         return GetActionFriendlyName(name, ignoreLastWords);
     }
 
-    public static string GetActionFriendlyName(this string actionName, int ignoreLastWords = 1)
+    public static string GetActionFriendlyName(this string? actionName, int ignoreLastWords = 1)
     {
         if (string.IsNullOrWhiteSpace(actionName))
         {

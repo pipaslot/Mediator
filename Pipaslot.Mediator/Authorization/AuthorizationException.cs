@@ -4,16 +4,9 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Authorization;
 
-public class AuthorizationException : Exception
+public class AuthorizationException(AuthorizationExceptionTypes type, string message) : Exception(message)
 {
-    public AuthorizationException(AuthorizationExceptionTypes type, string message) : base(message)
-    {
-        Type = type;
-    }
-
-
-    public AuthorizationExceptionTypes Type { get; }
-
+    public AuthorizationExceptionTypes Type { get; } = type;
 
     internal static AuthorizationException NoAuthorization(string actionIdentifier)
     {

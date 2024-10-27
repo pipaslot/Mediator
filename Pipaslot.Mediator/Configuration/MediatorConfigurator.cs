@@ -8,24 +8,18 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;
 
-public class MediatorConfigurator : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
+public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
 {
-    internal readonly IServiceCollection Services;
+    internal readonly IServiceCollection Services = services;
     internal HashSet<Assembly> TrustedAssemblies { get; set; } = new();
     private List<Type> _actionMarkerTypes = new();
-    private MiddlewareCollection _middlewares;
+    private MiddlewareCollection _middlewares = new(services);
     private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
 
     /// <summary>
     /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
     /// </summary>
     private Dictionary<Type, ServiceLifetime> _registeredHandlers = new();
-
-    public MediatorConfigurator(IServiceCollection services)
-    {
-        Services = services;
-        _middlewares = new MiddlewareCollection(services);
-    }
 
     public void ClearTempData()
     {

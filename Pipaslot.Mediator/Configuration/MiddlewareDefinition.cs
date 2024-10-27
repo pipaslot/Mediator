@@ -4,16 +4,10 @@ using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Configuration;
 
-internal class MiddlewareDefinition : IMiddlewareResolver
+internal class MiddlewareDefinition(Type middlewareType, object[]? parameters = null) : IMiddlewareResolver
 {
-    public Type Type { get; }
-    public object[]? Parameters { get; }
-
-    public MiddlewareDefinition(Type middlewareType, object[]? parameters = null)
-    {
-        Type = middlewareType;
-        Parameters = parameters;
-    }
+    public Type Type { get; } = middlewareType;
+    public object[]? Parameters { get; } = parameters;
 
     public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
     {

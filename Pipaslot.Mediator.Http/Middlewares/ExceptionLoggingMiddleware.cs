@@ -9,15 +9,10 @@ namespace Pipaslot.Mediator.Http.Middlewares;
 /// <summary>
 /// Register exception logging middleware writting all error into <see cref="ILogger"/>
 /// </summary>
-public class ExceptionLoggingMiddleware : IMediatorMiddleware
+public class ExceptionLoggingMiddleware(ILogger<ExceptionLoggingMiddleware> logger) : IMediatorMiddleware
 {
-    private readonly ILogger _logger;
+    private readonly ILogger _logger = logger;
     private static readonly JsonSerializerOptions _serializationOptions = new() { PropertyNamingPolicy = null };
-
-    public ExceptionLoggingMiddleware(ILogger<ExceptionLoggingMiddleware> logger)
-    {
-        _logger = logger;
-    }
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
