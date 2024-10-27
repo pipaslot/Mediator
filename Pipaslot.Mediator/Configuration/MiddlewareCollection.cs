@@ -7,20 +7,14 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Configuration;
 
-internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrator
+internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareResolver, IMiddlewareRegistrator
 {
     private readonly List<IMiddlewareResolver> _middlewareTypes = new();
-    private readonly IServiceCollection _services;
-
-    public MiddlewareCollection(IServiceCollection services)
-    {
-        _services = services;
-    }
 
     private void AddMiddleware(Type middlewareType, ServiceLifetime lifetime, object[]? parameters = null)
     {
         _middlewareTypes.Add(new MiddlewareDefinition(middlewareType, parameters));
-        var existingDescriptor = _services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
+        var existingDescriptor = services.FirstOrDefault(d => d.ServiceType == middlewareType && d.ImplementationType == middlewareType);
         if (existingDescriptor != null)
         {
             if (existingDescriptor.Lifetime != lifetime)
@@ -31,7 +25,7 @@ internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrato
         }
         else
         {
-            _services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
+            services.Add(new ServiceDescriptor(middlewareType, middlewareType, lifetime));
         }
     }
 
@@ -56,14 +50,14 @@ internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrato
     public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped,
         object[]? parameters = null) where TMiddleware : IMediatorMiddleware
     {
-        setupDependencies(_services);
+        setupDependencies(services);
         AddMiddleware(typeof(TMiddleware), lifetime, parameters);
         return this;
     }
 
     public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        var config = new MiddlewareCollection(_services);
+        var config = new MiddlewareCollection(services);
         var definition = new ConditionDefinition(condition, config);
         _middlewareTypes.Add(definition);
         subMiddlewares(config);
@@ -72,7 +66,7 @@ internal class MiddlewareCollection : IMiddlewareResolver, IMiddlewareRegistrato
 
     public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        var config = new MiddlewareCollection(_services);
+        var config = new MiddlewareCollection(services);
         var definition = new DynamicDefinition(condition, config);
         _middlewareTypes.Add(definition);
         subMiddlewares(config);

@@ -6,25 +6,20 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3;
 
-internal class JsonContractSerializer : IContractSerializer
+internal class JsonContractSerializer(ICredibleProvider credibleProvider, IMediatorOptions mediatorOptions) : IContractSerializer
 {
-    private readonly JsonSerializerOptions _serializationOptions;
-    internal static readonly JsonSerializerOptions SerializationOptionsWithoutConverters = new() { PropertyNamingPolicy = null };
-
-    public JsonContractSerializer(ICredibleProvider credibleProvider, IMediatorOptions mediatorOptions)
+    private readonly JsonSerializerOptions _serializationOptions = new()
     {
-        _serializationOptions = new JsonSerializerOptions
+        IgnoreReadOnlyProperties = mediatorOptions.IgnoreReadOnlyProperties,
+        PropertyNamingPolicy = null,
+        Converters =
         {
-            IgnoreReadOnlyProperties = mediatorOptions.IgnoreReadOnlyProperties,
-            PropertyNamingPolicy = null,
-            Converters =
-            {
-                new InterfaceConverter<IMediatorAction>(credibleProvider),
-                new MediatorResponseConverter(credibleProvider),
-                new InterfaceConverterFactory(credibleProvider)
-            }
-        };
-    }
+            new InterfaceConverter<IMediatorAction>(credibleProvider),
+            new MediatorResponseConverter(credibleProvider),
+            new InterfaceConverterFactory(credibleProvider)
+        }
+    };
+    internal static readonly JsonSerializerOptions SerializationOptionsWithoutConverters = new() { PropertyNamingPolicy = null };
 
     public string SerializeRequest(IMediatorAction request)
     {

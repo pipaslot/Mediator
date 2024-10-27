@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using System;
-using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http;
 
