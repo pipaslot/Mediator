@@ -4,7 +4,4 @@ using Pipaslot.Mediator.Authorization;
 namespace Demo.Shared.Playground;
 
 [AnonymousPolicy]
-public class MessageWithNotification : IMessage
-{
-    public bool Fail { get; set; }
-}
+public record MessageWithNotification(bool Fail) : IMessage;
