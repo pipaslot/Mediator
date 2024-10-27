@@ -5,18 +5,14 @@ using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http;
 
-public class MediatorHttpException : Exception
+public class MediatorHttpException(string message, Exception? innerException = null) : Exception(message, innerException)
 {
-    public MediatorHttpException(string message, Exception? innerException = null) : base(message, innerException)
-    {
-    }
-
-    internal static MediatorHttpException CreateForInvalidRequest(string content, Exception? innerException = null)
+    internal static MediatorHttpException CreateForInvalidRequest(string? content, Exception? innerException = null)
     {
         return new MediatorHttpException($"Request body '{content}' is not valid JSON contract expected by the mediator.", innerException);
     }
 
-    internal static MediatorHttpException CreateForInvalidResponse(string content, Exception? innerException = null)
+    internal static MediatorHttpException CreateForInvalidResponse(string? content, Exception? innerException = null)
     {
         return new MediatorHttpException($"Response body '{content}' is not valid JSON contract expected by the mediator.", innerException);
     }

@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares;
 public class ReduceDuplicateProcessingMiddlewareTests
 {
     [Fact]
-    public async void RunSingleAction_ShouldRunOnce()
+    public async Task RunSingleAction_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
@@ -23,7 +23,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async void RunTheSameInstanceActionTwice_ShouldRunOnce()
+    public async Task RunTheSameInstanceActionTwice_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
@@ -36,7 +36,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async void RunDuplicateTheSameTypeAction_ShouldRuntTwice()
+    public async Task RunDuplicateTheSameTypeAction_ShouldRuntTwice()
     {
         var action = new FakeAction() { Value = 1 };
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -50,7 +50,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async void RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
+    public async Task RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
@@ -67,7 +67,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async void RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
+    public async Task RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
@@ -84,7 +84,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async void RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
+    public async Task RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
