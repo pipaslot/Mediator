@@ -3,13 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>7.6.2</Version>
+		<Version>7.6.3</Version>
 		<PackageId>Pipaslot.Mediator.Http</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
 		<Authors>Petr Stipek</Authors>
 		<Description>
 			Extends Pipaslot.Mediator to communicate over HTTP
-			7.6.2 - ExceptionLoggingMiddleware.cs Prevent dumping action body when logging errors
 		</Description>
 		<NoWarn>1591</NoWarn>
 		<RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
