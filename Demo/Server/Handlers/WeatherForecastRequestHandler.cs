@@ -3,7 +3,7 @@ using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers;
 
-public class WheatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.IResult[]>
+public class WeatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.IResult[]>
 {
     private static readonly string[] _summaries = new[]
     {
@@ -22,7 +22,7 @@ public class WheatherForecastRequestHandler : IRequestHandler<WeatherForecast.Re
     }
 }
 
-public class WheatherForecastRequestRecordHandler : IRequestHandler<WeatherForecast.RequestRecord, WeatherForecast.Result[]>
+public class WeatherForecastRequestRecordHandler : IRequestHandler<WeatherForecast.RequestRecord, WeatherForecast.Result[]>
 {
     private static readonly string[] _summaries = new[]
     {

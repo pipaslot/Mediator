@@ -4,15 +4,8 @@ using System.Net;
 
 namespace Demo.Server.MediatorMiddlewares;
 
-public class ValidatorMiddleware : IMediatorMiddleware
+public class ValidatorMiddleware(IHttpContextAccessor httpContextAccessor) : IMediatorMiddleware
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public ValidatorMiddleware(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         if (context.Action is IValidable validable)
@@ -23,7 +16,7 @@ public class ValidatorMiddleware : IMediatorMiddleware
                 context.AddErrors(errors);
                 // Optional:
                 // Notify the client via response status code to imporove logging and debugging experience
-                var httpContext = _httpContextAccessor.HttpContext;
+                var httpContext = httpContextAccessor.HttpContext;
                 if (httpContext != null)
                 {
                     httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;

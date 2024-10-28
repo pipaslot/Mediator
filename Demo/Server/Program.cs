@@ -49,7 +49,7 @@ services.AddMediatorServer(o =>
         o.SerializerType = SerializerType.V3;
     })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
-    .AddHandlersFromAssemblyOf<WheatherForecastRequestHandler>()
+    .AddHandlersFromAssemblyOf<WeatherForecastRequestHandler>()
     // Log all unhalded exception via ILogger. Wont catch exception from IMessage as the next middleware provides custom handling for the Messages
     .UseExceptionLogging()
     .UseWhenAction<IMessage>(

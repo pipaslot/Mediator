@@ -3,20 +3,13 @@ using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers.Playground;
 
-public class CascadingToAnotherFailingRequestMessageHandler : IMessageHandler<CascadingToAnotherFailingRequestMessage>
+public class CascadingToAnotherFailingRequestMessageHandler(IMediator mediator) : IMessageHandler<CascadingToAnotherFailingRequestMessage>
 {
-    private readonly IMediator _mediator;
-
-    public CascadingToAnotherFailingRequestMessageHandler(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     public async Task Handle(CascadingToAnotherFailingRequestMessage action, CancellationToken cancellationToken)
     {
         try
         {
-            await _mediator.DispatchUnhandled(new FailingOnValidation.Request(), cancellationToken);
+            await mediator.DispatchUnhandled(new FailingOnValidation.Request(), cancellationToken);
         }
         catch (MediatorExecutionException e)
         {

@@ -3,19 +3,12 @@ using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers.Playground;
 
-public class CallingNestedNotificationMessageHandler : IMessageHandler<CallingNestedNotificationMessage>
+public class CallingNestedNotificationMessageHandler(IMediatorFacade mediator) : IMessageHandler<CallingNestedNotificationMessage>
 {
-    private readonly IMediatorFacade _mediator;
-
-    public CallingNestedNotificationMessageHandler(IMediatorFacade mediator)
-    {
-        _mediator = mediator;
-    }
-
     public async Task Handle(CallingNestedNotificationMessage action, CancellationToken cancellationToken)
     {
-        _mediator.AddInformationNotification("Greetings from root action");
-        await _mediator.Dispatch(new NestedNotificationMessage(), cancellationToken);
-        _mediator.AddSuccessNotification("Root handler was executed");
+        mediator.AddInformationNotification("Greetings from root action");
+        await mediator.Dispatch(new NestedNotificationMessage(), cancellationToken);
+        mediator.AddSuccessNotification("Root handler was executed");
     }
 }

@@ -5,15 +5,9 @@ using System.Text.Json;
 
 namespace Demo.Server.MediatorMiddlewares;
 
-public class CustomLoggingMiddleware : IMediatorMiddleware
+public class CustomLoggingMiddleware(ILogger<CustomLoggingMiddleware> logger) : IMediatorMiddleware
 {
-    private readonly ILogger _logger;
-    private static readonly JsonSerializerOptions _serializationOptions = new() { PropertyNamingPolicy = null };
-
-    public CustomLoggingMiddleware(ILogger<CustomLoggingMiddleware> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger _logger = logger;
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
