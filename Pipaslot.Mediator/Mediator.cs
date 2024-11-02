@@ -95,12 +95,13 @@ internal class Mediator : IMediator
             }
 
             var success = context.Status == ExecutionStatus.Succeeded;
-            if (success && !context.Results.Any(r => r is TResult))
+            var response = new MediatorResponse<TResult>(success, context.Results);
+            if (success && !response.HasResult<TResult>())
             {
                 return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
             }
 
-            return new MediatorResponse<TResult>(success, context.Results);
+            return response;
         }
         catch (Exception e)
         {
@@ -126,7 +127,9 @@ internal class Mediator : IMediator
         }
 
         var success = context.Status == ExecutionStatus.Succeeded;
-        if (success && !context.Results.Any(r => r is TResult))
+        var response = new MediatorResponse(success, context.Results);
+        var hasResult = response.HasResult<TResult>();
+        if (success && !hasResult)
         {
             throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
         }
@@ -136,9 +139,13 @@ internal class Mediator : IMediator
             throw MediatorExecutionException.CreateForUnhandledError(context);
         }
 
-        var response = new MediatorResponse(success, context.Results);
-        var result = response.GetResult<TResult>()
-                     ?? throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
+        var result = response.GetResult<TResult>();
+        if (result is null && !hasResult)
+        {
+            // There was not result, neither the ActionNullResult causing the null gets accepted as expected result
+            throw new MediatorExecutionException($"No result matching type {typeof(TResult)} was returned from the pipeline.", context);
+        }
+
         return result;
     }
 

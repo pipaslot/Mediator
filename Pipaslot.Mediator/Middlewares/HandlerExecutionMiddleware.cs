@@ -74,6 +74,10 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
                 {
                     context.AddResult(result);
                 }
+                else
+                {
+                    context.AddResult(new NullActionResult());
+                }
             }
         }
         catch (TargetInvocationException e)
@@ -143,7 +147,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
                 var tasksResults = await Task.WhenAll(tasks).ConfigureAwait(false);
                 foreach (var taskResult in tasksResults)
                 {
-                    if (taskResult != null)
+                    if (taskResult is not null)
                     {
                         context.Append(taskResult);
                     }
