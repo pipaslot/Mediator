@@ -15,8 +15,8 @@
 </p>
 <p>
     Messages:<br/>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage() { Fail = false })">Run Passing</button>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage() { Fail = true })">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage(false))">Run Passing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new DemoMessage(true))">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Mediator.DispatchUnhandled(new Failing.Message())">Run Failing unhandled</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Mediator.DispatchUnhandled(new ActionUnknownByBackend())">Run unknown action</button>
 </p>
@@ -39,8 +39,8 @@
 
 <h5>Notifications from handlers or services</h5>
 <p>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification())">Run Passing</button>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification { Fail = true })">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification(false))">Run Passing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification(true ))">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CallingNestedNotificationMessage())">Nested handler notification</button>
 </p>
 <h5>Protecting actions to be directly called from HTTP</h5>

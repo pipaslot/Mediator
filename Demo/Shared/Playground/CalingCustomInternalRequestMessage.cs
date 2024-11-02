@@ -4,6 +4,4 @@ using Pipaslot.Mediator.Authorization;
 namespace Demo.Shared.Playground;
 
 [AnonymousPolicy]
-public class CalingCustomInternalRequestMessage : IMessage
-{
-}
+public record CalingCustomInternalRequestMessage : IMessage;

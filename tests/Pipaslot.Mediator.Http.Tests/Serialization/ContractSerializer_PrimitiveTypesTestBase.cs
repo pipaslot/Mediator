@@ -38,6 +38,12 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization
             Test(result);
         }
 
+        [Fact]
+        public void NullActionResult()
+        {
+            Test(new NullActionResult());
+        }
+
         protected void Test<T>(T result) where T : notnull
         {
             var sut = CreateSerializer();
