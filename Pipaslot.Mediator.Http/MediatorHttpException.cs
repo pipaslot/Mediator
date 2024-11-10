@@ -40,7 +40,7 @@ public class MediatorHttpException(string message, Exception? innerException = n
 
     internal static MediatorHttpException CreateForNonContractType(Type queryType)
     {
-        return new MediatorHttpException($"Received contract type {queryType.FullName} does not implements interface {nameof(IMediatorAction)}.");
+        return new MediatorHttpException($"Received contract type {queryType.FullName} does not implements interface {nameof(IMediatorAction)} and is not specified in CredibleResultAssemblies neither CredibleResultTypes.");
     }
 
     internal static MediatorHttpException CreateForNotConstructableJsonConverter()
