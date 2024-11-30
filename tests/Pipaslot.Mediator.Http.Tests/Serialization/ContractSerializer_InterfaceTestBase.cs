@@ -9,7 +9,7 @@ public abstract class ContractSerializer_InterfaceTestBase : ContractSerializerB
     {
         var sut = CreateSerializer();
         var result = new Result();
-        var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+        var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         var deserialized = sut.DeserializeResponse<IResult>(responseString);
         Assert.Equal(result.GetType(), deserialized.Result.GetType());
     }

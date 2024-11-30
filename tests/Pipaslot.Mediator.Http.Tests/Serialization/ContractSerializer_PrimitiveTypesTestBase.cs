@@ -47,7 +47,7 @@ public abstract class ContractSerializer_PrimitiveTypesTestBase : ContractSerial
     protected void Test<T>(T result) where T : notnull
     {
         var sut = CreateSerializer();
-        var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+        var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         var deserialized = sut.DeserializeResponse<T>(responseString);
         Assert.Equal(result, deserialized.Result);
     }

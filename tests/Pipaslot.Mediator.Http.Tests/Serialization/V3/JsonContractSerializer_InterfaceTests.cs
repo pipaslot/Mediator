@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -25,7 +24,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var expected =
             @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BMessageWithInterfaceArrayProperty, Pipaslot.Mediator.Http.Tests"",""Contracts"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}";
         var contract = new Contract { Name = "Contract name" };
-        var action = new MessageWithInterfaceArrayProperty { Contracts = new IContract[] { contract } };
+        var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
 
@@ -38,7 +37,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var expected =
             @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BMessageWithInterfaceCollectionProperty, Pipaslot.Mediator.Http.Tests"",""Contracts"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}";
         var contract = new Contract { Name = "Contract name" };
-        var action = new MessageWithInterfaceCollectionProperty { Contracts = new List<IContract> { contract } };
+        var action = new MessageWithInterfaceCollectionProperty { Contracts = [contract] };
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
 
@@ -51,7 +50,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var expected =
             @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BIContract[], Pipaslot.Mediator.Http.Tests"",""Items"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests\u002BContract, Pipaslot.Mediator.Http.Tests"",""Name"":""Contract name""}]}]}";
         var contract = new Contract { Name = "Contract name" };
-        var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
+        var response = new MediatorResponse(true, [new IContract[] { contract }]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -77,7 +76,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     public void Request_SerializePropertyInterfaceCollection()
     {
         var contract = new Contract { Name = "Contract name" };
-        var action = new MessageWithInterfaceArrayProperty { Contracts = new IContract[] { contract } };
+        var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
@@ -106,7 +105,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     {
         var contract = new Contract { Name = "Contract name" };
         var action = new MessageWithInterfaceProperty { Contract = contract };
-        var response = new MediatorResponse(true, new object[] { action });
+        var response = new MediatorResponse(true, [action]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -122,8 +121,8 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     public void Response_SerializePropertyArrayInterface()
     {
         var contract = new Contract { Name = "Contract name" };
-        var action = new MessageWithInterfaceArrayProperty { Contracts = new IContract[] { contract } };
-        var response = new MediatorResponse(true, new object[] { action });
+        var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
+        var response = new MediatorResponse(true, [action]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -139,8 +138,8 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     public void Response_SerializePropertyCollectionInterface()
     {
         var contract = new Contract { Name = "Contract name" };
-        var action = new MessageWithInterfaceCollectionProperty { Contracts = new List<IContract> { contract } };
-        var response = new MediatorResponse(true, new object[] { action });
+        var action = new MessageWithInterfaceCollectionProperty { Contracts = [contract] };
+        var response = new MediatorResponse(true, [action]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -156,7 +155,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     public void Response_SerializeInterfaceCollection()
     {
         var contract = new Contract { Name = "Contract name" };
-        var response = new MediatorResponse(true, new object[] { new IContract[] { contract } });
+        var response = new MediatorResponse(true, [new IContract[] { contract }]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -174,7 +173,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     {
         var value = "Contract name";
         var response = new MediatorResponse(true,
-            new object[] { new ContractWithStringCollection { Collection = new List<string> { value, "value2" } } });
+            [new ContractWithStringCollection { Collection = new List<string> { value, "value2" } }]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -194,7 +193,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
 
     public class ResultSetResponse
     {
-        public IResultSet[] Sets { get; set; } = Array.Empty<IResultSet>();
+        public IResultSet[] Sets { get; set; } = [];
     }
 
     public interface IResultSet : ICollection<Result>

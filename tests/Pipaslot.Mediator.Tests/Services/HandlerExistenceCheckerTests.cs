@@ -53,7 +53,7 @@ public class HandlerExistenceCheckerTests
     {
         var sp = Factory.CreateServiceProvider(c =>
         {
-            c.AddActions(new[] { typeof(InvalidActionWithoutHandler) });
+            c.AddActions([typeof(InvalidActionWithoutHandler)]);
         });
         var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
         var ex = Assert.Throws<MediatorException>(() =>
@@ -69,7 +69,7 @@ public class HandlerExistenceCheckerTests
     {
         var sp = Factory.CreateServiceProvider(c =>
         {
-            c.AddActions(new[] { typeof(ValidActionWithoutHandler) });
+            c.AddActions([typeof(ValidActionWithoutHandler)]);
         });
         var sut = sp.GetRequiredService<IHandlerExistenceChecker>();
         sut.Verify(new ExistenceCheckerSetting());

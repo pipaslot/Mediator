@@ -43,7 +43,7 @@ public class JsonContractSerializer_CredibilityTests : ContractSerializer_Credib
     public void Request_InterfaceCollection_ShouldCallVerifyCredibility()
     {
         var contract = new Contract();
-        var action = new MessageWithInterfaceArrayProperty { Contracts = new IContract[] { contract } };
+        var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
         CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
         CredibleProviderMock
             .Setup(p => p.VerifyCredibility(action.GetType()));

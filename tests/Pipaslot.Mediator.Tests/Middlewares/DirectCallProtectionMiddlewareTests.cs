@@ -27,8 +27,8 @@ public class DirectCallProtectionMiddlewareTests
     {
         return Factory.CreateCustomMediator(c =>
         {
-            c.AddActions(new[] { typeof(RootAction), typeof(ProtectedAction) });
-            c.AddHandlers(new[] { typeof(RootActionHandler), typeof(ProtectedActionHandler) });
+            c.AddActions([typeof(RootAction), typeof(ProtectedAction)]);
+            c.AddHandlers([typeof(RootActionHandler), typeof(ProtectedActionHandler)]);
             c.UseWhen(cond => cond is IProtectedAction, m => m.UseDirectCallProtection());
         });
     }

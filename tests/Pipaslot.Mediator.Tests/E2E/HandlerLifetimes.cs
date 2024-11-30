@@ -15,8 +15,8 @@ public class HandlerLifetimes
     public async Task NoInterface_Registration_ShareTheSameHandlerInstance(int expectedInstanceCount, ServiceLifetime lifetime)
     {
         var sut = Factory.CreateCustomMediator(c => c
-            .AddActions(new[] { typeof(InstanceCounterMessage) })
-            .AddHandlers(new[] { typeof(InstanceCounterMessageHandler) }, lifetime)
+            .AddActions([typeof(InstanceCounterMessage)])
+            .AddHandlers([typeof(InstanceCounterMessageHandler)], lifetime)
         );
         InstanceCounterMessageHandler.Instances.Clear();
         await sut.Dispatch(new InstanceCounterMessage());
@@ -29,9 +29,9 @@ public class HandlerLifetimes
     {
         var handlerType = typeof(SingletorMessageHandler);
         Factory.CreateCustomMediator(c => c
-            .AddHandlers(new[] { handlerType })
+            .AddHandlers([handlerType])
             .AddHandlersFromAssemblyOf<SingletorMessageHandler>() //There is als othe scoped
-            .AddHandlers(new[] { handlerType })
+            .AddHandlers([handlerType])
         );
     }
 
@@ -45,8 +45,8 @@ public class HandlerLifetimes
         var ex = Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateCustomMediator(c => c
-                .AddHandlers(new[] { handlerType }, initial)
-                .AddHandlers(new[] { handlerType }, update)
+                .AddHandlers([handlerType], initial)
+                .AddHandlers([handlerType], update)
             );
         });
         Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, initial, update).Message, ex.Message);
@@ -78,7 +78,7 @@ public class HandlerLifetimes
         var ex = Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateCustomMediator(c => c
-                .AddHandlers(new[] { handlerType }, lifetime)
+                .AddHandlers([handlerType], lifetime)
             );
         });
 
@@ -90,8 +90,8 @@ public class HandlerLifetimes
     {
         var handlerType = typeof(SingletorMessageHandler);
         Factory.CreateCustomMediator(c => c
-            .AddHandlers(new[] { handlerType })
-            .AddHandlers(new[] { handlerType })
+            .AddHandlers([handlerType])
+            .AddHandlers([handlerType])
         );
     }
 
@@ -117,7 +117,7 @@ public class HandlerLifetimes
         var ex = Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateCustomMediator(c => c
-                .AddHandlers(new[] { handlerType }, lifetime)
+                .AddHandlers([handlerType], lifetime)
             );
         });
 
@@ -129,8 +129,8 @@ public class HandlerLifetimes
     {
         var handlerType = typeof(ScopedMessageHandler);
         Factory.CreateCustomMediator(c => c
-            .AddHandlers(new[] { handlerType })
-            .AddHandlers(new[] { handlerType })
+            .AddHandlers([handlerType])
+            .AddHandlers([handlerType])
         );
     }
 

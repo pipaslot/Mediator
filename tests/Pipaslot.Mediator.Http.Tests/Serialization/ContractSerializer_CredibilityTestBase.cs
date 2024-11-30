@@ -55,7 +55,7 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
         }
 
         var sut = CreateSerializer();
-        var responseString = sut.SerializeResponse(new MediatorResponse(true, new[] { result }));
+        var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         sut.DeserializeResponse<Result>(responseString);
 
         CredibleProviderMock.VerifyAll();

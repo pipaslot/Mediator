@@ -22,7 +22,7 @@ internal class MediatorContextAccessor : IMediatorContextAccessor, INotification
 
     public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
-    public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? Array.Empty<MediatorContext>();
+    public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? [];
 
     public void Push(MediatorContext context)
     {

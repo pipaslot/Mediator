@@ -30,7 +30,7 @@ public static class ServiceProviderExtensions
     {
         if (messageType == null)
         {
-            return new object[0];
+            return [];
         }
 
         var mediatorActionType = typeof(IMediatorAction);
@@ -49,7 +49,7 @@ public static class ServiceProviderExtensions
     {
         if (requestType == null || responseType == null)
         {
-            return new object[0];
+            return [];
         }
 
         var mediatorHandlerType = typeof(IMediatorHandler<,>);

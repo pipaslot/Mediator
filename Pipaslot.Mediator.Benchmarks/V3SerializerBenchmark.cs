@@ -26,7 +26,7 @@ public class SerializationBenchmark
     [Benchmark]
     public void SystemTextJsonSerializer()
     {
-        var resp = new FakeResponse { Success = true, Results = new object[] { _result } };
+        var resp = new FakeResponse { Success = true, Results = [_result] };
         var str = JsonSerializer.Serialize(resp, _options);
         JsonSerializer.Deserialize(str, typeof(FakeResponse), _options);
     }
@@ -34,7 +34,7 @@ public class SerializationBenchmark
     [Benchmark]
     public void V2Serializer()
     {
-        var resp = new MediatorResponse(true, new object[] { _result });
+        var resp = new MediatorResponse(true, [_result]);
         var str = _v2Serializer.SerializeResponse(resp);
         _v2Serializer.DeserializeResponse<DataResult>(str);
     }
@@ -42,7 +42,7 @@ public class SerializationBenchmark
     [Benchmark]
     public void V3Serializer()
     {
-        var resp = new MediatorResponse(true, new object[] { _result });
+        var resp = new MediatorResponse(true, [_result]);
         var str = _v3Serializer.SerializeResponse(resp);
         _v3Serializer.DeserializeResponse<DataResult>(str);
     }
@@ -50,7 +50,7 @@ public class SerializationBenchmark
     private class FakeResponse
     {
         public bool Success { get; set; }
-        public object[] Results { get; set; } = Array.Empty<object>();
+        public object[] Results { get; set; } = [];
     }
 
     private class FakeProvider : ICredibleProvider
@@ -71,7 +71,7 @@ public class SerializationBenchmark
             Data = Enumerable.Range(1, rows).Select(i => new DataDto(i)).ToList();
         }
 
-        public List<DataDto> Data { get; set; } = new();
+        public List<DataDto> Data { get; set; } = [];
     }
 
     private class DataDto

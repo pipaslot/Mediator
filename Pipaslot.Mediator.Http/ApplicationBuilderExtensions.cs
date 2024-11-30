@@ -41,7 +41,7 @@ public static class ApplicationBuilderExtensions
             {
                 CheckMatchingHandlers = checkMatchingHandlers,
                 CheckExistingPolicies = true,
-                IgnoredPolicyChecks = new HashSet<Type>(ignoredPolicyCheckTypes)
+                IgnoredPolicyChecks = [..ignoredPolicyCheckTypes]
             });
         return app;
     }

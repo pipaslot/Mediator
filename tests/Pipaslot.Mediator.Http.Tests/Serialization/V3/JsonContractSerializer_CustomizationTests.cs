@@ -29,7 +29,7 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
     {
         var sut = CreateSerializer();
 
-        var response = new MediatorResponse(true, new object[] { new ActionWithReadOnlyProperties() });
+        var response = new MediatorResponse(true, [new ActionWithReadOnlyProperties()]);
         var serialized = sut.SerializeResponse(response);
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);

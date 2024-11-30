@@ -125,7 +125,7 @@ internal static class PolicyResolver
                 if (interfaces.Any(i => i.GetGenericTypeDefinition() == syncType))
                 {
                     var method = handlerType.GetMethod(nameof(IHandlerAuthorization<IMediatorAction>.Authorize));
-                    var methodResult = method!.Invoke(handler, new object[] { action })!;
+                    var methodResult = method!.Invoke(handler, [action])!;
                     var policy = methodResult as IPolicy
                                  ?? throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                     result.Add(policy);
@@ -135,7 +135,7 @@ internal static class PolicyResolver
                 if (interfaces.Any(i => i.GetGenericTypeDefinition() == asyncType))
                 {
                     var method = handlerType.GetMethod(nameof(IHandlerAuthorizationAsync<IMediatorAction>.AuthorizeAsync));
-                    var task = (Task?)method!.Invoke(handler, new object[] { action, cancellationToken })!
+                    var task = (Task?)method!.Invoke(handler, [action, cancellationToken])!
                                ?? throw MediatorException.NullInsteadOfPolicy(handlerType?.FullName ?? string.Empty);
                     await task.ConfigureAwait(false);
                     var resultProperty = task.GetType().GetProperty("Result");

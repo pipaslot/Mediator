@@ -36,7 +36,7 @@ public class AuthService : AuthenticationStateProvider
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authState.BearerToken);
         }
 
-        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, authState.Username) }, "jwt")));
+        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, authState.Username)], "jwt")));
     }
 
     public async Task SignIn(string username, string password)

@@ -31,7 +31,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction>.Handle));
         try
         {
-            var task = (Task?)method!.Invoke(handler, new object[] { context.Action, context.CancellationToken })!;
+            var task = (Task?)method!.Invoke(handler, [context.Action, context.CancellationToken])!;
             if (task != null)
             {
                 await task.ConfigureAwait(false);
@@ -63,7 +63,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
         try
         {
-            var task = (Task?)method!.Invoke(handler, new object[] { context.Action, context.CancellationToken })!;
+            var task = (Task?)method!.Invoke(handler, [context.Action, context.CancellationToken])!;
             if (task != null)
             {
                 await task.ConfigureAwait(false);

@@ -11,10 +11,10 @@ namespace Pipaslot.Mediator.Configuration;
 public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
 {
     internal readonly IServiceCollection Services = services;
-    internal HashSet<Assembly> TrustedAssemblies { get; set; } = new();
-    private readonly List<Type> _actionMarkerTypes = new();
+    internal HashSet<Assembly> TrustedAssemblies { get; set; } = [];
+    private readonly List<Type> _actionMarkerTypes = [];
     private readonly MiddlewareCollection _middlewares = new(services);
-    private readonly List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
+    private readonly List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
 
     /// <summary>
     /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
@@ -82,7 +82,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
 
     public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
     {
-        return RegisterHandlersFromAssembly(new[] { typeof(T).Assembly }, serviceLifetime);
+        return RegisterHandlersFromAssembly([typeof(T).Assembly], serviceLifetime);
     }
 
     public IMediatorConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)

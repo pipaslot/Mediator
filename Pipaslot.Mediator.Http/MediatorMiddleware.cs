@@ -106,7 +106,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
             .MakeGenericMethod(resultType);
         try
         {
-            var task = (Task)method.Invoke(mediator, new[] { query, cancellationToken })!;
+            var task = (Task)method.Invoke(mediator, [query, cancellationToken])!;
             await task.ConfigureAwait(false);
 
             var resultProperty = task.GetType().GetProperty("Result");

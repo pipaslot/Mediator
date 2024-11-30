@@ -17,8 +17,8 @@ internal class CredibleActionProvider : ICredibleProvider
     public CredibleActionProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
     {
         _configurator = configurator;
-        _trustedTypes = new HashSet<Type>(trustedTypes);
-        _trustedAssemblies = new HashSet<Assembly>(trustedAssemblies);
+        _trustedTypes = [..trustedTypes];
+        _trustedAssemblies = [..trustedAssemblies];
     }
 
     public void VerifyCredibility(Type actionType)

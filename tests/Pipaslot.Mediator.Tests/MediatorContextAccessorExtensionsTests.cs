@@ -23,7 +23,7 @@ public class MediatorContextAccessorExtensionsTests
         public MediatorContext Context => throw new NotImplementedException();
 
         public IReadOnlyCollection<MediatorContext> ContextStack =>
-            _mediatorContext is not null ? new[] { _mediatorContext } : Array.Empty<MediatorContext>();
+            _mediatorContext is not null ? [_mediatorContext] : Array.Empty<MediatorContext>();
     }
 
     private record FakeFeature;
@@ -36,7 +36,7 @@ public class MediatorContextAccessorExtensionsTests
             , new Mock<IServiceProvider>().Object
             , new Mock<IMediatorAction>().Object
             , CancellationToken.None
-            , Array.Empty<object>()
+            , []
             , features.Object
         );
     }

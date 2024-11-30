@@ -40,8 +40,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
         services.AddScoped<IMediatorFacade, MediatorFacade>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
-        configurator.AddActions(new[] { typeof(AuthorizeRequest) });
-        configurator.AddHandlers(new[] { typeof(AuthorizeRequestHandler) });
+        configurator.AddActions([typeof(AuthorizeRequest)]);
+        configurator.AddHandlers([typeof(AuthorizeRequestHandler)]);
 
         // Separate authorization middleware, because we do not want to interrupt by custom middlewares
         configurator.AddPipelineForAuthorizationRequest(p => { });

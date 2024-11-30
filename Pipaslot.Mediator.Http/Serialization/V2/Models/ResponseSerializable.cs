@@ -3,5 +3,5 @@
 internal class ResponseSerializable
 {
     public bool Success { get; set; }
-    public ContractSerializable[] Results { get; set; } = new ContractSerializable[0];
+    public ContractSerializable[] Results { get; set; } = [];
 }

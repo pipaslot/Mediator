@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
-using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -41,12 +40,12 @@ public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestB
 
     public class MessageWithInterfaceArrayProperty : IMessage
     {
-        public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
+        public IContract[] Contracts { get; set; } = [];
     }
 
     public class MessageWithInterfaceCollectionProperty : IMessage
     {
-        public List<IContract> Contracts { get; set; } = new();
+        public List<IContract> Contracts { get; set; } = [];
     }
 
     public new interface IContract

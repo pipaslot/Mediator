@@ -82,14 +82,14 @@ public static class MiddlewareRegistratorExtensions
     public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2>(this IMiddlewareRegistrator configurator,
         Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2) }, subMiddlewares);
+        return configurator.UseWhenActions([typeof(TActionMarker1), typeof(TActionMarker2)], subMiddlewares);
     }
 
     /// <inheritdoc cref="UseWhenActions"/>
     public static IMiddlewareRegistrator UseWhenActions<TActionMarker1, TActionMarker2, TActionMarker3>(this IMiddlewareRegistrator configurator,
         Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        return configurator.UseWhenActions(new[] { typeof(TActionMarker1), typeof(TActionMarker2), typeof(TActionMarker3) }, subMiddlewares);
+        return configurator.UseWhenActions([typeof(TActionMarker1), typeof(TActionMarker2), typeof(TActionMarker3)], subMiddlewares);
     }
 
     /// <summary>

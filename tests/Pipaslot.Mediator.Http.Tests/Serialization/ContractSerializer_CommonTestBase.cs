@@ -8,7 +8,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 {
     private const string _name = "JSON name";
     private const int _number = 6;
-    private static readonly string[] _collection = { "AAA", "BBB" };
+    private static readonly string[] _collection = ["AAA", "BBB"];
     private static readonly Nested _nested = new() { Value = 1.2m };
 
     protected Func<IContract, bool> Match = c =>
@@ -142,7 +142,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 
     private void RunResponseTest<TDto>(TDto seed, Func<TDto, bool> match)
     {
-        var response = new MediatorResponse(true, new object[] { seed! });
+        var response = new MediatorResponse(true, [seed!]);
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeResponse(response);
@@ -172,7 +172,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     {
         public string Name { get; set; } = "";
         public int Number { get; set; }
-        public string[] Collection { get; set; } = new string[0];
+        public string[] Collection { get; set; } = [];
         public Nested Nested { get; set; } = new();
     }
 
@@ -213,7 +213,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     {
         public string Name { get; init; } = "";
         public int Number { get; init; }
-        public string[] Collection { get; init; } = new string[0];
+        public string[] Collection { get; init; } = [];
         public Nested Nested { get; init; } = new();
     }
 

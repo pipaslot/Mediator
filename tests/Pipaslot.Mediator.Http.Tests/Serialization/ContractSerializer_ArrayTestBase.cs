@@ -23,7 +23,7 @@ public abstract class ContractSerializer_ArrayTestBase : ContractSerializerBaseT
     private void DeserializeCollection<T>(T result) where T : ICollection<Result>
     {
         var sut = CreateSerializer();
-        var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+        var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         var deserialized = sut.DeserializeResponse<T>(responseString);
         Assert.Equal(result.GetType(), deserialized.Result.GetType());
         Assert.Equal(result.First().Index, deserialized.Result.First().Index);

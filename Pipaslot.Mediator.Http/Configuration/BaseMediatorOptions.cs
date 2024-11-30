@@ -33,8 +33,8 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
 
     #region Credible types
 
-    private readonly List<Type> _credibleResultTypes = new() { typeof(Notification) };
-    private readonly List<Assembly> _credibleResultAssemblies = new();
+    private readonly List<Type> _credibleResultTypes = [typeof(Notification)];
+    private readonly List<Assembly> _credibleResultAssemblies = [];
 
     /// <summary>
     /// Define extra types returned by server as credible.

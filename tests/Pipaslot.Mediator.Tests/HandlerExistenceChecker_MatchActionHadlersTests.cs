@@ -45,7 +45,7 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
     [InlineData(typeof(Request))]
     public void TestNoHandler(Type subject)
     {
-        var sut = CreateServiceProviderWithHandlersAndActions(new Type[0], subject);
+        var sut = CreateServiceProviderWithHandlersAndActions([], subject);
         var exception = Assert.Throws<MediatorException>(() =>
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
