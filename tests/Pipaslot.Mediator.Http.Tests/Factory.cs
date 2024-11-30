@@ -15,7 +15,6 @@ internal class Factory
                     .AddActionsFromAssemblyOf<SingleHandler.Message>()
                     .AddHandlersFromAssemblyOf<Factory>()
                     .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
-                ;
                 setup(c);
             }
         );

@@ -76,10 +76,7 @@ public class FeatureCollection : IFeatureCollection
                 return;
             }
 
-            if (_features == null)
-            {
-                _features = new Dictionary<Type, object>(_initialCapacity);
-            }
+            _features ??= new Dictionary<Type, object>(_initialCapacity);
 
             _features[key] = value;
             _containerRevision++;

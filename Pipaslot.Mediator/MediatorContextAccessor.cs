@@ -10,15 +10,9 @@ namespace Pipaslot.Mediator;
 /// <summary>
 /// Scoped service which uses AsyncLocal for thread isolation for the context stack
 /// </summary>
-internal class MediatorContextAccessor : IMediatorContextAccessor, INotificationProvider
+internal class MediatorContextAccessor(IServiceProvider serviceProvider) : IMediatorContextAccessor, INotificationProvider
 {
     private static readonly AsyncLocal<ContextFlow> _asyncLocal = new();
-    private readonly IServiceProvider _serviceProvider;
-
-    public MediatorContextAccessor(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
     public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
@@ -35,11 +29,8 @@ internal class MediatorContextAccessor : IMediatorContextAccessor, INotification
         if (Context is null)
         {
             // Notification provider is called independently of the mediator
-            var messageReceiver = _serviceProvider.GetService<NotificationReceiverMiddleware>();
-            if (messageReceiver != null)
-            {
-                messageReceiver.SendNotifications(notification);
-            }
+            var messageReceiver = serviceProvider.GetService<NotificationReceiverMiddleware>();
+            messageReceiver?.SendNotifications(notification);
         }
         else
         {

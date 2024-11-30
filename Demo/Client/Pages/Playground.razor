@@ -27,7 +27,7 @@
 
 <h5>File download through HTTP GET</h5>
 <p>
-    <a class="btn btn-primary btn-sm" href="@_mediatorUrlFormatter.FormatHttpGet(new DemoDownload("DemoFile"))">Download without authentication</a>
+    <a class="btn btn-primary btn-sm" href="@MediatorUrlFormatter.FormatHttpGet(new DemoDownload("DemoFile"))">Download without authentication</a>
 </p>
 
 <h5>UseReduceDuplicateProcessing middleware</h5>
@@ -63,7 +63,7 @@
     }
 </code>
 
-@inject Pipaslot.Mediator.Http.IMediatorUrlFormatter _mediatorUrlFormatter
+@inject Pipaslot.Mediator.Http.IMediatorUrlFormatter MediatorUrlFormatter
 
 @code {
     private MarkupString _serializedReponse;

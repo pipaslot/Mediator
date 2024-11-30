@@ -31,10 +31,7 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
             return;
         }
 
-        if (_actionResultTypes == null)
-        {
-            _actionResultTypes = [..GetActionResultTypes()];
-        }
+        _actionResultTypes ??= [..GetActionResultTypes()];
 
         if (_actionResultTypes.Contains(resultType))
         {

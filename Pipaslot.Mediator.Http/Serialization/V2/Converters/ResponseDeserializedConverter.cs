@@ -19,8 +19,7 @@ internal class ResponseDeserializedConverter : JsonConverter<ResponseDeserialize
     public override ResponseDeserialized? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var success = false;
-        var errorMessages = new string[0];
-        var results = new object[0];
+        var results = Array.Empty<object>();
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)

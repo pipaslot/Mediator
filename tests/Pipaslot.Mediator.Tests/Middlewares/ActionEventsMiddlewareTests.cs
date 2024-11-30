@@ -10,8 +10,8 @@ namespace Pipaslot.Mediator.Tests.Middlewares;
 public class ActionEventsMiddlewareTests
 {
     private readonly SemaphoreSlim _handlerSemaphore = new(0);
-    private readonly List<ActionStartedEventArgs> _started = new();
-    private readonly List<ActionCompletedEventArgs> _completed = new();
+    private readonly List<ActionStartedEventArgs> _started = [];
+    private readonly List<ActionCompletedEventArgs> _completed = [];
 
     #region Basic flow
 
@@ -139,18 +139,11 @@ public class ActionEventsMiddlewareTests
 
     public class SemaphoreAction : IMediatorAction;
 
-    public class SemaphoreHandler : IMediatorHandler<SemaphoreAction>
+    public class SemaphoreHandler(SemaphoreSlim semaphore) : IMediatorHandler<SemaphoreAction>
     {
-        private readonly SemaphoreSlim _semaphore;
-
-        public SemaphoreHandler(SemaphoreSlim semaphore)
-        {
-            _semaphore = semaphore;
-        }
-
         public async Task Handle(SemaphoreAction action, CancellationToken cancellationToken)
         {
-            await _semaphore.WaitAsync(cancellationToken);
+            await semaphore.WaitAsync(cancellationToken);
         }
     }
 

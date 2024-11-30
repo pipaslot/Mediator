@@ -18,7 +18,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
     public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var success = false;
-        var results = new object[0];
+        var results = Array.Empty<object>();
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)

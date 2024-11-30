@@ -223,10 +223,11 @@ public class DefaultNodeFormatter : INodeFormatter
     /// </summary>
     protected virtual string FormatOperator(Operator @operator)
     {
-        return @operator == Operator.And
-            ? " AND "
-            : @operator == Operator.Or
-                ? " OR "
-                : " ";
+        return @operator switch
+        {
+            Operator.And => " AND ",
+            Operator.Or => " OR ",
+            _ => " "
+        };
     }
 }

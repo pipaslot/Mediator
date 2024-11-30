@@ -49,8 +49,8 @@ public class SerializationBenchmark
 
     private class FakeResponse
     {
-        public bool Success { get; set; }
-        public object[] Results { get; set; } = [];
+        public bool Success { get; init; }
+        public object[] Results { get; init; } = [];
     }
 
     private class FakeProvider : ICredibleProvider

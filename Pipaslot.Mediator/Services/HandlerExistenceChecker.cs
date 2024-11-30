@@ -13,9 +13,9 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
     /// <summary>
     /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
     /// </summary>
-    private readonly HashSet<Type> _alreadyVerified = new();
+    private readonly HashSet<Type> _alreadyVerified = [];
 
-    private readonly List<string> _errors = new();
+    private readonly List<string> _errors = [];
 
     public void Verify(ExistenceCheckerSetting setting)
     {

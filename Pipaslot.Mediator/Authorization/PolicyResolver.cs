@@ -72,16 +72,7 @@ internal static class PolicyResolver
             return true;
         }
 
-        foreach (var handler in handlers)
-        {
-            if (handler is IHandlerAuthorizationMarker
-                || GetPolicyAttributes(handler.GetType()).Any())
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return handlers.Any(handler => handler is IHandlerAuthorizationMarker || GetPolicyAttributes(handler.GetType()).Any());
     }
 
 
@@ -121,7 +112,8 @@ internal static class PolicyResolver
             {
                 var interfaces = handlerType
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType);
+                    .Where(i => i.IsGenericType)
+                    .ToArray();
                 if (interfaces.Any(i => i.GetGenericTypeDefinition() == syncType))
                 {
                     var method = handlerType.GetMethod(nameof(IHandlerAuthorization<IMediatorAction>.Authorize));

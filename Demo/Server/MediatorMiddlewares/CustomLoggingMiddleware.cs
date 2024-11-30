@@ -15,7 +15,7 @@ public class CustomLoggingMiddleware(ILogger<CustomLoggingMiddleware> logger) : 
         {
             await next(context);
         }
-        catch (Exception c) when (c is TaskCanceledException || c is OperationCanceledException)
+        catch (Exception c) when (c is TaskCanceledException or OperationCanceledException)
         {
             context.Status = ExecutionStatus.Failed;
             // No error message is needed

@@ -56,7 +56,7 @@ public static class MiddlewareRegistratorExtensions
     /// </summary>
     public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        return config.UseWhen((a, s) => IsFirstActionFromHttp(s), subMiddlewares);
+        return config.UseWhen((_, s) => IsFirstActionFromHttp(s), subMiddlewares);
     }
 
     #endregion

@@ -8,7 +8,7 @@ public static class MediatorActionExtensions
 {
     internal static string GetActionName(this IMediatorAction? action)
     {
-        return action?.GetType()?.ToString() ?? string.Empty;
+        return action?.GetType().ToString() ?? string.Empty;
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ public static class MediatorActionExtensions
 
     public static string GetActionFriendlyName(this string? actionName, int ignoreLastWords = 1)
     {
-        if (string.IsNullOrWhiteSpace(actionName))
+        if (actionName is null || string.IsNullOrWhiteSpace(actionName))
         {
             return string.Empty;
         }
@@ -35,7 +35,7 @@ public static class MediatorActionExtensions
         var cased = Regex.Replace(className, "([a-z0-9])([A-Z]*)([A-Z])", FormatUpercases);
         var noUnd = Regex.Replace(cased, "[_\\+]([A-Za-z0-9])", FormatUnderline);
         var split = noUnd.Split(' ');
-        var relevant = split.Take(split.Count() - ignoreLastWords);
+        var relevant = split.Take(split.Length - ignoreLastWords);
         return string.Join(" ", relevant);
     }
 

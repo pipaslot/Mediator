@@ -68,7 +68,7 @@ public class CredibleResultProviderTests
         var serviceCollectionMock = new Mock<IServiceCollection>();
         var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
         setup(configurator);
-        return new CredibleResultProvider(configurator, customTypes, new Assembly[0]);
+        return new CredibleResultProvider(configurator, customTypes, Array.Empty<Assembly>());
     }
 
     private CredibleResultProvider CreateForAssembly(Action<MediatorConfigurator> setup, params Assembly[] customTypes)

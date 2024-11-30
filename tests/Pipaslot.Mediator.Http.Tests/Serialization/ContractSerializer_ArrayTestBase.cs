@@ -32,6 +32,6 @@ public abstract class ContractSerializer_ArrayTestBase : ContractSerializerBaseT
 
     public class Result
     {
-        public int Index { get; set; }
+        public int Index { get; init; }
     }
 }

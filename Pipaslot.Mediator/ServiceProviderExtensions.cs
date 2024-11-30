@@ -33,7 +33,6 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var mediatorActionType = typeof(IMediatorAction);
         var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)

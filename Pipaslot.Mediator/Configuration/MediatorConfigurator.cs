@@ -29,7 +29,8 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     public IMediatorConfigurator AddActions(IEnumerable<Type> actionTypes)
     {
         var mediatorActionType = typeof(IMediatorAction);
-        foreach (var actionType in actionTypes)
+        var actionTypeArray = actionTypes as Type[] ?? actionTypes.ToArray();
+        foreach (var actionType in actionTypeArray)
         {
             if (!mediatorActionType.IsAssignableFrom(actionType))
             {
@@ -37,8 +38,8 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
             }
         }
 
-        _actionMarkerTypes.AddRange(actionTypes);
-        TrustedAssemblies.UnionWith(actionTypes.Select(t => t.Assembly));
+        _actionMarkerTypes.AddRange(actionTypeArray);
+        TrustedAssemblies.UnionWith(actionTypeArray.Select(t => t.Assembly));
         return this;
     }
 
@@ -66,7 +67,8 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     public IMediatorConfigurator AddHandlers(IEnumerable<Type> handlers, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
     {
         var handlerTypes = new[] { typeof(IMediatorHandler<,>), typeof(IMediatorHandler<>) };
-        foreach (var handlerType in handlers)
+        var handlerArray = handlers as Type[] ?? handlers.ToArray();
+        foreach (var handlerType in handlerArray)
         {
             var isHandler = handlerType.GetInterfaces()
                 .Any(i => i.IsGenericType && handlerTypes.Contains(i.GetGenericTypeDefinition()));
@@ -76,7 +78,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
             }
         }
 
-        Services.RegisterHandlers(_registeredHandlers, handlers, serviceLifetime);
+        Services.RegisterHandlers(_registeredHandlers, handlerArray, serviceLifetime);
         return this;
     }
 

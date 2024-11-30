@@ -49,7 +49,7 @@ public class HttpClientExecutionMiddleware(
             // We just expect that server will return JSON in Mediator response format
             // Use ProcessParsingError for handling custom server responses and status codes 
         }
-        catch (Exception ce) when (ce is OperationCanceledException || ce is TaskCanceledException)
+        catch (Exception ce) when (ce is OperationCanceledException or TaskCanceledException)
         {
             throw;
         }

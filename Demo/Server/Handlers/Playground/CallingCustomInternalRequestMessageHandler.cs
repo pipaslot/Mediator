@@ -7,6 +7,6 @@ public class CallingCustomInternalRequestMessageHandler(IMediator mediator) : IM
 {
     public async Task Handle(CalingCustomInternalRequestMessage action, CancellationToken cancellationToken)
     {
-        await mediator.ExecuteUnhandled(new CustomInternalRequest());
+        await mediator.ExecuteUnhandled(new CustomInternalRequest(), cancellationToken);
     }
 }

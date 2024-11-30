@@ -188,7 +188,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
 
     public class MessageWithIMediatorActionProperty : IMessage
     {
-        public IMediatorAction SubAction { get; set; } = null!;
+        public IMediatorAction SubAction { get; init; } = null!;
     }
 
     public class ResultSetResponse

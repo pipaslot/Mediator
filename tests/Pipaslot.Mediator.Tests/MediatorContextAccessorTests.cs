@@ -88,12 +88,12 @@ public class MediatorContextAccessorTests
 
         public void AssertTwo()
         {
-            Assert.Equal(typeof(Level2Action), _accessor.Context?.Action?.GetType());
+            Assert.Equal(typeof(Level2Action), _accessor.Context?.Action.GetType());
             Assert.Equal(2, _accessor.ContextStack.Count);
             // Verify that helper classes returns the same result as well
-            Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action?.GetType());
+            Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action.GetType());
             Assert.Single(_accessor.GetParentContexts());
-            Assert.Equal(typeof(Level1Action), _accessor.GetParentContexts()?.First()?.Action?.GetType());
+            Assert.Equal(typeof(Level1Action), _accessor.GetParentContexts().First().Action.GetType());
         }
     }
 

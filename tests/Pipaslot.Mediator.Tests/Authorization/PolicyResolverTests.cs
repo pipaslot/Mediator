@@ -168,7 +168,7 @@ public class PolicyResolverTests
     {
         public Task<IPolicy> AuthorizeAsync(IMediatorAction action, CancellationToken cancellationToken)
         {
-            return Task.FromResult((IPolicy)IdentityPolicy.Anonymous());
+            return Task.FromResult<IPolicy>(IdentityPolicy.Anonymous());
         }
     }
 

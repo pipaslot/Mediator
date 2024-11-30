@@ -107,14 +107,14 @@ public class ServiceResolver_ResolveMiddlewaresTests
 
     public class FakeQuery : IQuery<object>
     {
-        public bool ExecuteHandlers { get; set; }
+        public bool ExecuteHandlers { get; init; }
     }
 
     public interface ICommand : IMessage;
 
     public class FakeCommand : ICommand
     {
-        public bool ExecuteNested { get; set; }
+        public bool ExecuteNested { get; init; }
     }
 
     public interface INotification : IMessage;

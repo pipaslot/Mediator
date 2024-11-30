@@ -86,7 +86,7 @@ public class ServiceResolver_ResolvePipelinesTests
 
     public class FakeCommand : ICommand
     {
-        public bool ExecuteNested { get; set; }
+        public bool ExecuteNested { get; init; }
     }
 
     public class BeforeMiddleware : IMediatorMiddleware

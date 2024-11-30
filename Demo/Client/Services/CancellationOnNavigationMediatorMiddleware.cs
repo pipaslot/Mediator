@@ -9,12 +9,12 @@ namespace Demo.Client.Services;
 /// </summary>
 public class CancellationOnNavigationMediatorMiddleware : IMediatorMiddleware, IDisposable
 {
-    private readonly IDisposable? registration;
+    private readonly IDisposable? _registration;
     private CancellationTokenSource _cancellationTokenSource = new();
 
     public CancellationOnNavigationMediatorMiddleware(NavigationManager navigation)
     {
-        registration = navigation.RegisterLocationChangingHandler(OnLocationChanging);
+        _registration = navigation.RegisterLocationChangingHandler(OnLocationChanging);
     }
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
@@ -39,6 +39,6 @@ public class CancellationOnNavigationMediatorMiddleware : IMediatorMiddleware, I
 
     public void Dispose()
     {
-        registration?.Dispose();
+        _registration?.Dispose();
     }
 }

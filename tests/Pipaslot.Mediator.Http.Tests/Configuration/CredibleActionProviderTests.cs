@@ -38,7 +38,7 @@ public class CredibleActionProviderTests
         var serviceCollctionMock = new Mock<IServiceCollection>();
         var configurator = new MediatorConfigurator(serviceCollctionMock.Object);
         setup(configurator);
-        return new CredibleActionProvider(configurator, customTypes, new Assembly[0]);
+        return new CredibleActionProvider(configurator, customTypes, Array.Empty<Assembly>());
     }
 
     public class FakeContract : IMessage;

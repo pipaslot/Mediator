@@ -70,14 +70,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
 
                 var resultProperty = task.GetType().GetProperty("Result");
                 var result = resultProperty?.GetValue(task);
-                if (result != null)
-                {
-                    context.AddResult(result);
-                }
-                else
-                {
-                    context.AddResult(new NullActionResult());
-                }
+                context.AddResult(result ?? new NullActionResult());
             }
         }
         catch (TargetInvocationException e)

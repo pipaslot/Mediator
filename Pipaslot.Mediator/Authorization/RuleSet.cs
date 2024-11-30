@@ -15,8 +15,8 @@ namespace Pipaslot.Mediator.Authorization;
 public class RuleSet : IPolicy
 {
     public Operator Operator { get; }
-    public List<Rule> Rules { get; set; } = new();
-    public List<RuleSet> RuleSets { get; set; } = new();
+    public List<Rule> Rules { get; set; } = [];
+    public List<RuleSet> RuleSets { get; set; } = [];
 
     /// <summary>
     /// Iterate through all rules and rule sets
@@ -152,7 +152,7 @@ public class RuleSet : IPolicy
                 unavailable.Add(rule);
             }
 
-            if (outcome == RuleOutcome.Deny || outcome == RuleOutcome.Ignored)
+            if (outcome is RuleOutcome.Deny or RuleOutcome.Ignored)
             {
                 denied.Add(rule);
             }

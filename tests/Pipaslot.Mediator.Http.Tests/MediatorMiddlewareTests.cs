@@ -51,7 +51,7 @@ public class MediatorMiddlewareTests
 
     private async Task ExecuteRequest(HttpRequest request)
     {
-        var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, Array.Empty<object>()));
+        var mediatorResponse = Task.FromResult<IMediatorResponse<string>>(new MediatorResponse<string>(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
         var collection = new ServiceCollection();
@@ -73,7 +73,7 @@ public class MediatorMiddlewareTests
 
     private async Task ExecuteMessage(HttpRequest request)
     {
-        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
+        var mediatorResponse = Task.FromResult<IMediatorResponse>(new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
         var collection = new ServiceCollection();
@@ -186,10 +186,12 @@ public class MediatorMiddlewareTests
 
         public GetRequest(string action) : base("")
         {
-            var query = new QueryCollection();
-            query.Add(new KeyValuePair<string, StringValues>("action",
-                new StringValues(action)
-            ));
+            var query = new QueryCollection
+            {
+                new KeyValuePair<string, StringValues>("action",
+                    new StringValues(action)
+                )
+            };
             Query = query;
         }
 #pragma warning disable CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.

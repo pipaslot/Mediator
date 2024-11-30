@@ -35,29 +35,29 @@ public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestB
 
     public class MessageWithInterfaceProperty : IMessage
     {
-        public IContract Contract { get; set; } = null!;
+        public IContract Contract { get; init; } = null!;
     }
 
     public class MessageWithInterfaceArrayProperty : IMessage
     {
-        public IContract[] Contracts { get; set; } = [];
+        public IContract[] Contracts { get; init; } = [];
     }
 
     public class MessageWithInterfaceCollectionProperty : IMessage
     {
-        public List<IContract> Contracts { get; set; } = [];
+        public List<IContract> Contracts { get; init; } = [];
     }
 
     public new interface IContract;
 
     public class Contract : IContract
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
     }
 
     public class ChildMediatorAction : IMessage
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
     }
 
     protected override IContractSerializer CreateSerializer(ICredibleProvider provider)

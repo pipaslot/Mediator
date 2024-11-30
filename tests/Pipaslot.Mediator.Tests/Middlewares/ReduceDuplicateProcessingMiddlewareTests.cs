@@ -101,7 +101,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
 
     public class FakeAction : IMediatorAction<FakeActionResult>
     {
-        public int Value { get; set; }
+        public int Value { get; init; }
 
         public override int GetHashCode()
         {
@@ -115,16 +115,15 @@ public class ReduceDuplicateProcessingMiddlewareTests
 
         public async Task<FakeActionResult> Handle(FakeAction action, CancellationToken cancellationToken)
         {
-            await Task.Delay(100);
+            await Task.Delay(100, cancellationToken);
             Iterator++;
             return new FakeActionResult(Iterator);
-            ;
         }
     }
 
     public class FakeAction2 : IMediatorAction<FakeActionResult>
     {
-        public int Value { get; set; }
+        public int Value { get; init; }
 
         public override int GetHashCode()
         {
@@ -138,10 +137,9 @@ public class ReduceDuplicateProcessingMiddlewareTests
 
         public async Task<FakeActionResult> Handle(FakeAction2 action, CancellationToken cancellationToken)
         {
-            await Task.Delay(100);
+            await Task.Delay(100, cancellationToken);
             Iterator++;
             return new FakeActionResult(Iterator);
-            ;
         }
     }
 

@@ -37,7 +37,7 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
         Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
     }
 
-    private IContractSerializer CreateSerializer()
+    private static IContractSerializer CreateSerializer()
     {
         var credibleProviderMock = new Mock<ICredibleProvider>();
         var optionsMock = new Mock<IMediatorOptions>();

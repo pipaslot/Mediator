@@ -47,7 +47,6 @@ public class ServiceCollection_RegisterMediatorCoreTests
     {
         var collection = new ServiceCollection();
         setup(collection);
-        ;
         var services = collection.BuildServiceProvider();
 
         Assert.NotNull(services.GetRequiredService<IMediator>());

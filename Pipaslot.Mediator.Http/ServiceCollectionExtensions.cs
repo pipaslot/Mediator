@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Service collection</param>
     public static IMediatorConfigurator AddMediatorClient(this IServiceCollection services)
     {
-        return services.AddMediatorClient<HttpClientExecutionMiddleware>(o => { });
+        return services.AddMediatorClient<HttpClientExecutionMiddleware>(_ => { });
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
     public static IMediatorConfigurator AddMediatorClient<THttpClientExecutionMiddleware>(this IServiceCollection services)
         where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
     {
-        return services.AddMediatorClient<THttpClientExecutionMiddleware>(o => { });
+        return services.AddMediatorClient<THttpClientExecutionMiddleware>(_ => { });
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
         var options = new ClientMediatorOptions();
         configure(options);
         services.AddSingleton(options);
-        services.AddSingleton((IMediatorOptions)options);
+        services.AddSingleton<IMediatorOptions>(options);
         if (options.DeserializeOnlyCredibleResultTypes)
         {
             services.AddSingleton<ICredibleProvider>(s =>
@@ -86,7 +86,7 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IMediatorConfigurator AddMediatorServer(this IServiceCollection services)
     {
-        return services.AddMediatorServer(o => { });
+        return services.AddMediatorServer(_ => { });
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public static class ServiceCollectionExtensions
         var options = new ServerMediatorOptions();
         configure(options);
         services.AddSingleton(options);
-        services.AddSingleton((IMediatorOptions)options);
+        services.AddSingleton<IMediatorOptions>(options);
         if (options.DeserializeOnlyCredibleActionTypes)
         {
             services.AddSingleton<ICredibleProvider>(s =>

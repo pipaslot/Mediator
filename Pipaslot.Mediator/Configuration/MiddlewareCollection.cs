@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Configuration;
 
 internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareResolver, IMiddlewareRegistrator
 {
-    private readonly List<IMiddlewareResolver> _middlewareTypes = new();
+    private readonly List<IMiddlewareResolver> _middlewareTypes = [];
 
     private void AddMiddleware(Type middlewareType, ServiceLifetime lifetime, object[]? parameters = null)
     {

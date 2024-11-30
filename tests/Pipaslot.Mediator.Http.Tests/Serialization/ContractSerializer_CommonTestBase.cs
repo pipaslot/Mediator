@@ -170,10 +170,10 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 
     public class PublicPropertyGettersAndSettersContract : IMessage, IContract
     {
-        public string Name { get; set; } = "";
-        public int Number { get; set; }
-        public string[] Collection { get; set; } = [];
-        public Nested Nested { get; set; } = new();
+        public string Name { get; init; } = "";
+        public int Number { get; init; }
+        public string[] Collection { get; init; } = [];
+        public Nested Nested { get; init; } = new();
     }
 
     public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage, IContract
@@ -221,7 +221,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 
     public class Nested
     {
-        public decimal Value { get; set; }
+        public decimal Value { get; init; }
     }
 
     #endregion

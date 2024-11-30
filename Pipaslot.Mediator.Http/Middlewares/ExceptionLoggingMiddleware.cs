@@ -20,7 +20,7 @@ public class ExceptionLoggingMiddleware(ILogger<ExceptionLoggingMiddleware> logg
         {
             await next(context).ConfigureAwait(false);
         }
-        catch (Exception ce) when (ce is TaskCanceledException || ce is OperationCanceledException)
+        catch (Exception ce) when (ce is TaskCanceledException or OperationCanceledException)
         {
             _logger.LogWarning(ce, $"Action {context.ActionIdentifier} was canceled.");
             var serializedData = Serialize(context.Action);

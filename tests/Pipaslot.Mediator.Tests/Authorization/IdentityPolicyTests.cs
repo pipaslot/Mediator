@@ -80,7 +80,7 @@ public class IdentityPolicyTests
         return collection.RulesRecursive.ToArray();
     }
 
-    private IServiceProvider CreateServiceProvider(bool isAuthenticated, params Claim[] claims)
+    private static IServiceProvider CreateServiceProvider(bool isAuthenticated, params Claim[] claims)
     {
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, isAuthenticated ? "JWT" : null));
         var cpMock = new Mock<IClaimPrincipalAccessor>();

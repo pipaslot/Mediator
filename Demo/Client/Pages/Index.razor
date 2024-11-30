@@ -4,7 +4,7 @@
 
 <p>This component demonstrates fetching data from the server. Watch your XHR network traffic.</p>
 
-@if (forecasts == null)
+@if (_forecasts == null)
 {
     <p>
         <em>Loading...</em>
@@ -22,7 +22,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in forecasts)
+        @foreach (var forecast in _forecasts)
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
@@ -34,11 +34,11 @@ else
         </tbody>
     </table>
 }
-<p>@(commonResult?.Description ?? "Status message will be provided from server as well")</p>
+<p>@(_commonResult?.Description ?? "Status message will be provided from server as well")</p>
 
 @code {
-    private WeatherForecast.IResult[]? forecasts;
-    private CommonResult? commonResult;
+    private WeatherForecast.IResult[]? _forecasts;
+    private CommonResult? _commonResult;
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,10 +46,10 @@ else
 
         if (result.Success)
         {
-            forecasts = result.Result;
+            _forecasts = result.Result;
         }
 
-        commonResult = (CommonResult?)result.Results.FirstOrDefault(r => r is CommonResult);
+        _commonResult = (CommonResult?)result.Results.FirstOrDefault(r => r is CommonResult);
     }
 
 }

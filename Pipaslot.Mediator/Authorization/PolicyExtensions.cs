@@ -8,8 +8,7 @@ public static class PolicyExtensions
     /// <returns>New policy instance</returns>
     public static Policy And(this IPolicy policy, params IPolicy[] andPolicies)
     {
-        var expression = new Policy(Operator.And);
-        expression.Add(policy);
+        var expression = new Policy(Operator.And) { policy };
         expression.AddRange(andPolicies);
         return expression;
     }
@@ -20,8 +19,7 @@ public static class PolicyExtensions
     /// <returns>New policy instance</returns>
     public static Policy Or(this IPolicy policy, params IPolicy[] orPolicies)
     {
-        var expression = new Policy(Operator.Or);
-        expression.Add(policy);
+        var expression = new Policy(Operator.Or) { policy };
         expression.AddRange(orPolicies);
         return expression;
     }

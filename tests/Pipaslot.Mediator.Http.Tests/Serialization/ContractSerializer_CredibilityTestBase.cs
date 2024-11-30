@@ -41,7 +41,7 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
     [Fact]
     public void Response_Collection_ShouldCallVerifyCredibility()
     {
-        var result = new Result[0];
+        var result = Array.Empty<Result>();
         VerifyResponseCredibility(result, result.GetType());
     }
 

@@ -25,7 +25,7 @@ public class AuthorizeRequestResponse
         /// Returns true when is Allowed or Deny
         /// </summary>
         [JsonIgnore]
-        public bool IsAvailable => Access == AccessType.Allow || Access == AccessType.Deny;
+        public bool IsAvailable => Access is AccessType.Allow or AccessType.Deny;
 
         [JsonIgnore]
         public bool IsAllowed => Access == AccessType.Allow;
@@ -34,6 +34,6 @@ public class AuthorizeRequestResponse
         /// The Access is Unavailable or Deny
         /// </summary>
         [JsonIgnore]
-        public bool IsDisabled => Access == AccessType.Unavailable || Access == AccessType.Deny;
+        public bool IsDisabled => Access is AccessType.Unavailable or AccessType.Deny;
 #endif
 }

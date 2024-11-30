@@ -27,10 +27,10 @@ public class HandlerLifetimes
     [Fact]
     public void MixedReRegistration_Pass()
     {
-        var handlerType = typeof(SingletorMessageHandler);
+        var handlerType = typeof(SingletonMessageHandler);
         Factory.CreateCustomMediator(c => c
             .AddHandlers([handlerType])
-            .AddHandlersFromAssemblyOf<SingletorMessageHandler>() //There is als othe scoped
+            .AddHandlersFromAssemblyOf<SingletonMessageHandler>() //There is als othe scoped
             .AddHandlers([handlerType])
         );
     }
@@ -60,13 +60,13 @@ public class HandlerLifetimes
     public async Task ISingletonInterface_AutomaticRegistration_ShareTheSameHandlerInstance()
     {
         var sut = Factory.CreateCustomMediator(c => c
-            .AddActionsFromAssemblyOf<SingletorMessage>()
-            .AddHandlersFromAssemblyOf<SingletorMessageHandler>()
+            .AddActionsFromAssemblyOf<SingletonMessage>()
+            .AddHandlersFromAssemblyOf<SingletonMessageHandler>()
         );
-        SingletorMessageHandler.Instances.Clear();
-        await sut.Dispatch(new SingletorMessage());
-        await sut.Dispatch(new SingletorMessage());
-        Assert.Single(SingletorMessageHandler.Instances);
+        SingletonMessageHandler.Instances.Clear();
+        await sut.Dispatch(new SingletonMessage());
+        await sut.Dispatch(new SingletonMessage());
+        Assert.Single(SingletonMessageHandler.Instances);
     }
 
     [Theory]
@@ -74,7 +74,7 @@ public class HandlerLifetimes
     [InlineData(ServiceLifetime.Scoped)]
     public void ISingletonInterface_Registration_ThrowException(ServiceLifetime lifetime)
     {
-        var handlerType = typeof(SingletorMessageHandler);
+        var handlerType = typeof(SingletonMessageHandler);
         var ex = Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateCustomMediator(c => c
@@ -88,7 +88,7 @@ public class HandlerLifetimes
     [Fact]
     public void ISingletonInterface_ReRegistration_Pass()
     {
-        var handlerType = typeof(SingletorMessageHandler);
+        var handlerType = typeof(SingletonMessageHandler);
         Factory.CreateCustomMediator(c => c
             .AddHandlers([handlerType])
             .AddHandlers([handlerType])

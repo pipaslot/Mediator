@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization;
 
-public class IdentityPolicy : IPolicy
+public class IdentityPolicy(Operator @operator = Operator.And) : IPolicy
 {
     public const string AuthenticationPolicyName = "Authentication";
     public const string AuthenticatedValue = "Authenticated";
@@ -50,14 +50,8 @@ public class IdentityPolicy : IPolicy
             .HasRole(value);
     }
 
-    private readonly List<(string Name, string Value)> _claims = new();
-    private readonly Operator _claimOperator;
+    private readonly List<(string Name, string Value)> _claims = [];
     private AuthStatus _authStatus = AuthStatus.AuthenticateIfNoClaim;
-
-    public IdentityPolicy(Operator @operator = Operator.And)
-    {
-        _claimOperator = @operator;
-    }
 
     public IdentityPolicy IsAnonymous()
     {
@@ -83,7 +77,7 @@ public class IdentityPolicy : IPolicy
     {
         var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
         var collection = new RuleSet(Operator.And);
-        if (_claims.Count() == 0)
+        if (!_claims.Any())
         {
             var isAnonymous = _authStatus == AuthStatus.AnonymousIfNoClaim;
             var isAuthenticationGranted = isAnonymous || (principal?.Identity?.IsAuthenticated ?? false);
@@ -91,18 +85,13 @@ public class IdentityPolicy : IPolicy
             var value = shouldBeAuthenticated
                 ? AuthenticatedValue
                 : AnonymousValue;
-            var outcome = shouldBeAuthenticated
-                ? isAuthenticationGranted
-                    ? RuleOutcome.Allow
-                    : RuleOutcome.Deny
-                : RuleOutcome.Ignored;
             var authRule = new Rule(AuthenticationPolicyName, value, isAuthenticationGranted, RuleScope.Identity);
             collection.Rules.Add(authRule);
         }
         else
         {
-            var userClaims = principal?.Claims ?? new Claim[0];
-            var claimRules = new RuleSet(_claimOperator);
+            var userClaims = principal?.Claims?.ToArray() ?? [];
+            var claimRules = new RuleSet(@operator);
             collection.RuleSets.Add(claimRules);
             foreach (var required in _claims)
             {

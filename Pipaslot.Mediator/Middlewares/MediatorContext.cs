@@ -132,12 +132,7 @@ public class MediatorContext
     /// <returns></returns>
     public object[] GetHandlers()
     {
-        if (_handlers == null)
-        {
-            _handlers = Services.GetActionHandlers(Action);
-        }
-
-        return _handlers;
+        return _handlers ??= Services.GetActionHandlers(Action);
     }
 
     /// <summary>
