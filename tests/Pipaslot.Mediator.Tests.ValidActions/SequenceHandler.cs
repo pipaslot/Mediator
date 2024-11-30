@@ -1,117 +1,116 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.ValidActions
+namespace Pipaslot.Mediator.Tests.ValidActions;
+
+public static class SequenceHandler
 {
-    public static class SequenceHandler
+    public static int ExecutedCount { get; set; }
+
+    public class Request : IRequest<Response>
     {
-        public static int ExecutedCount { get; set; }
+        public bool Pass { get; }
 
-        public class Request : IRequest<Response>
+        public Request(bool pass)
         {
-            public bool Pass { get; }
-
-            public Request(bool pass)
-            {
-                Pass = pass;
-            }
+            Pass = pass;
         }
+    }
 
-        public class Response
+    public class Response
+    {
+        public static Response Instance = new();
+    }
+
+    public class Message : IMessage
+    {
+        public bool Pass { get; }
+
+        public Message(bool pass)
         {
-            public static Response Instance = new();
+            Pass = pass;
         }
+    }
 
-        public class Message : IMessage
+    public class RequestException : System.Exception
+    {
+        public static string DefaultMessage = "Requesthandler failed";
+
+        public RequestException() : base(DefaultMessage)
         {
-            public bool Pass { get; }
-
-            public Message(bool pass)
-            {
-                Pass = pass;
-            }
         }
+    }
 
-        public class RequestException : System.Exception
+    public class MessageException : System.Exception
+    {
+        public static string DefaultMessage = "Message handler failed";
+
+        public MessageException() : base(DefaultMessage)
         {
-            public static string DefaultMessage = "Requesthandler failed";
-
-            public RequestException() : base(DefaultMessage)
-            {
-            }
         }
+    }
 
-        public class MessageException : System.Exception
+    public class RequestHandler1 : IRequestHandler<Request, Response>, ISequenceHandler
+    {
+        public int Order => 1;
+
+        public Task<Response> Handle(Request request, CancellationToken cancellationToken)
         {
-            public static string DefaultMessage = "Message handler failed";
-
-            public MessageException() : base(DefaultMessage)
+            ExecutedCount++;
+            if (!request.Pass)
             {
+                throw new RequestException();
             }
+
+            return Task.FromResult(Response.Instance);
         }
+    }
 
-        public class RequestHandler1 : IRequestHandler<Request, Response>, ISequenceHandler
+    public class RequestHandler2 : IRequestHandler<Request, Response>, ISequenceHandler
+    {
+        public int Order => 2;
+
+        public Task<Response> Handle(Request request, CancellationToken cancellationToken)
         {
-            public int Order => 1;
-
-            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
+            ExecutedCount++;
+            if (!request.Pass)
             {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new RequestException();
-                }
-
-                return Task.FromResult(Response.Instance);
+                throw new RequestException();
             }
+
+            return Task.FromResult(Response.Instance);
         }
+    }
 
-        public class RequestHandler2 : IRequestHandler<Request, Response>, ISequenceHandler
+    public class MessageHandler1 : IMessageHandler<Message>, ISequenceHandler
+    {
+        public int Order => 1;
+
+        public Task Handle(Message request, CancellationToken cancellationToken)
         {
-            public int Order => 2;
-
-            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
+            ExecutedCount++;
+            if (!request.Pass)
             {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new RequestException();
-                }
-
-                return Task.FromResult(Response.Instance);
+                throw new MessageException();
             }
+
+            return Task.CompletedTask;
         }
+    }
 
-        public class MessageHandler1 : IMessageHandler<Message>, ISequenceHandler
+    public class MessageHandler2 : IMessageHandler<Message>, ISequenceHandler
+    {
+        public int Order => 2;
+
+        public Task Handle(Message request, CancellationToken cancellationToken)
         {
-            public int Order => 1;
-
-            public Task Handle(Message request, CancellationToken cancellationToken)
+            ExecutedCount++;
+            if (!request.Pass)
             {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new MessageException();
-                }
-
-                return Task.CompletedTask;
+                throw new MessageException();
             }
-        }
 
-        public class MessageHandler2 : IMessageHandler<Message>, ISequenceHandler
-        {
-            public int Order => 2;
-
-            public Task Handle(Message request, CancellationToken cancellationToken)
-            {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new MessageException();
-                }
-
-                return Task.CompletedTask;
-            }
+            return Task.CompletedTask;
         }
     }
 }

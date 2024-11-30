@@ -2,13 +2,12 @@
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V2;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization.V2
+namespace Pipaslot.Mediator.Http.Tests.Serialization.V2;
+
+public class FullJsonContractSerializer_PrimitiveTypesTests : ContractSerializer_PrimitiveTypesTestBase
 {
-    public class FullJsonContractSerializer_PrimitiveTypesTests : ContractSerializer_PrimitiveTypesTestBase
+    protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
     {
-        protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
-        {
-            return new FullJsonContractSerializer(provider);
-        }
+        return new FullJsonContractSerializer(provider);
     }
 }

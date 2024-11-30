@@ -2,82 +2,81 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.ValidActions
+namespace Pipaslot.Mediator.Tests.ValidActions;
+
+public static class SingleHandler
 {
-    public static class SingleHandler
+    [ThreadStatic]
+    public static int ExecutedCount;
+
+    public class Request : IRequest<Response>
     {
-        [ThreadStatic]
-        public static int ExecutedCount;
+        public bool Pass { get; }
 
-        public class Request : IRequest<Response>
+        public Request(bool pass)
         {
-            public bool Pass { get; }
-
-            public Request(bool pass)
-            {
-                Pass = pass;
-            }
+            Pass = pass;
         }
+    }
 
-        public class Response
+    public class Response
+    {
+        public static Response Instance = new();
+    }
+
+    public class Message : IMessage
+    {
+        public bool Pass { get; }
+
+        public Message(bool pass)
         {
-            public static Response Instance = new();
+            Pass = pass;
         }
+    }
 
-        public class Message : IMessage
+    public class RequestException : Exception
+    {
+        public static string DefaultMessage = "Requesthandler failed";
+
+        public RequestException() : base(DefaultMessage)
         {
-            public bool Pass { get; }
-
-            public Message(bool pass)
-            {
-                Pass = pass;
-            }
         }
+    }
 
-        public class RequestException : Exception
+    public class MessageException : Exception
+    {
+        public static string DefaultMessage = "Message handler failed";
+
+        public MessageException() : base(DefaultMessage)
         {
-            public static string DefaultMessage = "Requesthandler failed";
-
-            public RequestException() : base(DefaultMessage)
-            {
-            }
         }
+    }
 
-        public class MessageException : Exception
+    public class RequestHandler : IRequestHandler<Request, Response>
+    {
+        public Task<Response> Handle(Request request, CancellationToken cancellationToken)
         {
-            public static string DefaultMessage = "Message handler failed";
-
-            public MessageException() : base(DefaultMessage)
+            ExecutedCount++;
+            if (!request.Pass)
             {
+                throw new RequestException();
             }
+
+            return Task.FromResult(Response.Instance);
         }
+    }
 
-        public class RequestHandler : IRequestHandler<Request, Response>
+    public class MessageHandler : IMessageHandler<Message>
+    {
+        public Task Handle(Message request, CancellationToken cancellationToken)
         {
-            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
+            ExecutedCount++;
+            if (!request.Pass)
             {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new RequestException();
-                }
-
-                return Task.FromResult(Response.Instance);
+                throw new MessageException();
             }
-        }
 
-        public class MessageHandler : IMessageHandler<Message>
-        {
-            public Task Handle(Message request, CancellationToken cancellationToken)
-            {
-                ExecutedCount++;
-                if (!request.Pass)
-                {
-                    throw new MessageException();
-                }
-
-                return Task.CompletedTask;
-            }
+            return Task.CompletedTask;
         }
     }
 }

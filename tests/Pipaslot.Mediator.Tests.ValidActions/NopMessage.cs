@@ -1,17 +1,16 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.ValidActions
-{
-    public class NopMessage : IMessage
-    {
-    }
+namespace Pipaslot.Mediator.Tests.ValidActions;
 
-    public class NopMesageHandler : IMessageHandler<NopMessage>
+public class NopMessage : IMessage
+{
+}
+
+public class NopMesageHandler : IMessageHandler<NopMessage>
+{
+    public Task Handle(NopMessage action, CancellationToken cancellationToken)
     {
-        public Task Handle(NopMessage action, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

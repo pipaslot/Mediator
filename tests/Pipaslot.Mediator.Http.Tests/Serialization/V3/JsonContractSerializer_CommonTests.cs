@@ -6,67 +6,66 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization.V3
+namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
+
+public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestBase
 {
-    public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestBase
+    [Fact]
+    public void DeserializeRequest_FromJsonWithShortFormat()
     {
-        [Fact]
-        public void DeserializeRequest_FromJsonWithShortFormat()
-        {
-            var sut = CreateSerializer();
+        var sut = CreateSerializer();
 
-            var serialized =
-                @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
-            var deserialized = sut.DeserializeRequest(serialized);
+        var serialized =
+            @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
+        var deserialized = sut.DeserializeRequest(serialized);
 
-            Assert.True(Match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
-        }
+        Assert.True(Match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
+    }
 
-        [Fact]
-        public void DeserializeResponse_FromJsonWithShortFormat()
-        {
-            var sut = CreateSerializer();
+    [Fact]
+    public void DeserializeResponse_FromJsonWithShortFormat()
+    {
+        var sut = CreateSerializer();
 
-            var serialized =
-                @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}],""ErrorMessages"":[]}";
-            var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
+        var serialized =
+            @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}],""ErrorMessages"":[]}";
+        var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
 
-            Assert.True(Match(deserialized.Result));
-        }
+        Assert.True(Match(deserialized.Result));
+    }
 
-        public class MessageWithInterfaceProperty : IMessage
-        {
-            public IContract Contract { get; set; } = null!;
-        }
+    public class MessageWithInterfaceProperty : IMessage
+    {
+        public IContract Contract { get; set; } = null!;
+    }
 
-        public class MessageWithInterfaceArrayProperty : IMessage
-        {
-            public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
-        }
+    public class MessageWithInterfaceArrayProperty : IMessage
+    {
+        public IContract[] Contracts { get; set; } = Array.Empty<IContract>();
+    }
 
-        public class MessageWithInterfaceCollectionProperty : IMessage
-        {
-            public List<IContract> Contracts { get; set; } = new();
-        }
+    public class MessageWithInterfaceCollectionProperty : IMessage
+    {
+        public List<IContract> Contracts { get; set; } = new();
+    }
 
-        public new interface IContract
-        {
-        }
+    public new interface IContract
+    {
+    }
 
-        public class Contract : IContract
-        {
-            public string Name { get; set; } = string.Empty;
-        }
+    public class Contract : IContract
+    {
+        public string Name { get; set; } = string.Empty;
+    }
 
-        public class ChildMediatorAction : IMessage
-        {
-            public string Name { get; set; } = string.Empty;
-        }
+    public class ChildMediatorAction : IMessage
+    {
+        public string Name { get; set; } = string.Empty;
+    }
 
-        protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
-        {
-            var optionsMock = new Mock<IMediatorOptions>();
-            return new JsonContractSerializer(provider, optionsMock.Object);
-        }
+    protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
+    {
+        var optionsMock = new Mock<IMediatorOptions>();
+        return new JsonContractSerializer(provider, optionsMock.Object);
     }
 }

@@ -4,71 +4,70 @@ using Pipaslot.Mediator.Http.Configuration;
 using System;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization
+namespace Pipaslot.Mediator.Http.Tests.Serialization;
+
+public abstract class ContractSerializer_CredibilityTestBase : ContractSerializerBaseTest
 {
-    public abstract class ContractSerializer_CredibilityTestBase : ContractSerializerBaseTest
+    [Fact]
+    public void Request_ShouldCallVerifyCredibility()
     {
-        [Fact]
-        public void Request_ShouldCallVerifyCredibility()
+        var action = new PublicPropertyGetterAndInitSetterContract();
+        VerifyRequestCredibility(action, action.GetType());
+    }
+
+    protected void VerifyRequestCredibility(IMediatorAction action, params Type[] toBeVerified)
+    {
+        CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
+        foreach (var type in toBeVerified)
         {
-            var action = new PublicPropertyGetterAndInitSetterContract();
-            VerifyRequestCredibility(action, action.GetType());
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(type));
         }
 
-        protected void VerifyRequestCredibility(IMediatorAction action, params Type[] toBeVerified)
+        var sut = CreateSerializer();
+        var serialized = sut.SerializeRequest(action);
+        sut.DeserializeRequest(serialized);
+
+        CredibleProviderMock.VerifyAll();
+    }
+
+    [Fact]
+    public void Response_SingleObject_ShouldCallVerifyCredibility()
+    {
+        var result = new Result();
+        VerifyResponseCredibility(result, result.GetType());
+    }
+
+    [Fact]
+    public void Response_Collection_ShouldCallVerifyCredibility()
+    {
+        var result = new Result[0];
+        VerifyResponseCredibility(result, result.GetType());
+    }
+
+    protected void VerifyResponseCredibility(object result, params Type[] toBeVerified)
+    {
+        CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
+        foreach (var type in toBeVerified)
         {
-            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-            foreach (var type in toBeVerified)
-            {
-                CredibleProviderMock
-                    .Setup(p => p.VerifyCredibility(type));
-            }
-
-            var sut = CreateSerializer();
-            var serialized = sut.SerializeRequest(action);
-            sut.DeserializeRequest(serialized);
-
-            CredibleProviderMock.VerifyAll();
+            CredibleProviderMock
+                .Setup(p => p.VerifyCredibility(type));
         }
 
-        [Fact]
-        public void Response_SingleObject_ShouldCallVerifyCredibility()
-        {
-            var result = new Result();
-            VerifyResponseCredibility(result, result.GetType());
-        }
+        var sut = CreateSerializer();
+        var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
+        sut.DeserializeResponse<Result>(responseString);
 
-        [Fact]
-        public void Response_Collection_ShouldCallVerifyCredibility()
-        {
-            var result = new Result[0];
-            VerifyResponseCredibility(result, result.GetType());
-        }
+        CredibleProviderMock.VerifyAll();
+    }
 
-        protected void VerifyResponseCredibility(object result, params Type[] toBeVerified)
-        {
-            CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-            foreach (var type in toBeVerified)
-            {
-                CredibleProviderMock
-                    .Setup(p => p.VerifyCredibility(type));
-            }
+    public class Result
+    {
+        public int Index { get; set; }
+    }
 
-            var sut = CreateSerializer();
-            var responseString = sut.SerializeResponse(new MediatorResponse(true, new object[] { result }));
-            sut.DeserializeResponse<Result>(responseString);
-
-            CredibleProviderMock.VerifyAll();
-        }
-
-        public class Result
-        {
-            public int Index { get; set; }
-        }
-
-        public class PublicPropertyGetterAndInitSetterContract : IMessage
-        {
-            public string Name { get; init; } = "";
-        }
+    public class PublicPropertyGetterAndInitSetterContract : IMessage
+    {
+        public string Name { get; init; } = "";
     }
 }

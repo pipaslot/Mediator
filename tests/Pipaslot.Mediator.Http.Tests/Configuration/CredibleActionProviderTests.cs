@@ -6,47 +6,46 @@ using System;
 using System.Reflection;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests.Configuration
+namespace Pipaslot.Mediator.Http.Tests.Configuration;
+
+public class CredibleActionProviderTests
 {
-    public class CredibleActionProviderTests
+    [Fact]
+    public void VerifyCredibility_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
     {
-        [Fact]
-        public void VerifyCredibility_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
-        {
-            var sut = Create(c => c.AddActionsFromAssemblyOf<IMediator>());
-            var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeContract)));
-            Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
-        }
+        var sut = Create(c => c.AddActionsFromAssemblyOf<IMediator>());
+        var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeContract)));
+        Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
+    }
 
-        [Fact]
-        public void VerifyCredibility_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
-        {
-            var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
-            var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeNonContract)));
-            Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
-        }
+    [Fact]
+    public void VerifyCredibility_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
+    {
+        var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
+        var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeNonContract)));
+        Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
+    }
 
-        [Fact]
-        public void VerifyCredibility_ContractTypeIsFromRegisteredAssembly_Pass()
-        {
-            var sut = Create(c => c.AddActionsFromAssemblyOf<FakeContract>());
-            sut.VerifyCredibility(typeof(FakeContract));
-        }
+    [Fact]
+    public void VerifyCredibility_ContractTypeIsFromRegisteredAssembly_Pass()
+    {
+        var sut = Create(c => c.AddActionsFromAssemblyOf<FakeContract>());
+        sut.VerifyCredibility(typeof(FakeContract));
+    }
 
-        private CredibleActionProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
-        {
-            var serviceCollctionMock = new Mock<IServiceCollection>();
-            var configurator = new MediatorConfigurator(serviceCollctionMock.Object);
-            setup(configurator);
-            return new CredibleActionProvider(configurator, customTypes, new Assembly[0]);
-        }
+    private CredibleActionProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
+    {
+        var serviceCollctionMock = new Mock<IServiceCollection>();
+        var configurator = new MediatorConfigurator(serviceCollctionMock.Object);
+        setup(configurator);
+        return new CredibleActionProvider(configurator, customTypes, new Assembly[0]);
+    }
 
-        public class FakeContract : IMessage
-        {
-        }
+    public class FakeContract : IMessage
+    {
+    }
 
-        public class FakeNonContract
-        {
-        }
+    public class FakeNonContract
+    {
     }
 }

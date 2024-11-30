@@ -1,6 +1,5 @@
-﻿namespace Pipaslot.Mediator.Tests.InvalidActions
+﻿namespace Pipaslot.Mediator.Tests.InvalidActions;
+
+public class MessageWithoutHandler : IMessage
 {
-    public class MessageWithoutHandler : IMessage
-    {
-    }
 }

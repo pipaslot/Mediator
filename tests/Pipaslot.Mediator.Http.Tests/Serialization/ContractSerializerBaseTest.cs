@@ -2,16 +2,15 @@
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 
-namespace Pipaslot.Mediator.Http.Tests.Serialization
-{
-    public abstract class ContractSerializerBaseTest
-    {
-        protected Mock<ICredibleProvider> CredibleProviderMock = new();
-        protected abstract IContractSerializer CreateSerializer(ICredibleProvider provider);
+namespace Pipaslot.Mediator.Http.Tests.Serialization;
 
-        protected IContractSerializer CreateSerializer()
-        {
-            return CreateSerializer(CredibleProviderMock.Object);
-        }
+public abstract class ContractSerializerBaseTest
+{
+    protected Mock<ICredibleProvider> CredibleProviderMock = new();
+    protected abstract IContractSerializer CreateSerializer(ICredibleProvider provider);
+
+    protected IContractSerializer CreateSerializer()
+    {
+        return CreateSerializer(CredibleProviderMock.Object);
     }
 }
