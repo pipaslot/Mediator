@@ -52,7 +52,7 @@
             var timer = GetTimer(notification.Type);
             if (timer != null)
             {
-                timer.Elapsed += (sender, args) =>
+                timer.Elapsed += (_, _) =>
                 {
                     _notifications.Remove(notification);
                     timer.Dispose();

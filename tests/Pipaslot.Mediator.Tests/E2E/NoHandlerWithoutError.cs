@@ -60,14 +60,10 @@ public class NoHandlerWithoutError
 
     public class BlockedRequest : IRequest<BlockedRequest.ResultDto>
     {
-        public class ResultDto
-        {
-        }
+        public class ResultDto;
     }
 
-    public class BlockedMessage : IMessage
-    {
-    }
+    public class BlockedMessage : IMessage;
 
     public class BlockRequestMilldeware : IMediatorMiddleware
     {

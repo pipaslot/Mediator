@@ -14,9 +14,7 @@ public abstract class ContractSerializer_InterfaceTestBase : ContractSerializerB
         Assert.Equal(result.GetType(), deserialized.Result.GetType());
     }
 
-    public interface IResult
-    {
-    }
+    public interface IResult;
 
     public class Result : IResult
     {

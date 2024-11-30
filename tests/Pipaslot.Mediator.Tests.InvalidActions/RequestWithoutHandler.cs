@@ -6,9 +6,7 @@ namespace Pipaslot.Mediator.Tests.InvalidActions;
 
 public class RequestWithoutHandler : IRequest<ResultDto>
 {
-    public class ResultDto
-    {
-    }
+    public class ResultDto;
 }
 
 /// <summary>

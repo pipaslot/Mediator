@@ -14,7 +14,5 @@ public static class FailingOnValidation
         }
     }
 
-    public class Result
-    {
-    }
+    public class Result;
 }

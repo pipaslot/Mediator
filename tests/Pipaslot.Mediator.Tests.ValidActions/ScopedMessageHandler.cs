@@ -15,6 +15,4 @@ public class ScopedMessageHandler : IMessageHandler<ScopedMessage>, IScoped
     }
 }
 
-public class ScopedMessage : IMessage
-{
-}
+public class ScopedMessage : IMessage;

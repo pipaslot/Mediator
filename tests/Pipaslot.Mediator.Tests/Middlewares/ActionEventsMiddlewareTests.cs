@@ -137,9 +137,7 @@ public class ActionEventsMiddlewareTests
         _completed.Add(args);
     }
 
-    public class SemaphoreAction : IMediatorAction
-    {
-    }
+    public class SemaphoreAction : IMediatorAction;
 
     public class SemaphoreHandler : IMediatorHandler<SemaphoreAction>
     {

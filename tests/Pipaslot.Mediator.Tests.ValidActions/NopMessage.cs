@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.ValidActions;
 
-public class NopMessage : IMessage
-{
-}
+public class NopMessage : IMessage;
 
 public class NopMesageHandler : IMessageHandler<NopMessage>
 {

@@ -89,11 +89,11 @@ public class ServiceResolver_ResolveMiddlewaresTests
             .Use<BeforeMiddleware>()
             .UseWhenAction<IQuery>(x => x
                 .Use<QueryMiddleware>()
-                .UseWhen(a => a is FakeQuery c && c.ExecuteHandlers, y => y.UseHandlerExecution())
+                .UseWhen(a => a is FakeQuery query && query.ExecuteHandlers, y => y.UseHandlerExecution())
             )
             .UseWhenAction<ICommand>(x => x
                 .Use<CommandMiddleware>()
-                .UseWhen<CommandNestedMiddleware>(a => a is FakeCommand c && c.ExecuteNested)
+                .UseWhen<CommandNestedMiddleware>(a => a is FakeCommand command && command.ExecuteNested)
             )
             .UseWhenAction<IQuery, Query2Middleware>()
             .Use<DefaultMiddleware>()
@@ -101,35 +101,25 @@ public class ServiceResolver_ResolveMiddlewaresTests
         return (Mediator)sp.GetRequiredService<IMediator>();
     }
 
-    public interface IQuery : IRequest
-    {
-    }
+    public interface IQuery : IRequest;
 
-    public interface IQuery<out TResponse> : IRequest<TResponse>, IQuery
-    {
-    }
+    public interface IQuery<out TResponse> : IRequest<TResponse>, IQuery;
 
     public class FakeQuery : IQuery<object>
     {
         public bool ExecuteHandlers { get; set; }
     }
 
-    public interface ICommand : IMessage
-    {
-    }
+    public interface ICommand : IMessage;
 
     public class FakeCommand : ICommand
     {
         public bool ExecuteNested { get; set; }
     }
 
-    public interface INotification : IMessage
-    {
-    }
+    public interface INotification : IMessage;
 
-    public class FakeNotification : INotification
-    {
-    }
+    public class FakeNotification : INotification;
 
     public class BeforeMiddleware : IMediatorMiddleware
     {

@@ -79,15 +79,9 @@ public class CredibleResultProviderTests
         return new CredibleResultProvider(configurator, new Type[0], customTypes);
     }
 
-    private class CustomResult
-    {
-    }
+    private class CustomResult;
 
-    private class FakeRequest : IRequest<Result[]>
-    {
-    }
+    private class FakeRequest : IRequest<Result[]>;
 
-    private class Result
-    {
-    }
+    private class Result;
 }

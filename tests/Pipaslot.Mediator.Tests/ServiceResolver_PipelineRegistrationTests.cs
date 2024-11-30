@@ -82,13 +82,9 @@ public class ServiceResolver_PipelineRegistrationTests
         return response;
     }
 
-    public class FakeAction1 : IMediatorAction
-    {
-    }
+    public class FakeAction1 : IMediatorAction;
 
-    public class FakeAction2 : IMediatorAction
-    {
-    }
+    public class FakeAction2 : IMediatorAction;
 
     private class FakeMiddleware1 : IMediatorMiddleware
     {

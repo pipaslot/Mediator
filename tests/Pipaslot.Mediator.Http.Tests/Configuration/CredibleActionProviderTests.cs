@@ -41,11 +41,7 @@ public class CredibleActionProviderTests
         return new CredibleActionProvider(configurator, customTypes, new Assembly[0]);
     }
 
-    public class FakeContract : IMessage
-    {
-    }
+    public class FakeContract : IMessage;
 
-    public class FakeNonContract
-    {
-    }
+    public class FakeNonContract;
 }

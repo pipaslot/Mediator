@@ -33,9 +33,7 @@ public class DirectCallProtectionMiddlewareTests
         });
     }
 
-    public class RootAction : IMediatorAction
-    {
-    }
+    public class RootAction : IMediatorAction;
 
     public class RootActionHandler : IMediatorHandler<RootAction>
     {
@@ -52,13 +50,9 @@ public class DirectCallProtectionMiddlewareTests
         }
     }
 
-    public interface IProtectedAction
-    {
-    }
+    public interface IProtectedAction;
 
-    public class ProtectedAction : IMediatorAction, IProtectedAction
-    {
-    }
+    public class ProtectedAction : IMediatorAction, IProtectedAction;
 
     public class ProtectedActionHandler : IMediatorHandler<ProtectedAction>
     {

@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Middlewares.Features;
 
 public class FeatureCollection : IFeatureCollection
 {
-    private static readonly KeyComparer FeatureKeyComparer = new();
+    private static readonly KeyComparer _featureKeyComparer = new();
     private readonly IFeatureCollection? _defaults;
     private readonly int _initialCapacity;
     private volatile int _containerRevision;
@@ -106,7 +106,7 @@ public class FeatureCollection : IFeatureCollection
         if (_defaults != null)
         {
             // Don't return features masked by the wrapper.
-            foreach (var pair in _features == null ? _defaults : _defaults.Except(_features, FeatureKeyComparer))
+            foreach (var pair in _features == null ? _defaults : _defaults.Except(_features, _featureKeyComparer))
             {
                 yield return pair;
             }

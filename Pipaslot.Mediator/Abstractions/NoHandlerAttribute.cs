@@ -7,6 +7,4 @@ namespace Pipaslot.Mediator.Abstractions;
 /// Mediator actions with this attribute won't throw exception from <see cref="HandlerExistenceChecker"/> because missing handler.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public class NoHandlerAttribute : Attribute
-{
-}
+public class NoHandlerAttribute : Attribute;

@@ -42,9 +42,7 @@ public class NullableObject
 
     public record FakeAction(bool ReturnNull) : IMediatorAction<FakeResult?>;
 
-    public record FakeResult
-    {
-    };
+    public record FakeResult;
 
     public class FakeActionHandler : IMediatorHandler<FakeAction, FakeResult?>
     {

@@ -4,6 +4,4 @@ using Pipaslot.Mediator.Authorization;
 namespace Demo.Shared.Auth;
 
 [AuthenticatedPolicy]
-public record IdenitityStaticAuthorizationMessage : IMessage
-{
-}
+public record IdenitityStaticAuthorizationMessage : IMessage;

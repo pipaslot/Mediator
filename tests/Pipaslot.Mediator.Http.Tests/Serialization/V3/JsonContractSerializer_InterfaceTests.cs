@@ -196,7 +196,5 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         public IResultSet[] Sets { get; set; } = [];
     }
 
-    public interface IResultSet : ICollection<Result>
-    {
-    }
+    public interface IResultSet : ICollection<Result>;
 }

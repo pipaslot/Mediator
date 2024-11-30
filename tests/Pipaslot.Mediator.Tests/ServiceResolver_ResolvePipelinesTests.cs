@@ -50,7 +50,7 @@ public class ServiceResolver_ResolvePipelinesTests
             c.Use<BeforeMiddleware>();
             c.AddPipelineForAction<ICommand>(x => x
                     .Use<PipelineMiddleware>()
-                    .UseWhen<PipelineNestedMiddleware>(a => a is FakeCommand c && c.ExecuteNested)
+                    .UseWhen<PipelineNestedMiddleware>(a => a is FakeCommand fakeCommand && fakeCommand.ExecuteNested)
                 )
                 .Use<AfterMiddleware>();
         });
@@ -73,22 +73,16 @@ public class ServiceResolver_ResolvePipelinesTests
         });
     }
 
-    public interface IQuery : IRequest
-    {
-    }
+    public interface IQuery : IRequest;
 
-    public interface IQuery<out TResponse> : IRequest<TResponse>, IQuery
-    {
-    }
+    public interface IQuery<out TResponse> : IRequest<TResponse>, IQuery;
 
     public class FakeQuery : IQuery<object>
     {
         public bool ExecuteHandlers { get; set; }
     }
 
-    public interface ICommand : IMessage
-    {
-    }
+    public interface ICommand : IMessage;
 
     public class FakeCommand : ICommand
     {

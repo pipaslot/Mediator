@@ -15,6 +15,4 @@ public class InstanceCounterMessageHandler : IMessageHandler<InstanceCounterMess
     }
 }
 
-public class InstanceCounterMessage : IMessage
-{
-}
+public class InstanceCounterMessage : IMessage;

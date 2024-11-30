@@ -119,9 +119,7 @@ public class PolicyResolverTests
     }
 
     [AnonymousPolicy]
-    private class ActionAuthorizedByAttr : IMediatorAction
-    {
-    }
+    private class ActionAuthorizedByAttr : IMediatorAction;
 
     [AnonymousPolicy]
     private class ActionAuthorizedByAttrAndInterface : IMediatorAction, IActionAuthorization
@@ -140,23 +138,15 @@ public class PolicyResolverTests
         }
     }
 
-    private class NoAuthorization : IMediatorAction
-    {
-    }
+    private class NoAuthorization : IMediatorAction;
 
     [AnonymousPolicy]
-    private class NoAuthorizationHandlerAttribute
-    {
-    }
+    private class NoAuthorizationHandlerAttribute;
 
     [AnonymousPolicy]
-    private interface IAnonamousAction : IMediatorAction
-    {
-    }
+    private interface IAnonamousAction : IMediatorAction;
 
-    private class AnonamousAction : IAnonamousAction
-    {
-    }
+    private class AnonamousAction : IAnonamousAction;
 
     private class NoAuthorizationHandler : IMediatorHandler<IMediatorAction>
     {

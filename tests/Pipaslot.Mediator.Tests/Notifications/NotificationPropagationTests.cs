@@ -68,9 +68,7 @@ public class NotificationPropagationTests
         }
     }
 
-    private record NotifyingAction(int Depth, bool StopPropagation, ServiceType ServiceType, bool CancelPropagationByMiddleware) : IMediatorAction
-    {
-    }
+    private record NotifyingAction(int Depth, bool StopPropagation, ServiceType ServiceType, bool CancelPropagationByMiddleware) : IMediatorAction;
 
     private record NotifyingActionHandler : IMediatorHandler<NotifyingAction>
     {

@@ -112,17 +112,11 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
 
     #region Actions
 
-    private class Request : IRequest<Response>
-    {
-    }
+    private class Request : IRequest<Response>;
 
-    private class Response
-    {
-    }
+    private class Response;
 
-    private class Message : IMessage
-    {
-    }
+    private class Message : IMessage;
 
     private class SingleRequestHandler : IRequestHandler<Request, Response>
     {

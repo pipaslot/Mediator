@@ -15,6 +15,4 @@ public class SingletorMessageHandler : IMessageHandler<SingletorMessage>, ISingl
     }
 }
 
-public class SingletorMessage : IMessage
-{
-}
+public class SingletorMessage : IMessage;

@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,21 +17,13 @@ public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
         Assert.Equal(handlerType, handlers.First().GetType());
     }
 
-    public class FakeFixedResponse
-    {
-    }
+    public class FakeFixedResponse;
 
-    public interface IFakeFixedRequest : IRequest<FakeFixedResponse>
-    {
-    }
+    public interface IFakeFixedRequest : IRequest<FakeFixedResponse>;
 
-    public interface IFakeFixedRequestHandler<TRequest> : IRequestHandler<TRequest, FakeFixedResponse> where TRequest : IFakeFixedRequest
-    {
-    }
+    public interface IFakeFixedRequestHandler<TRequest> : IRequestHandler<TRequest, FakeFixedResponse> where TRequest : IFakeFixedRequest;
 
-    public class FakeFixedRequest : IFakeFixedRequest
-    {
-    }
+    public class FakeFixedRequest : IFakeFixedRequest;
 
     public class FakeFixedRequestHandler : IFakeFixedRequestHandler<FakeFixedRequest>
     {

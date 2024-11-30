@@ -4,6 +4,4 @@ using Pipaslot.Mediator.Authorization;
 namespace Demo.Shared.Playground;
 
 [AnonymousPolicy]
-public record NestedNotificationMessage : IMessage
-{
-}
+public record NestedNotificationMessage : IMessage;

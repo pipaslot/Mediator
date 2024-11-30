@@ -48,9 +48,7 @@ public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestB
         public List<IContract> Contracts { get; set; } = [];
     }
 
-    public new interface IContract
-    {
-    }
+    public new interface IContract;
 
     public class Contract : IContract
     {
