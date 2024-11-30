@@ -19,6 +19,7 @@ internal class JsonContractSerializer(ICredibleProvider credibleProvider, IMedia
             new InterfaceConverterFactory(credibleProvider)
         }
     };
+
     internal static readonly JsonSerializerOptions SerializationOptionsWithoutConverters = new() { PropertyNamingPolicy = null };
 
     public string SerializeRequest(IMediatorAction request)

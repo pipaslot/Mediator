@@ -26,7 +26,7 @@ public class NullableDateTime
         Assert.True(result.Success, result.GetErrorMessage());
         Assert.Null(result.Result);
     }
-    
+
     [Fact]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {

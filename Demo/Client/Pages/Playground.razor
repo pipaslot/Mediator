@@ -40,7 +40,7 @@
 <h5>Notifications from handlers or services</h5>
 <p>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification(false))">Run Passing</button>
-    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification(true ))">Run Failing</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new MessageWithNotification(true))">Run Failing</button>
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CallingNestedNotificationMessage())">Nested handler notification</button>
 </p>
 <h5>Protecting actions to be directly called from HTTP</h5>

@@ -33,6 +33,7 @@ public static class MediatorResponseExtensions
     {
         return response.Results.Any(r => r is NullActionResult or TResult);
     }
+
     internal static TResult GetResult<TResult>(this IMediatorResponse response)
     {
         return (TResult)response.Results.FirstOrDefault(r => r is TResult)!;

@@ -26,7 +26,7 @@ public class NullableBoolean
         Assert.True(result.Success, result.GetErrorMessage());
         Assert.Null(result.Result);
     }
-    
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -44,7 +44,7 @@ public class NullableBoolean
         var result = await sut.ExecuteUnhandled(new FakeAction(null));
         Assert.Null(result);
     }
-    
+
 
     public record FakeAction(bool? Value) : IMediatorAction<bool?>;
 
