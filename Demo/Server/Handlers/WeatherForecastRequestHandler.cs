@@ -5,8 +5,7 @@ namespace Demo.Server.Handlers;
 
 public class WeatherForecastRequestHandler : IRequestHandler<WeatherForecast.Request, WeatherForecast.IResult[]>
 {
-    private static readonly string[] _summaries = new[]
-    {
+    private static readonly string[] _summaries = {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
@@ -24,8 +23,7 @@ public class WeatherForecastRequestHandler : IRequestHandler<WeatherForecast.Req
 
 public class WeatherForecastRequestRecordHandler : IRequestHandler<WeatherForecast.RequestRecord, WeatherForecast.Result[]>
 {
-    private static readonly string[] _summaries = new[]
-    {
+    private static readonly string[] _summaries = {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 

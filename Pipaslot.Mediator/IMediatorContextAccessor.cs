@@ -61,7 +61,7 @@ public static class MediatorContextAccessorExtensions
         var context = accessor.GetRootContext();
         if (context is not null)
         {
-            context.Features.Set<TFeature>(feature);
+            context.Features.Set(feature);
             return true;
         }
 

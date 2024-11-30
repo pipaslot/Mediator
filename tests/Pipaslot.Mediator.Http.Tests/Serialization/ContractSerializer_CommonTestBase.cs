@@ -8,8 +8,8 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 {
     private const string _name = "JSON name";
     private const int _number = 6;
-    private static string[] _collection = new string[] { "AAA", "BBB" };
-    private static Nested _nested = new() { Value = 1.2m };
+    private static readonly string[] _collection = { "AAA", "BBB" };
+    private static readonly Nested _nested = new() { Value = 1.2m };
 
     protected Func<IContract, bool> Match = c =>
         c.Name == _name &&

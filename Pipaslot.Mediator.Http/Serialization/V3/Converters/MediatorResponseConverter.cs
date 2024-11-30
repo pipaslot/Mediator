@@ -148,12 +148,10 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
             return JsonSerializer.Deserialize(ref reader, resultType, options)
                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
         }
-        else
-        {
-            _credibleResults.VerifyCredibility(resultType);
-            return JsonSerializer.Deserialize(ref reader, resultType, options)
-                   ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
-        }
+
+        _credibleResults.VerifyCredibility(resultType);
+        return JsonSerializer.Deserialize(ref reader, resultType, options)
+               ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
     }
 
     public override void Write(Utf8JsonWriter writer, IMediatorResponse value, JsonSerializerOptions options)

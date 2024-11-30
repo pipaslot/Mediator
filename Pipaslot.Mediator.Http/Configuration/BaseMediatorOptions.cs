@@ -27,14 +27,14 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
     /// Protect deserialization process by check whether target type is credible. 
     /// Prevents agains exploiting this feature by attackers. Disabled by default.
     /// </summary>
-    public bool DeserializeOnlyCredibleResultTypes { get; set; } = false;
+    public bool DeserializeOnlyCredibleResultTypes { get; set; }
 
     public SerializerType SerializerType { get; set; } = SerializerType.V3;
 
     #region Credible types
 
-    private List<Type> _credibleResultTypes = new() { typeof(Notification) };
-    private List<Assembly> _credibleResultAssemblies = new();
+    private readonly List<Type> _credibleResultTypes = new() { typeof(Notification) };
+    private readonly List<Assembly> _credibleResultAssemblies = new();
 
     /// <summary>
     /// Define extra types returned by server as credible.

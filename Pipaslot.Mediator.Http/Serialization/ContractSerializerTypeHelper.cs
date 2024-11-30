@@ -83,10 +83,8 @@ internal class ContractSerializerTypeHelper
             var after = fullTypeAsString.Substring(endIndex);
             return before + GetTypeWithoutAssembly(between) + RemoveAssemblySuffix(after);
         }
-        else
-        {
-            return RemoveAssemblySuffix(fullTypeAsString);
-        }
+
+        return RemoveAssemblySuffix(fullTypeAsString);
     }
 
     private static string RemoveAssemblySuffix(string typeAsString)

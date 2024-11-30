@@ -163,7 +163,7 @@ public class DefaultNodeFormatterTests
     [InlineData(Operator.And)]
     public void Format_Single(Operator @operator)
     {
-        var expected = $"Role 'Admin' is required.";
+        var expected = "Role 'Admin' is required.";
         AssertEqual(expected, @operator
             , new Rule("Role", "Admin")
             , new Rule("Ignored", "IgnoredValue", true)
@@ -182,9 +182,9 @@ public class DefaultNodeFormatterTests
     }
 
     [Theory]
-    [InlineData(Operator.Add, $"Role 'A1' is required. Claim 'A2' is required.")]
-    [InlineData(Operator.And, $"Role 'A1' is required. AND Claim 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
-    [InlineData(Operator.Or, $"Role 'A1' is required. OR Claim 'A2' is required.")]
+    [InlineData(Operator.Add, "Role 'A1' is required. Claim 'A2' is required.")]
+    [InlineData(Operator.And, "Role 'A1' is required. AND Claim 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
+    [InlineData(Operator.Or, "Role 'A1' is required. OR Claim 'A2' is required.")]
     public void Format_TwoWithUniqueName(Operator @operator, string expected)
     {
         AssertEqual(expected,
@@ -196,9 +196,9 @@ public class DefaultNodeFormatterTests
     }
 
     [Theory]
-    [InlineData(Operator.Add, $"Role 'A1' is required. Role 'A2' is required.")]
-    [InlineData(Operator.And, $"Role 'A1' is required. AND Role 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
-    [InlineData(Operator.Or, $"Role 'A1' is required. OR Role 'A2' is required.")]
+    [InlineData(Operator.Add, "Role 'A1' is required. Role 'A2' is required.")]
+    [InlineData(Operator.And, "Role 'A1' is required. AND Role 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
+    [InlineData(Operator.Or, "Role 'A1' is required. OR Role 'A2' is required.")]
     public void Format_TwoWithDuplicateName(Operator @operator, string expected)
     {
         AssertEqual(expected,

@@ -45,6 +45,6 @@ public class MediatorHttpException(string message, Exception? innerException = n
 
     internal static MediatorHttpException CreateForNotConstructableJsonConverter()
     {
-        return new MediatorHttpException($"Can not activate JsonConverter class");
+        return new MediatorHttpException("Can not activate JsonConverter class");
     }
 }

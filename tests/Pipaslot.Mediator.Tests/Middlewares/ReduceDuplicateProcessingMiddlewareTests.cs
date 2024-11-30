@@ -14,7 +14,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
         });
-        var res = await mediator.Execute(new FakeAction() { Value = 1 });
+        var res = await mediator.Execute(new FakeAction { Value = 1 });
 
         Assert.True(res.Result.Number > 0);
     }
@@ -26,8 +26,8 @@ public class ReduceDuplicateProcessingMiddlewareTests
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
         });
-        var res1 = await mediator.Execute(new FakeAction() { Value = 1 });
-        var res2 = await mediator.Execute(new FakeAction() { Value = 1 });
+        var res1 = await mediator.Execute(new FakeAction { Value = 1 });
+        var res2 = await mediator.Execute(new FakeAction { Value = 1 });
 
         Assert.NotEqual(res1.Result.Number, res2.Result.Number);
     }
@@ -35,7 +35,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     [Fact]
     public async Task RunDuplicateTheSameTypeAction_ShouldRuntTwice()
     {
-        var action = new FakeAction() { Value = 1 };
+        var action = new FakeAction { Value = 1 };
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
@@ -53,8 +53,8 @@ public class ReduceDuplicateProcessingMiddlewareTests
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
         });
-        var task1 = mediator.Execute(new FakeAction() { Value = 1 });
-        var task2 = mediator.Execute(new FakeAction() { Value = 1 });
+        var task1 = mediator.Execute(new FakeAction { Value = 1 });
+        var task2 = mediator.Execute(new FakeAction { Value = 1 });
 
         await Task.WhenAll(task1, task2);
         var res1 = await task1;
@@ -70,8 +70,8 @@ public class ReduceDuplicateProcessingMiddlewareTests
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
         });
-        var task1 = mediator.Execute(new FakeAction() { Value = 1 });
-        var task2 = mediator.Execute(new FakeAction2() { Value = 1 });
+        var task1 = mediator.Execute(new FakeAction { Value = 1 });
+        var task2 = mediator.Execute(new FakeAction2 { Value = 1 });
 
         await Task.WhenAll(task1, task2);
         var res1 = await task1;
@@ -87,8 +87,8 @@ public class ReduceDuplicateProcessingMiddlewareTests
         {
             s.Use<ReduceDuplicateProcessingMiddleware>();
         });
-        var task1 = mediator.Execute(new FakeAction() { Value = 1 });
-        var task2 = mediator.Execute(new FakeAction2() { Value = 2 });
+        var task1 = mediator.Execute(new FakeAction { Value = 1 });
+        var task2 = mediator.Execute(new FakeAction2 { Value = 2 });
 
         await Task.WhenAll(task1, task2);
         var res1 = await task1;

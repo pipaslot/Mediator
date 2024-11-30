@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,8 +27,8 @@ public class DirectCallProtectionMiddlewareTests
     {
         return Factory.CreateCustomMediator(c =>
         {
-            c.AddActions(new Type[] { typeof(RootAction), typeof(ProtectedAction) });
-            c.AddHandlers(new Type[] { typeof(RootActionHandler), typeof(ProtectedActionHandler) });
+            c.AddActions(new[] { typeof(RootAction), typeof(ProtectedAction) });
+            c.AddHandlers(new[] { typeof(RootActionHandler), typeof(ProtectedActionHandler) });
             c.UseWhen(cond => cond is IProtectedAction, m => m.UseDirectCallProtection());
         });
     }

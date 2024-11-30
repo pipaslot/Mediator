@@ -19,10 +19,8 @@ public static class ServiceProviderExtensions
             var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
             return serviceProvider.GetRequestHandlers(actionType, resultType);
         }
-        else
-        {
-            return serviceProvider.GetMessageHandlers(actionType);
-        }
+
+        return serviceProvider.GetMessageHandlers(actionType);
     }
 
     /// <summary>

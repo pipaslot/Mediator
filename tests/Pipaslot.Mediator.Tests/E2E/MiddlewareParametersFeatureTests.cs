@@ -43,7 +43,7 @@ public class MiddlewareParametersFeatureTests
 
     private class AssertStringMiddleware : IMediatorMiddleware
     {
-        public static string Value = "string 1";
+        public static readonly string Value = "string 1";
 
         public Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {

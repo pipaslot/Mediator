@@ -11,7 +11,7 @@ public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
     public void ShouldResolve()
     {
         var handlerType = typeof(FakeFixedRequestHandler);
-        var sut = Factory.CreateServiceProvider(c => c.AddHandlers(new Type[] { handlerType }));
+        var sut = Factory.CreateServiceProvider(c => c.AddHandlers(new[] { handlerType }));
         var handlers = sut.GetRequestHandlers(typeof(FakeFixedRequest), typeof(FakeFixedResponse));
 
         Assert.Single(handlers);

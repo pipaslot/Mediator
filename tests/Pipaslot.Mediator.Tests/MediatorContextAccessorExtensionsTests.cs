@@ -83,7 +83,7 @@ public class MediatorContextAccessorExtensionsTests
     {
         var featureValue = new FakeFeature();
         var featureCollectionMock = new Mock<IFeatureCollection>();
-        featureCollectionMock.Setup(x => x.Set<FakeFeature>(featureValue));
+        featureCollectionMock.Setup(x => x.Set(featureValue));
         var context = CreateContext(featureCollectionMock);
         var accessor = new MockMediatorContextAccessor(context);
 

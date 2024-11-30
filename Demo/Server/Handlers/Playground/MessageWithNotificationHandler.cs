@@ -13,10 +13,8 @@ public class MessageWithNotificationHandler(INotificationProvider notificationPr
             notificationProvider.AddWarning("Do you know that warnings can be propagated as well, event if exception is thrown?.", "Hi there");
             throw new Exception("Simulated handler failure.");
         }
-        else
-        {
-            notificationProvider.AddSuccess("Message was accepted.", "Hi there");
-        }
+
+        notificationProvider.AddSuccess("Message was accepted.", "Hi there");
 
         return Task.CompletedTask;
     }

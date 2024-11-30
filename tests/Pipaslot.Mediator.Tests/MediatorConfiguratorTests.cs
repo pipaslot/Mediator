@@ -13,7 +13,7 @@ public class MediatorConfiguratorTests
         var sut = Create();
         Assert.Throws<MediatorException>(() =>
         {
-            sut.AddActions(new Type[] { typeof(object) });
+            sut.AddActions(new[] { typeof(object) });
         });
     }
 
@@ -21,7 +21,7 @@ public class MediatorConfiguratorTests
     public void AddActions_ActionTypePassed_Pass()
     {
         var sut = Create();
-        sut.AddActions(new Type[] { typeof(NopMessage) });
+        sut.AddActions(new[] { typeof(NopMessage) });
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class MediatorConfiguratorTests
         var sut = Create();
         Assert.Throws<MediatorException>(() =>
         {
-            sut.AddHandlers(new Type[] { typeof(object) });
+            sut.AddHandlers(new[] { typeof(object) });
         });
     }
 
@@ -38,7 +38,7 @@ public class MediatorConfiguratorTests
     public void AddHandlers_HandlerTypePassed_Pass()
     {
         var sut = Create();
-        sut.AddHandlers(new Type[] { typeof(NopMesageHandler) });
+        sut.AddHandlers(new[] { typeof(NopMesageHandler) });
     }
 
     private MediatorConfigurator Create()

@@ -83,7 +83,7 @@ public class PolicyTests
 
     private class FakeBoolPolicy : IPolicy
     {
-        private bool _value;
+        private readonly bool _value;
 
         public FakeBoolPolicy(bool value)
         {

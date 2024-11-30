@@ -90,9 +90,9 @@
     private async Task RunDuplicateClassQuery()
     {
         var date = DateTime.Now;
-        var task1 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
-        var task2 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
-        var task3 = Mediator.Execute(new WeatherForecast.Request() { Date = date });
+        var task1 = Mediator.Execute(new WeatherForecast.Request { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.Request { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.Request { Date = date });
         await Task.WhenAll(task1, task2, task3);
         _serializedReponse = Serialize(task1.Result);
     }
@@ -100,9 +100,9 @@
     private async Task RunDuplicateRecordQuery()
     {
         var date = DateTime.Now;
-        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
-        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
-        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord() { Date = date });
+        var task1 = Mediator.Execute(new WeatherForecast.RequestRecord { Date = date });
+        var task2 = Mediator.Execute(new WeatherForecast.RequestRecord { Date = date });
+        var task3 = Mediator.Execute(new WeatherForecast.RequestRecord { Date = date });
         await Task.WhenAll(task1, task2, task3);
         _serializedReponse = Serialize(task1.Result);
     }

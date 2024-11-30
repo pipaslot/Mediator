@@ -13,7 +13,7 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
 {
     private readonly HashSet<Type> _trustedTypes = [..trustedTypes];
     private readonly HashSet<Assembly> _trustedAssemblies = [..trustedAssemblies];
-    private HashSet<Type>? _actionResultTypes = null;
+    private HashSet<Type>? _actionResultTypes;
 
     public void VerifyCredibility(Type resultType)
     {

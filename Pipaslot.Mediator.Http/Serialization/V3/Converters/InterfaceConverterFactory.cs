@@ -26,9 +26,7 @@ internal class InterfaceConverterFactory : JsonConverterFactory
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
         var converter = (JsonConverter?)Activator.CreateInstance(
-            typeof(InterfaceConverter<>).MakeGenericType(typeToConvert),
-            new object[] { _credibleProvider }
-        );
+            typeof(InterfaceConverter<>).MakeGenericType(typeToConvert), _credibleProvider);
 
         return converter ?? throw MediatorHttpException.CreateForNotConstructableJsonConverter();
     }

@@ -10,14 +10,14 @@ namespace Pipaslot.Mediator.Http.Tests;
 
 public class ApplicationBuilderExtensionsTests
 {
-    private static Exception _exception = new();
+    private static readonly Exception _exception = new();
 
     [Fact]
     public void UseMediator_CheckMatchingHandlersEnabled_ResolveAndExecuteHandlerExistenceChecker()
     {
         var ApplicationBuilder = CreateApplicationBuilder();
 
-        var expectedEx = Assert.Throws<Exception>(() => ApplicationBuilderExtensions.UseMediator(ApplicationBuilder, true));
+        var expectedEx = Assert.Throws<Exception>(() => ApplicationBuilder.UseMediator(true));
         Assert.Equal(_exception, expectedEx);
     }
 
@@ -26,7 +26,7 @@ public class ApplicationBuilderExtensionsTests
     {
         var ApplicationBuilder = CreateApplicationBuilder();
 
-        ApplicationBuilderExtensions.UseMediator(ApplicationBuilder, false);
+        ApplicationBuilder.UseMediator();
     }
 
     private IApplicationBuilder CreateApplicationBuilder()

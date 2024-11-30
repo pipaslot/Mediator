@@ -100,7 +100,7 @@ internal class Factory
 
     public static MiddlewareDelegate CreateMiddlewareDelegate()
     {
-        return (MediatorContext ctx) => Task.CompletedTask;
+        return ctx => Task.CompletedTask;
     }
 
     public static MediatorContext FakeContext(IMediatorAction action)

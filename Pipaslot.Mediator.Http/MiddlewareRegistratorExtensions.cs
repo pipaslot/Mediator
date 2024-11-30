@@ -37,7 +37,7 @@ public static class MiddlewareRegistratorExtensions
     /// <inheritdoc cref="DirectHttpCallProtectionMiddleware"/>
     public static IMiddlewareRegistrator UseDirectHttpCallProtection(this IMiddlewareRegistrator config)
     {
-        return config.Use<DirectHttpCallProtectionMiddleware>(ServiceLifetime.Scoped);
+        return config.Use<DirectHttpCallProtectionMiddleware>();
     }
 
     #region UseWhenDirectHttpCall

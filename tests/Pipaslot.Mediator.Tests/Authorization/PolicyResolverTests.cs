@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Tests.Authorization;
 /// </summary>
 public class PolicyResolverTests
 {
-    private Mock<IServiceProvider> _services = new();
+    private readonly Mock<IServiceProvider> _services = new();
 
     [Fact]
     public async Task CheckPolicies_NoAuthorization_ThrowException()

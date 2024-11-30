@@ -12,7 +12,7 @@ public class ServiceResolver_MiddlewareRegistrationTests
         Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateServiceProvider(c => c
-                .Use<FakeMiddleware>(ServiceLifetime.Scoped)
+                .Use<FakeMiddleware>()
                 .Use<FakeMiddleware>(ServiceLifetime.Transient)
             );
         });
@@ -24,7 +24,7 @@ public class ServiceResolver_MiddlewareRegistrationTests
         Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateServiceProvider(c => c
-                .Use<FakeMiddleware>(ServiceLifetime.Scoped)
+                .Use<FakeMiddleware>()
                 .UseWhenAction<IMessage>(s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
             );
         });
@@ -36,7 +36,7 @@ public class ServiceResolver_MiddlewareRegistrationTests
         Assert.Throws<MediatorException>(() =>
         {
             Factory.CreateServiceProvider(c => c
-                .Use<FakeMiddleware>(ServiceLifetime.Scoped)
+                .Use<FakeMiddleware>()
                 .UseWhen((a, s) => true, s => s.Use<FakeMiddleware>(ServiceLifetime.Transient))
             );
         });

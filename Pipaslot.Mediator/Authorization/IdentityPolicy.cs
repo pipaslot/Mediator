@@ -51,7 +51,7 @@ public class IdentityPolicy : IPolicy
     }
 
     private readonly List<(string Name, string Value)> _claims = new();
-    private Operator _claimOperator;
+    private readonly Operator _claimOperator;
     private AuthStatus _authStatus = AuthStatus.AuthenticateIfNoClaim;
 
     public IdentityPolicy(Operator @operator = Operator.And)

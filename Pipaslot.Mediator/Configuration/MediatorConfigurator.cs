@@ -12,14 +12,14 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
 {
     internal readonly IServiceCollection Services = services;
     internal HashSet<Assembly> TrustedAssemblies { get; set; } = new();
-    private List<Type> _actionMarkerTypes = new();
-    private MiddlewareCollection _middlewares = new(services);
-    private List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
+    private readonly List<Type> _actionMarkerTypes = new();
+    private readonly MiddlewareCollection _middlewares = new(services);
+    private readonly List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = new();
 
     /// <summary>
     /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
     /// </summary>
-    private Dictionary<Type, ServiceLifetime> _registeredHandlers = new();
+    private readonly Dictionary<Type, ServiceLifetime> _registeredHandlers = new();
 
     public void ClearTempData()
     {
@@ -165,7 +165,8 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         {
             throw MediatorException.TooManyPipelines(action);
         }
-        else if (pipelines.Length == 1)
+
+        if (pipelines.Length == 1)
         {
             return pipelines.First().Middlewares.GetMiddlewares(action, serviceProvider);
         }

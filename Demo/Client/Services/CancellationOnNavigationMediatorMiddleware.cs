@@ -9,7 +9,7 @@ namespace Demo.Client.Services;
 /// </summary>
 public class CancellationOnNavigationMediatorMiddleware : IMediatorMiddleware, IDisposable
 {
-    private IDisposable? registration;
+    private readonly IDisposable? registration;
     private CancellationTokenSource _cancellationTokenSource = new();
 
     public CancellationOnNavigationMediatorMiddleware(NavigationManager navigation)

@@ -59,8 +59,8 @@ public class MediatorMiddlewareTests
         collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
             .AddActionsFromAssemblyOf<NopRequest>();
         collection.AddScoped<MediatorMiddleware>();
-        collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
-        collection.AddSingleton<IMediator>(mediatorMock.Object);
+        collection.AddScoped<RequestDelegate>(s => c => Task.CompletedTask);
+        collection.AddSingleton(mediatorMock.Object);
         var services = collection.BuildServiceProvider();
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
@@ -81,8 +81,8 @@ public class MediatorMiddlewareTests
         collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
             .AddActionsFromAssemblyOf<NopMessage>();
         collection.AddScoped<MediatorMiddleware>();
-        collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
-        collection.AddSingleton<IMediator>(mediatorMock.Object);
+        collection.AddScoped<RequestDelegate>(s => c => Task.CompletedTask);
+        collection.AddSingleton(mediatorMock.Object);
         var services = collection.BuildServiceProvider();
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
@@ -95,7 +95,7 @@ public class MediatorMiddlewareTests
 
     private class FakeContext : HttpContext
     {
-        private HttpRequest _request;
+        private readonly HttpRequest _request;
 
         public FakeContext(HttpRequest request)
         {

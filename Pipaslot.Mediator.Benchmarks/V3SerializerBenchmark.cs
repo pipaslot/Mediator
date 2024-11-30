@@ -20,7 +20,7 @@ public class SerializationBenchmark
         var options = new ClientMediatorOptions();
         _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
         _v2Serializer = new FullJsonContractSerializer(credibleProviderMock);
-        _options = new JsonSerializerOptions() { PropertyNamingPolicy = null };
+        _options = new JsonSerializerOptions { PropertyNamingPolicy = null };
     }
 
     [Benchmark]

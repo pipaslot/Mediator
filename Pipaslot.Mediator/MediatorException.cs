@@ -33,7 +33,7 @@ public class MediatorException : Exception
     public static MediatorException CreateForInvalidHandlers(params string[] errors)
     {
         var joined = "[" + string.Join(", ", errors) + "]";
-        var ex = new MediatorException($"Invalid handle configuration. For more details see Data property. " + joined);
+        var ex = new MediatorException("Invalid handle configuration. For more details see Data property. " + joined);
         var i = 1;
         foreach (var error in errors)
         {
@@ -56,7 +56,7 @@ public class MediatorException : Exception
 
     public static MediatorException TooManyPipelines(IMediatorAction action)
     {
-        var ex = new MediatorException($"Too many pipelines met the condition for action execution. Please check your mediator configuration.");
+        var ex = new MediatorException("Too many pipelines met the condition for action execution. Please check your mediator configuration.");
         ex.Data["action"] = action;
         return ex;
     }
@@ -69,7 +69,7 @@ public class MediatorException : Exception
     public static MediatorException CreateForForbidenDirectCall()
     {
         return new MediatorException(
-            $"Executed action can not be executed directly. It is expected to be used as nested call only (inside another handler or middleware).");
+            "Executed action can not be executed directly. It is expected to be used as nested call only (inside another handler or middleware).");
     }
 
     public static MediatorException CreateForWrongHandlerServiceLifetime(Type handlerType, ServiceLifetime expected, ServiceLifetime actual)

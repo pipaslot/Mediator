@@ -10,7 +10,7 @@ public static class FailingOnValidation
     {
         public string[] Validate()
         {
-            return new string[] { "Object validation failed on FAKE validation rule." };
+            return new[] { "Object validation failed on FAKE validation rule." };
         }
     }
 
