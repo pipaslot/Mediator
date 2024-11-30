@@ -1,6 +1,4 @@
-﻿using Pipaslot.Mediator.Services;
-using Pipaslot.Mediator.Tests.ValidActions;
-using Xunit;
+﻿using Pipaslot.Mediator.Tests.ValidActions;
 
 namespace Pipaslot.Mediator.Tests.Services;
 

@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Notifications;
 

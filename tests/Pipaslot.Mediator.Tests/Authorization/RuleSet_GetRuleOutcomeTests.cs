@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.Formatting;
 using System.Linq;
 
 namespace Pipaslot.Mediator.Tests.Authorization;

@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit.Sdk;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 

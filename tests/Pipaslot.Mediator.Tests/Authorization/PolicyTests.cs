@@ -1,7 +1,5 @@
 ﻿using Pipaslot.Mediator.Authorization;
-using Pipaslot.Mediator.Authorization.Formatting;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

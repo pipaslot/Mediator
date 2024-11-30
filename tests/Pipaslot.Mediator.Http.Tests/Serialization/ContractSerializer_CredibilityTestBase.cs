@@ -1,7 +1,6 @@
 ﻿using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization;
 using System;
 using Xunit;
 

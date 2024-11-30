@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Middlewares;
-using System.Text.Json;
 
 namespace Demo.Server.MediatorMiddlewares;
 

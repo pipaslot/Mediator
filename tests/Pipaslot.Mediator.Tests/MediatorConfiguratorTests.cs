@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests;
 

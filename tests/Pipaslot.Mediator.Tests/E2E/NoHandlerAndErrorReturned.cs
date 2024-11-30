@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;

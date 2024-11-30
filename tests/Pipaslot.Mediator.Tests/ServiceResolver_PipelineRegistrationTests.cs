@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;

@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Configuration;
-using System;
 using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Middlewares.Features;

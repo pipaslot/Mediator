@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Pipaslot.Mediator.Notifications;
+﻿namespace Pipaslot.Mediator.Notifications;
 
 public enum NotificationType
 {

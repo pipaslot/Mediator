@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Demo.Shared.Auth.Dtos;
+﻿namespace Demo.Shared.Auth.Dtos;
 
 public class LoginRequestResult
 {

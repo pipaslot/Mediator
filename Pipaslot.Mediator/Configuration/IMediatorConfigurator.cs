@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Collections.Generic;
-using Pipaslot.Mediator.Abstractions;
 using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;

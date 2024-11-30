@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Tests.InvalidActions;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading.Tasks;

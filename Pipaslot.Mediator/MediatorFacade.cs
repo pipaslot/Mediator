@@ -1,7 +1,6 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

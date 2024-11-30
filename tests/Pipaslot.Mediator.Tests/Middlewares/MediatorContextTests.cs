@@ -1,10 +1,8 @@
-﻿using Moq;
-using Pipaslot.Mediator.Abstractions;
+﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
-using Xunit;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
