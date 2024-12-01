@@ -59,15 +59,13 @@ public sealed class Policy : List<IPolicy>, IPolicy
         return res;
     }
 
-#if !NETSTANDARD
-        public static IPolicy operator &(Policy c1, IPolicy c2)
-        {
-            return c1.And(c2);
-        }
+    public static IPolicy operator &(Policy c1, IPolicy c2)
+    {
+        return c1.And(c2);
+    }
 
-        public static IPolicy operator |(Policy c1, IPolicy c2)
-        {
-            return c1.Or(c2);
-        }
-#endif
+    public static IPolicy operator |(Policy c1, IPolicy c2)
+    {
+        return c1.Or(c2);
+    }
 }

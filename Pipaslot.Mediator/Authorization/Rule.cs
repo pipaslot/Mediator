@@ -150,20 +150,18 @@ public class Rule : IPolicy
             condition ? denyReason : allowReason);
     }
 
-#if !NETSTANDARD
-        public static RuleSet operator +(Rule rule1, Rule rule2)
-        {
-            return new RuleSet(Operator.Add, [rule1, rule2]);
-        }
+    public static RuleSet operator +(Rule rule1, Rule rule2)
+    {
+        return new RuleSet(Operator.Add, [rule1, rule2]);
+    }
 
-        public static RuleSet operator &(Rule rule1, Rule rule2)
-        {
-            return new RuleSet(Operator.And, [rule1, rule2]);
-        }
+    public static RuleSet operator &(Rule rule1, Rule rule2)
+    {
+        return new RuleSet(Operator.And, [rule1, rule2]);
+    }
 
-        public static RuleSet operator |(Rule rule1, Rule rule2)
-        {
-            return new RuleSet(Operator.Or, [rule1, rule2]);
-        }
-#endif
+    public static RuleSet operator |(Rule rule1, Rule rule2)
+    {
+        return new RuleSet(Operator.Or, [rule1, rule2]);
+    }
 }

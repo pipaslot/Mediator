@@ -1,7 +1,4 @@
-﻿#if !NETSTANDARD2_0
-using System.Text.Json.Serialization;
-#endif
-
+﻿using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Authorization;
 
@@ -20,20 +17,18 @@ public class AuthorizeRequestResponse
     /// </summary>
     public bool IsIdentityStatic { get; set; }
 
-#if !NETSTANDARD2_0
-        /// <summary>
-        /// Returns true when is Allowed or Deny
-        /// </summary>
-        [JsonIgnore]
-        public bool IsAvailable => Access is AccessType.Allow or AccessType.Deny;
+    /// <summary>
+    /// Returns true when is Allowed or Deny
+    /// </summary>
+    [JsonIgnore]
+    public bool IsAvailable => Access is AccessType.Allow or AccessType.Deny;
 
-        [JsonIgnore]
-        public bool IsAllowed => Access == AccessType.Allow;
+    [JsonIgnore]
+    public bool IsAllowed => Access == AccessType.Allow;
 
-        /// <summary>
-        /// The Access is Unavailable or Deny
-        /// </summary>
-        [JsonIgnore]
-        public bool IsDisabled => Access is AccessType.Unavailable or AccessType.Deny;
-#endif
+    /// <summary>
+    /// The Access is Unavailable or Deny
+    /// </summary>
+    [JsonIgnore]
+    public bool IsDisabled => Access is AccessType.Unavailable or AccessType.Deny;
 }

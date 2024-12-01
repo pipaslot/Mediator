@@ -233,74 +233,75 @@ public class RuleSet : IPolicy
         return Task.FromResult(this);
     }
 
-#if !NETSTANDARD
-        public static RuleSet operator +(RuleSet set, Rule rule)
-        {
-            var res = new RuleSet(Operator.Add);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
-        public static RuleSet operator +(Rule rule, RuleSet set)
-        {
-            var res = new RuleSet(Operator.Add);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
+    public static RuleSet operator +(RuleSet set, Rule rule)
+    {
+        var res = new RuleSet(Operator.Add);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
 
-        public static RuleSet operator +(RuleSet set1, RuleSet set2)
-        {
-            var res = new RuleSet(Operator.Add);
-            res.RuleSets.Add(set1);
-            res.RuleSets.Add(set2);
-            return res;
-        }
+    public static RuleSet operator +(Rule rule, RuleSet set)
+    {
+        var res = new RuleSet(Operator.Add);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
 
-        public static RuleSet operator &(RuleSet set, Rule rule)
-        {
-            var res = new RuleSet(Operator.And);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
-        public static RuleSet operator &(Rule rule, RuleSet set)
-        {
-            var res = new RuleSet(Operator.And);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
+    public static RuleSet operator +(RuleSet set1, RuleSet set2)
+    {
+        var res = new RuleSet(Operator.Add);
+        res.RuleSets.Add(set1);
+        res.RuleSets.Add(set2);
+        return res;
+    }
 
-        public static RuleSet operator &(RuleSet set1, RuleSet set2)
-        {
-            var res = new RuleSet(Operator.And);
-            res.RuleSets.Add(set1);
-            res.RuleSets.Add(set2);
-            return res;
-        }
+    public static RuleSet operator &(RuleSet set, Rule rule)
+    {
+        var res = new RuleSet(Operator.And);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
 
-        public static RuleSet operator |(RuleSet set, Rule rule)
-        {
-            var res = new RuleSet(Operator.Or);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
+    public static RuleSet operator &(Rule rule, RuleSet set)
+    {
+        var res = new RuleSet(Operator.And);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
 
-        public static RuleSet operator |(Rule rule, RuleSet set)
-        {
-            var res = new RuleSet(Operator.Or);
-            res.RuleSets.Add(set);
-            res.Rules.Add(rule);
-            return res;
-        }
-        public static RuleSet operator |(RuleSet set1, RuleSet set2)
-        {
-            var res = new RuleSet(Operator.Or);
-            res.RuleSets.Add(set1);
-            res.RuleSets.Add(set2);
-            return res;
-        }
-#endif
+    public static RuleSet operator &(RuleSet set1, RuleSet set2)
+    {
+        var res = new RuleSet(Operator.And);
+        res.RuleSets.Add(set1);
+        res.RuleSets.Add(set2);
+        return res;
+    }
+
+    public static RuleSet operator |(RuleSet set, Rule rule)
+    {
+        var res = new RuleSet(Operator.Or);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
+
+    public static RuleSet operator |(Rule rule, RuleSet set)
+    {
+        var res = new RuleSet(Operator.Or);
+        res.RuleSets.Add(set);
+        res.Rules.Add(rule);
+        return res;
+    }
+
+    public static RuleSet operator |(RuleSet set1, RuleSet set2)
+    {
+        var res = new RuleSet(Operator.Or);
+        res.RuleSets.Add(set1);
+        res.RuleSets.Add(set2);
+        return res;
+    }
 }
