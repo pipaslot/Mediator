@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// The lowest level node without any children
 /// </summary>
 /// <param name="Rule"></param>
-public record struct RuleNode(Rule Rule) : IRecursiveNode
+public readonly record struct RuleNode(Rule Rule) : IRecursiveNode
 {
     public Operator Operator => Operator.And;
     public RuleOutcome Outcome => Rule.Outcome;
