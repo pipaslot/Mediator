@@ -85,7 +85,7 @@ else
 app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseAuthentication();
 
 //////// Mediator implementation
