@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Internal;
 
-namespace Pipaslot.Mediator.Http.Internal;
+namespace Pipaslot.Mediator.Http.Web.Internal;
 
 internal static class HttpContextAccessorExtensions
 {

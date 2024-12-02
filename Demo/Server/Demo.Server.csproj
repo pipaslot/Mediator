@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Pipaslot.Mediator.Http.Web\Pipaslot.Mediator.Http.Web.csproj" />
         <ProjectReference Include="..\Client\Demo.Client.csproj"/>
         <ProjectReference Include="..\Shared\Demo.Shared.csproj"/>
     </ItemGroup>

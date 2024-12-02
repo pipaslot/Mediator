@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http;
+namespace Pipaslot.Mediator.Http.Web;
 
 public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer)
 {

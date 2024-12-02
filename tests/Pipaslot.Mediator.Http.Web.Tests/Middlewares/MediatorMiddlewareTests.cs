@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
@@ -13,9 +12,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Web.Tests.Middlewares;
 
 public class MediatorMiddlewareTests
 {
@@ -113,14 +111,10 @@ public class MediatorMiddlewareTests
 
         public override WebSocketManager WebSockets => throw new NotImplementedException();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        [Obsolete]
-        public override AuthenticationManager Authentication => throw new NotImplementedException();
-#pragma warning restore CS0618 // Type or member is obsolete
 
         public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public override IDictionary<object, object> Items
+        public override IDictionary<object, object?> Items
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
@@ -165,7 +159,7 @@ public class MediatorMiddlewareTests
         }
 
         public override long? ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public override string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override string? ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override Stream Body { get; set; }
 
         public override bool HasFormContentType => throw new NotImplementedException();
@@ -232,7 +226,7 @@ public class MediatorMiddlewareTests
 
         public override Stream Body { get; set; } = new Mock<Stream>().Object;
         public override long? ContentLength { get; set; }
-        public override string ContentType { get; set; } = string.Empty;
+        public override string? ContentType { get; set; } = string.Empty;
 
         public override IResponseCookies Cookies => throw new NotImplementedException();
 
