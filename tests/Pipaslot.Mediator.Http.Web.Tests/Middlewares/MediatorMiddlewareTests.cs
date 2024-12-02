@@ -114,7 +114,7 @@ public class MediatorMiddlewareTests
 
         public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public override IDictionary<object, object> Items
+        public override IDictionary<object, object?> Items
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
@@ -159,7 +159,7 @@ public class MediatorMiddlewareTests
         }
 
         public override long? ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public override string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override string? ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override Stream Body { get; set; }
 
         public override bool HasFormContentType => throw new NotImplementedException();
@@ -226,7 +226,7 @@ public class MediatorMiddlewareTests
 
         public override Stream Body { get; set; } = new Mock<Stream>().Object;
         public override long? ContentLength { get; set; }
-        public override string ContentType { get; set; } = string.Empty;
+        public override string? ContentType { get; set; } = string.Empty;
 
         public override IResponseCookies Cookies => throw new NotImplementedException();
 
