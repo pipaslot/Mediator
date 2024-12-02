@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Tests.Middlewares;
 
 public class MediatorExceptionLoggingMiddlewareTests
 {

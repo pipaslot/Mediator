@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Pipaslot.Mediator.Http.Internal;
+using Pipaslot.Mediator.Http.Web.Internal;
 using Pipaslot.Mediator.Middlewares;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http.Middlewares;
+namespace Pipaslot.Mediator.Http.Web.Middlewares;
 
 /// <summary>
 /// Prevent direct calls for action which are not part of your application REST API. 

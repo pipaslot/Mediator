@@ -4,9 +4,8 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
-using System.Collections.Generic;
 
-namespace Pipaslot.Mediator.Http;
+namespace Pipaslot.Mediator.Http.Web;
 
 public static class ApplicationBuilderExtensions
 {

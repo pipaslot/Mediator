@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
@@ -13,9 +12,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Web.Tests.Middlewares;
 
 public class MediatorMiddlewareTests
 {
@@ -113,10 +111,6 @@ public class MediatorMiddlewareTests
 
         public override WebSocketManager WebSockets => throw new NotImplementedException();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        [Obsolete]
-        public override AuthenticationManager Authentication => throw new NotImplementedException();
-#pragma warning restore CS0618 // Type or member is obsolete
 
         public override ClaimsPrincipal User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
