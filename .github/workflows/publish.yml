@@ -24,6 +24,11 @@ jobs:
         run: |
           cd ./tests/Pipaslot.Mediator.Http.Tests/
           dotnet test
+
+      - name: Run tests for HTTP.Web
+        run: |
+          cd ./tests/Pipaslot.Mediator.Http.Web.Tests/
+          dotnet test
       
       # Publish      
 
@@ -32,6 +37,9 @@ jobs:
 
       - name: Pack Http
         run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release -o ./packed/
+
+      - name: Pack Http.Web
+        run: dotnet pack Pipaslot.Mediator.Http.Web/Pipaslot.Mediator.Http.Web.csproj -c Release -o ./packed/
 
       - name: Publish
         run: dotnet nuget push ./packed/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate

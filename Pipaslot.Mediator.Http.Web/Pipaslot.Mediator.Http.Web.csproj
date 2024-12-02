@@ -4,7 +4,7 @@
         <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Version>8.0.0-beta02</Version>
+        <Version>8.0.0-beta03</Version>
         <PackageId>Pipaslot.Mediator.Http.Web</PackageId>
         <AssemblyName>Pipaslot.Mediator.Http.Web</AssemblyName>
         <Authors>Petr Stipek</Authors>
