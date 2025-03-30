@@ -28,7 +28,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
 
-        Assert.Equal(expected, serialized);
+        Assert.Equal(expected, serialized.Json);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
 
-        Assert.Equal(expected, serialized);
+        Assert.Equal(expected, serialized.Json);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithInterfaceProperty)sut.DeserializeRequest(serialized);
+        var deserialized = (MessageWithInterfaceProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(deserialized.Contract.GetType(), contract.GetType());
         Assert.Equal(((Contract)deserialized.Contract).Name, contract.Name);
@@ -80,7 +80,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithInterfaceArrayProperty)sut.DeserializeRequest(serialized);
+        var deserialized = (MessageWithInterfaceArrayProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(typeof(IContract[]), deserialized.Contracts.GetType());
         Assert.Equal(((Contract)deserialized.Contracts.First()).Name, contract.Name);
@@ -94,7 +94,7 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithIMediatorActionProperty)sut.DeserializeRequest(serialized);
+        var deserialized = (MessageWithIMediatorActionProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(deserialized.SubAction.GetType(), subAction.GetType());
         Assert.Equal(((ChildMediatorAction)deserialized.SubAction).Name, subAction.Name);

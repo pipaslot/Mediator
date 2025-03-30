@@ -26,7 +26,7 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
-        sut.DeserializeRequest(serialized);
+        sut.DeserializeRequest(serialized.Json, serialized.Streams);
 
         CredibleProviderMock.VerifyAll();
     }

@@ -7,4 +7,6 @@ public class MediatorConstants
     public const int ErrorHttpStatusCode = 500;
 
     public const string ActionQueryParamName = "action";
+    
+    public const string MultipartFormDataJson = "json";
 }
