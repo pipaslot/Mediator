@@ -20,31 +20,31 @@ namespace Pipaslot.Mediator.Http.Tests;
 public class MediatorMiddlewareTests
 {
     private const string Request =
-        "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions\"}";
 
     private const string Message =
-        "{\"Content\":{},\"Type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions\"}";
 
     [Fact]
-    public async Task PostMessageWillBeProapgatedToMediator()
+    public async Task PostMessageWillBePropagatedToMediator()
     {
         await ExecuteMessage(new PostRequest(Message));
     }
 
     [Fact]
-    public async Task PostRequestWillBeProapgatedToMediator()
+    public async Task PostRequestWillBePropagatedToMediator()
     {
         await ExecuteRequest(new PostRequest(Request));
     }
 
     [Fact]
-    public async Task GetMessageWillBeProapgatedToMediator()
+    public async Task GetMessageWillBePropagatedToMediator()
     {
         await ExecuteMessage(new GetRequest(Message));
     }
 
     [Fact]
-    public async Task GetRequestWillBeProapgatedToMediator()
+    public async Task GetRequestWillBePropagatedToMediator()
     {
         await ExecuteRequest(new GetRequest(Request));
     }
@@ -56,7 +56,7 @@ public class MediatorMiddlewareTests
         mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
         var collection = new ServiceCollection();
         collection.AddLogging();
-        collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
+        collection.AddMediatorServer()
             .AddActionsFromAssemblyOf<NopRequest>();
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => c => Task.CompletedTask);
@@ -78,7 +78,7 @@ public class MediatorMiddlewareTests
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
         var collection = new ServiceCollection();
         collection.AddLogging();
-        collection.AddMediatorServer(o => o.SerializerType = SerializerType.V2)
+        collection.AddMediatorServer()
             .AddActionsFromAssemblyOf<NopMessage>();
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => c => Task.CompletedTask);

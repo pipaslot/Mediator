@@ -29,8 +29,6 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
     /// </summary>
     public bool DeserializeOnlyCredibleResultTypes { get; set; }
 
-    public SerializerType SerializerType { get; set; } = SerializerType.V3;
-
     #region Credible types
 
     private readonly List<Type> _credibleResultTypes = [typeof(Notification)];
