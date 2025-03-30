@@ -45,7 +45,6 @@ services.AddMediatorServer(o =>
     {
         o.Endpoint = Constants.CustomMediatorUrl;
         o.IgnoreReadOnlyProperties = true;
-        o.ErrorHttpStatusCode = 500;
         o.SerializerType = SerializerType.V3;
     })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
