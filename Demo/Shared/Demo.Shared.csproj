@@ -14,4 +14,10 @@
     <ItemGroup>
         <SupportedPlatform Include="browser"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <Using Include="Pipaslot.Mediator" />
+        <Using Include="Pipaslot.Mediator.Abstractions" />
+        <Using Include="Pipaslot.Mediator.Authorization" />
+    </ItemGroup>
 </Project>
