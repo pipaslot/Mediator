@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Serialization.V2;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Text.Json;
 
@@ -10,7 +9,6 @@ public class SerializationBenchmark
 {
     private readonly DataResult _result;
     private readonly JsonContractSerializer _v3Serializer;
-    private readonly FullJsonContractSerializer _v2Serializer;
     private readonly JsonSerializerOptions _options;
 
     public SerializationBenchmark()
@@ -19,7 +17,6 @@ public class SerializationBenchmark
         var credibleProviderMock = new FakeProvider();
         var options = new ClientMediatorOptions();
         _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
-        _v2Serializer = new FullJsonContractSerializer(credibleProviderMock);
         _options = new JsonSerializerOptions { PropertyNamingPolicy = null };
     }
 
@@ -29,14 +26,6 @@ public class SerializationBenchmark
         var resp = new FakeResponse { Success = true, Results = [_result] };
         var str = JsonSerializer.Serialize(resp, _options);
         JsonSerializer.Deserialize(str, typeof(FakeResponse), _options);
-    }
-
-    [Benchmark]
-    public void V2Serializer()
-    {
-        var resp = new MediatorResponse(true, [_result]);
-        var str = _v2Serializer.SerializeResponse(resp);
-        _v2Serializer.DeserializeResponse<DataResult>(str);
     }
 
     [Benchmark]

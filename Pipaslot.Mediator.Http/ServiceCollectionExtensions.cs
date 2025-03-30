@@ -65,14 +65,7 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
         }
 
-        if (options.SerializerType == SerializerType.V3)
-        {
-            services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
-        }
-        else
-        {
-            services.AddSingleton<IContractSerializer, Serialization.V2.FullJsonContractSerializer>();
-        }
+        services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
 
         services.AddScoped<IMediatorUrlFormatter, THttpClientExecutionMiddleware>();
         return services.AddMediator<THttpClientExecutionMiddleware>();
@@ -115,15 +108,8 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<ICredibleProvider, NopCredibleProvider>();
         }
 
-        if (options.SerializerType == SerializerType.V3)
-        {
-            services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
-        }
-        else
-        {
-            services.AddSingleton<IContractSerializer, Serialization.V2.FullJsonContractSerializer>();
-        }
-
+        services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
+        
         var config = services.AddMediator();
 
         var existingClaimPrincipalAccessors = services.Where(s => s.ImplementationType == typeof(IClaimPrincipalAccessor));
