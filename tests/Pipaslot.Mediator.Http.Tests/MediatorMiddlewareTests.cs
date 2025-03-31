@@ -168,7 +168,7 @@ public class MediatorMiddlewareTests
         public override string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override Stream Body { get; set; }
 
-        public override bool HasFormContentType => throw new NotImplementedException();
+        public override bool HasFormContentType => false;
 
         public override IFormCollection Form { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -221,7 +221,7 @@ public class MediatorMiddlewareTests
             }
         }
     }
-
+    
     private class FakeResponse : HttpResponse
     {
         public override HttpContext HttpContext => throw new NotImplementedException();
