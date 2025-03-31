@@ -90,8 +90,6 @@ public class HttpClientExecutionMiddleware(
             foreach (var pair in serialized.Streams)
             {
                 var streamContent = new StreamContent(pair.Stream);
-                // streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                
                 content.Add(streamContent,"files",pair.Id);
             }
 
