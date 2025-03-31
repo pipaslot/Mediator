@@ -4,8 +4,10 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Middlewares;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http.Middlewares;
@@ -30,7 +32,7 @@ public class HttpClientExecutionMiddleware(
 
     public string FormatHttpGet(IMediatorAction action)
     {
-        var serialized = serializer.SerializeRequest(action);
+        var serialized = serializer.SerializeRequest(action).Json;
         var decoded = WebUtility.UrlDecode(serialized);
         return $"{options.Endpoint}?{MediatorConstants.ActionQueryParamName}={decoded}";
     }
@@ -41,11 +43,10 @@ public class HttpClientExecutionMiddleware(
         try
         {
             var url = options.Endpoint + $"?type={context.ActionIdentifier}";
-            var json = serializer.SerializeRequest(context.Action);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            using var content = GetHttpContent(context);
             response = await httpClient.PostAsync(url, content, context.CancellationToken).ConfigureAwait(false);
-            // We do not check for successfull status code.
-            // It is completelly up to server configuration what status code will be sent when action processing failed on server.
+            // We do not check for successful status code.
+            // It is completely up to server configuration what status code will be sent when action processing failed on server.
             // We just expect that server will return JSON in Mediator response format
             // Use ProcessParsingError for handling custom server responses and status codes 
         }
@@ -74,6 +75,28 @@ public class HttpClientExecutionMiddleware(
         }
 
         return await ProcessSuccessfullResult(context, response, result).ConfigureAwait(false);
+    }
+
+    private HttpContent GetHttpContent(MediatorContext context)
+    {
+        var serialized = serializer.SerializeRequest(context.Action);
+        if (serialized.Streams.Any())
+        {
+            // We stream the content to the backend instead of sending as JSON (byte to JSON conversion may lead to out of memory exceptions)
+            var content = new MultipartFormDataContent();
+            // Add data/metadata sent together with the streams
+            content.Add(new StringContent(serialized.Json, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json), MediatorConstants.MultipartFormDataJson);
+
+            foreach (var pair in serialized.Streams)
+            {
+                var streamContent = new StreamContent(pair.Stream);
+                content.Add(streamContent,"files",pair.Id);
+            }
+
+            return content;
+        }
+        // The contract was fully serialized into JSON, so we can send it as JSON
+        return new StringContent(serialized.Json, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json);
     }
 
     protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorContext context, HttpResponseMessage response,

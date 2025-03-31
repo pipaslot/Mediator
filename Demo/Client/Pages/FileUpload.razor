@@ -1,0 +1,59 @@
+﻿@page "/upload"
+@using Demo.Shared.Files
+@inject ILogger<FileUpload> Logger
+
+<h1>File upload using streaming</h1>
+<p>
+    <label>
+        Upload up to @_maxAllowedFiles files (@(_maxFileSize / 1024)KB each):
+        <div>
+            <InputFile OnChange="OnInputFileChange" multiple/>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_exception))
+        {
+            <div class="text-danger">@_exception</div>
+        }
+    </label>
+</p>
+
+@if (_files.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <ul>
+                @foreach (var file in _files)
+                {
+                    <li>
+                        File: @file.Name
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private List<FileStreamDto> _files = [];
+    private readonly int _maxAllowedFiles = 10;
+    private readonly int _maxFileSize = 1024 * 1024 * 200;
+    private string _exception = string.Empty;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        _exception = string.Empty;
+        try
+        {
+            _files = e.GetMultipleFiles(_maxAllowedFiles)
+                .Select(f => new FileStreamDto(f.OpenReadStream(_maxFileSize), f.ContentType, f.Name))
+                .ToList();
+
+            await Mediator.Dispatch(new FileStreamUpload(_files));
+        }
+        catch (Exception ex)
+        {
+            _exception = ex.Message;
+            Logger.LogError(ex, "File upload failed");
+        }
+    }
+
+}

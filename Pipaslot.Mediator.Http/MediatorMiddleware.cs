@@ -3,6 +3,7 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -44,13 +45,35 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
     {
         try
         {
-            var body = isPost
-                ? await GetBody(context).ConfigureAwait(false)
-                : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
-                    ? actionQuery.ToString()
-                    : "";
+            IMediatorAction action;
             var mediator = CreateMediator(context);
-            var action = serializer.DeserializeRequest(body);
+            if (!context.Request.HasFormContentType)
+            {
+                // Standard JSON expected body or HTTP GET
+                //TODO: read body as stream
+                var body = isPost
+                    ? await GetBody(context).ConfigureAwait(false)
+                    : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
+                        ? actionQuery.ToString()
+                        : "";
+                action = serializer.DeserializeRequest(body, []);
+            }
+            else
+            {
+                // body was sent as Multipart form-data
+                var form = await context.Request.ReadFormAsync(context.RequestAborted).ConfigureAwait(false);
+
+                // Get json metadate
+                var jsonPart = form[MediatorConstants.MultipartFormDataJson];
+                var streams = new List<StreamContract>();
+                foreach (var file in form.Files)
+                {
+                    streams.Add(new StreamContract(file.FileName, file.OpenReadStream()));
+                }
+
+                action = serializer.DeserializeRequest(jsonPart, streams);
+            }
+
             var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
                 : await ExecuteMessage(mediator, action, context.RequestAborted).ConfigureAwait(false);

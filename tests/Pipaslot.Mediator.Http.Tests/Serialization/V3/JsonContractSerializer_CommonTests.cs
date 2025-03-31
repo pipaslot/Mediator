@@ -16,7 +16,7 @@ public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestB
 
         var serialized =
             @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
-        var deserialized = sut.DeserializeRequest(serialized);
+        var deserialized = sut.DeserializeRequest(serialized, []);
 
         Assert.True(Match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
     }

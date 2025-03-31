@@ -17,7 +17,7 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
     {
         var sut = CreateSerializer();
 
-        var serialized = sut.SerializeRequest(new ActionWithReadOnlyProperties());
+        var serialized = sut.SerializeRequest(new ActionWithReadOnlyProperties()).Json;
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
