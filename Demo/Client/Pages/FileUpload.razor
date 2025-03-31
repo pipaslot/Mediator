@@ -5,8 +5,14 @@
 <h1>File upload using streaming</h1>
 <p>
     <label>
-        Upload up to @_maxAllowedFiles files:
-        <InputFile OnChange="OnInputFileChange" multiple/>
+        Upload up to @_maxAllowedFiles files (@(_maxFileSize / 1024)KB each):
+        <div>
+            <InputFile OnChange="OnInputFileChange" multiple/>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_exception))
+        {
+            <div class="text-danger">@_exception</div>
+        }
     </label>
 </p>
 
@@ -19,21 +25,6 @@
                 {
                     <li>
                         File: @file.Name
-                        <br>
-                        @if (HasFileUpload(_uploadResults, file.Name, Logger,
-                                     out var result))
-                        {
-                            <span>
-                                File was uploaded to the server
-                            </span>
-                        }
-                        else
-                        {
-                            <span>
-                                There was an error uploading the file
-                                (Error: @result.ErrorCode).
-                            </span>
-                        }
                     </li>
                 }
             </ul>
@@ -42,94 +33,27 @@
 }
 
 @code {
-    private readonly List<FileStreamDto> _files = [];
-    private List<UploadResult> _uploadResults = [];
+    private List<FileStreamDto> _files = [];
     private readonly int _maxAllowedFiles = 3;
     private readonly int _maxFileSize = 1024 * 1024 * 30;
-    private bool _shouldRender;
-
-    protected override bool ShouldRender() => _shouldRender;
+    private string _exception = string.Empty;
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
-        _shouldRender = false;
-        foreach (var file in e.GetMultipleFiles(_maxAllowedFiles))
+        _exception = string.Empty;
+        try
         {
-            var fileStream = new FileStreamDto(file.OpenReadStream(_maxFileSize), file.ContentType, file.Name);
-            _files.Add(fileStream);
-            var result = await Mediator.Dispatch(new FileStreamUpload(fileStream));
-            if (result.Success)
-            {
-                _uploadResults.Add(new(file.Name));
-            }
-            else
-            {
-                _uploadResults.Add(new(file.Name, 6));
-            }
+            _files = e.GetMultipleFiles(_maxAllowedFiles)
+                .Select(f => new FileStreamDto(f.OpenReadStream(_maxFileSize), f.ContentType, f.Name))
+                .ToList();
+
+            await Mediator.Dispatch(new FileStreamUpload(_files));
         }
-
-        // var upload = false;
-
-        // using var content = new MultipartFormDataContent();
-        //
-        // foreach (var file in e.GetMultipleFiles(_maxAllowedFiles))
-        // {
-        //     if (_uploadResults.SingleOrDefault(
-        //         f => f.FileName == file.Name) is null)
-        //     {
-        //         try
-        //         {
-        //
-        //             // var stream = new LazyBrowserFileStream(file, maxFileSize);
-        //             var fileContent = new StreamContent(file.OpenReadStream(_maxFileSize));
-        //
-        //             fileContent.Headers.ContentType = 
-        //                 new MediaTypeHeaderValue(file.ContentType);
-        //
-        //             content.Add(
-        //                 content: fileContent,
-        //                 name: "\"files\"",
-        //                 fileName: file.Name);
-        //
-        //             upload = true;
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             Logger.LogInformation(
-        //                 "{FileName} not uploaded (Err: 6): {Message}", 
-        //                 file.Name, ex.Message);
-        //
-        //             _uploadResults.Add(
-        //                 new()
-        //                 {
-        //                     FileName = file.Name, 
-        //                     ErrorCode = 6, 
-        //                     Uploaded = false
-        //                 });
-        //         }
-        //     }
-        // }
-
-
-        _shouldRender = true;
-    }
-
-    private static bool HasFileUpload(IList<UploadResult> uploadResults,
-        string? fileName, ILogger<FileUpload> logger, out UploadResult result)
-    {
-        result = uploadResults.SingleOrDefault(f => f.FileName == fileName) ?? new(fileName);
-
-        if (!result.Uploaded)
+        catch (Exception ex)
         {
-            logger.LogInformation("{FileName} not uploaded (Err: 5)", fileName);
+            _exception = ex.Message;
+            Logger.LogError(ex, "File upload failed");
         }
-
-        return result.Uploaded;
-    }
-
-    record UploadResult(string FileName, int ErrorCode = 0)
-    {
-        public bool Uploaded => ErrorCode == 0;
     }
 
 }

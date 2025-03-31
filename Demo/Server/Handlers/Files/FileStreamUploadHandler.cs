@@ -8,7 +8,11 @@ public class FileStreamUploadHandler(IMediatorFacade mediator) : IMediatorHandle
 {
     public Task Handle(FileStreamUpload action, CancellationToken cancellationToken)
     {
-        mediator.AddInformationNotification($"File '{action.File.Name}' with size: {action.File.Content.Length}B was received.");
+        foreach (var file in action.Files)
+        {
+            mediator.AddInformationNotification($"File '{file.Name}' with size: {file.Content.Length/1024}KB was received.");
+        }
+        
         return Task.CompletedTask;
     }
 }

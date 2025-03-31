@@ -29,7 +29,7 @@ internal class StreamExtractingConverter : JsonConverter<Stream>
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected a string identifier for Stream.");
 
-        string path = reader.GetString()!;
+        var path = reader.GetString()!;
 
         // Retrieve the stored stream by its identifier
         return _streamStorage.TryGetValue(path, out var stream) ? stream : Stream.Null;
@@ -37,7 +37,7 @@ internal class StreamExtractingConverter : JsonConverter<Stream>
 
     public override void Write(Utf8JsonWriter writer, Stream value, JsonSerializerOptions options)
     {
-        string path = Guid.NewGuid().ToString(); // Generate a unique identifier
+        var path = "stream:"+Guid.NewGuid(); // Generate a unique identifier
 
         // Store the stream in memory for later retrieval
         _streamStorage[path] = value;

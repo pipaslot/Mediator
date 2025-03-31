@@ -5,4 +5,4 @@
 /// </summary>
 /// <param name="File"></param>
 [AnonymousPolicy]
-public record FileStreamUpload(FileStreamDto File) : IMediatorAction;
+public record FileStreamUpload(List<FileStreamDto> Files) : IMediatorAction;
