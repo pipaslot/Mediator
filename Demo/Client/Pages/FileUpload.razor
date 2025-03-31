@@ -34,8 +34,8 @@
 
 @code {
     private List<FileStreamDto> _files = [];
-    private readonly int _maxAllowedFiles = 3;
-    private readonly int _maxFileSize = 1024 * 1024 * 30;
+    private readonly int _maxAllowedFiles = 10;
+    private readonly int _maxFileSize = 1024 * 1024 * 200;
     private string _exception = string.Empty;
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
