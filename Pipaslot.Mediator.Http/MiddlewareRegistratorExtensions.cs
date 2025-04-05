@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Internal;
@@ -12,7 +11,8 @@ namespace Pipaslot.Mediator.Http
     public static class MiddlewareRegistratorExtensions
     {
         /// <inheritdoc cref="ExceptionLoggingMiddleware"/>
-        public static IMiddlewareRegistrator UseExceptionLogging(this IMiddlewareRegistrator configurator, ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        public static IMiddlewareRegistrator UseExceptionLogging(this IMiddlewareRegistrator configurator,
+            ServiceLifetime lifetime = ServiceLifetime.Scoped)
         {
             configurator.Use<ExceptionLoggingMiddleware>(lifetime);
             return configurator;
@@ -21,11 +21,11 @@ namespace Pipaslot.Mediator.Http
         /// <inheritdoc cref="HttpClientExecutionMiddleware"/>
         public static IMiddlewareRegistrator UseHttpClient(this IMiddlewareRegistrator configurator)
         {
-            configurator.Use<HttpClientExecutionMiddleware>();
+            configurator.UseHttpClient<HttpClientExecutionMiddleware>();
             return configurator;
         }
 
-        /// <inheritdoc cref="UseHttpClient"/>
+        /// <inheritdoc cref="HttpClientExecutionMiddleware"/>
         public static IMiddlewareRegistrator UseHttpClient<THttpClientExecutionMiddleware>(this IMiddlewareRegistrator configurator)
             where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
         {
@@ -55,7 +55,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return config.UseWhen((a, s) => IsFirstActionFromHttp(s), subMiddlewares);
+            return config.UseWhen((_, s) => s.IsExecutedFromPublicApi(), subMiddlewares);
         }
 
         #endregion
@@ -72,9 +72,10 @@ namespace Pipaslot.Mediator.Http
         /// <summary>
         /// Applies Middlewares if the mediator action was NOT invoked directly from any HTTP request or it was used as nested call.. 
         /// </summary>
-        public static IMiddlewareRegistrator UseWhenNotDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
+        public static IMiddlewareRegistrator UseWhenNotDirectHttpCall(this IMiddlewareRegistrator config,
+            Action<IMiddlewareRegistrator> subMiddlewares)
         {
-            return config.UseWhen((a, s) => IsFirstActionFromHttp(s) == false, subMiddlewares);
+            return config.UseWhen((a, s) => s.IsExecutedFromPublicApi() == false, subMiddlewares);
         }
 
         #endregion
@@ -85,15 +86,7 @@ namespace Pipaslot.Mediator.Http
         /// </summary>
         public static IMiddlewareRegistrator UseAuthorizationWhenDirectHttpCall(this IMiddlewareRegistrator config)
         {
-            return config.UseWhen((a, s) => IsFirstActionFromHttp(s), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
-        }
-
-        private static bool IsFirstActionFromHttp(IServiceProvider sp)
-        {
-            var hca = sp.GetRequiredService<IHttpContextAccessor>();
-            var mca = sp.GetRequiredService<IMediatorContextAccessor>();
-            //var mop = sp.GetRequiredService<ServerMediatorOptions>();
-            return mca.IsFirstAction() && hca.GetExecutionEndpoint(null) != HttpExecutionEndpoint.NoEndpoint;
+            return config.UseWhen((a, s) => s.IsExecutedFromPublicApi(), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
         }
     }
 }

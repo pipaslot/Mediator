@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.IO;
@@ -26,6 +27,8 @@ namespace Pipaslot.Mediator.Http
 
         public async Task Invoke(HttpContext context)
         {
+            context.Features.Set(new MediatorHttpContextFeature());
+            
             var method = context.Request.Method.ToUpper();
             var isPost = method == "POST";
             var isGet = method == "GET";
