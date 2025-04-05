@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Version>8.0.0</Version>
+        <Version>8.0.1</Version>
         <PackageId>Pipaslot.Mediator.Http</PackageId>
         <AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
         <Authors>Petr Stipek</Authors>
