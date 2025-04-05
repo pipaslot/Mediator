@@ -87,9 +87,10 @@ namespace Pipaslot.Mediator.Http.Tests
             mediatorMock.Verify(m => m.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>()));
         }
 
-        private class FakeContext : HttpContext
-        {
-            private HttpRequest _request;
+    private class FakeContext : HttpContext
+    {
+        private readonly HttpRequest _request;
+        private readonly FeatureCollection _features = new();
 
             public FakeContext(HttpRequest request)
             {
@@ -97,7 +98,7 @@ namespace Pipaslot.Mediator.Http.Tests
                 RequestServices = new Mock<IServiceProvider>().Object;
             }
 
-            public override IFeatureCollection Features => throw new NotImplementedException();
+        public override IFeatureCollection Features => _features;
 
             public override HttpRequest Request => _request;
 

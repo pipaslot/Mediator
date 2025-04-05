@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>7.6.3</Version>
+		<Version>7.6.4</Version>
 		<PackageId>Pipaslot.Mediator.Http</PackageId>
 		<AssemblyName>Pipaslot.Mediator.Http</AssemblyName>
 		<Authors>Petr Stipek</Authors>
@@ -15,7 +15,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Nullable>enable</Nullable>
-		<LangVersion>11</LangVersion>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
