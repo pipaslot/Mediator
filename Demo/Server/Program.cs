@@ -2,6 +2,7 @@
 using Demo.Server.Handlers.Auth;
 using Demo.Server.MediatorMiddlewares;
 using Demo.Shared;
+using Demo.Shared.Playground;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;
@@ -50,6 +51,7 @@ services.AddMediatorServer(o =>
     .AddHandlersFromAssemblyOf<WeatherForecastRequestHandler>()
     // Log all unhalded exception via ILogger. Wont catch exception from IMessage as the next middleware provides custom handling for the Messages
     .UseExceptionLogging()
+    .UseWhenAction<CustomInternalRequest>(s=>s.UseDirectHttpCallProtection())
     .UseWhenAction<IMessage>(
         p => p.Use<CustomLoggingMiddleware>()
     )

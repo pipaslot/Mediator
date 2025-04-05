@@ -44,7 +44,7 @@
     <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CallingNestedNotificationMessage())">Nested handler notification</button>
 </p>
 <h5>Protecting actions to be directly called from HTTP</h5>
-<button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CalingCustomInternalRequestMessage())">Indirect call (passing)</button>
+<button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CallingCustomInternalRequestMessage())">Indirect call (passing)</button>
 <button class="btn btn-primary btn-sm" @onclick="() => Dispatch(new CustomInternalRequest())">Direct call (failing)</button>
 
 <h5>Long running actions</h5>

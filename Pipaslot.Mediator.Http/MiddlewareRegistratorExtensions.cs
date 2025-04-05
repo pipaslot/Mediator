@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Internal;
@@ -22,11 +21,11 @@ public static class MiddlewareRegistratorExtensions
     /// <inheritdoc cref="HttpClientExecutionMiddleware"/>
     public static IMiddlewareRegistrator UseHttpClient(this IMiddlewareRegistrator configurator)
     {
-        configurator.Use<HttpClientExecutionMiddleware>();
+        configurator.UseHttpClient<HttpClientExecutionMiddleware>();
         return configurator;
     }
 
-    /// <inheritdoc cref="UseHttpClient"/>
+    /// <inheritdoc cref="HttpClientExecutionMiddleware"/>
     public static IMiddlewareRegistrator UseHttpClient<THttpClientExecutionMiddleware>(this IMiddlewareRegistrator configurator)
         where THttpClientExecutionMiddleware : HttpClientExecutionMiddleware
     {
@@ -56,7 +55,7 @@ public static class MiddlewareRegistratorExtensions
     /// </summary>
     public static IMiddlewareRegistrator UseWhenDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        return config.UseWhen((_, s) => IsFirstActionFromHttp(s), subMiddlewares);
+        return config.UseWhen((_, s) => s.IsExecutedFromPublicApi(), subMiddlewares);
     }
 
     #endregion
@@ -75,7 +74,7 @@ public static class MiddlewareRegistratorExtensions
     /// </summary>
     public static IMiddlewareRegistrator UseWhenNotDirectHttpCall(this IMiddlewareRegistrator config, Action<IMiddlewareRegistrator> subMiddlewares)
     {
-        return config.UseWhen((a, s) => IsFirstActionFromHttp(s) == false, subMiddlewares);
+        return config.UseWhen((a, s) => s.IsExecutedFromPublicApi() == false, subMiddlewares);
     }
 
     #endregion
@@ -86,14 +85,7 @@ public static class MiddlewareRegistratorExtensions
     /// </summary>
     public static IMiddlewareRegistrator UseAuthorizationWhenDirectHttpCall(this IMiddlewareRegistrator config)
     {
-        return config.UseWhen((a, s) => IsFirstActionFromHttp(s), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
+        return config.UseWhen((a, s) => s.IsExecutedFromPublicApi(), m => m.Use<AuthorizationMiddleware>(ServiceLifetime.Singleton));
     }
-
-    private static bool IsFirstActionFromHttp(IServiceProvider sp)
-    {
-        var hca = sp.GetRequiredService<IHttpContextAccessor>();
-        var mca = sp.GetRequiredService<IMediatorContextAccessor>();
-        //var mop = sp.GetRequiredService<ServerMediatorOptions>();
-        return mca.IsFirstAction() && hca.GetExecutionEndpoint(null) != HttpExecutionEndpoint.NoEndpoint;
-    }
+    
 }

@@ -96,6 +96,7 @@ public class MediatorMiddlewareTests
     private class FakeContext : HttpContext
     {
         private readonly HttpRequest _request;
+        private readonly FeatureCollection _features = new();
 
         public FakeContext(HttpRequest request)
         {
@@ -103,7 +104,7 @@ public class MediatorMiddlewareTests
             RequestServices = new Mock<IServiceProvider>().Object;
         }
 
-        public override IFeatureCollection Features => throw new NotImplementedException();
+        public override IFeatureCollection Features => _features;
 
         public override HttpRequest Request => _request;
 

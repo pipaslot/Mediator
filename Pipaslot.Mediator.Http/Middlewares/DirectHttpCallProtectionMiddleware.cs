@@ -14,16 +14,11 @@ public class DirectHttpCallProtectionMiddleware(IMediatorContextAccessor context
 {
     public Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
-        if (IsApplicable(contextAccessor, httpContextAccessor))
+        if (HttpContextAccessorExtensions.IsExecutedFromPublicApi(httpContextAccessor, contextAccessor))
         {
             throw MediatorException.CreateForForbidenDirectCall();
         }
 
         return next(context);
-    }
-
-    internal static bool IsApplicable(IMediatorContextAccessor contextAccessor, IHttpContextAccessor httpContextAccessor)
-    {
-        return contextAccessor.IsFirstAction() && httpContextAccessor.GetExecutionEndpoint(null) != HttpExecutionEndpoint.NoEndpoint;
     }
 }

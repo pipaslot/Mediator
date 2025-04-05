@@ -168,6 +168,6 @@ public static class MiddlewareRegistratorExtensions
     /// <inheritdoc cref="DirectCallProtectionMiddleware"/>
     public static IMiddlewareRegistrator UseDirectCallProtection(this IMiddlewareRegistrator config)
     {
-        return config.Use<DirectCallProtectionMiddleware>(ServiceLifetime.Singleton);
+        return config.Use<DirectCallProtectionMiddleware>();
     }
 }
