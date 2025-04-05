@@ -3,10 +3,10 @@ using Pipaslot.Mediator;
 
 namespace Demo.Server.Handlers.Playground;
 
-public class CallingCustomInternalRequestMessageHandler(IMediator mediator) : IMessageHandler<CalingCustomInternalRequestMessage>
+public class CallingCustomInternalRequestMessageHandler(IMediator mediator) : IMessageHandler<CallingCustomInternalRequestMessage>
 {
-    public async Task Handle(CalingCustomInternalRequestMessage action, CancellationToken cancellationToken)
+    public async Task Handle(CallingCustomInternalRequestMessage action, CancellationToken cancellationToken)
     {
-        await mediator.ExecuteUnhandled(new CustomInternalRequest(), cancellationToken);
-    }
+        await mediator.DispatchUnhandled(new CustomInternalRequest(), cancellationToken);
+}
 }

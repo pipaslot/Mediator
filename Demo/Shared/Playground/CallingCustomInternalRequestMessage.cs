@@ -1,4 +1,4 @@
-﻿namespace Demo.Shared.Playground;
+namespace Demo.Shared.Playground;
 
 [AnonymousPolicy]
 public record CallingCustomInternalRequestMessage : IMessage;
