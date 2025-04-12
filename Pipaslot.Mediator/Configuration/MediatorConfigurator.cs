@@ -153,7 +153,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return FilterAssignableToRequest(_actionMarkerTypes);
     }
 
-    IEnumerable<MiddlewareDefinition> IMiddlewareResolver.GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    MiddlewareDefinition[] IMiddlewareResolver.GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
     {
         return GetMiddlewares(action, serviceProvider);
     }
@@ -162,19 +162,22 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     /// Resolve single pipeline and return all middlewares
     /// </summary>
     /// <exception cref="MediatorException"></exception>
-    internal IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    internal MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
     {
-        var pipelines = _pipelines
-            .Where(p => p.Condition(action))
-            .ToArray();
-        if (pipelines.Length > 1)
+        if (_pipelines.Count > 0)
         {
-            throw MediatorException.TooManyPipelines(action);
-        }
+            var pipelines = _pipelines
+                .Where(p => p.Condition(action))
+                .ToArray();
+            if (pipelines.Length > 1)
+            {
+                throw MediatorException.TooManyPipelines(action);
+            }
 
-        if (pipelines.Length == 1)
-        {
-            return pipelines.First().Middlewares.GetMiddlewares(action, serviceProvider);
+            if (pipelines.Length == 1)
+            {
+                return pipelines.First().Middlewares.GetMiddlewares(action, serviceProvider);
+            }
         }
 
         return _middlewares.GetMiddlewares(action, serviceProvider);

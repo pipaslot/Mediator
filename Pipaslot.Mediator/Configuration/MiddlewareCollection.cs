@@ -29,15 +29,15 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
         }
     }
 
-    public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
     {
+        var result = new List<MiddlewareDefinition>();
         foreach (var res in _middlewareTypes)
         {
-            foreach (var a in res.GetMiddlewares(action, serviceProvider))
-            {
-                yield return a;
-            }
+            result.AddRange(res.GetMiddlewares(action, serviceProvider));
         }
+
+        return result.ToArray();
     }
 
     public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null)
@@ -76,30 +76,27 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
 
     private class ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares) : IMiddlewareResolver
     {
-        public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             if (condition(action))
             {
-                foreach (var type in middlewares.GetMiddlewares(action, serviceProvider))
-                {
-                    yield return type;
-                }
+                return middlewares.GetMiddlewares(action, serviceProvider);
             }
+
+            return [];
         }
     }
 
     private class DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
         : IMiddlewareResolver
     {
-        public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
             if (condition(action, serviceProvider))
             {
-                foreach (var type in middlewares.GetMiddlewares(action, serviceProvider))
-                {
-                    yield return type;
-                }
+                return middlewares.GetMiddlewares(action, serviceProvider);
             }
+            return [];
         }
     }
 }
