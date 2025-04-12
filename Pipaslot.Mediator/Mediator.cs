@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator;
 
 /// <summary>
-/// Mediator which wrapps handler execution into pipelines
+/// Mediator which wraps handler execution into pipelines
 /// </summary>
 internal class Mediator : IMediator
 {
