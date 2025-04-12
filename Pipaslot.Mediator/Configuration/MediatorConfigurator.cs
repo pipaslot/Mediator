@@ -158,6 +158,10 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return GetMiddlewares(action, serviceProvider);
     }
 
+    /// <summary>
+    /// Resolve single pipeline and return all middlewares
+    /// </summary>
+    /// <exception cref="MediatorException"></exception>
     internal IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
     {
         var pipelines = _pipelines
