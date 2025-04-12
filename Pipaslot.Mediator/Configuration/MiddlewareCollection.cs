@@ -74,23 +74,13 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
     }
 
 
-    private class ConditionDefinition : IMiddlewareResolver
+    private class ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares) : IMiddlewareResolver
     {
-        private readonly Func<IMediatorAction, bool> _condition;
-
-        private readonly MiddlewareCollection _middlewares;
-
-        public ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares)
-        {
-            _condition = condition;
-            _middlewares = middlewares;
-        }
-
         public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
-            if (_condition(action))
+            if (condition(action))
             {
-                foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
+                foreach (var type in middlewares.GetMiddlewares(action, serviceProvider))
                 {
                     yield return type;
                 }
@@ -98,22 +88,14 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
         }
     }
 
-    private class DynamicDefinition : IMiddlewareResolver
+    private class DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
+        : IMiddlewareResolver
     {
-        private readonly Func<IMediatorAction, IServiceProvider, bool> _condition;
-        private readonly MiddlewareCollection _middlewares;
-
-        public DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
-        {
-            _condition = condition;
-            _middlewares = middlewares;
-        }
-
         public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
         {
-            if (_condition(action, serviceProvider))
+            if (condition(action, serviceProvider))
             {
-                foreach (var type in _middlewares.GetMiddlewares(action, serviceProvider))
+                foreach (var type in middlewares.GetMiddlewares(action, serviceProvider))
                 {
                     yield return type;
                 }

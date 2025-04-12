@@ -13,19 +13,9 @@ namespace Pipaslot.Mediator;
 /// <summary>
 /// Mediator which wraps handler execution into pipelines
 /// </summary>
-internal class Mediator : IMediator
+internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
+    : IMediator
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly MediatorContextAccessor _mediatorContextAccessor;
-    private readonly MediatorConfigurator _configurator;
-
-    public Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
-    {
-        _serviceProvider = serviceProvider;
-        _mediatorContextAccessor = mediatorContextAccessor;
-        _configurator = configurator;
-    }
-
     public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
     {
         if (message is null)
@@ -152,10 +142,10 @@ internal class Mediator : IMediator
     {
         yield return new MiddlewarePair(NotificationPropagationMiddleware.Instance, null);
 
-        var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
+        var middlewareDefinitions = configurator.GetMiddlewares(action, serviceProvider);
         foreach (var middlewareDefinition in middlewareDefinitions)
         {
-            var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareDefinition.Type);
+            var middlewareInstance = (IMediatorMiddleware)serviceProvider.GetRequiredService(middlewareDefinition.Type);
             yield return new MiddlewarePair(middlewareInstance, middlewareDefinition.Parameters);
             if (middlewareInstance is IExecutionMiddleware)
             {
@@ -163,12 +153,12 @@ internal class Mediator : IMediator
             }
         }
 
-        yield return new MiddlewarePair(_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
+        yield return new MiddlewarePair(serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
     }
 
     private async Task ProcessPipeline(IEnumerable<MiddlewarePair> pipeline, MediatorContext context)
     {
-        _mediatorContextAccessor.Push(context);
+        mediatorContextAccessor.Push(context);
         var enumerator = pipeline.GetEnumerator();
 
         Task Next(MediatorContext ctx)
@@ -202,7 +192,7 @@ internal class Mediator : IMediator
 
     private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
     {
-        return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, null);
+        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
     }
 
     internal readonly record  struct MiddlewarePair(IMediatorMiddleware Instance, object[]? Parameters);
