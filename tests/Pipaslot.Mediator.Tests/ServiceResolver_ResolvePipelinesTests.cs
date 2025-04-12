@@ -36,7 +36,7 @@ public class ServiceResolver_ResolvePipelinesTests
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    private void VerifyMiddleware(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> middlewares, int position,
+    private void VerifyMiddleware(IEnumerable<Mediator.MiddlewarePair> middlewares, int position,
         Type expectedMiddleware)
     {
         var actual = middlewares.Skip(position - 1).First().Instance.GetType();

@@ -148,25 +148,25 @@ internal class Mediator : IMediator
         return result;
     }
 
-    internal IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> GetPipeline(IMediatorAction action)
+    internal IEnumerable<MiddlewarePair> GetPipeline(IMediatorAction action)
     {
-        yield return (new NotificationPropagationMiddleware(), null);
+        yield return new MiddlewarePair(NotificationPropagationMiddleware.Instance, null);
 
         var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
         foreach (var middlewareDefinition in middlewareDefinitions)
         {
             var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareDefinition.Type);
-            yield return (middlewareInstance, middlewareDefinition.Parameters);
+            yield return new MiddlewarePair(middlewareInstance, middlewareDefinition.Parameters);
             if (middlewareInstance is IExecutionMiddleware)
             {
                 yield break;
             }
         }
 
-        yield return (_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
+        yield return new MiddlewarePair(_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
     }
 
-    private async Task ProcessPipeline(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> pipeline, MediatorContext context)
+    private async Task ProcessPipeline(IEnumerable<MiddlewarePair> pipeline, MediatorContext context)
     {
         _mediatorContextAccessor.Push(context);
         var enumerator = pipeline.GetEnumerator();
@@ -204,4 +204,6 @@ internal class Mediator : IMediator
     {
         return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, null);
     }
+
+    internal readonly record  struct MiddlewarePair(IMediatorMiddleware Instance, object[]? Parameters);
 }
