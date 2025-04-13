@@ -3,12 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
+/// <summary>
+/// Measure an overall mediator performance
+/// </summary>
 [MemoryDiagnoser]
 public class MediatorBenchmarks
 {
     private IMediator _mediator = null!;
     private readonly Pinged _message = new();
-    private readonly Ping _request = new() { Message = "Hello World" };
+    private readonly Ping _request = new("Hello World");
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -28,17 +31,14 @@ public class MediatorBenchmarks
     {
         return _mediator.ExecuteUnhandled(_request);
     }
-    
+
     [Benchmark]
-    public Task Dispath()
+    public Task Dispatch()
     {
         return _mediator.DispatchUnhandled(_message);
     }
 
-    public class Ping : IRequest<string>
-    {
-        public string Message { get; set; } = string.Empty;
-    }
+    public record Ping(string Message) : IRequest<string>;
 
     public class PingHandler : IRequestHandler<Ping, string>
     {
@@ -48,9 +48,7 @@ public class MediatorBenchmarks
         }
     }
 
-    public class Pinged : IMessage
-    {
-    }
+    public class Pinged : IMessage;
 
     public class PingedHandler : IMessageHandler<Pinged>
     {
