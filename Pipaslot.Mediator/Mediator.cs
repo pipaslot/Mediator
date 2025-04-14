@@ -23,11 +23,10 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             throw new ArgumentNullException(nameof(message));
         }
 
-        var pipeline = GetPipeline(message);
         var context = CreateContext(message, cancellationToken);
         try
         {
-            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+            await ProcessPipeline(message, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
                 throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -49,10 +48,9 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             throw new ArgumentNullException(nameof(message));
         }
 
-        var pipeline = GetPipeline(message);
         var context = CreateContext(message, cancellationToken);
 
-        await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+        await ProcessPipeline(message, context).ConfigureAwait(false);
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
             throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -72,11 +70,10 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             throw new ArgumentNullException(nameof(request));
         }
 
-        var pipeline = GetPipeline(request);
         var context = CreateContext(request, cancellationToken);
         try
         {
-            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+            await ProcessPipeline(request, context).ConfigureAwait(false);
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
@@ -106,9 +103,8 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             throw new ArgumentNullException(nameof(request));
         }
 
-        var pipeline = GetPipeline(request);
         var context = CreateContext(request, cancellationToken);
-        await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+        await ProcessPipeline(request, context).ConfigureAwait(false);
         //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
@@ -156,8 +152,9 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         yield return new MiddlewarePair(serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
     }
 
-    private async Task ProcessPipeline(IEnumerable<MiddlewarePair> pipeline, MediatorContext context)
+    private async Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
+        var pipeline = GetPipeline(action);
         mediatorContextAccessor.Push(context);
         var enumerator = pipeline.GetEnumerator();
 
