@@ -11,7 +11,7 @@ public class ServiceResolver_ResolvePipelinesTests
     [Theory]
     [InlineData(1, typeof(BeforeMiddleware))]
     [InlineData(2, typeof(AfterMiddleware))]
-    [InlineData(3, typeof(HandlerExecutionMiddleware))]
+    [InlineData(3, typeof(IExecutionMiddleware))]
     public void QueryPath(int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = false };
@@ -25,10 +25,10 @@ public class ServiceResolver_ResolvePipelinesTests
     [Theory]
     [InlineData(true, 1, typeof(PipelineMiddleware))]
     [InlineData(true, 2, typeof(PipelineNestedMiddleware))]
-    [InlineData(true, 3, typeof(HandlerExecutionMiddleware))]
+    [InlineData(true, 3, typeof(IExecutionMiddleware))]
     
     [InlineData(false, 1, typeof(PipelineMiddleware))]
-    [InlineData(false, 2, typeof(HandlerExecutionMiddleware))]
+    [InlineData(false, 2, typeof(IExecutionMiddleware))]
     public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
@@ -42,7 +42,7 @@ public class ServiceResolver_ResolvePipelinesTests
     private void VerifyMiddleware(IEnumerable<Mediator.MiddlewarePair> middlewares, int position,
         Type expectedMiddleware)
     {
-        var actual = middlewares.Skip(position - 1).First().Instance.GetType();
+        var actual = middlewares.Skip(position - 1).First().ResolvableType;
         Assert.Equal(expectedMiddleware, actual);
     }
 

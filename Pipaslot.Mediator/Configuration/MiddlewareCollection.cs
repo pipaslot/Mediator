@@ -29,15 +29,12 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
         }
     }
 
-    public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    public void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
     {
-        var result = new List<MiddlewareDefinition>();
         foreach (var res in _middlewareTypes)
         {
-            result.AddRange(res.GetMiddlewares(action, serviceProvider));
+            res.CollectMiddlewares(action, serviceProvider, collection);
         }
-
-        return result.ToArray();
     }
 
     public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null)
@@ -76,27 +73,24 @@ internal class MiddlewareCollection(IServiceCollection services) : IMiddlewareRe
 
     private class ConditionDefinition(Func<IMediatorAction, bool> condition, MiddlewareCollection middlewares) : IMiddlewareResolver
     {
-        public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        public void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
         {
             if (condition(action))
             {
-                return middlewares.GetMiddlewares(action, serviceProvider);
+                middlewares.CollectMiddlewares(action, serviceProvider, collection);
             }
-
-            return [];
         }
     }
 
     private class DynamicDefinition(Func<IMediatorAction, IServiceProvider, bool> condition, MiddlewareCollection middlewares)
         : IMiddlewareResolver
     {
-        public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+        public void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
         {
             if (condition(action, serviceProvider))
             {
-                return middlewares.GetMiddlewares(action, serviceProvider);
+                middlewares.CollectMiddlewares(action, serviceProvider, collection);
             }
-            return [];
         }
     }
 }

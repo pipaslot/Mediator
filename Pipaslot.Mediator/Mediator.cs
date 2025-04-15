@@ -134,26 +134,19 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return result;
     }
 
-    internal IEnumerable<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context)
+    internal List<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context)
     {
+        var res = new List<MiddlewarePair>(5);
         if (context.ParentContexts.Length > 0)
         {
             // As performance optimization, we apply the propagation middleware only if there is any parent for the propagation
-            yield return new MiddlewarePair(NotificationPropagationMiddleware.Instance, null);
+            res.Add(new MiddlewarePair(NotificationPropagationMiddleware.Instance, typeof(NotificationPropagationMiddleware), null)); 
         }
 
-        var middlewareDefinitions = configurator.GetMiddlewares(action, serviceProvider);
-        foreach (var middlewareDefinition in middlewareDefinitions)
-        {
-            var middlewareInstance = (IMediatorMiddleware)serviceProvider.GetRequiredService(middlewareDefinition.Type);
-            yield return new MiddlewarePair(middlewareInstance, middlewareDefinition.Parameters);
-            if (middlewareInstance is IExecutionMiddleware)
-            {
-                yield break;
-            }
-        }
+        configurator.CollectMiddlewares(action, serviceProvider, res);
 
-        yield return new MiddlewarePair(serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
+        res.Add(new MiddlewarePair(null, typeof(IExecutionMiddleware), null));
+        return res;
     }
 
     private async Task ProcessPipeline(IMediatorAction action, MediatorContext context)
@@ -183,7 +176,8 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
                     ctx.Features.Set(feature);
                 }
 
-                return current.Instance.Invoke(ctx, Next);
+                var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
+                return instance.Invoke(ctx, Next);
             }
 
             return Task.CompletedTask;
@@ -196,5 +190,5 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
     }
 
-    internal readonly record  struct MiddlewarePair(IMediatorMiddleware Instance, object[]? Parameters);
+    internal readonly record  struct MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);
 }

@@ -1,12 +1,13 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System;
+using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Configuration;
 
 internal readonly record struct MiddlewareDefinition(Type Type, object[]? Parameters = null) : IMiddlewareResolver
 {
-    public MiddlewareDefinition[] GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    public void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
     {
-        return [this];
+        collection.Add(new Mediator.MiddlewarePair(null, Type, Parameters));
     }
 }
