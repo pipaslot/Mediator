@@ -158,8 +158,8 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private async Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var pipeline = GetPipeline(action, context);
         mediatorContextAccessor.Push(context);
+        var pipeline = GetPipeline(action, context);
         using var enumerator = pipeline.GetEnumerator();
         await Next(context).ConfigureAwait(false);
         return;
