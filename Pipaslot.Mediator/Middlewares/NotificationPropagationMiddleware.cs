@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Middlewares;
 /// </summary>
 internal class NotificationPropagationMiddleware : IMediatorMiddleware
 {
-    internal static NotificationPropagationMiddleware Instance { get; } = new NotificationPropagationMiddleware();
+    internal static NotificationPropagationMiddleware Instance { get; } = new ();
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         await next(context).ConfigureAwait(false);

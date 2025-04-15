@@ -134,9 +134,13 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return result;
     }
 
-    internal IEnumerable<MiddlewarePair> GetPipeline(IMediatorAction action)
+    internal IEnumerable<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context)
     {
-        yield return new MiddlewarePair(NotificationPropagationMiddleware.Instance, null);
+        if (context.ParentContexts.Any())
+        {
+            // As performance optimization, we apply the propagation middleware only if there is any parent for the propagation
+            yield return new MiddlewarePair(NotificationPropagationMiddleware.Instance, null);
+        }
 
         var middlewareDefinitions = configurator.GetMiddlewares(action, serviceProvider);
         foreach (var middlewareDefinition in middlewareDefinitions)
@@ -154,7 +158,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private async Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var pipeline = GetPipeline(action);
+        var pipeline = GetPipeline(action, context);
         mediatorContextAccessor.Push(context);
         var enumerator = pipeline.GetEnumerator();
 
