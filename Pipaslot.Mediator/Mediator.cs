@@ -137,10 +137,10 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
     internal List<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context)
     {
         var res = new List<MiddlewarePair>(5);
-        if (context.ParentContexts.Length > 0)
+        if (context.HasParentContext())
         {
             // As performance optimization, we apply the propagation middleware only if there is any parent for the propagation
-            res.Add(new MiddlewarePair(NotificationPropagationMiddleware.Instance, typeof(NotificationPropagationMiddleware), null)); 
+            res.Add(new MiddlewarePair(NotificationPropagationMiddleware.Instance, typeof(NotificationPropagationMiddleware), null));
         }
 
         configurator.CollectMiddlewares(action, serviceProvider, res);

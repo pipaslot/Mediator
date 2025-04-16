@@ -41,6 +41,11 @@ public static class MediatorContextAccessorExtensions
     {
         return accessor.ContextStack.Skip(1).ToArray();
     }
+    
+    internal static bool HasParentContext(this IMediatorContextAccessor accessor)
+    {
+        return accessor.ContextStack.Count > 1;
+    }
 
     /// <summary>
     /// Get feature from root context
