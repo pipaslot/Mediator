@@ -12,7 +12,8 @@ public class MediatorContext
     /// <summary>
     /// Unique context identifier
     /// </summary>
-    public Guid Guid { get; } = Guid.NewGuid();
+    private Guid? _guid;
+    public Guid Guid => _guid ??= Guid.NewGuid();
 
     public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
 
