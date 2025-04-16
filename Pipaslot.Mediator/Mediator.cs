@@ -134,10 +134,10 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return result;
     }
 
-    internal List<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context)
+    internal List<MiddlewarePair> GetPipeline(IMediatorAction action, MediatorContext context, bool hasParentContext)
     {
         var res = new List<MiddlewarePair>(5);
-        if (context.HasParentContext())
+        if (hasParentContext)
         {
             // As performance optimization, we apply the propagation middleware only if there is any parent for the propagation
             res.Add(new MiddlewarePair(NotificationPropagationMiddleware.Instance, typeof(NotificationPropagationMiddleware), null));
@@ -151,8 +151,8 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        mediatorContextAccessor.Push(context); // Processing time: 80ns, Allocation: 448B
-        var pipeline = GetPipeline(action, context);
+        var contextsCount = mediatorContextAccessor.Push(context); // Processing time: 80ns, Allocation: 448B
+        var pipeline = GetPipeline(action, context, hasParentContext: contextsCount > 1);
 
         var index = -1;
         return Next(context);

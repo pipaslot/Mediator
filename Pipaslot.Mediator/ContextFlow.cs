@@ -69,6 +69,8 @@ internal class ContextFlow
             _semaphore.Release();
         }
     }
+    
+    internal int Count() => GetRelevant().Count();
 
     /// <summary>
     /// Return only those contexts related to the actual flow

@@ -70,12 +70,6 @@ public class MediatorContext
     /// </summary>
     public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
     
-    /// <summary>
-    /// Check if the current context was executed from another action/context.
-    /// This call was optimized form performance 
-    /// </summary>
-    internal bool HasParentContext() => _contextAccessor.HasParentContext();
-
     private readonly IMediatorContextAccessor _contextAccessor;
     internal IServiceProvider Services { get; }
 

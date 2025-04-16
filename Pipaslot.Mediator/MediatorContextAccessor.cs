@@ -18,10 +18,22 @@ internal class MediatorContextAccessor(IServiceProvider serviceProvider) : IMedi
 
     public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? [];
 
-    public void Push(MediatorContext context)
+    /// <returns>Amount of contexts already stored on the stack</returns>
+    public int Push(MediatorContext context)
     {
-        var flow = _asyncLocal.Value ??= new ContextFlow();
-        flow.Add(context);
+        if (_asyncLocal.Value is null)
+        {
+            var flow = new ContextFlow();
+            flow.Add(context);
+            _asyncLocal.Value = flow;
+            return 1;
+        }
+        else
+        {
+            var existing = _asyncLocal.Value;
+            existing.Add(context);
+            return existing.Count();
+        }
     }
 
     public void Add(Notification notification)
