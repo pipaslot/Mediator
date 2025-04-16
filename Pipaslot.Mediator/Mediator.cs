@@ -151,7 +151,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var contextsCount = mediatorContextAccessor.Push(context); // Processing time: 80ns, Allocation: 448B
+        var contextsCount = mediatorContextAccessor.Push(context); // Processing time: 80-100ns, Allocation: 440B
         var pipeline = GetPipeline(action, context, hasParentContext: contextsCount > 1);
 
         var index = -1;
