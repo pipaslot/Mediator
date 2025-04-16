@@ -45,9 +45,20 @@ public class MediatorContext
     public CancellationToken CancellationToken { get; private set; }
 
     private IFeatureCollection? _features;
+    
+    private static readonly IFeatureCollection _defaultFeatures = CreateDefaultFeatures();
+
+    private static IFeatureCollection CreateDefaultFeatures()
+    {
+        var featureCollection = new FeatureCollection();
+        featureCollection.Set(MiddlewareParametersFeature.Default);
+        return featureCollection;
+    }
 
     /// <inheritdoc cref="IFeatureCollection"/>
-    public IFeatureCollection Features => _features ??= new FeatureCollection();
+    public IFeatureCollection Features => _features ??= new FeatureCollection(_defaultFeatures);
+    
+    internal bool FeaturesAreInitialized => _features is not null;
 
     public IMediator Mediator { get; }
 

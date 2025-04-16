@@ -151,7 +151,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        mediatorContextAccessor.Push(context); // Processing time: 80ns
+        mediatorContextAccessor.Push(context); // Processing time: 80ns, Allocation: 448B
         var pipeline = GetPipeline(action, context);
 
         var index = -1;
@@ -160,7 +160,9 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         {
             index++;
             if (index >= pipeline.Count)
+            {
                 return Task.CompletedTask;
+            }
         
             var current = pipeline[index];
         
@@ -168,12 +170,12 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             {
                 context.Features.Set(new MiddlewareParametersFeature(current.Parameters));
             }
-            else
+            else if (context.FeaturesAreInitialized)// Avoid feature collection initialization as the MiddlewareParametersFeature is provided as default parameter always available during reading
             {
+                // Reset parameters as we are executing different middleware
                 context.Features.Set(MiddlewareParametersFeature.Default);
             }
-        
-            // Pass the continuation as lambda, but not recursively
+
             var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
             return instance.Invoke(context, Next);
         }
