@@ -168,16 +168,16 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         
             if (current.Parameters is not null)
             {
-                context.Features.Set(new MiddlewareParametersFeature(current.Parameters));
+                ctx.Features.Set(new MiddlewareParametersFeature(current.Parameters));
             }
-            else if (context.FeaturesAreInitialized)// Avoid feature collection initialization as the MiddlewareParametersFeature is provided as default parameter always available during reading
+            else if (ctx.FeaturesAreInitialized)// Avoid feature collection initialization as the MiddlewareParametersFeature is provided as default parameter always available during reading
             {
                 // Reset parameters as we are executing different middleware
-                context.Features.Set(MiddlewareParametersFeature.Default);
+                ctx.Features.Set(MiddlewareParametersFeature.Default);
             }
 
             var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
-            return instance.Invoke(context, Next);
+            return instance.Invoke(ctx, Next);
         }
     }
 
