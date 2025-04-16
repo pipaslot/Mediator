@@ -149,40 +149,34 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return res;
     }
 
-    private async Task ProcessPipeline(IMediatorAction action, MediatorContext context)
+    private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        mediatorContextAccessor.Push(context);
+        mediatorContextAccessor.Push(context); // Processing time: 80ns
         var pipeline = GetPipeline(action, context);
-        using var enumerator = pipeline.GetEnumerator();
-        await Next(context).ConfigureAwait(false);
-        return;
+
+        var index = -1;
+        return Next(context);
         Task Next(MediatorContext ctx)
         {
-            if (enumerator.MoveNext())
+            index++;
+            if (index >= pipeline.Count)
+                return Task.CompletedTask;
+        
+            var current = pipeline[index];
+        
+            if (current.Parameters is not null)
             {
-                var current = enumerator.Current;
-                if (current.Parameters == null)
-                {
-                    var feature = ctx.Features.Get<MiddlewareParametersFeature>();
-                    // Prevent increasing revision number when not necessary
-                    if (feature != MiddlewareParametersFeature.Default)
-                    {
-                        ctx.Features.Set(MiddlewareParametersFeature.Default);
-                    }
-                }
-                else
-                {
-                    var feature = new MiddlewareParametersFeature(current.Parameters);
-                    ctx.Features.Set(feature);
-                }
-
-                var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
-                return instance.Invoke(ctx, Next);
+                context.Features.Set(new MiddlewareParametersFeature(current.Parameters));
             }
-
-            return Task.CompletedTask;
+            else
+            {
+                context.Features.Set(MiddlewareParametersFeature.Default);
+            }
+        
+            // Pass the continuation as lambda, but not recursively
+            var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
+            return instance.Invoke(context, Next);
         }
-
     }
 
     private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
