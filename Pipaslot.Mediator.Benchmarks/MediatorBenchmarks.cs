@@ -47,7 +47,7 @@ public class MediatorBenchmarks
         }
     }
 
-    public class Pinged : IMessage;
+    public record Pinged : IMessage;
 
     public class PingedHandler : IMessageHandler<Pinged>
     {
