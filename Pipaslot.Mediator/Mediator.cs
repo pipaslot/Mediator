@@ -186,5 +186,5 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
     }
 
-    internal readonly record  struct MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);
+    internal record MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);
 }
