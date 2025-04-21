@@ -166,17 +166,22 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     {
         if (_pipelines.Count > 0)
         {
-            var pipelines = _pipelines
-                .Where(p => p.Condition(action))
-                .ToArray();
-            if (pipelines.Length > 1)
+            var matched = false;
+            foreach (var pipeline in _pipelines)
             {
-                throw MediatorException.TooManyPipelines(action);
+                if (pipeline.Condition(action))
+                {
+                    if (matched)
+                    {
+                        throw MediatorException.TooManyPipelines(action);
+                    }
+                    matched = true;
+                    pipeline.Middlewares.CollectMiddlewares(action, serviceProvider, collection);
+                }
             }
 
-            if (pipelines.Length == 1)
+            if (matched)
             {
-                pipelines.First().Middlewares.CollectMiddlewares(action, serviceProvider, collection);
                 return;
             }
         }
