@@ -23,6 +23,37 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         }
     }
 
+    #region Messages
+    
+    private async Task HandleMessage(MediatorContext context)
+    {
+        var actionType = context.Action.GetType();
+        var handlers = context.GetHandlers();
+        if (handlers.Any())
+        {
+            var runConcurrent = ValidateHandlers(handlers, actionType);
+            if (runConcurrent)
+            {
+                var tasks = handlers
+                    .Select(handler => ExecuteMessage(handler, context))
+                    .ToArray();
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
+            else
+            {
+                var sortedHandlers = Sort(handlers);
+                foreach (var handler in sortedHandlers)
+                {
+                    await ExecuteMessage(handler, context).ConfigureAwait(false);
+                }
+            }
+        }
+        else
+        {
+            context.Status = ExecutionStatus.NoHandlerFound;
+        }
+    }
+    
     /// <summary>
     /// Execute handler
     /// </summary>
@@ -54,72 +85,11 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
             throw;
         }
     }
-
-    /// <summary>
-    /// Execute handler
-    /// </summary>
-    protected async Task ExecuteRequest(object handler, MediatorContext context)
-    {
-        var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
-        try
-        {
-            var task = (Task?)method!.Invoke(handler, [context.Action, context.CancellationToken])!;
-            if (task != null)
-            {
-                await task.ConfigureAwait(false);
-
-                var resultProperty = task.GetType().GetProperty("Result");
-                var result = resultProperty?.GetValue(task);
-                context.AddResult(result ?? new NullActionResult());
-            }
-        }
-        catch (TargetInvocationException e)
-        {
-            context.Status = ExecutionStatus.Failed;
-            if (e.InnerException != null)
-            {
-                // Unwrap exception
-                throw e.InnerException;
-            }
-
-            throw;
-        }
-        catch (Exception)
-        {
-            context.Status = ExecutionStatus.Failed;
-            throw;
-        }
-    }
-
-    private async Task HandleMessage(MediatorContext context)
-    {
-        var actionType = context.Action.GetType();
-        var handlers = context.GetHandlers();
-        if (handlers.Any())
-        {
-            var runConcurrent = ValidateHandlers(handlers, actionType);
-            if (runConcurrent)
-            {
-                var tasks = handlers
-                    .Select(handler => ExecuteMessage(handler, context))
-                    .ToArray();
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
-            else
-            {
-                var sortedHandlers = Sort(handlers);
-                foreach (var handler in sortedHandlers)
-                {
-                    await ExecuteMessage(handler, context).ConfigureAwait(false);
-                }
-            }
-        }
-        else
-        {
-            context.Status = ExecutionStatus.NoHandlerFound;
-        }
-    }
-
+    
+    #endregion
+    
+    #region Requests
+    
     private async Task HandleRequest(MediatorContext context)
     {
         var actionType = context.Action.GetType();
@@ -160,6 +130,46 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
             context.Status = ExecutionStatus.NoHandlerFound;
         }
     }
+
+    /// <summary>
+    /// Execute handler
+    /// </summary>
+    protected async Task ExecuteRequest(object handler, MediatorContext context)
+    {
+        var method = handler.GetType().GetMethod(nameof(IMediatorHandler<IMediatorAction<object>, object>.Handle));
+        try
+        {
+            var task = (Task?)method!.Invoke(handler, [context.Action, context.CancellationToken])!;
+            if (task != null)
+            {
+                await task.ConfigureAwait(false);
+
+                var resultProperty = task.GetType().GetProperty("Result");
+                var result = resultProperty?.GetValue(task);
+                context.AddResult(result ?? new NullActionResult());
+            }
+        }
+        catch (TargetInvocationException e)
+        {
+            context.Status = ExecutionStatus.Failed;
+            if (e.InnerException != null)
+            {
+                // Unwrap exception
+                throw e.InnerException;
+            }
+
+            throw;
+        }
+        catch (Exception)
+        {
+            context.Status = ExecutionStatus.Failed;
+            throw;
+        }
+    }
+    
+    #endregion
+
+    #region Common
 
     internal static bool ValidateHandlers(object[] handlers, Type actionType)
     {
@@ -204,4 +214,6 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
             .Select(i => i.Handler)
             .ToArray();
     }
+    
+    #endregion
 }
