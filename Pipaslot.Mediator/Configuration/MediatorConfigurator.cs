@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Pipelines;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     internal HashSet<Assembly> TrustedAssemblies { get; set; } = [];
     private readonly List<Type> _actionMarkerTypes = [];
     private readonly MiddlewareCollection _middlewares = new(services);
-    private readonly List<(Func<IMediatorAction, bool> Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
+    private readonly List<(IPipelineCondition Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
 
     /// <summary>
     /// Temporary storage used for handler configuration issue detection. Needs to be cleared once mediator is fully configured.
@@ -123,7 +124,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
-    public IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares,
+    public IMediatorConfigurator AddPipeline(IPipelineCondition condition, Action<IMiddlewareRegistrator> subMiddlewares,
         string? identifier = null)
     {
         var collection = new MiddlewareCollection(Services);
@@ -169,7 +170,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
             var matched = false;
             foreach (var pipeline in _pipelines)
             {
-                if (pipeline.Condition(action))
+                if (pipeline.Condition.Matches(action))
                 {
                     if (matched)
                     {
