@@ -26,13 +26,13 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         var handlers = context.GetHandlers();
         if (handlers.Length > 0)
         {
-            var runConcurrent = ValidateHandlers(handlers, actionType);
             if (handlers.Length == 1)
             {
                 // Faster execution when only single handler is available
                 return ExecuteMessage(handlers.First(), context);
             }
 
+            var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
                 var tasks = handlers
@@ -99,13 +99,13 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         var handlers = context.GetHandlers();
         if (handlers.Any())
         {
-            var runConcurrent = ValidateHandlers(handlers, actionType);
             if (handlers.Length == 1)
             {
                 // Faster execution when only single handler is available
                 return ExecuteRequest(handlers.First(), context);
             }
 
+            var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
                 return ExecuteRequestConcurrent(context, handlers);
