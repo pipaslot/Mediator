@@ -20,8 +20,8 @@ public class HandlerExecutionMiddlewareBenchmarks
     {
         var services = new ServiceCollection();
         services.AddMediator()
-            .AddActionsFromAssemblyOf<MediatorBenchmarks>()
-            .AddHandlersFromAssemblyOf<MediatorBenchmarks>();
+            .AddActions([typeof(NotificationAction),typeof(RequestAction)])
+            .AddHandlers([typeof(NotificationActionHandler), typeof(RequestActionHandler)]);
 
         var provider = services.BuildServiceProvider();
 
@@ -46,6 +46,20 @@ public class HandlerExecutionMiddlewareBenchmarks
     }
 
     private record NotificationAction(string Message) : IMediatorAction;
+    private class NotificationActionHandler : IMediatorHandler<NotificationAction>
+    {
+        public Task Handle(NotificationAction action, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
 
     private record RequestAction(string Message) : IMediatorAction<string>;
+    private class RequestActionHandler : IMediatorHandler<RequestAction, string>
+    {
+        public Task<string> Handle(RequestAction action, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(action.Message);
+        }
+    }
 }
