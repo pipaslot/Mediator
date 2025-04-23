@@ -17,8 +17,7 @@ public class ServiceResolver_ResolvePipelinesTests
         var action = new FakeQuery { ExecuteHandlers = false };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
@@ -34,8 +33,7 @@ public class ServiceResolver_ResolvePipelinesTests
         var action = new FakeCommand { ExecuteNested = enableNested };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
@@ -56,10 +54,9 @@ public class ServiceResolver_ResolvePipelinesTests
             c.AddPipeline(x => true, x => { });
         });
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
         Assert.Throws<MediatorException>(() =>
         {
-            var pipeline = sut.GetPipeline(action, context, false).ToArray();
+            var pipeline = sut.GetPipeline(action, false).ToArray();
             Assert.NotNull(pipeline);
         });
     }

@@ -23,8 +23,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
         var action = new FakeQuery { ExecuteHandlers = executeHandlersInFirstMap };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
@@ -44,8 +43,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
         var action = new FakeCommand { ExecuteNested = enableNested };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
@@ -58,8 +56,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
         var action = new FakeNotification();
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
@@ -78,8 +75,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
             c.UseWhen((a, s) => applyCustom, s => s.Use<Query2Middleware>());
         });
         var sut = sp.GetConcreteMediator();
-        var context = MediatorContextFactory.Create(sp, action);
-        var middlewares = sut.GetPipeline(action, context, false);
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
