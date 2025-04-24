@@ -22,7 +22,6 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
 
     private Task HandleMessage(MediatorContext context)
     {
-        var actionType = context.Action.GetType();
         var handlers = context.GetHandlers();
         if (handlers.Length > 0)
         {
@@ -32,6 +31,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
                 return ExecuteMessage(handlers.First(), context);
             }
 
+            var actionType = context.Action.GetType();
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
@@ -95,7 +95,6 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
 
     private Task HandleRequest(MediatorContext context)
     {
-        var actionType = context.Action.GetType();
         var handlers = context.GetHandlers();
         if (handlers.Any())
         {
@@ -105,6 +104,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
                 return ExecuteRequest(handlers.First(), context);
             }
 
+            var actionType = context.Action.GetType();
             var runConcurrent = ValidateHandlers(handlers, actionType);
             if (runConcurrent)
             {
@@ -222,7 +222,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         return anyIsConcurrent;
     }
 
-    private static object[] Sort(object[] handlers)
+    private static T[] Sort<T>(T[] handlers)
     {
         return handlers
             .Select(h => new { Handler = h, Order = h is ISequenceHandler s ? s.Order : int.MaxValue / 2 })
