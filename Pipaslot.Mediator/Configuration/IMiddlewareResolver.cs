@@ -6,5 +6,5 @@ namespace Pipaslot.Mediator.Configuration;
 
 internal interface IMiddlewareResolver
 {
-    internal IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider);
+    internal void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection);
 }

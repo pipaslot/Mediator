@@ -4,13 +4,10 @@ using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Configuration;
 
-internal class MiddlewareDefinition(Type middlewareType, object[]? parameters = null) : IMiddlewareResolver
+internal readonly record struct MiddlewareDefinition(Type Type, object[]? Parameters = null) : IMiddlewareResolver
 {
-    public Type Type { get; } = middlewareType;
-    public object[]? Parameters { get; } = parameters;
-
-    public IEnumerable<MiddlewareDefinition> GetMiddlewares(IMediatorAction action, IServiceProvider serviceProvider)
+    public void CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
     {
-        yield return this;
+        collection.Add(new Mediator.MiddlewarePair(null, Type, Parameters));
     }
 }

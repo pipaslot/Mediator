@@ -5,13 +5,15 @@ using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
-internal class Factory
+internal static class Factory
 {
+    internal static Assembly Assembly { get; } = typeof(Factory).Assembly;
     public static IMediator CreateConfiguredMediator()
     {
         return CreateConfiguredMediator(c => { });
@@ -31,24 +33,16 @@ internal class Factory
     {
         var services = CreateServiceProvider(c =>
             {
-                c.AddActionsFromAssemblyOf<Factory>()
+                c.AddActionsFromAssembly(Assembly)
                     .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                    .AddHandlersFromAssemblyOf<Factory>()
+                    .AddHandlersFromAssembly(Assembly)
                     .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
                 setup(c);
             }
         );
         return services.GetRequiredService<IMediator>();
     }
-
-    public static Mediator CreateInternalMediator(Action<IMediatorConfigurator> setup)
-    {
-        var services = CreateServiceProvider(c =>
-        {
-            setup(c);
-        });
-        return (Mediator)services.GetRequiredService<IMediator>();
-    }
+    public static Mediator GetConcreteMediator(this IServiceProvider sp) => (Mediator)sp.GetRequiredService<IMediator>();
 
     public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
     {

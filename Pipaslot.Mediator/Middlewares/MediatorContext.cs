@@ -12,7 +12,8 @@ public class MediatorContext
     /// <summary>
     /// Unique context identifier
     /// </summary>
-    public Guid Guid { get; } = Guid.NewGuid();
+    private Guid? _guid;
+    public Guid Guid => _guid ??= Guid.NewGuid();
 
     public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
 
@@ -44,9 +45,20 @@ public class MediatorContext
     public CancellationToken CancellationToken { get; private set; }
 
     private IFeatureCollection? _features;
+    
+    private static readonly IFeatureCollection _defaultFeatures = CreateDefaultFeatures();
+
+    private static IFeatureCollection CreateDefaultFeatures()
+    {
+        var featureCollection = new FeatureCollection();
+        featureCollection.Set(MiddlewareParametersFeature.Default);
+        return featureCollection;
+    }
 
     /// <inheritdoc cref="IFeatureCollection"/>
-    public IFeatureCollection Features => _features ??= new FeatureCollection();
+    public IFeatureCollection Features => _features ??= new FeatureCollection(_defaultFeatures);
+    
+    internal bool FeaturesAreInitialized => _features is not null;
 
     public IMediator Mediator { get; }
 
@@ -57,7 +69,7 @@ public class MediatorContext
     /// The last member is always the root action.
     /// </summary>
     public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
-
+    
     private readonly IMediatorContextAccessor _contextAccessor;
     internal IServiceProvider Services { get; }
 

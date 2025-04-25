@@ -5,13 +5,14 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
-public class SerializationBenchmark
+public class SerializationBenchmarks
 {
-    private readonly DataResult _result;
-    private readonly JsonContractSerializer _v3Serializer;
-    private readonly JsonSerializerOptions _options;
-
-    public SerializationBenchmark()
+    private DataResult _result;
+    private JsonContractSerializer _v3Serializer;
+    private JsonSerializerOptions _options;
+    
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         _result = new DataResult(5000);
         var credibleProviderMock = new FakeProvider();

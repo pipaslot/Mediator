@@ -114,7 +114,7 @@ public class ActionEventsMiddlewareTests
         var collection = new ServiceCollection();
         collection.AddLogging();
         collection.AddMediator()
-            .AddActionsFromAssemblyOf<Factory>()
+            .AddActionsFromAssembly(Factory.Assembly)
             .UseActionEvents();
         collection.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
         var services = collection.BuildServiceProvider();

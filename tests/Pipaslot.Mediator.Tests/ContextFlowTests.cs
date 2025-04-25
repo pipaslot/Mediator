@@ -113,15 +113,17 @@ public class ContextFlowTests
         var actions = Enumerable.Range(1, 1000)
             .Select(i => TriggerAction(1, async () =>
             {
+                await Task.Yield(); // force asynchronous context switch
                 await TriggerAction(2, () =>
                 {
                     var current = _flow.GetCurrent();
+                    Assert.NotNull(current);
                     return Task.CompletedTask;
                 });
                 await TriggerAction(2, () =>
                 {
                     var current = _flow.GetCurrent();
-                    // Assert.NotNull(current);
+                    Assert.NotNull(current);
                     return Task.CompletedTask;
                 });
             }))

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares.Pipelines;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -40,15 +40,15 @@ public interface IMediatorConfigurator : IMiddlewareRegistrator
     /// <summary>
     /// Will scan for action markers from the assembly of type <typeparamref name="T"/> and register them.
     /// </summary>
-    /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
+    /// <typeparam name="T">The type from target assembly to be scanned</typeparam>
     IMediatorConfigurator AddActionsFromAssemblyOf<T>();
 
     /// <summary>
-    /// Register pipeline which middlewares will be executed independently
+    /// Register middlewares as pipeline executed independently of the default pipeline
     /// </summary>
     /// <param name="condition"></param>
     /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
     /// <param name="identifier">Customized unique pipeline identifier. Pipeline with the same identifier will be replaced</param>
-    IMediatorConfigurator AddPipeline(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares,
+    IMediatorConfigurator AddPipeline(IPipelineCondition condition, Action<IMiddlewareRegistrator> subMiddlewares,
         string? identifier = null);
 }

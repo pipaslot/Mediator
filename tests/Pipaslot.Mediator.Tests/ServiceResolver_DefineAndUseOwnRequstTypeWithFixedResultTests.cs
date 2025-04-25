@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Tests;
 public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
 {
     [Fact]
-    public void ShouldResolve()
+    public void ShouldResolveRequest()
     {
         var handlerType = typeof(FakeFixedRequestHandler);
         var sut = Factory.CreateServiceProvider(c => c.AddHandlers([handlerType]));
@@ -30,6 +30,31 @@ public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
         public Task<FakeFixedResponse> Handle(FakeFixedRequest request, CancellationToken cancellationToken)
         {
             return Task.FromResult(new FakeFixedResponse());
+        }
+    }
+    
+    [Fact]
+    public void ShouldResolveMessage()
+    {
+        var handlerType = typeof(FakeFixedMessageHandler);
+        var sut = Factory.CreateServiceProvider(c => c.AddHandlers([handlerType]));
+        var handlers = sut.GetMessageHandlers(typeof(FakeFixedMessage));
+
+        Assert.Single(handlers);
+        Assert.Equal(handlerType, handlers.First().GetType());
+    }
+    
+    public interface IFakeFixedMessage : IMessage;
+
+    public interface IFakeFixedMessageHandler<TMessage> : IMessageHandler<TMessage> where TMessage : IFakeFixedMessage;
+
+    public class FakeFixedMessage : IFakeFixedMessage;
+
+    public class FakeFixedMessageHandler : IFakeFixedMessageHandler<FakeFixedMessage>
+    {
+        public Task Handle(FakeFixedMessage Message, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

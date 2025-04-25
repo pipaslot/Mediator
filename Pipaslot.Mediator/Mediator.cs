@@ -11,21 +11,11 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator;
 
 /// <summary>
-/// Mediator which wrapps handler execution into pipelines
+/// Mediator which wraps handler execution into pipelines
 /// </summary>
-internal class Mediator : IMediator
+internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
+    : IMediator
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly MediatorContextAccessor _mediatorContextAccessor;
-    private readonly MediatorConfigurator _configurator;
-
-    public Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
-    {
-        _serviceProvider = serviceProvider;
-        _mediatorContextAccessor = mediatorContextAccessor;
-        _configurator = configurator;
-    }
-
     public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
     {
         if (message is null)
@@ -33,11 +23,10 @@ internal class Mediator : IMediator
             throw new ArgumentNullException(nameof(message));
         }
 
-        var pipeline = GetPipeline(message);
         var context = CreateContext(message, cancellationToken);
         try
         {
-            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+            await ProcessPipeline(message, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
                 throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -59,10 +48,9 @@ internal class Mediator : IMediator
             throw new ArgumentNullException(nameof(message));
         }
 
-        var pipeline = GetPipeline(message);
         var context = CreateContext(message, cancellationToken);
 
-        await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+        await ProcessPipeline(message, context).ConfigureAwait(false);
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
             throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
@@ -82,11 +70,10 @@ internal class Mediator : IMediator
             throw new ArgumentNullException(nameof(request));
         }
 
-        var pipeline = GetPipeline(request);
         var context = CreateContext(request, cancellationToken);
         try
         {
-            await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+            await ProcessPipeline(request, context).ConfigureAwait(false);
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
@@ -116,9 +103,8 @@ internal class Mediator : IMediator
             throw new ArgumentNullException(nameof(request));
         }
 
-        var pipeline = GetPipeline(request);
         var context = CreateContext(request, cancellationToken);
-        await ProcessPipeline(pipeline, context).ConfigureAwait(false);
+        await ProcessPipeline(request, context).ConfigureAwait(false);
         //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
@@ -148,60 +134,57 @@ internal class Mediator : IMediator
         return result;
     }
 
-    internal IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> GetPipeline(IMediatorAction action)
+    internal List<MiddlewarePair> GetPipeline(IMediatorAction action, bool hasParentContext)
     {
-        yield return (new NotificationPropagationMiddleware(), null);
-
-        var middlewareDefinitions = _configurator.GetMiddlewares(action, _serviceProvider);
-        foreach (var middlewareDefinition in middlewareDefinitions)
+        var res = new List<MiddlewarePair>(5);
+        if (hasParentContext)
         {
-            var middlewareInstance = (IMediatorMiddleware)_serviceProvider.GetRequiredService(middlewareDefinition.Type);
-            yield return (middlewareInstance, middlewareDefinition.Parameters);
-            if (middlewareInstance is IExecutionMiddleware)
-            {
-                yield break;
-            }
+            // As performance optimization, we apply the propagation middleware only if there is any parent for the propagation
+            res.Add(new MiddlewarePair(NotificationPropagationMiddleware.Instance, typeof(NotificationPropagationMiddleware), null));
         }
 
-        yield return (_serviceProvider.GetRequiredService<IExecutionMiddleware>(), null);
+        configurator.CollectMiddlewares(action, serviceProvider, res);
+
+        res.Add(new MiddlewarePair(null, typeof(IExecutionMiddleware), null));
+        return res;
     }
 
-    private async Task ProcessPipeline(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> pipeline, MediatorContext context)
+    private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        _mediatorContextAccessor.Push(context);
-        var enumerator = pipeline.GetEnumerator();
+        var contextsCount = mediatorContextAccessor.Push(context);
+        var pipeline = GetPipeline(action, hasParentContext: contextsCount > 1);
 
+        var index = -1;
+        return Next(context);
         Task Next(MediatorContext ctx)
         {
-            if (enumerator.MoveNext())
+            index++;
+            if (index >= pipeline.Count)
             {
-                var current = enumerator.Current;
-                if (current.Parameters == null)
-                {
-                    var feature = ctx.Features.Get<MiddlewareParametersFeature>();
-                    // Prevent increasing revision number when not necessary
-                    if (feature != MiddlewareParametersFeature.Default)
-                    {
-                        ctx.Features.Set(MiddlewareParametersFeature.Default);
-                    }
-                }
-                else
-                {
-                    var feature = new MiddlewareParametersFeature(current.Parameters);
-                    ctx.Features.Set(feature);
-                }
-
-                return current.Instance.Invoke(ctx, Next);
+                return Task.CompletedTask;
+            }
+        
+            var current = pipeline[index];
+        
+            if (current.Parameters is not null)
+            {
+                ctx.Features.Set(new MiddlewareParametersFeature(current.Parameters));
+            }
+            else if (ctx.FeaturesAreInitialized)// Avoid feature collection initialization as the MiddlewareParametersFeature is provided as default parameter always available during reading
+            {
+                // Reset parameters as we are executing different middleware
+                ctx.Features.Set(MiddlewareParametersFeature.Default);
             }
 
-            return Task.CompletedTask;
+            var instance = current.Instance ?? (IMediatorMiddleware)serviceProvider.GetRequiredService(current.ResolvableType);
+            return instance.Invoke(ctx, Next);
         }
-
-        await Next(context).ConfigureAwait(false);
     }
 
     private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
     {
-        return new MediatorContext(this, _mediatorContextAccessor, _serviceProvider, action, cancellationToken, null, null);
+        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
     }
+
+    internal record MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);
 }

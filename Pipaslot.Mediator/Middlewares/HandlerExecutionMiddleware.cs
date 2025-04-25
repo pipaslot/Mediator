@@ -11,15 +11,49 @@ namespace Pipaslot.Mediator.Middlewares;
 /// </summary>
 public class HandlerExecutionMiddleware : IExecutionMiddleware
 {
-    public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
+    public Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
-        if (context.HasActionReturnValue)
+        return context.HasActionReturnValue
+            ? HandleRequest(context)
+            : HandleMessage(context);
+    }
+
+    #region Messages
+
+    private Task HandleMessage(MediatorContext context)
+    {
+        var handlers = context.GetHandlers();
+        if (handlers.Length > 0)
         {
-            await HandleRequest(context).ConfigureAwait(false);
+            if (handlers.Length == 1)
+            {
+                // Faster execution when only single handler is available
+                return ExecuteMessage(handlers.First(), context);
+            }
+
+            var actionType = context.Action.GetType();
+            var runConcurrent = ValidateHandlers(handlers, actionType);
+            if (runConcurrent)
+            {
+                var tasks = handlers
+                    .Select(handler => ExecuteMessage(handler, context))
+                    .ToArray();
+                return Task.WhenAll(tasks);
+            }
+
+            return ExecutedMessagesInSequence(context, handlers);
         }
-        else
+
+        context.Status = ExecutionStatus.NoHandlerFound;
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecutedMessagesInSequence(MediatorContext context, object[] handlers)
+    {
+        var sortedHandlers = Sort(handlers);
+        foreach (var handler in sortedHandlers)
         {
-            await HandleMessage(context).ConfigureAwait(false);
+            await ExecuteMessage(handler, context).ConfigureAwait(false);
         }
     }
 
@@ -52,6 +86,64 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         {
             context.Status = ExecutionStatus.Failed;
             throw;
+        }
+    }
+
+    #endregion
+
+    #region Requests
+
+    private Task HandleRequest(MediatorContext context)
+    {
+        var handlers = context.GetHandlers();
+        if (handlers.Any())
+        {
+            if (handlers.Length == 1)
+            {
+                // Faster execution when only single handler is available
+                return ExecuteRequest(handlers.First(), context);
+            }
+
+            var actionType = context.Action.GetType();
+            var runConcurrent = ValidateHandlers(handlers, actionType);
+            if (runConcurrent)
+            {
+                return ExecuteRequestConcurrent(context, handlers);
+            }
+
+            return ExecuteRequestInSequence(context, handlers);
+        }
+
+        context.Status = ExecutionStatus.NoHandlerFound;
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteRequestInSequence(MediatorContext context, object[] handlers)
+    {
+        var sortedHandlers = Sort(handlers);
+        foreach (var handler in sortedHandlers)
+        {
+            await ExecuteRequest(handler, context).ConfigureAwait(false);
+        }
+    }
+
+    private async Task ExecuteRequestConcurrent(MediatorContext context, object[] handlers)
+    {
+        var tasks = handlers
+            .Select(async handler =>
+            {
+                var resp = context.CopyEmpty();
+                await ExecuteRequest(handler, resp).ConfigureAwait(false);
+                return resp;
+            })
+            .ToArray();
+        var tasksResults = await Task.WhenAll(tasks).ConfigureAwait(false);
+        foreach (var taskResult in tasksResults)
+        {
+            if (taskResult is not null)
+            {
+                context.Append(taskResult);
+            }
         }
     }
 
@@ -91,75 +183,9 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         }
     }
 
-    private async Task HandleMessage(MediatorContext context)
-    {
-        var actionType = context.Action.GetType();
-        var handlers = context.GetHandlers();
-        if (handlers.Any())
-        {
-            var runConcurrent = ValidateHandlers(handlers, actionType);
-            if (runConcurrent)
-            {
-                var tasks = handlers
-                    .Select(handler => ExecuteMessage(handler, context))
-                    .ToArray();
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
-            else
-            {
-                var sortedHandlers = Sort(handlers);
-                foreach (var handler in sortedHandlers)
-                {
-                    await ExecuteMessage(handler, context).ConfigureAwait(false);
-                }
-            }
-        }
-        else
-        {
-            context.Status = ExecutionStatus.NoHandlerFound;
-        }
-    }
+    #endregion
 
-    private async Task HandleRequest(MediatorContext context)
-    {
-        var actionType = context.Action.GetType();
-        var handlers = context.GetHandlers();
-        if (handlers.Any())
-        {
-            var runConcurrent = ValidateHandlers(handlers, actionType);
-            if (runConcurrent)
-            {
-                var tasks = handlers
-                    .Select(async handler =>
-                    {
-                        var resp = context.CopyEmpty();
-                        await ExecuteRequest(handler, resp).ConfigureAwait(false);
-                        return resp;
-                    })
-                    .ToArray();
-                var tasksResults = await Task.WhenAll(tasks).ConfigureAwait(false);
-                foreach (var taskResult in tasksResults)
-                {
-                    if (taskResult is not null)
-                    {
-                        context.Append(taskResult);
-                    }
-                }
-            }
-            else
-            {
-                var sortedHandlers = Sort(handlers);
-                foreach (var handler in sortedHandlers)
-                {
-                    await ExecuteRequest(handler, context).ConfigureAwait(false);
-                }
-            }
-        }
-        else
-        {
-            context.Status = ExecutionStatus.NoHandlerFound;
-        }
-    }
+    #region Common
 
     internal static bool ValidateHandlers(object[] handlers, Type actionType)
     {
@@ -196,7 +222,7 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
         return anyIsConcurrent;
     }
 
-    private static object[] Sort(object[] handlers)
+    private static T[] Sort<T>(T[] handlers)
     {
         return handlers
             .Select(h => new { Handler = h, Order = h is ISequenceHandler s ? s.Order : int.MaxValue / 2 })
@@ -204,4 +230,6 @@ public class HandlerExecutionMiddleware : IExecutionMiddleware
             .Select(i => i.Handler)
             .ToArray();
     }
+
+    #endregion
 }

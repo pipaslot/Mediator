@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,40 +9,59 @@ namespace Pipaslot.Mediator.Tests;
 public class ServiceResolver_ResolvePipelinesTests
 {
     [Theory]
-    [InlineData(1, typeof(NotificationPropagationMiddleware))]
-    [InlineData(2, typeof(BeforeMiddleware))]
-    [InlineData(3, typeof(AfterMiddleware))]
-    [InlineData(4, typeof(HandlerExecutionMiddleware))]
+    [InlineData(1, typeof(BeforeMiddleware))]
+    [InlineData(2, typeof(AfterMiddleware))]
+    [InlineData(3, typeof(IExecutionMiddleware))]
     public void QueryPath(int position, Type expectedMiddleware)
     {
-        var sut = CreateServiceResolver();
-        var middlewares = sut.GetPipeline(new FakeQuery { ExecuteHandlers = false });
+        var action = new FakeQuery { ExecuteHandlers = false };
+        var sp = CreateServiceResolver();
+        var sut = sp.GetConcreteMediator();
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
     [Theory]
-    [InlineData(true, 1, typeof(NotificationPropagationMiddleware))]
-    [InlineData(true, 2, typeof(PipelineMiddleware))]
-    [InlineData(true, 3, typeof(PipelineNestedMiddleware))]
-    [InlineData(true, 4, typeof(HandlerExecutionMiddleware))]
-    [InlineData(false, 1, typeof(NotificationPropagationMiddleware))]
-    [InlineData(false, 2, typeof(PipelineMiddleware))]
-    [InlineData(false, 3, typeof(HandlerExecutionMiddleware))]
+    [InlineData(true, 1, typeof(PipelineMiddleware))]
+    [InlineData(true, 2, typeof(PipelineNestedMiddleware))]
+    [InlineData(true, 3, typeof(IExecutionMiddleware))]
+    
+    [InlineData(false, 1, typeof(PipelineMiddleware))]
+    [InlineData(false, 2, typeof(IExecutionMiddleware))]
     public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
     {
-        var sut = CreateServiceResolver();
-        var middlewares = sut.GetPipeline(new FakeCommand { ExecuteNested = enableNested });
+        var action = new FakeCommand { ExecuteNested = enableNested };
+        var sp = CreateServiceResolver();
+        var sut = sp.GetConcreteMediator();
+        var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    private void VerifyMiddleware(IEnumerable<(IMediatorMiddleware Instance, object[]? Parameters)> middlewares, int position,
+    private void VerifyMiddleware(IEnumerable<Mediator.MiddlewarePair> middlewares, int position,
         Type expectedMiddleware)
     {
-        var actual = middlewares.Skip(position - 1).First().Instance.GetType();
+        var actual = middlewares.Skip(position - 1).First().ResolvableType;
         Assert.Equal(expectedMiddleware, actual);
     }
 
-    private static Mediator CreateServiceResolver()
+    [Fact]
+    public void ActionMatchingMultiplePipelines_ThrowExcepton()
+    {
+        var action = new FakeCommand();
+        var sp = Factory.CreateServiceProvider(c =>
+        {
+            c.AddPipelineForAction<ICommand>(x => { });
+            c.AddPipeline(x => true, x => { });
+        });
+        var sut = sp.GetConcreteMediator();
+        Assert.Throws<MediatorException>(() =>
+        {
+            var pipeline = sut.GetPipeline(action, false).ToArray();
+            Assert.NotNull(pipeline);
+        });
+    }
+
+    private static IServiceProvider CreateServiceResolver()
     {
         var sp = Factory.CreateServiceProvider(c =>
         {
@@ -54,24 +72,9 @@ public class ServiceResolver_ResolvePipelinesTests
                 )
                 .Use<AfterMiddleware>();
         });
-        return (Mediator)sp.GetRequiredService<IMediator>();
+        return sp;
     }
-
-    [Fact]
-    public void ActionMatchingMultiplePipelines_ThrowExcepton()
-    {
-        var sp = Factory.CreateServiceProvider(c =>
-        {
-            c.AddPipelineForAction<ICommand>(x => { });
-            c.AddPipeline(x => true, x => { });
-        });
-        var sut = (Mediator)sp.GetRequiredService<IMediator>();
-        Assert.Throws<MediatorException>(() =>
-        {
-            var pipeline = sut.GetPipeline(new FakeCommand()).ToArray();
-            Assert.NotNull(pipeline);
-        });
-    }
+    
 
     public interface IQuery : IRequest;
 
