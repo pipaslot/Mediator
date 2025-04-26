@@ -15,7 +15,8 @@ namespace Pipaslot.Mediator.Benchmarks;
 public class MediatorMiddlewareBenchmark
 {
     private MediatorMiddleware _middleware = null!;
-    private DefaultHttpContext _context = null!;
+    private DefaultHttpContext _messageContext = null!;
+    private DefaultHttpContext _requestContext = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -32,7 +33,7 @@ public class MediatorMiddlewareBenchmark
             new ServerMediatorOptions(),
             serviceProvider.GetRequiredService<IContractSerializer>());
 
-        _context = new DefaultHttpContext
+        _messageContext = new DefaultHttpContext
         {
             RequestServices = serviceProvider,
             Request =
@@ -44,11 +45,30 @@ public class MediatorMiddlewareBenchmark
                     @"{ ""$type"":""Pipaslot.Mediator.Benchmarks.Actions.MessageAction, Pipaslot.Mediator.Benchmarks"" }"))
             }
         };
+        
+        _requestContext = new DefaultHttpContext
+        {
+            RequestServices = serviceProvider,
+            Request =
+            {
+                Method = "POST",
+                Path = MediatorConstants.Endpoint,
+                ContentType = "application/json",
+                Body = new MemoryStream(Encoding.UTF8.GetBytes(
+                    @"{ ""$type"":""Pipaslot.Mediator.Benchmarks.Actions.RequestAction, Pipaslot.Mediator.Benchmarks"", ""Message"":""Hello World"" }"))
+            }
+        };
     }
 
     [Benchmark]
-    public async Task InvokeMediatorMiddleware()
+    public async Task Message()
     {
-        await _middleware.Invoke(_context);
+        await _middleware.Invoke(_messageContext);
+    }
+
+    [Benchmark]
+    public async Task Request()
+    {
+        await _middleware.Invoke(_requestContext);
     }
 }
