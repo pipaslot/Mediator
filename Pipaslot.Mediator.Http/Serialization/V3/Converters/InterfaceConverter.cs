@@ -21,8 +21,7 @@ internal class InterfaceConverter<T>(ICredibleProvider credibleActions) : JsonCo
             throw new JsonException();
         }
 
-        var propertyName = readerClone.GetString() ?? string.Empty;
-        if (propertyName != "$type")
+        if (!readerClone.ValueTextEquals("$type"u8))
         {
             throw new JsonException();
         }
@@ -51,8 +50,7 @@ internal class InterfaceConverter<T>(ICredibleProvider credibleActions) : JsonCo
                 throw new JsonException("Property was expected");
             }
 
-            propertyName = readerClone.GetString() ?? string.Empty;
-            if (propertyName != "Items")
+            if (!readerClone.ValueTextEquals("Items"u8))
             {
                 throw new JsonException("Property with name Items was expected");
             }
