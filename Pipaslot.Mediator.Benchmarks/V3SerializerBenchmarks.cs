@@ -7,9 +7,9 @@ namespace Pipaslot.Mediator.Benchmarks;
 
 public class SerializationBenchmarks
 {
-    private DataResult _result;
-    private JsonContractSerializer _v3Serializer;
-    private JsonSerializerOptions _options;
+    private DataResult _result = null!;
+    private JsonContractSerializer _v3Serializer = null!;
+    private JsonSerializerOptions _options = null!;
     
     [GlobalSetup]
     public void GlobalSetup()

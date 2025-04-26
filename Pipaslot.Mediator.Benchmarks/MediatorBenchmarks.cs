@@ -9,11 +9,12 @@ namespace Pipaslot.Mediator.Benchmarks;
 [MemoryDiagnoser]
 public class MediatorBenchmarks
 {
-    private readonly IMediator _mediator;
+    private IMediator _mediator = null!;
     private readonly Pinged _message = new();
     private readonly Ping _request = new("Hello World");
 
-    public MediatorBenchmarks()
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         var services = new ServiceCollection();
         services.AddMediator()

@@ -11,12 +11,13 @@ namespace Pipaslot.Mediator.Benchmarks;
 [MemoryDiagnoser]
 public class HandlerExecutionMiddlewareBenchmarks
 {
-    private readonly MediatorContext _notification;
-    private readonly MediatorContext _request;
+    private MediatorContext _notification = null!;
+    private MediatorContext _request = null!;
     private Task Next(MediatorContext context) => Task.CompletedTask;
     private readonly HandlerExecutionMiddleware _executionMiddleware = new ();
 
-    public HandlerExecutionMiddlewareBenchmarks()
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         var services = new ServiceCollection();
         services.AddMediator()
