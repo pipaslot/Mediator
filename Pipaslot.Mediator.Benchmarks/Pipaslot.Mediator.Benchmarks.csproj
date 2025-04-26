@@ -15,6 +15,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
         <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
     </ItemGroup>
 

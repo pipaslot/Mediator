@@ -5,7 +5,7 @@ using Pipaslot.Mediator.Benchmarks.Actions;
 namespace Pipaslot.Mediator.Benchmarks;
 
 /// <summary>
-/// Measure an overall mediator performance
+/// Measure an overall mediator performance when invoked on server side
 /// </summary>
 [MemoryDiagnoser]
 public class MediatorBenchmarks

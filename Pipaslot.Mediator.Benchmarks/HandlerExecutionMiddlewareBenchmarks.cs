@@ -6,7 +6,7 @@ using Pipaslot.Mediator.Middlewares;
 namespace Pipaslot.Mediator.Benchmarks;
 
 /// <summary>
-/// Benchmark middleware resolving and running handlers
+/// Middleware resolving and running handlers
 /// </summary>
 [MemoryDiagnoser]
 public class HandlerExecutionMiddlewareBenchmarks

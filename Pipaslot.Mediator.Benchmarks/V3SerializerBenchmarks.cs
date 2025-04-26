@@ -5,6 +5,10 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
+/// <summary>
+/// Compare Mediator serializer and the default .NET serializer
+/// </summary>
+[MemoryDiagnoser]
 public class SerializationBenchmarks
 {
     private DataResult _result = null!;
@@ -14,7 +18,7 @@ public class SerializationBenchmarks
     [GlobalSetup]
     public void GlobalSetup()
     {
-        _result = new DataResult(5000);
+        _result = new DataResult(1000);
         var credibleProviderMock = new FakeProvider();
         var options = new ClientMediatorOptions();
         _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
