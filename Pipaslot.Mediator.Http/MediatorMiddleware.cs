@@ -17,11 +17,11 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 {
     public async Task Invoke(HttpContext context)
     {
-        context.Features.Set(new MediatorHttpContextFeature());
+        context.Features.Set(MediatorHttpContextFeature.Instance);
 
-        var method = context.Request.Method.ToUpper();
-        var isPost = method == "POST";
-        var isGet = method == "GET";
+        var method = context.Request.Method;
+        var isPost = HttpMethods.IsPost(method);
+        var isGet = HttpMethods.IsGet(method);
         if (context.Request.Path == option.Endpoint && (isPost || isGet))
         {
             var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
@@ -67,8 +67,8 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 var form = await context.Request.ReadFormAsync(context.RequestAborted).ConfigureAwait(false);
 
                 // Get json metadata
-                var jsonPart = form[MediatorConstants.MultipartFormDataJson];
-                var streams = new List<StreamContract>();
+                var jsonPart = form[MediatorConstants.MultipartFormDataJson].ToString();
+                var streams = new List<StreamContract>(form.Files.Count);
                 foreach (var file in form.Files)
                 {
                     streams.Add(new StreamContract(file.FileName, file.OpenReadStream()));
