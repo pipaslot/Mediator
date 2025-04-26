@@ -6,15 +6,8 @@ using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3.Converters;
 
-internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
+internal class MediatorResponseConverter(ICredibleProvider credibleResults) : JsonConverter<IMediatorResponse>
 {
-    private readonly ICredibleProvider _credibleResults;
-
-    public MediatorResponseConverter(ICredibleProvider credibleResults)
-    {
-        _credibleResults = credibleResults;
-    }
-
     public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var success = false;
@@ -127,7 +120,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
             {
                 // Ignored for arrays because interface array has type specfied for every member
                 // and the type will be verified by interface converter
-                _credibleResults.VerifyCredibility(resultType);
+                credibleResults.VerifyCredibility(resultType);
             }
 
             readerClone.Read();
@@ -149,7 +142,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
         }
 
-        _credibleResults.VerifyCredibility(resultType);
+        credibleResults.VerifyCredibility(resultType);
         return JsonSerializer.Deserialize(ref reader, resultType, options)
                ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
     }

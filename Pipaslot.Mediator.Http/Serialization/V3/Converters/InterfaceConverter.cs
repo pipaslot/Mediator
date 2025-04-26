@@ -5,15 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3.Converters;
 
-internal class InterfaceConverter<T> : JsonConverter<T>
+internal class InterfaceConverter<T>(ICredibleProvider credibleActions) : JsonConverter<T>
 {
-    private readonly ICredibleProvider _credibleActions;
-
-    public InterfaceConverter(ICredibleProvider credibleActions)
-    {
-        _credibleActions = credibleActions;
-    }
-
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var readerClone = reader;
@@ -49,7 +42,7 @@ internal class InterfaceConverter<T> : JsonConverter<T>
             {
                 // Ignored for arrays because interface array has type specfied for every member
                 // and the type will be verified by interface converter
-                _credibleActions.VerifyCredibility(resultType);
+                credibleActions.VerifyCredibility(resultType);
             }
 
             readerClone.Read();
@@ -70,7 +63,7 @@ internal class InterfaceConverter<T> : JsonConverter<T>
         }
         else
         {
-            _credibleActions.VerifyCredibility(resultType);
+            credibleActions.VerifyCredibility(resultType);
         }
 
         var des = JsonSerializer.Deserialize(ref reader, resultType, options)
