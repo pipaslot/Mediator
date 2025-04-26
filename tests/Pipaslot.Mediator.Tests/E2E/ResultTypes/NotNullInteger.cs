@@ -12,7 +12,7 @@ public class NotNullInteger
     [InlineData(100)]
     public async Task Execute_ShouldPass(int value)
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(value));
         Assert.True(result.Success);
         Assert.Equal(value, result.Result);
@@ -24,7 +24,7 @@ public class NotNullInteger
     [InlineData(100)]
     public async Task ExecuteUnhandled_ShouldPass(int value)
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(value));
         Assert.Equal(value, result);
     }

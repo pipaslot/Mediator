@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
@@ -75,10 +74,8 @@ public class MultiHandlerSequenceExecutionTests
 
     private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
     {
-        var mediator = new Mock<IMediator>();
         var sut = new HandlerExecutionMiddleware();
-        var mcaMock = new Mock<IMediatorContextAccessor>();
-        var context = new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None, null, null);
+        var context = services.CreateMediatorContext(action);
         var next = Factory.CreateMiddlewareDelegate();
         await sut.Invoke(context, next);
         return context;

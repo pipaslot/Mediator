@@ -149,7 +149,7 @@ public class MediatorContext
 
     /// <summary>
     /// Replace actual cancellation token by own one. 
-    /// Can be used as hooking to application events to cancel operations relevat to leaved pages/requests.
+    /// Can be used as hooking to application events to cancel operations relevant for abandoned pages/requests.
     /// </summary>
     public void SetCancellationToken(CancellationToken cancellationToken)
     {
