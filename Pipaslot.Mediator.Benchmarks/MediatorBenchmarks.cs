@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Benchmarks.Actions;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
@@ -10,16 +11,16 @@ namespace Pipaslot.Mediator.Benchmarks;
 public class MediatorBenchmarks
 {
     private IMediator _mediator = null!;
-    private readonly Pinged _message = new();
-    private readonly Ping _request = new("Hello World");
+    private readonly MessageAction _message = new();
+    private readonly RequestAction _request = new("Hello World");
 
     [GlobalSetup]
     public void GlobalSetup()
     {
         var services = new ServiceCollection();
         services.AddMediator()
-            .AddActions([typeof(Ping), typeof(Pinged)])
-            .AddHandlers([typeof(PingHandler), typeof(PingedHandler)]);
+            .AddActions([typeof(MessageAction), typeof(RequestAction)])
+            .AddHandlers([typeof(MessageActionHandler), typeof(RequestActionHandler)]);
 
         var provider = services.BuildServiceProvider();
 
@@ -36,25 +37,5 @@ public class MediatorBenchmarks
     public Task Dispatch()
     {
         return _mediator.DispatchUnhandled(_message);
-    }
-
-    public record Ping(string Message) : IRequest<string>;
-
-    public class PingHandler : IRequestHandler<Ping, string>
-    {
-        public Task<string> Handle(Ping request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(request.Message);
-        }
-    }
-
-    public record Pinged : IMessage;
-
-    public class PingedHandler : IMessageHandler<Pinged>
-    {
-        public Task Handle(Pinged notification, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

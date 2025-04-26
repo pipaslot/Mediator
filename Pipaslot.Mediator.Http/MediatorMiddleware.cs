@@ -66,7 +66,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 // body was sent as Multipart form-data
                 var form = await context.Request.ReadFormAsync(context.RequestAborted).ConfigureAwait(false);
 
-                // Get json metadate
+                // Get json metadata
                 var jsonPart = form[MediatorConstants.MultipartFormDataJson];
                 var streams = new List<StreamContract>();
                 foreach (var file in form.Files)
