@@ -13,48 +13,7 @@ using Pipaslot.Mediator.Http;
 using System.Text.Json;
 using IHost = Microsoft.Extensions.Hosting.IHost;
 
-// ---- Služba ----
-public interface IDummyService
-{
-    Task DoSomethingAsync();
-}
 
-public class DummyService : IDummyService
-{
-    public Task DoSomethingAsync() => Task.CompletedTask;
-}
-
-public class DummyMiddleware(RequestDelegate next, IDummyService service)
-{
-    public async Task Invoke(HttpContext context)
-    {
-        if (context.Request.Path.StartsWithSegments(""))
-        {
-            await service.DoSomethingAsync();
-            context.Response.StatusCode = 200;
-            context.Response.ContentType = "application/json; charset=utf-8";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new MediatorResponse(true, [])));
-        }
-        else
-        {
-            await next(context);
-        }
-    }
-}
-
-[ApiController]
-[Route("[controller]")]
-public class DummyController(IDummyService service) : ControllerBase
-{
-    [HttpPost]
-    public async Task<IActionResult> Post()
-    {
-        await service.DoSomethingAsync();
-        return new JsonResult(new MediatorResponse(true, []));
-    }
-}
-
-// ---- Benchmark ----
 [MemoryDiagnoser]
 public class AspNetBenchmarks
 {
@@ -80,7 +39,7 @@ public class AspNetBenchmarks
                     app.UseRouting();
                     app.UseEndpoints(endpoints =>
                     {
-                        endpoints.MapPost("/minimal",async  (IDummyService service) =>
+                        endpoints.MapPost("/minimal", async (IDummyService service) =>
                         {
                             await service.DoSomethingAsync();
                             return new MediatorResponse(true, []);
@@ -120,21 +79,21 @@ public class AspNetBenchmarks
         _ = await response.Content.ReadAsStringAsync();
     }
 
-    // [Benchmark]
-    // public async Task MinimalApi()
-    // {
-    //     var response = await _client.PostAsync("/minimal", _aspnetContent);
-    //     response.EnsureSuccessStatusCode();
-    //     _ = await response.Content.ReadAsStringAsync();
-    // }
-    //
-    // [Benchmark]
-    // public async Task Controller()
-    // {
-    //     var response = await _client.PostAsync("/Dummy", _aspnetContent);
-    //     response.EnsureSuccessStatusCode();
-    //     _ = await response.Content.ReadAsStringAsync();
-    // }
+    [Benchmark]
+    public async Task MinimalApi()
+    {
+        var response = await _client.PostAsync("/minimal", _aspnetContent);
+        response.EnsureSuccessStatusCode();
+        _ = await response.Content.ReadAsStringAsync();
+    }
+
+    [Benchmark]
+    public async Task Controller()
+    {
+        var response = await _client.PostAsync("/Dummy", _aspnetContent);
+        response.EnsureSuccessStatusCode();
+        _ = await response.Content.ReadAsStringAsync();
+    }
 
     [Benchmark]
     public async Task Mediator()
@@ -142,5 +101,45 @@ public class AspNetBenchmarks
         var response = await _client.PostAsync(MediatorConstants.Endpoint, _mediatorContent);
         response.EnsureSuccessStatusCode();
         _ = await response.Content.ReadAsStringAsync();
+    }
+}
+
+public interface IDummyService
+{
+    Task DoSomethingAsync();
+}
+
+public class DummyService : IDummyService
+{
+    public Task DoSomethingAsync() => Task.CompletedTask;
+}
+
+public class DummyMiddleware(RequestDelegate next, IDummyService service)
+{
+    public async Task Invoke(HttpContext context)
+    {
+        if (context.Request.Path.StartsWithSegments(""))
+        {
+            await service.DoSomethingAsync();
+            context.Response.StatusCode = 200;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new MediatorResponse(true, [])));
+        }
+        else
+        {
+            await next(context);
+        }
+    }
+}
+
+[ApiController]
+[Route("[controller]")]
+public class DummyController(IDummyService service) : ControllerBase
+{
+    [HttpPost]
+    public async Task<IActionResult> Post()
+    {
+        await service.DoSomethingAsync();
+        return new JsonResult(new MediatorResponse(true, []));
     }
 }
