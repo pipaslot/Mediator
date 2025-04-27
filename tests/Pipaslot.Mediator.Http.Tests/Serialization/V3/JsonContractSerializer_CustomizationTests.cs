@@ -19,9 +19,9 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
 
         var serialized = sut.SerializeRequest(new ActionWithReadOnlyProperties()).Json;
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.PrivateSet), serialized, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.PrivateSet), serialized, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -32,9 +32,9 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
         var response = new MediatorResponse(true, [new ActionWithReadOnlyProperties()]);
         var serialized = sut.SerializeResponse(response);
         Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(nameof(ActionWithReadOnlyProperties.PrivateSet), serialized, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.FullName), serialized, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.GetterOnly), serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(nameof(DtoWithReadOnlyProperties.PrivateSet), serialized, StringComparison.OrdinalIgnoreCase);
     }
 
     private static IContractSerializer CreateSerializer()
@@ -52,7 +52,7 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
 
         public string FullName => $"{FirstName} {Lastname}";
 
-        public string GetterOnly { get; private set; } = "P1";
+        public string PrivateSet { get; private set; } = "P1";
 
         public DtoWithReadOnlyProperties Dto { get; set; } = new();
     }
@@ -64,6 +64,6 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
 
         public string FullName => $"{FirstName} {Lastname}";
 
-        public string GetterOnly { get; private set; } = "P1";
+        public string PrivateSet { get; private set; } = "P1";
     }
 }

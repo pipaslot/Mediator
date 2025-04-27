@@ -35,7 +35,7 @@ public class SerializationBenchmarks
         _options = new JsonSerializerOptions { PropertyNamingPolicy = null };
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void SystemTextJsonSerializer()
     {
         var resp = new FakeResponse { Success = true, Results = [_result] };
