@@ -73,8 +73,7 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
             throw new JsonException("Property was expected");
         }
 
-        var propertyName = readerClone.GetString();
-        if (propertyName != "$type")
+        if (!readerClone.ValueTextEquals("$type"u8))
         {
             throw new JsonException("Property with name $type was expected");
         }
@@ -100,8 +99,7 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
                 throw new JsonException("Property was expected");
             }
 
-            propertyName = readerClone.GetString();
-            if (propertyName != "Value")
+            if (!readerClone.ValueTextEquals("Value"u8))
             {
                 throw new JsonException("Property with name 'Value' was expected");
             }
@@ -129,8 +127,7 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
                 throw new JsonException("Property was expected");
             }
 
-            propertyName = readerClone.GetString();
-            if (propertyName != "Items")
+            if (!readerClone.ValueTextEquals("Items"u8))
             {
                 throw new JsonException("Property with name 'Items' was expected");
             }
@@ -184,10 +181,19 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
 
     private bool AsPrimitive(Type type)
     {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            type = Nullable.GetUnderlyingType(type)!;
+        }
+
         return type.IsPrimitive
+               || type.IsEnum
                || type == typeof(string)
                || type == typeof(decimal)
                || type == typeof(DateTime)
-               || type == typeof(DateTimeOffset);
+               || type == typeof(DateTimeOffset)
+               || type == typeof(Guid)
+               || type == typeof(DateOnly)
+               || type == typeof(TimeOnly);
     }
 }
