@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Benchmarks;
 /// Measure performance of the client side part with mocked HTTP networking
 /// </summary>
 [MemoryDiagnoser]
-public class ClientSideBenchmarks
+public class MediatorClient
 {
     private IMediator _mediator = null!;
     private HttpClient _httpClient = null!;

@@ -15,7 +15,7 @@ using IHost = Microsoft.Extensions.Hosting.IHost;
 
 
 [MemoryDiagnoser]
-public class AspNetBenchmarks
+public class MediatorVsAspNet
 {
     private IHost _host;
     private HttpClient _client;

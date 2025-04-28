@@ -5,10 +5,10 @@ using Pipaslot.Mediator.Benchmarks.Actions;
 namespace Pipaslot.Mediator.Benchmarks;
 
 /// <summary>
-/// Measure an overall mediator performance when invoked on server side
+/// Measure an overall mediator performance for in-process use-case without networking
 /// </summary>
 [MemoryDiagnoser]
-public class MediatorBenchmarks
+public class MediatorCore
 {
     private IMediator _mediator = null!;
     private readonly MessageAction _message = new();

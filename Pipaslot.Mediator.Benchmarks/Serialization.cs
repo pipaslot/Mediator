@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Benchmarks;
 /// Compare Mediator serializer and the default .NET serializer
 /// </summary>
 [MemoryDiagnoser]
-public class SerializationBenchmarks
+public class Serialization
 {
     private DataResult _result = null!;
     private JsonContractSerializer _v3Serializer = null!;

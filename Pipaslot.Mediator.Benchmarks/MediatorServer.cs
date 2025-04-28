@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Benchmarks;
 /// Measure an overall mediator performance including HTTP request processing on the server side
 /// </summary>
 [MemoryDiagnoser]
-public class ServerSideBenchmarks
+public class MediatorServer
 {
     private MediatorMiddleware _middleware = null!;
     private DefaultHttpContext _messageContext = null!;
