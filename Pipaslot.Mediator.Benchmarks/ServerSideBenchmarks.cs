@@ -9,10 +9,10 @@ using System.Text;
 
 namespace Pipaslot.Mediator.Benchmarks;
 /// <summary>
-/// Measure an overall mediator performance including HTTP request processing
+/// Measure an overall mediator performance including HTTP request processing on the server side
 /// </summary>
 [MemoryDiagnoser]
-public class MediatorMiddlewareBenchmark
+public class ServerSideBenchmarks
 {
     private MediatorMiddleware _middleware = null!;
     private DefaultHttpContext _messageContext = null!;
