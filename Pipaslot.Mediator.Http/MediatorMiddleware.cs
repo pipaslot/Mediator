@@ -59,6 +59,10 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                     : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
                         ? actionQuery.ToString()
                         : "";
+                if (string.IsNullOrWhiteSpace(body))
+                {
+                    throw MediatorHttpException.CreateForInvalidRequest(body);
+                }
                 action = serializer.DeserializeRequest(body, []);
             }
             else
@@ -101,25 +105,19 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
     private static async Task<string> GetBody(HttpContext context)
     {
         using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
-        var body = await reader.ReadToEndAsync().ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(body))
-        {
-            throw MediatorHttpException.CreateForInvalidRequest(body);
-        }
-
-        return body;
+        return await reader.ReadToEndAsync().ConfigureAwait(false);
     }
 
-    private static async Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
+    private static Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
     {
         try
         {
-            return await mediator.Dispatch(message, cancellationToken).ConfigureAwait(false);
+            return mediator.Dispatch(message, cancellationToken);
         }
         catch (Exception e)
         {
             // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
-            return new MediatorResponse(e.Message, message);
+            return Task.FromResult((IMediatorResponse)new MediatorResponse(e.Message, message));
         }
     }
 
