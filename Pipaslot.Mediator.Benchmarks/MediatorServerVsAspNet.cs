@@ -7,18 +7,18 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Pipaslot.Mediator;
 using Pipaslot.Mediator.Benchmarks.Actions;
 using Pipaslot.Mediator.Http;
 using System.Text.Json;
 using IHost = Microsoft.Extensions.Hosting.IHost;
 
+namespace Pipaslot.Mediator.Benchmarks;
 
 [MemoryDiagnoser]
 public class MediatorServerVsAspNet
 {
-    private IHost _host;
-    private HttpClient _client;
+    private IHost _host = null!;
+    private HttpClient _client = null!;
     private StringContent _aspnetContent = new(@"{}");
 
     private StringContent _mediatorContent =
