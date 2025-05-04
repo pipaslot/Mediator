@@ -5,23 +5,37 @@ using System.Text.Json;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
-public class SerializationBenchmarks
+/// <summary>
+/// Compare Mediator serializer and the default .NET serializer
+/// </summary>
+[MemoryDiagnoser]
+public class Serialization
 {
-    private DataResult _result;
-    private JsonContractSerializer _v3Serializer;
-    private JsonSerializerOptions _options;
-    
+    private DataResult _result = null!;
+    private JsonContractSerializer _v3Serializer = null!;
+    private JsonSerializerOptions _options = null!;
+
     [GlobalSetup]
     public void GlobalSetup()
     {
-        _result = new DataResult(5000);
+        _result = new DataResult
+        {
+            Data = Enumerable.Range(1, 1000).Select(index => new DataDto
+            {
+                Prop1 = $"prop1-{index}",
+                Prop2 = $"prop2-{index}",
+                Prop3 = $"prop3-{index}",
+                Prop4 = $"prop4-{index}",
+                Prop5 = $"prop5-{index}"
+            }).ToList()
+        };
         var credibleProviderMock = new FakeProvider();
         var options = new ClientMediatorOptions();
         _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
         _options = new JsonSerializerOptions { PropertyNamingPolicy = null };
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void SystemTextJsonSerializer()
     {
         var resp = new FakeResponse { Success = true, Results = [_result] };
@@ -52,35 +66,15 @@ public class SerializationBenchmarks
 
     private class DataResult
     {
-        public DataResult()
-        {
-        }
-
-        public DataResult(int rows)
-        {
-            Data = Enumerable.Range(1, rows).Select(i => new DataDto(i)).ToList();
-        }
-
-        public List<DataDto> Data { get; set; } = [];
+        public List<DataDto> Data { get; init; } = [];
     }
 
     private class DataDto
     {
-        public string Prop1 { get; set; } = string.Empty;
-        public string Prop2 { get; set; } = string.Empty;
-        public string Prop3 { get; set; } = string.Empty;
-        public string Prop4 { get; set; } = string.Empty;
-        public string Prop5 { get; set; } = string.Empty;
-
-        public DataDto() { }
-
-        public DataDto(int index)
-        {
-            Prop1 = $"prop1-{index}";
-            Prop2 = $"prop2-{index}";
-            Prop3 = $"prop3-{index}";
-            Prop4 = $"prop4-{index}";
-            Prop5 = $"prop5-{index}";
-        }
+        public string Prop1 { get; init; } = string.Empty;
+        public string Prop2 { get; init; } = string.Empty;
+        public string Prop3 { get; init; } = string.Empty;
+        public string Prop4 { get; init; } = string.Empty;
+        public string Prop5 { get; init; } = string.Empty;
     }
 }

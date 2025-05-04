@@ -4,6 +4,9 @@ using Pipaslot.Mediator.Authorization.Formatting;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
+/// <summary>
+/// Measure authorization message formatter
+/// </summary>
 [MemoryDiagnoser]
 public class DefaultNodeFormatterBenchmark
 {

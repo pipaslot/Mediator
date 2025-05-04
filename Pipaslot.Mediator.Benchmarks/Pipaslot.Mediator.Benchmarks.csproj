@@ -10,11 +10,14 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageReference Include="Moq" Version="4.20.72" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
         <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
     </ItemGroup>
 
