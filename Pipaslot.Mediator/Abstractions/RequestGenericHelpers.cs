@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Linq;
 
 namespace Pipaslot.Mediator.Abstractions;
 
 public static class RequestGenericHelpers
 {
-    public static Type GetRequestResultType(Type? requestType)
+    public static Type GetRequestResultType(Type requestType)
     {
         if (requestType == null)
         {
             throw new ArgumentNullException(nameof(requestType));
         }
-
+    
         var genericRequestType = typeof(IMediatorAction<>);
-        var genericInterface = requestType
-            .GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericRequestType);
-        if (genericInterface == null)
+    
+        foreach (var iface in requestType.GetInterfaces())
         {
-            throw new MediatorException($"Type {requestType} does not implements {genericRequestType}");
+            if (iface.IsGenericType && iface.GetGenericTypeDefinition() == genericRequestType)
+            {
+                return iface.GetGenericArguments()[0];
+            }
         }
-
-        return genericInterface
-            .GetGenericArguments()
-            .First();
+    
+        throw new MediatorException($"Type {requestType} does not implement {genericRequestType}");
     }
 }
