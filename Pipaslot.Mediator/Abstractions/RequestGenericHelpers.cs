@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Pipaslot.Mediator.Abstractions;
 
+[Obsolete("The class will be set as internal in future versions.")]
 public static class RequestGenericHelpers
 {
     private static readonly ConcurrentDictionary<Type, Type> _cache = new();

@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Pipaslot.Mediator;
 
+[Obsolete("The class will be set as internal in future versions.")]
 public static class ServiceProviderExtensions
 {
     /// <summary>
