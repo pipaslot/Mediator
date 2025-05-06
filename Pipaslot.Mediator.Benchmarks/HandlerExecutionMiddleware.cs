@@ -14,7 +14,7 @@ public class HandlerExecutionMiddleware
     private MediatorContext _notification = null!;
     private MediatorContext _request = null!;
     private Task Next(MediatorContext context) => Task.CompletedTask;
-    private readonly Middlewares.HandlerExecutionMiddleware _executionMiddleware = new();
+    private Middlewares.HandlerExecutionMiddleware _executionMiddleware = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -28,6 +28,7 @@ public class HandlerExecutionMiddleware
 
         var mediator = provider.GetRequiredService<IMediator>();
         var contextAccessor = provider.GetRequiredService<IMediatorContextAccessor>();
+        _executionMiddleware = provider.GetRequiredService<Middlewares.HandlerExecutionMiddleware>();
         _notification = new(mediator, contextAccessor, provider,
             new MessageAction(), CancellationToken.None, null, null);
         _request = new(mediator, contextAccessor, provider,

@@ -1,5 +1,4 @@
-﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
@@ -31,7 +30,7 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
             return;
         }
 
-        _actionResultTypes ??= [..GetActionResultTypes()];
+        _actionResultTypes ??= BuildActionResultTypes();
 
         if (_actionResultTypes.Contains(resultType))
         {
@@ -47,10 +46,12 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
         throw MediatorHttpException.CreateForUnregisteredResultType(collectionItem ?? resultType);
     }
 
-    private IEnumerable<Type> GetActionResultTypes()
+    private HashSet<Type> BuildActionResultTypes()
     {
-        return configurator.GetRequestActionTypes()
-            .Select(t => RequestGenericHelpers.GetRequestResultType(t))
+        // TODO: this is bottleneck slowing down application startup when processing the very first http response on the client
+        var types = configurator.ReflectionCache.GetRequestActionTypes()
+            .Select(t => configurator.ReflectionCache.GetRequestResultType(t))
             .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t);
+        return [..types];
     }
 }

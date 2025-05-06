@@ -47,7 +47,19 @@ internal class ContractSerializerTypeHelper
 
     internal static bool IsEnumerable(Type type)
     {
-        return type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+        if (!type.IsClass)
+        {
+            return false;
+        }
+        foreach (var x in type.GetInterfaces())
+        {
+            if (x == typeof(IEnumerable))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     internal static Type GetType(string type)
