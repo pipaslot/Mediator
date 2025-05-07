@@ -47,7 +47,7 @@ public static class ServiceCollectionExtensions
         configurator.AddHandlers([typeof(AuthorizeRequestHandler)]);
 
         // Separate authorization middleware, because we do not want to interrupt by custom middlewares
-        configurator.AddPipelineForAuthorizationRequest(_ => { });//TODO: make static or get rid
+        configurator.AddPipelineForAuthorizationRequest(static _ => { });
         services.AddScoped<INodeFormatter, DefaultNodeFormatter>();
         return configurator;
     }
