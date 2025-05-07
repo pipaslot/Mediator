@@ -28,7 +28,7 @@ public class HandlerExecutionMiddleware
 
         var mediator = provider.GetRequiredService<IMediator>();
         var contextAccessor = provider.GetRequiredService<IMediatorContextAccessor>();
-        _executionMiddleware = provider.GetRequiredService<Middlewares.HandlerExecutionMiddleware>();
+        _executionMiddleware = (Middlewares.HandlerExecutionMiddleware)provider.GetRequiredService<IExecutionMiddleware>();
         _notification = new(mediator, contextAccessor, provider,
             new MessageAction(), CancellationToken.None, null, null);
         _request = new(mediator, contextAccessor, provider,

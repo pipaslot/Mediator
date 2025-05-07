@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,8 @@ public static class ServiceProviderExtensions
         var actionType = action.GetType();
         if (action is IMediatorActionProvidingData)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
+            var configurator = serviceProvider.GetRequiredService<MediatorConfigurator>();
+            var resultType = configurator.ReflectionCache.GetRequestResultType(actionType);
             return serviceProvider.GetRequestHandlers(actionType, resultType);
         }
 
@@ -34,7 +36,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
+        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);// TODO get rid of
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)
             // ReSharper disable once RedundantEnumerableCastCall
@@ -52,7 +54,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var mediatorHandlerType = typeof(IMediatorHandler<,>);
+        var mediatorHandlerType = typeof(IMediatorHandler<,>);// TODO get rid of
         var handlerType = mediatorHandlerType.MakeGenericType(requestType, responseType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)

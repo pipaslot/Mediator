@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Serialization;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http;
 
-public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer)
+public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer, MediatorConfigurator configurator)
 {
     public async Task Invoke(HttpContext context)
     {
@@ -94,12 +95,12 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
     private static IMediator CreateMediator(HttpContext context)
     {
-        if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolver)
+        if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolved)
         {
             throw MediatorHttpException.CreateForUnregisteredService(typeof(IMediator));
         }
 
-        return resolver;
+        return resolved;
     }
 
     private static async Task<string> GetBody(HttpContext context)
@@ -123,7 +124,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
     private async Task<IMediatorResponse> ExecuteRequest(IMediator mediator, object query, CancellationToken cancellationToken)
     {
-        var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType())
+        var resultType = configurator.ReflectionCache.GetRequestResultType(query.GetType())
                          ?? throw new MediatorHttpException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
         var method = mediator.GetType()
             .GetMethod(nameof(IMediator.Execute))!
