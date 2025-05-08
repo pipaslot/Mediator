@@ -1,7 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using Moq.Protected;
 using Pipaslot.Mediator.Benchmarks.Actions;
 using Pipaslot.Mediator.Http;
+using System.Net;
 
 namespace Pipaslot.Mediator.Benchmarks;
 
@@ -11,25 +14,63 @@ namespace Pipaslot.Mediator.Benchmarks;
 [MemoryDiagnoser]
 public class MediatorClientStartup
 {
-    [Benchmark(Baseline = true)]
-    public void SingleAction()
+    private HttpClient _httpClient = null!;
+
+    [GlobalSetup]
+    public void GlobalSetup()
     {
-        var services = new ServiceCollection();
-        services.AddMediatorClient()
+        // Setup mock HttpClient
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(() => new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(
+                    @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Benchmarks.Actions." +
+                    nameof(RequestActionResult) +
+                    @", Pipaslot.Mediator.Benchmarks"",""Message"":""Hello World""}]}")
+            });
+
+        _httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost/") };
+    }
+
+    [Benchmark(Baseline = true)]
+    public Task SingleAction()
+    {
+        var services = CreateServiceCollection();
+        services.AddMediatorClient(o=> o.DeserializeOnlyCredibleResultTypes = true)
             .AddActions([typeof(RequestAction)]);
         
-        var mediator = services.BuildServiceProvider().GetRequiredService<IMediator>();
-        mediator.Execute(new RequestAction("Hello World"));
+        return RunAction(services);
     }
 
     [Benchmark]
-    public void Containing502Actions()
+    public Task Containing502Actions()
     {
-        var services = new ServiceCollection();
-        services.AddMediatorClient()
+        var services = CreateServiceCollection();
+        services.AddMediatorClient(o=> o.DeserializeOnlyCredibleResultTypes = true)
             .AddActionsFromAssembly(typeof(Program).Assembly);
         
+        return RunAction(services);
+    }
+    
+    private ServiceCollection CreateServiceCollection()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(_ => _httpClient);
+        return services;
+    }
+
+    private async Task RunAction(IServiceCollection services)
+    {
         var mediator = services.BuildServiceProvider().GetRequiredService<IMediator>();
-        mediator.Execute(new RequestAction("Hello World"));
+        await mediator.ExecuteUnhandled(new RequestAction("Hello World"));
     }
 }
