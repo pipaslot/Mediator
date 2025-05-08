@@ -116,7 +116,7 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
         {
             if (!arrayItemType.IsInterface)
             {
-                // Ignored for arrays because interface array has type specfied for every member
+                // Ignored for arrays because interface array has type specified for every member
                 // and the type will be verified by interface converter
                 credibleResults.VerifyCredibility(resultType);
             }

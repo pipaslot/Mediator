@@ -24,8 +24,8 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
     public bool IgnoreReadOnlyProperties { get; set; }
 
     /// <summary>
-    /// Protect deserialization process by check whether target type is credible. 
-    /// Prevents agains exploiting this feature by attackers. Disabled by default.
+    /// Protect deserialization process by check whether the target type is credible. 
+    /// Prevents against exploiting this feature by attackers. Disabled by default.
     /// </summary>
     public bool DeserializeOnlyCredibleResultTypes { get; set; }
 
