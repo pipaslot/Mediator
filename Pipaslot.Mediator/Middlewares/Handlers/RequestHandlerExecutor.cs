@@ -18,7 +18,7 @@ internal class RequestHandlerExecutor<TRequest, TResult> : HandlerExecutor
             if (handlers.Length == 1)
             {
                 // Faster execution when only single handler is available
-                return ExecuteRequest(handlers.First(), context);
+                return ExecuteRequest(handlers[0], context);
             }
 
             var actionType = context.Action.GetType();

@@ -18,7 +18,7 @@ where TMessage : IMediatorAction
             if (handlers.Length == 1)
             {
                 // Faster execution when only single handler is available
-                return ExecuteMessage(handlers.First(), context);
+                return ExecuteMessage(handlers[0], context);
             }
 
             var actionType = context.Action.GetType();
