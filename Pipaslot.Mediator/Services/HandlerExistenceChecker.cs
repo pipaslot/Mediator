@@ -49,7 +49,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
                 continue;
             }
 
-            var handlers = serviceProvider.GetMessageHandlers(subject).ToArray();
+            var handlers = serviceProvider.GetHandlerExecutor(subject).GetHandlers(serviceProvider);
             if (setting.CheckMatchingHandlers)
             {
                 VerifyHandlerCount(handlers, subject);
@@ -73,8 +73,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
                 continue;
             }
 
-            var resultType = configurator.ReflectionCache.GetRequestResultType(subject);
-            var handlers = serviceProvider.GetRequestHandlers(subject, resultType);
+            var handlers = serviceProvider.GetHandlerExecutor(subject).GetHandlers(serviceProvider);
             if (setting.CheckMatchingHandlers)
             {
                 VerifyHandlerCount(handlers, subject);

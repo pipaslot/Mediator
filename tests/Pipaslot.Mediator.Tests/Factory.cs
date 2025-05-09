@@ -100,14 +100,14 @@ internal static class Factory
         var services = CreateServiceProvider();
         var mediator = new Mock<IMediator>();
         var mcaMock = new Mock<IMediatorContextAccessor>();
-        return new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None, null, null);
+        return new MediatorContext(mediator.Object, mcaMock.Object, services, new ReflectionCache(), action, CancellationToken.None, null, null);
     }
 
     public static MediatorContext CreateMediatorContext(this IServiceProvider services, IMediatorAction action)
     {
         var mediator = services.GetRequiredService<IMediator>();
         var ca = services.GetRequiredService<IMediatorContextAccessor>();
-        return new MediatorContext(mediator, ca, services, action, CancellationToken.None, null, null);
+        return new MediatorContext(mediator, ca, services, new ReflectionCache(),action, CancellationToken.None, null, null);
     }
     
     #endregion

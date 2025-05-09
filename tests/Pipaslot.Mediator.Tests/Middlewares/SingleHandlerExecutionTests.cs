@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
+﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
@@ -80,7 +78,7 @@ public class SingleHandlerExecutionTests
     private async Task<MediatorContext> Run(IServiceProvider services, IMediatorAction action)
     {
         var context = services.CreateMediatorContext(action);
-        var sut = new HandlerExecutionMiddleware(new MediatorConfigurator(new ServiceCollection()));
+        var sut = new HandlerExecutionMiddleware();
         var next = Factory.CreateMiddlewareDelegate();
         await sut.Invoke(context, next);
         return context;

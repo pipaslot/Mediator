@@ -41,8 +41,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
         services.AddScoped<IMediatorFacade, MediatorFacade>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
-        services.AddSingleton(typeof(MessageHandlerExecutor<>));
-        services.AddSingleton(typeof(RequestHandlerExecutor<,>));
+        services.AddTransient(typeof(MessageHandlerExecutor<>));
+        services.AddTransient(typeof(RequestHandlerExecutor<,>));
         configurator.AddActions([typeof(AuthorizeRequest)]);
         configurator.AddHandlers([typeof(AuthorizeRequestHandler)]);
 

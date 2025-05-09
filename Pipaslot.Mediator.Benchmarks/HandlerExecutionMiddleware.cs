@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Benchmarks.Actions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Benchmarks;
@@ -29,9 +30,9 @@ public class HandlerExecutionMiddleware
         var mediator = provider.GetRequiredService<IMediator>();
         var contextAccessor = provider.GetRequiredService<IMediatorContextAccessor>();
         _executionMiddleware = (Middlewares.HandlerExecutionMiddleware)provider.GetRequiredService<IExecutionMiddleware>();
-        _notification = new(mediator, contextAccessor, provider,
+        _notification = new(mediator, contextAccessor, provider, new ReflectionCache(),
             new MessageAction(), CancellationToken.None, null, null);
-        _request = new(mediator, contextAccessor, provider,
+        _request = new(mediator, contextAccessor, provider, new ReflectionCache(),
             new RequestAction("Hello world"), CancellationToken.None, null, null);
     }
 

@@ -1,5 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares.Features;
+using Pipaslot.Mediator.Middlewares.Handlers;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -71,19 +73,21 @@ public class MediatorContext
     public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
     
     private readonly IMediatorContextAccessor _contextAccessor;
-    internal IServiceProvider Services { get; }
+    internal readonly IServiceProvider Services;
 
-    private object[]? _handlers;
+    private readonly ReflectionCache _reflectionCache;
+    private HandlerExecutor? _handlerExecutor;
 
-    internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, IMediatorAction action,
-        CancellationToken cancellationToken, object[]? handlers, IFeatureCollection? defaultFeatures)
+    internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, ReflectionCache reflectionCache, IMediatorAction action,
+        CancellationToken cancellationToken, HandlerExecutor? handlerExecutor, IFeatureCollection? defaultFeatures)
     {
         Mediator = mediator;
         _contextAccessor = contextAccessor;
         Services = serviceProvider;
+        _reflectionCache = reflectionCache;
         Action = action ?? throw new ArgumentNullException(nameof(action));
         CancellationToken = cancellationToken;
-        _handlers = handlers;
+        _handlerExecutor = handlerExecutor;
         _features = defaultFeatures;
     }
 
@@ -97,7 +101,7 @@ public class MediatorContext
     /// <returns></returns>
     public MediatorContext CopyEmpty()
     {
-        var copy = new MediatorContext(Mediator, _contextAccessor, Services, Action, CancellationToken, _handlers, _features);
+        var copy = new MediatorContext(Mediator, _contextAccessor, Services, _reflectionCache, Action, CancellationToken, _handlerExecutor, _features);
         return copy;
     }
 
@@ -138,13 +142,23 @@ public class MediatorContext
         return false;
     }
 
+    internal HandlerExecutor GetHandlerExecutor()
+    {
+        if (_handlerExecutor == null)
+        {
+            var actionType = Action.GetType();
+            _handlerExecutor = Services.GetHandlerExecutor(_reflectionCache ,actionType);
+        }
+        return _handlerExecutor;
+    }
+
     /// <summary>
     /// Resolve all handlers for action execution
     /// </summary>
     /// <returns></returns>
     public object[] GetHandlers()
     {
-        return _handlers ??= Services.GetActionHandlers(Action);
+        return GetHandlerExecutor().GetHandlers(Services);
     }
 
     /// <summary>

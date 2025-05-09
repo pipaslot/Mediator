@@ -10,6 +10,8 @@ namespace Pipaslot.Mediator.Middlewares.Handlers;
 internal abstract class HandlerExecutor
 {
     public abstract Task Execute(MediatorContext context);
+
+    internal abstract object[] GetHandlers(IServiceProvider services);
     
     internal static bool ValidateHandlers<T>(T[] handlers, Type actionType)
     {

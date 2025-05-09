@@ -183,7 +183,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
     {
-        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
+        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, configurator.ReflectionCache, action, cancellationToken, null, null);
     }
 
     internal record MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);

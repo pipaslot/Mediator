@@ -10,9 +10,10 @@ namespace Pipaslot.Mediator.Middlewares.Handlers;
 internal class RequestHandlerExecutor<TRequest, TResult> : HandlerExecutor
     where TRequest : IMediatorAction<TResult>
 {
+    private IMediatorHandler<TRequest, TResult>[]? _handlers;
     public override Task Execute(MediatorContext context)
     {
-        var handlers = context.Services.GetServices<IMediatorHandler<TRequest, TResult>>().ToArray();
+        var handlers = ResolveHandlers(context.Services);
         if (handlers.Any())
         {
             if (handlers.Length == 1)
@@ -33,6 +34,17 @@ internal class RequestHandlerExecutor<TRequest, TResult> : HandlerExecutor
 
         context.Status = ExecutionStatus.NoHandlerFound;
         return Task.CompletedTask;
+    }
+    
+    private IMediatorHandler<TRequest, TResult>[] ResolveHandlers(IServiceProvider services)
+    {
+        _handlers ??= services.GetServices<IMediatorHandler<TRequest, TResult>>().ToArray();
+        return _handlers;
+    }
+    
+    internal override object[] GetHandlers(IServiceProvider services)
+    {
+        return ResolveHandlers(services);
     }
 
     private async Task ExecuteRequestInSequence(MediatorContext context, IMediatorHandler<TRequest, TResult>[] handlers)
