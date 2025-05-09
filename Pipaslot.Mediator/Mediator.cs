@@ -151,7 +151,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var contextsCount = mediatorContextAccessor.Push(context);
+        var contextsCount = mediatorContextAccessor.Push(context); //TODO make the mediator context as optional service in the mediator configured via options.
         var pipeline = GetPipeline(action, hasParentContext: contextsCount > 1);
 
         var index = -1;
