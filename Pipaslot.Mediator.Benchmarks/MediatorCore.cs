@@ -28,14 +28,14 @@ public class MediatorCore
     }
 
     [Benchmark]
-    public Task Execute()
+    public Task Message()
     {
-        return _mediator.ExecuteUnhandled(_request);
+        return _mediator.DispatchUnhandled(_message);
     }
 
     [Benchmark]
-    public Task Dispatch()
+    public Task Request()
     {
-        return _mediator.DispatchUnhandled(_message);
+        return _mediator.ExecuteUnhandled(_request);
     }
 }
