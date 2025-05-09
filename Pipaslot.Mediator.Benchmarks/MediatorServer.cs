@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Benchmarks.Actions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
@@ -35,7 +36,8 @@ public class MediatorServer
         _middleware = new MediatorMiddleware(
             context => Task.CompletedTask, // next middleware
             new ServerMediatorOptions(),
-            serviceProvider.GetRequiredService<IContractSerializer>());
+            serviceProvider.GetRequiredService<IContractSerializer>(),
+            serviceProvider.GetRequiredService<MediatorConfigurator>());
 
         _postMessageContext = new DefaultHttpContext
         {

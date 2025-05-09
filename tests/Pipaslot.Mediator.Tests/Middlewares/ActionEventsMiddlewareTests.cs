@@ -111,13 +111,12 @@ public class ActionEventsMiddlewareTests
 
     private IMediator Create()
     {
-        var collection = new ServiceCollection();
-        collection.AddLogging();
-        collection.AddMediator()
-            .AddActionsFromAssembly(Factory.Assembly)
-            .UseActionEvents();
-        collection.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
-        var services = collection.BuildServiceProvider();
+        var services = Factory.CreateServiceProvider((mediator, services) =>
+        {
+            mediator.AddActionsFromAssembly(Factory.Assembly)
+                .UseActionEvents();
+            services.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
+        });
 
         var mediator = services.GetRequiredService<IMediator>();
         var middleware = services.GetRequiredService<ActionEventsMiddleware>();

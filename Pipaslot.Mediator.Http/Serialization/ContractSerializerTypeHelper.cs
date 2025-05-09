@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization;
 
@@ -45,7 +47,19 @@ internal class ContractSerializerTypeHelper
 
     internal static bool IsEnumerable(Type type)
     {
-        return type.IsClass && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+        if (!type.IsClass)
+        {
+            return false;
+        }
+        foreach (var x in type.GetInterfaces())
+        {
+            if (x == typeof(IEnumerable))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     internal static Type GetType(string type)
@@ -98,18 +112,54 @@ internal class ContractSerializerTypeHelper
 
     internal static void WriteObjectProperties<T>(Utf8JsonWriter writer, T value, Type type, JsonSerializerOptions options)
     {
-        using var jsonDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, type, options));
-        if (jsonDocument.RootElement.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var element in jsonDocument.RootElement.EnumerateObject())
-            {
-                element.WriteTo(writer);
-            }
-        }
-        else
+        if (value == null)
         {
             throw new NotSupportedException(
                 $"Data type '{type}' is not supported for result serialization in the Mediator. Also avoid returning NULL.");
+        }
+
+        HashSet<string?>? parameterNames = null;
+
+        var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+        foreach (var property in properties)
+        {
+            // Skip if no public getter
+            if (property.GetMethod == null || !property.GetMethod.IsPublic)
+            {
+                continue;
+            }
+
+            // Check if the property has an init setter or lacks a public setter
+            bool requiresConstructor = property.SetMethod == null || !property.SetMethod.IsPublic;
+
+            // Lazy-load constructor parsing only when necessary
+            if (requiresConstructor && parameterNames == null)
+            {
+                var constructor = type.GetConstructors()
+                    .OrderByDescending(c => c.GetParameters().Length)
+                    .FirstOrDefault(); // Prefer constructor with most parameters
+
+                parameterNames = constructor?
+                                     .GetParameters()
+                                     .Select(p => p.Name)
+                                     .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                                 ?? [];
+            }
+
+            // Skip if no matching parameter in constructor
+            if (requiresConstructor && parameterNames is not null && !parameterNames.Contains(property.Name))
+            {
+                continue;
+            }
+
+            var propertyValue = property.GetValue(value);
+            if (propertyValue != null || (options.DefaultIgnoreCondition != JsonIgnoreCondition.WhenWritingNull))
+            {
+                var propertyName = options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name;
+                writer.WritePropertyName(propertyName);
+                JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
+            }
         }
     }
 }

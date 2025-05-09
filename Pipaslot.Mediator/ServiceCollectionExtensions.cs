@@ -3,6 +3,7 @@ using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Handlers;
 using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Services;
 
@@ -40,11 +41,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
         services.AddScoped<IMediatorFacade, MediatorFacade>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
+        services.AddSingleton(typeof(MessageHandlerExecutor<>));
+        services.AddSingleton(typeof(RequestHandlerExecutor<,>));
         configurator.AddActions([typeof(AuthorizeRequest)]);
         configurator.AddHandlers([typeof(AuthorizeRequestHandler)]);
 
         // Separate authorization middleware, because we do not want to interrupt by custom middlewares
-        configurator.AddPipelineForAuthorizationRequest(_ => { });
+        configurator.AddPipelineForAuthorizationRequest(static _ => { });
         services.AddScoped<INodeFormatter, DefaultNodeFormatter>();
         return configurator;
     }

@@ -9,11 +9,10 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;
 
-public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver
+public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver //TODO: remove IActionTypeProvider in next major version
 {
-    internal readonly IServiceCollection Services = services;
-    internal HashSet<Assembly> TrustedAssemblies { get; set; } = [];
-    private readonly List<Type> _actionMarkerTypes = [];
+    internal readonly HashSet<Assembly> TrustedAssemblies = [];
+    internal readonly ReflectionCache ReflectionCache = new();
     private readonly MiddlewareCollection _middlewares = new(services);
     private readonly List<(IPipelineCondition Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
 
@@ -39,7 +38,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
             }
         }
 
-        _actionMarkerTypes.AddRange(actionTypeArray);
+        ReflectionCache.AddActions(actionTypeArray);
         TrustedAssemblies.UnionWith(actionTypeArray.Select(t => t.Assembly));
         return this;
     }
@@ -60,7 +59,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
                         && p.GetInterfaces().Any(i => i == type)
             )
             .ToArray();
-        _actionMarkerTypes.AddRange(actionTypes);
+        ReflectionCache.AddActions(actionTypes);
         TrustedAssemblies.UnionWith(assemblies);
         return this;
     }
@@ -79,7 +78,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
             }
         }
 
-        Services.RegisterHandlers(_registeredHandlers, handlerArray, serviceLifetime);
+        services.RegisterHandlers(_registeredHandlers, handlerArray, serviceLifetime);
         return this;
     }
 
@@ -96,7 +95,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
     {
         var types = assemblies.SelectMany(a => a.GetTypes());
-        Services.RegisterHandlers(_registeredHandlers, types, serviceLifetime);
+        services.RegisterHandlers(_registeredHandlers, types, serviceLifetime);
         return this;
     }
 
@@ -127,7 +126,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     public IMediatorConfigurator AddPipeline(IPipelineCondition condition, Action<IMiddlewareRegistrator> subMiddlewares,
         string? identifier = null)
     {
-        var collection = new MiddlewareCollection(Services);
+        var collection = new MiddlewareCollection(services);
         subMiddlewares(collection);
         if (identifier != null)
         {
@@ -138,20 +137,23 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         _pipelines.Add((condition, collection, id));
         return this;
     }
-
+    
+    [Obsolete("Resolve IActionTypeProvider instead.")]
     public ICollection<Type> GetActionTypes()
     {
-        return _actionMarkerTypes;
+        return ReflectionCache.GetActionTypes();
     }
 
+    [Obsolete("Resolve IActionTypeProvider instead.")]
     public ICollection<Type> GetMessageActionTypes()
     {
-        return FilterAssignableToMessage(_actionMarkerTypes);
+        return ReflectionCache.GetMessageActionTypes();
     }
 
+    [Obsolete("Resolve IActionTypeProvider instead.")]
     public ICollection<Type> GetRequestActionTypes()
     {
-        return FilterAssignableToRequest(_actionMarkerTypes);
+        return ReflectionCache.GetRequestActionTypes();
     }
 
     void IMiddlewareResolver.CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
@@ -176,6 +178,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
                     {
                         throw MediatorException.TooManyPipelines(action);
                     }
+
                     matched = true;
                     pipeline.Middlewares.CollectMiddlewares(action, serviceProvider, collection);
                 }
@@ -188,35 +191,5 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         }
 
         _middlewares.CollectMiddlewares(action, serviceProvider, collection);
-    }
-
-    internal static Type[] FilterAssignableToRequest(IEnumerable<Type> types)
-    {
-        var genericRequestType = typeof(IMediatorAction<>);
-        return types
-            .Where(t => t.IsClass
-                        && !t.IsAbstract
-                        && !t.IsInterface
-                        && t.GetInterfaces()
-                            .Any(i => i.IsGenericType
-                                      && i.GetGenericTypeDefinition() == genericRequestType)
-            )
-            .ToArray();
-    }
-
-    internal static Type[] FilterAssignableToMessage(IEnumerable<Type> types)
-    {
-        var genericRequestType = typeof(IMediatorAction<>);
-        var type = typeof(IMediatorAction);
-        return types
-            .Where(p => p.IsClass
-                        && !p.IsAbstract
-                        && !p.IsInterface
-                        && p.GetInterfaces().Any(i => i == type)
-                        && !p.GetInterfaces()
-                            .Any(i => i.IsGenericType
-                                      && i.GetGenericTypeDefinition() == genericRequestType)
-            )
-            .ToArray();
     }
 }

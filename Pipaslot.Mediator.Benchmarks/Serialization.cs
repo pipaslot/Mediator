@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Benchmarks;
 public class Serialization
 {
     private DataResult _result = null!;
-    private JsonContractSerializer _v3Serializer = null!;
+    private JsonContractSerializer _mediatorSerializer = null!;
     private JsonSerializerOptions _options = null!;
 
     [GlobalSetup]
@@ -31,7 +31,7 @@ public class Serialization
         };
         var credibleProviderMock = new FakeProvider();
         var options = new ClientMediatorOptions();
-        _v3Serializer = new JsonContractSerializer(credibleProviderMock, options);
+        _mediatorSerializer = new JsonContractSerializer(credibleProviderMock, options);
         _options = new JsonSerializerOptions { PropertyNamingPolicy = null };
     }
 
@@ -44,11 +44,11 @@ public class Serialization
     }
 
     [Benchmark]
-    public void V3Serializer()
+    public void MediatorSerializer()
     {
         var resp = new MediatorResponse(true, [_result]);
-        var str = _v3Serializer.SerializeResponse(resp);
-        _v3Serializer.DeserializeResponse<DataResult>(str);
+        var str = _mediatorSerializer.SerializeResponse(resp);
+        _mediatorSerializer.DeserializeResponse<DataResult>(str);
     }
 
     private class FakeResponse

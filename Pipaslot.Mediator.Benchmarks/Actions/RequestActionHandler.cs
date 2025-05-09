@@ -2,10 +2,10 @@
 
 namespace Pipaslot.Mediator.Benchmarks.Actions;
 
-internal class RequestActionHandler : IMediatorHandler<RequestAction, string>
+internal class RequestActionHandler : IMediatorHandler<RequestAction, RequestActionResult>
 {
-    public Task<string> Handle(RequestAction action, CancellationToken cancellationToken)
+    public Task<RequestActionResult> Handle(RequestAction action, CancellationToken cancellationToken)
     {
-        return Task.FromResult(action.Message);
+        return Task.FromResult(new RequestActionResult(action.Message));
     }
 }

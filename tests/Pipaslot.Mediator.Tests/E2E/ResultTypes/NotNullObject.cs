@@ -9,7 +9,7 @@ public class NotNullObject
     [Fact]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(false));
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -18,7 +18,7 @@ public class NotNullObject
     [Fact]
     public async Task Execute_ReturnsNull_ShouldFailButSuccess()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var action = new FakeAction(true);
         var result = await sut.Execute(action);
         Assert.True(result
@@ -28,7 +28,7 @@ public class NotNullObject
     [Fact]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(false));
         Assert.NotNull(result);
     }
@@ -38,7 +38,7 @@ public class NotNullObject
     {
         var action = new FakeAction(true);
         // Would be nice to get failure and detect if null was provided when null is not expected, but we can not achieve it in the current C# version
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         await sut.ExecuteUnhandled(action);
     }
 

@@ -14,12 +14,12 @@ namespace Pipaslot.Mediator.Tests;
 internal static class Factory
 {
     internal static Assembly Assembly { get; } = typeof(Factory).Assembly;
-    public static IMediator CreateConfiguredMediator()
-    {
-        return CreateConfiguredMediator(c => { });
-    }
+    
+    #region Mediator
+    
+    public static IMediator CreateConfiguredMediator() => CreateConfiguredMediator(c => { });
 
-    public static IMediator CreateConfiguredMediator<THandler>()
+    public static IMediator CreateMediatorWithHandlers<THandler>()
     {
         var services = CreateServiceProvider(c =>
             {
@@ -42,6 +42,7 @@ internal static class Factory
         );
         return services.GetRequiredService<IMediator>();
     }
+
     public static Mediator GetConcreteMediator(this IServiceProvider sp) => (Mediator)sp.GetRequiredService<IMediator>();
 
     public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
@@ -52,17 +53,12 @@ internal static class Factory
         });
         return services.GetRequiredService<IMediator>();
     }
+    
+    #endregion
+    
+    #region ServiceProvider
 
-    public static IServiceProvider CreateServiceProvider()
-    {
-        return CreateServiceProvider(_ => { });
-    }
-
-    public static MediatorConfigurator CreateMediatorConfigurator(Action<IMediatorConfigurator> setup)
-    {
-        var sp = CreateServiceProvider(setup);
-        return sp.GetRequiredService<MediatorConfigurator>();
-    }
+    public static IServiceProvider CreateServiceProvider() => CreateServiceProvider(_ => { });
 
     public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator> setup)
     {
@@ -72,31 +68,33 @@ internal static class Factory
         return collection.BuildServiceProvider();
     }
 
-    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1>()
+    public static IServiceProvider CreateServiceProvider(Action<IMediatorConfigurator, IServiceCollection> setup)
     {
-        return CreateServiceProviderWithHandlers(typeof(THandler1));
+        var collection = new ServiceCollection();
+        collection.AddLogging();
+        setup(collection.AddMediator(), collection);
+        return collection.BuildServiceProvider();
     }
 
-    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1, THandler2>()
-    {
-        return CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
-    }
+    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1>() => CreateServiceProviderWithHandlers(typeof(THandler1));
+
+    public static IServiceProvider CreateServiceProviderWithHandlers<THandler1, THandler2>() =>
+        CreateServiceProviderWithHandlers(typeof(THandler1), typeof(THandler2));
 
     /// <summary>
     /// Simulate handler registration in service provider
     /// </summary>
-    public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers)
-    {
-        var collection = new ServiceCollection();
-        collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
-        return collection.BuildServiceProvider();
-    }
+    public static IServiceProvider CreateServiceProviderWithHandlers(params Type[] handlers) =>
+        CreateServiceProvider((m, s) =>
+        {
+            s.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
+        });
+    #endregion
 
-    public static MiddlewareDelegate CreateMiddlewareDelegate()
-    {
-        return ctx => Task.CompletedTask;
-    }
+    public static MiddlewareDelegate CreateMiddlewareDelegate() => ctx => Task.CompletedTask;
 
+    #region Context
+    
     public static MediatorContext FakeContext(IMediatorAction action)
     {
         var services = CreateServiceProvider();
@@ -104,4 +102,13 @@ internal static class Factory
         var mcaMock = new Mock<IMediatorContextAccessor>();
         return new MediatorContext(mediator.Object, mcaMock.Object, services, action, CancellationToken.None, null, null);
     }
+
+    public static MediatorContext CreateMediatorContext(this IServiceProvider services, IMediatorAction action)
+    {
+        var mediator = services.GetRequiredService<IMediator>();
+        var ca = services.GetRequiredService<IMediatorContextAccessor>();
+        return new MediatorContext(mediator, ca, services, action, CancellationToken.None, null, null);
+    }
+    
+    #endregion
 }

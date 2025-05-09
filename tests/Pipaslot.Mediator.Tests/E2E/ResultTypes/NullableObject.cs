@@ -9,7 +9,7 @@ public class NullableObject
     [Fact]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(false));
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -18,7 +18,7 @@ public class NullableObject
     [Fact]
     public async Task Execute_ReturnsNull_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(true));
         Assert.True(result.Success, result.GetErrorMessage());
         Assert.Null(result.Result);
@@ -27,7 +27,7 @@ public class NullableObject
     [Fact]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(false));
         Assert.NotNull(result);
     }
@@ -35,7 +35,7 @@ public class NullableObject
     [Fact]
     public async Task ExecuteUnhandled_ReturnsNull_ShouldPass()
     {
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(true));
         Assert.Null(result);
     }

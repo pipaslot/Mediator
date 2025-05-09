@@ -6,15 +6,8 @@ using System.Text.Json.Serialization;
 
 namespace Pipaslot.Mediator.Http.Serialization.V3.Converters;
 
-internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
+internal class MediatorResponseConverter(ICredibleProvider credibleResults) : JsonConverter<IMediatorResponse>
 {
-    private readonly ICredibleProvider _credibleResults;
-
-    public MediatorResponseConverter(ICredibleProvider credibleResults)
-    {
-        _credibleResults = credibleResults;
-    }
-
     public override IMediatorResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var success = false;
@@ -80,8 +73,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
             throw new JsonException("Property was expected");
         }
 
-        var propertyName = readerClone.GetString();
-        if (propertyName != "$type")
+        if (!readerClone.ValueTextEquals("$type"u8))
         {
             throw new JsonException("Property with name $type was expected");
         }
@@ -107,8 +99,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
                 throw new JsonException("Property was expected");
             }
 
-            propertyName = readerClone.GetString();
-            if (propertyName != "Value")
+            if (!readerClone.ValueTextEquals("Value"u8))
             {
                 throw new JsonException("Property with name 'Value' was expected");
             }
@@ -125,9 +116,9 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
         {
             if (!arrayItemType.IsInterface)
             {
-                // Ignored for arrays because interface array has type specfied for every member
+                // Ignored for arrays because interface array has type specified for every member
                 // and the type will be verified by interface converter
-                _credibleResults.VerifyCredibility(resultType);
+                credibleResults.VerifyCredibility(resultType);
             }
 
             readerClone.Read();
@@ -136,8 +127,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
                 throw new JsonException("Property was expected");
             }
 
-            propertyName = readerClone.GetString();
-            if (propertyName != "Items")
+            if (!readerClone.ValueTextEquals("Items"u8))
             {
                 throw new JsonException("Property with name 'Items' was expected");
             }
@@ -149,7 +139,7 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
                    ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
         }
 
-        _credibleResults.VerifyCredibility(resultType);
+        credibleResults.VerifyCredibility(resultType);
         return JsonSerializer.Deserialize(ref reader, resultType, options)
                ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
     }
@@ -191,10 +181,19 @@ internal class MediatorResponseConverter : JsonConverter<IMediatorResponse>
 
     private bool AsPrimitive(Type type)
     {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            type = Nullable.GetUnderlyingType(type)!;
+        }
+
         return type.IsPrimitive
+               || type.IsEnum
                || type == typeof(string)
                || type == typeof(decimal)
                || type == typeof(DateTime)
-               || type == typeof(DateTimeOffset);
+               || type == typeof(DateTimeOffset)
+               || type == typeof(Guid)
+               || type == typeof(DateOnly)
+               || type == typeof(TimeOnly);
     }
 }

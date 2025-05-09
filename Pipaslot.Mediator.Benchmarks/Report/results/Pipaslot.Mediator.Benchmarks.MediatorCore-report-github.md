@@ -8,7 +8,8 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.3775)
 
 
 ```
-| Method   | Mean     | Error   | StdDev  | Gen0   | Allocated |
-|--------- |---------:|--------:|--------:|-------:|----------:|
-| Execute  | 634.5 ns | 9.99 ns | 9.34 ns | 0.1259 |   1.56 KB |
-| Dispatch | 432.1 ns | 8.43 ns | 9.02 ns | 0.0916 |   1.13 KB |
+| Method                    | Mean       | Error    | StdDev    | Gen0   | Allocated |
+|-------------------------- |-----------:|---------:|----------:|-------:|----------:|
+| Message                   |   216.2 ns |  1.96 ns |   1.73 ns | 0.0725 |     912 B |
+| Request                   |   287.5 ns |  5.03 ns |   4.70 ns | 0.0882 |    1112 B |
+| RequestWithAuthentication | 4,081.6 ns | 80.48 ns | 104.65 ns | 0.4883 |    6225 B |

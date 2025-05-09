@@ -10,5 +10,5 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.3775)
 ```
 | Method       | Mean     | Error    | StdDev   | Gen0   | Allocated |
 |------------- |---------:|---------:|---------:|-------:|----------:|
-| Notification | 51.05 ns | 1.051 ns | 1.124 ns | 0.0076 |      96 B |
-| Request      | 83.88 ns | 1.668 ns | 1.784 ns | 0.0107 |     136 B |
+| Notification | 69.35 ns | 0.886 ns | 0.829 ns | 0.0095 |     120 B |
+| Request      | 84.74 ns | 1.302 ns | 1.087 ns | 0.0126 |     160 B |

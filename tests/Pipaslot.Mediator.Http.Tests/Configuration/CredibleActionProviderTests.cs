@@ -3,7 +3,6 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
-using System.Reflection;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
@@ -35,10 +34,10 @@ public class CredibleActionProviderTests
 
     private CredibleActionProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
     {
-        var serviceCollctionMock = new Mock<IServiceCollection>();
-        var configurator = new MediatorConfigurator(serviceCollctionMock.Object);
+        var serviceCollectionMock = new Mock<IServiceCollection>();
+        var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
         setup(configurator);
-        return new CredibleActionProvider(configurator, customTypes, Array.Empty<Assembly>());
+        return new CredibleActionProvider(configurator, customTypes, []);
     }
 
     public class FakeContract : IMessage;

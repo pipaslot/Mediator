@@ -7,24 +7,20 @@ namespace Pipaslot.Mediator;
 /// <summary>
 /// General mediator exception
 /// </summary>
-public class MediatorException : Exception
+public class MediatorException(string message) : Exception(message)
 {
     internal static string FormatDataKey(int number)
     {
         return $"Error:{number}";
     }
 
-    public MediatorException(string message) : base(message)
-    {
-    }
-
-    public static MediatorException CreateForDuplicateHandlers(Type subject, object[] handlers)
+    public static MediatorException CreateForDuplicateHandlers<THandler>(Type subject, THandler[] handlers)
     {
         return new MediatorException(
             $"Multiple handlers were registered for one action type: {subject}. Only one handler was expected. Remove one from defined type: {string.Join(" OR ", handlers)}");
     }
 
-    public static MediatorException CreateForCanNotCombineHandlers(Type subject, object[] handlers)
+    public static MediatorException CreateForCanNotCombineHandlers<THandler>(Type subject, THandler[] handlers)
     {
         return new MediatorException(
             $"Multiple handlers were registered for one action type: {subject}. Can not combine handlers with interfaces {nameof(ISequenceHandler)} or {nameof(IConcurrentHandler)} or without if any if these two interfaces. Please check handlers: {string.Join(", ", handlers)}");

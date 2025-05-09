@@ -29,25 +29,17 @@ public class JsonContractSerializer_PrimitiveTypesTests : ContractSerializer_Pri
     }
 
     [Fact]
-    public void DateOnly_NotSupported()
+    public void DateOnly_Pass()
     {
-        // DateOnly and TimeOnly is not part of .NET Standard 
-        Assert.Throws<NotSupportedException>(() =>
-        {
-            var value = DateOnly.Parse("2023-10-10");
-            Test(value);
-        });
+        var value = DateOnly.Parse("2023-10-10");
+        Test(value);
     }
 
     [Fact]
-    public void TimeOnly_NotSupported()
+    public void TimeOnly_Pass()
     {
-        // DateOnly and TimeOnly is not part of .NET Standard 
-        Assert.Throws<NotSupportedException>(() =>
-        {
-            var value = TimeOnly.Parse("10:30:15");
-            Test(value);
-        });
+        var value = TimeOnly.Parse("10:30:15");
+        Test(value);
     }
 
     [Fact]

@@ -12,7 +12,7 @@ public class NotNullDateTime
     public async Task Execute_ShouldPass(string dateString)
     {
         var value = DateTime.Parse(dateString);
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(value));
         Assert.True(result.Success);
         Assert.Equal(value, result.Result);
@@ -23,7 +23,7 @@ public class NotNullDateTime
     public async Task ExecuteUnhandled_ShouldPass(string dateString)
     {
         var value = DateTime.Parse(dateString);
-        var sut = Factory.CreateConfiguredMediator<FakeActionHandler>();
+        var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(value));
         Assert.Equal(value, result);
     }

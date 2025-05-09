@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace Pipaslot.Mediator.Http.Serialization.V3;
+namespace Pipaslot.Mediator.Http.Serialization.V3;// TODO get rid of the V3 namespace
 
 internal class JsonContractSerializer : IContractSerializer
 {

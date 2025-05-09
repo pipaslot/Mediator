@@ -3,4 +3,7 @@
 /// <summary>
 /// NetCore HttpContext feature for detection that mediator middleware was already executed
 /// </summary>
-internal class MediatorHttpContextFeature;
+internal class MediatorHttpContextFeature
+{
+    internal static MediatorHttpContextFeature Instance { get; } = new();
+}

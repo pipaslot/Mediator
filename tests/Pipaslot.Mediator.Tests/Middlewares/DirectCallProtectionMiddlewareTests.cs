@@ -35,18 +35,11 @@ public class DirectCallProtectionMiddlewareTests
 
     public class RootAction : IMediatorAction;
 
-    public class RootActionHandler : IMediatorHandler<RootAction>
+    public class RootActionHandler(IMediator mediator) : IMediatorHandler<RootAction>
     {
-        private readonly IMediator _mediator;
-
-        public RootActionHandler(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         public Task Handle(RootAction action, CancellationToken cancellationToken)
         {
-            return _mediator.DispatchUnhandled(new ProtectedAction(), cancellationToken);
+            return mediator.DispatchUnhandled(new ProtectedAction(), cancellationToken);
         }
     }
 
