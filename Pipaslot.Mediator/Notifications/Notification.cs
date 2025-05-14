@@ -17,8 +17,7 @@ public class Notification : IEquatable<Notification?>
     public string Content { get; set; } = "";
 
     /// <summary>
-    /// If False, then the notification will be propagated from nested mediator calls to the callers. 
-    /// The notifications will be aggregated in the root action call.
+    /// If True, then the notification will NOT be propagated from nested mediator calls to the callers (aggregated in the root action call). 
     /// </summary>
     public bool StopPropagation { get; set; }
 
