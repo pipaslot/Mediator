@@ -84,7 +84,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
             var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
-                : await ExecuteMessage(mediator, action, context.RequestAborted).ConfigureAwait(false);
+                : await mediator.Dispatch(action, context.RequestAborted).ConfigureAwait(false);
             return mediatorResponse;
         }
         catch (Exception ex)
@@ -107,19 +107,6 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
     {
         using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
         return await reader.ReadToEndAsync().ConfigureAwait(false);
-    }
-
-    private static Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return mediator.Dispatch(message, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
-            return Task.FromResult((IMediatorResponse)new MediatorResponse(e.Message, message));
-        }
     }
 
     private async Task<IMediatorResponse> ExecuteRequest(IMediator mediator, object query, CancellationToken cancellationToken)
