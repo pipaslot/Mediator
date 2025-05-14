@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares.Handlers;
@@ -89,17 +88,6 @@ internal class RequestHandlerExecutor<TRequest, TResult> : HandlerExecutor
             {
                 context.AddResult(new NullActionResult());
             }
-        }
-        catch (TargetInvocationException e)
-        {
-            context.Status = ExecutionStatus.Failed;
-            if (e.InnerException != null)
-            {
-                // Unwrap exception
-                throw e.InnerException;
-            }
-
-            throw;
         }
         catch (Exception)
         {
