@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares.Handlers;
@@ -61,22 +60,11 @@ where TMessage : IMediatorAction
     /// <summary>
     /// Execute handler
     /// </summary>
-    protected Task ExecuteMessage(IMediatorHandler<TMessage> handler, MediatorContext context)
+    private async Task ExecuteMessage(IMediatorHandler<TMessage> handler, MediatorContext context)
     {
         try
         {
-            return handler.Handle((TMessage)context.Action, context.CancellationToken);
-        }
-        catch (TargetInvocationException e)
-        {
-            context.Status = ExecutionStatus.Failed;
-            if (e.InnerException != null)
-            {
-                // Unwrap exception
-                throw e.InnerException;
-            }
-
-            throw;
+            await handler.Handle((TMessage)context.Action, context.CancellationToken).ConfigureAwait(false);
         }
         catch (Exception)
         {
