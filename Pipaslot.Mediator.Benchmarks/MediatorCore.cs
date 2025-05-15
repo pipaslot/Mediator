@@ -10,7 +10,8 @@ namespace Pipaslot.Mediator.Benchmarks;
 [MemoryDiagnoser]
 public class MediatorCore
 {
-    private IMediator _mediator = null!;
+    private IMediator _mediatorWithContextAccessor = null!;
+    private IMediator _mediatorMinimal = null!;
     private readonly MessageAction _message = new();
     private readonly RequestAction _request = new("Hello World");
     private readonly RequestAction1 _authenticatedRequest = new("Hello World");
@@ -18,32 +19,49 @@ public class MediatorCore
     [GlobalSetup]
     public void GlobalSetup()
     {
+        _mediatorWithContextAccessor = CreateMediator(true);
+        _mediatorMinimal = CreateMediator(false);
+    }
+
+    private IMediator CreateMediator(bool addContextAccessor)
+    {
         var services = new ServiceCollection();
-        services.AddMediator()
+        services.AddMediator(addContextAccessor)
             .AddActions([typeof(MessageAction), typeof(RequestAction), typeof(RequestAction1)])
             .AddHandlers([typeof(MessageActionHandler), typeof(RequestActionHandler), typeof(RequestAction1Handler)])
             .UseWhenAction<RequestAction1>(m => m.UseAuthorization());
 
         var provider = services.BuildServiceProvider();
-
-        _mediator = provider.GetRequiredService<IMediator>();
+        return provider.GetRequiredService<IMediator>();
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public Task Message()
     {
-        return _mediator.DispatchUnhandled(_message);
+        return _mediatorMinimal.DispatchUnhandled(_message);
     }
 
     [Benchmark]
     public Task Request()
     {
-        return _mediator.ExecuteUnhandled(_request);
+        return _mediatorMinimal.ExecuteUnhandled(_request);
+    }
+    
+    [Benchmark]
+    public Task MessageWithContextAccessor()
+    {
+        return _mediatorWithContextAccessor.DispatchUnhandled(_message);
+    }
+
+    [Benchmark]
+    public Task RequestWithContextAccessor()
+    {
+        return _mediatorWithContextAccessor.ExecuteUnhandled(_request);
     }
 
     [Benchmark]
     public Task RequestWithAuthentication()
     {
-        return _mediator.ExecuteUnhandled(_authenticatedRequest);
+        return _mediatorMinimal.ExecuteUnhandled(_authenticatedRequest);
     }
 }

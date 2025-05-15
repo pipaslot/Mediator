@@ -44,7 +44,11 @@ public class MediatorClientStartup
     public Task SingleAction()
     {
         var services = CreateServiceCollection();
-        services.AddMediatorClient(o=> o.DeserializeOnlyCredibleResultTypes = true)
+        services.AddMediatorClient(o =>
+            {
+                o.DeserializeOnlyCredibleResultTypes = true;
+                o.AddContextAccessor = false;
+            })
             .AddActions([typeof(RequestAction)]);
         
         return RunAction(services);

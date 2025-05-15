@@ -54,7 +54,7 @@ public class MediatorClient
 
         _httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost/") };
 
-        services.AddMediatorClient();
+        services.AddMediatorClient(o => o.AddContextAccessor = false);
         services.AddSingleton(_ => _httpClient);
 
         var serviceProvider = services.BuildServiceProvider();

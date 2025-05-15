@@ -16,7 +16,7 @@ internal class MediatorContextAccessor(IServiceProvider serviceProvider) : IMedi
 
     public MediatorContext? Context => _asyncLocal.Value?.GetCurrent();
 
-    public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? Array.Empty<MediatorContext>();
+    public IReadOnlyCollection<MediatorContext> ContextStack => _asyncLocal.Value?.ToArray() ?? [];
 
     /// <returns>Amount of contexts already stored on the stack</returns>
     public int Push(MediatorContext context)

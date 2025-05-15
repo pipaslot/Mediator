@@ -70,15 +70,15 @@ public class MediatorContext
     /// Will contain parent contexts of actions which executed current action as nested call. 
     /// The last member is always the root action.
     /// </summary>
-    public MediatorContext[] ParentContexts => _contextAccessor.GetParentContexts();
+    public MediatorContext[] ParentContexts => _contextAccessor?.GetParentContexts() ?? [];
     
-    private readonly IMediatorContextAccessor _contextAccessor;
+    private readonly IMediatorContextAccessor? _contextAccessor;
     internal readonly IServiceProvider Services;
 
     private readonly ReflectionCache _reflectionCache;
     private HandlerExecutor? _handlerExecutor;
 
-    internal MediatorContext(IMediator mediator, IMediatorContextAccessor contextAccessor, IServiceProvider serviceProvider, ReflectionCache reflectionCache, IMediatorAction action,
+    internal MediatorContext(IMediator mediator, IMediatorContextAccessor? contextAccessor, IServiceProvider serviceProvider, ReflectionCache reflectionCache, IMediatorAction action,
         CancellationToken cancellationToken, HandlerExecutor? handlerExecutor, IFeatureCollection? defaultFeatures)
     {
         Mediator = mediator;

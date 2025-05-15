@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator;
 /// <summary>
 /// Mediator which wraps handler execution into pipelines
 /// </summary>
-internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
+internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor? mediatorContextAccessor, MediatorConfigurator configurator)
     : IMediator
 {
     public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
@@ -151,7 +151,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var contextsCount = mediatorContextAccessor.Push(context); //TODO make the mediator context as optional service in the mediator configured via options.
+        var contextsCount = mediatorContextAccessor?.Push(context) ?? 1; 
         var pipeline = GetPipeline(action, hasParentContext: contextsCount > 1);
 
         var index = -1;
