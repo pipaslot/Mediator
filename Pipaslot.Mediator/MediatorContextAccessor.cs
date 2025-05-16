@@ -39,7 +39,7 @@ internal class MediatorContextAccessor(IServiceProvider serviceProvider) : IMedi
         {
             // Notification provider is called independently of the mediator
             var messageReceiver = serviceProvider.GetService<NotificationReceiverMiddleware>();
-            messageReceiver?.SendNotifications(notification);
+            messageReceiver?.SendNotifications(notification); //TODO: log warning as the notification can be lost when the service is not available
         }
         else
         {

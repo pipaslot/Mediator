@@ -38,6 +38,10 @@ public static class ServiceCollectionExtensions
             services.AddScoped<IMediatorContextAccessor>(s => s.GetRequiredService<MediatorContextAccessor>());
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
         }
+        else
+        {
+            services.AddScoped<INotificationProvider, NotificationReceiverMiddlewarePropagator>();
+        }
         var configurator = new MediatorConfigurator(services);
         services.AddSingleton(configurator);
         services.AddScoped<IMediator>(s =>
