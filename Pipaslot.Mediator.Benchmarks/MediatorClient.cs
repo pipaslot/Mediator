@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
+using Pipaslot.Mediator.Benchmarks.Actions;
 using Pipaslot.Mediator.Http;
 using System.Net;
 using System.Net.Http.Json;
@@ -18,7 +19,8 @@ public class MediatorClient
     private HttpClient _httpClient = null!;
 
     private const string _mediatorResponse =
-        @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Benchmarks." + nameof(MediatorClient) + "+" + nameof(TestResponse) +
+        @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Benchmarks.Actions." +
+        nameof(RequestActionResult) +
         @", Pipaslot.Mediator.Benchmarks"",""Message"":""Hello World""}]}";
 
     private const string _apiEndpoint = "/api/custom-api-operation";
@@ -52,23 +54,18 @@ public class MediatorClient
 
         _httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost/") };
 
-        services.AddMediatorClient();
+        services.AddMediatorClient(o => o.AddContextAccessor = false);
         services.AddSingleton(_ => _httpClient);
 
         var serviceProvider = services.BuildServiceProvider();
         _mediator = serviceProvider.GetRequiredService<IMediator>();
     }
 
-    public record TestRequest : IRequest<TestResponse>;
-
-    public record TestResponse(string Message);
-
-
     [Benchmark(Baseline = true)]
     public async Task RawHttpClient()
     {
-        var httpResponse = await _httpClient.PostAsJsonAsync(_apiEndpoint, new TestRequest());
-        var result = await httpResponse.Content.ReadFromJsonAsync<TestResponse>();
+        var httpResponse = await _httpClient.PostAsJsonAsync(_apiEndpoint, new RequestAction("Hello World"));
+        var result = await httpResponse.Content.ReadFromJsonAsync<RequestActionResult>();
 
         if (result is null || result.Message != "Hello World")
         {
@@ -79,7 +76,7 @@ public class MediatorClient
     [Benchmark]
     public async Task Mediator()
     {
-        var response = await _mediator.Execute(new TestRequest());
+        var response = await _mediator.Execute(new RequestAction("Hello World"));
         if (response.Failure || response.Result.Message != "Hello World")
         {
             throw new Exception("Unexpected response:" + response.Result);

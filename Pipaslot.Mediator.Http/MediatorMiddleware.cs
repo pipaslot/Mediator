@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Serialization;
@@ -13,15 +14,15 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http;
 
-public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer)
+public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer, MediatorConfigurator configurator)
 {
     public async Task Invoke(HttpContext context)
     {
-        context.Features.Set(new MediatorHttpContextFeature());
+        context.Features.Set(MediatorHttpContextFeature.Instance);
 
-        var method = context.Request.Method.ToUpper();
-        var isPost = method == "POST";
-        var isGet = method == "GET";
+        var method = context.Request.Method;
+        var isPost = HttpMethods.IsPost(method);
+        var isGet = HttpMethods.IsGet(method);
         if (context.Request.Path == option.Endpoint && (isPost || isGet))
         {
             var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
@@ -59,6 +60,10 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                     : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
                         ? actionQuery.ToString()
                         : "";
+                if (string.IsNullOrWhiteSpace(body))
+                {
+                    throw MediatorHttpException.CreateForInvalidRequest(body);
+                }
                 action = serializer.DeserializeRequest(body, []);
             }
             else
@@ -66,9 +71,9 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 // body was sent as Multipart form-data
                 var form = await context.Request.ReadFormAsync(context.RequestAborted).ConfigureAwait(false);
 
-                // Get json metadate
-                var jsonPart = form[MediatorConstants.MultipartFormDataJson];
-                var streams = new List<StreamContract>();
+                // Get json metadata
+                var jsonPart = form[MediatorConstants.MultipartFormDataJson].ToString();
+                var streams = new List<StreamContract>(form.Files.Count);
                 foreach (var file in form.Files)
                 {
                     streams.Add(new StreamContract(file.FileName, file.OpenReadStream()));
@@ -79,7 +84,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
             var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
-                : await ExecuteMessage(mediator, action, context.RequestAborted).ConfigureAwait(false);
+                : await mediator.Dispatch(action, context.RequestAborted).ConfigureAwait(false);
             return mediatorResponse;
         }
         catch (Exception ex)
@@ -90,42 +95,23 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
     private static IMediator CreateMediator(HttpContext context)
     {
-        if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolver)
+        if (context.RequestServices.GetService(typeof(IMediator)) is not IMediator resolved)
         {
             throw MediatorHttpException.CreateForUnregisteredService(typeof(IMediator));
         }
 
-        return resolver;
+        return resolved;
     }
 
     private static async Task<string> GetBody(HttpContext context)
     {
         using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
-        var body = await reader.ReadToEndAsync().ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(body))
-        {
-            throw MediatorHttpException.CreateForInvalidRequest(body);
-        }
-
-        return body;
-    }
-
-    private static async Task<IMediatorResponse> ExecuteMessage(IMediator mediator, IMediatorAction message, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await mediator.Dispatch(message, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            // This should never happen because mediator handles errors internally. But need to prevent errors if somebody will override mediator behavior
-            return new MediatorResponse(e.Message, message);
-        }
+        return await reader.ReadToEndAsync().ConfigureAwait(false);
     }
 
     private async Task<IMediatorResponse> ExecuteRequest(IMediator mediator, object query, CancellationToken cancellationToken)
     {
-        var resultType = RequestGenericHelpers.GetRequestResultType(query.GetType())
+        var resultType = configurator.ReflectionCache.GetRequestResultType(query.GetType())
                          ?? throw new MediatorHttpException($"Object {query.GetType()} is not assignable to type {typeof(IMediatorAction<>)}");
         var method = mediator.GetType()
             .GetMethod(nameof(IMediator.Execute))!

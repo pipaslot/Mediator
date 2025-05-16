@@ -72,7 +72,7 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
         collection.AddLogging();
         collection.AddMediator();
         collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
-        collection.AddSingleton<IActionTypeProvider>(new FakeActionTypeProvider(subject));
+        collection.AddSingleton<IActionTypeProvider>(new ReflectionCache().AddActions(subject));
         var sp = collection.BuildServiceProvider();
         return sp.GetRequiredService<IHandlerExistenceChecker>();
     }
@@ -83,31 +83,6 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
         data.MoveNext();
         var msg = (string)(data.Value ?? string.Empty);
         Assert.Equal(expected.Message, msg);
-    }
-
-    private class FakeActionTypeProvider : IActionTypeProvider
-    {
-        private readonly Type[] _types;
-
-        public FakeActionTypeProvider(params Type[] types)
-        {
-            _types = types;
-        }
-
-        public ICollection<Type> GetActionTypes()
-        {
-            return _types;
-        }
-
-        public ICollection<Type> GetMessageActionTypes()
-        {
-            return MediatorConfigurator.FilterAssignableToMessage(_types);
-        }
-
-        public ICollection<Type> GetRequestActionTypes()
-        {
-            return MediatorConfigurator.FilterAssignableToRequest(_types);
-        }
     }
 
     #region Actions

@@ -22,6 +22,7 @@ services.AddMediatorClient(o =>
         o.Endpoint = Constants.CustomMediatorUrl;
         o.IgnoreReadOnlyProperties = true;
         o.AddCredibleResultType<CommonResult>();
+        o.AddContextAccessor = false;// Reduce overhead per every mediator call
     })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddPipelineForAuthorizationRequest(p =>

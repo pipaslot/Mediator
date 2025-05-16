@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
@@ -178,7 +179,7 @@ public class ContextFlowTests
         var mediatorContextAccessorMock = new Mock<IMediatorContextAccessor>();
         var serviceProviderMock = new Mock<IServiceProvider>();
         var action = new FakeAction(depth);
-        return new MediatorContext(mediatorMock.Object, mediatorContextAccessorMock.Object, serviceProviderMock.Object, action,
+        return new MediatorContext(mediatorMock.Object, mediatorContextAccessorMock.Object, serviceProviderMock.Object, new ReflectionCache(), action,
             CancellationToken.None, null, null);
     }
 

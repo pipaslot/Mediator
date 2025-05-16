@@ -68,7 +68,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
 
         services.AddScoped<IMediatorUrlFormatter, THttpClientExecutionMiddleware>();
-        return services.AddMediator<THttpClientExecutionMiddleware>();
+        return services.AddMediator<THttpClientExecutionMiddleware>(addContextAccessor: options.AddContextAccessor);
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IContractSerializer, Serialization.V3.JsonContractSerializer>();
         
-        var config = services.AddMediator();
+        var config = services.AddMediator(addContextAccessor: options.AddContextAccessor);
 
         var existingClaimPrincipalAccessors = services.Where(s => s.ImplementationType == typeof(IClaimPrincipalAccessor));
         foreach (var existingClaimPrincipalAccessor in existingClaimPrincipalAccessors)

@@ -22,8 +22,6 @@ public class HttpClientExecutionMiddleware(
     ILogger<HttpClientExecutionMiddleware> logger)
     : IExecutionMiddleware, IMediatorUrlFormatter
 {
-    private readonly ILogger _logger = logger;
-
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         var response = await SendRequest<object>(context).ConfigureAwait(false);
@@ -131,7 +129,7 @@ public class HttpClientExecutionMiddleware(
 
     private Task<IMediatorResponse<TResult>> CreateErrorResponse<TResult>(MediatorContext context, string errorMessage, Exception? e = null)
     {
-        _logger.LogError(e, errorMessage);
+        logger.LogError(e, errorMessage);
         IMediatorResponse<TResult> result = new MediatorResponse<TResult>(errorMessage, context.Action);
         return Task.FromResult(result);
     }

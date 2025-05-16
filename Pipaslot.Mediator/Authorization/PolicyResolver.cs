@@ -11,7 +11,7 @@ namespace Pipaslot.Mediator.Authorization;
 
 internal static class PolicyResolver
 {
-    internal static async Task CheckPolicies(IServiceProvider services, IMediatorAction action, object[] handlers,
+    internal static async Task CheckPolicies<THandler>(IServiceProvider services, IMediatorAction action, THandler[] handlers,
         CancellationToken cancellationToken)
     {
         var ruleSet = await GetPolicyRules(services, action, handlers, cancellationToken).ConfigureAwait(false);
@@ -32,7 +32,7 @@ internal static class PolicyResolver
         }
     }
 
-    public static async Task<RuleSet> GetPolicyRules(IServiceProvider services, IMediatorAction action, object[] handlers,
+    public static async Task<RuleSet> GetPolicyRules<THandler>(IServiceProvider services, IMediatorAction action, THandler[] handlers,
         CancellationToken cancellationToken)
     {
         var policies = await GetPolicies(action, handlers, cancellationToken).ConfigureAwait(false);
@@ -52,7 +52,7 @@ internal static class PolicyResolver
         return rules;
     }
 
-    internal static async Task<List<IPolicy>> GetPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+    internal static async Task<List<IPolicy>> GetPolicies<THandler>(IMediatorAction action, THandler[] handlers, CancellationToken cancellationToken)
     {
         var result = new List<IPolicy>();
         var actionPolicies = GetActionPolicies(action);
@@ -90,7 +90,7 @@ internal static class PolicyResolver
         }
     }
 
-    private static async Task<ICollection<IPolicy>> GetHandlerPolicies(IMediatorAction action, object[] handlers, CancellationToken cancellationToken)
+    private static async Task<ICollection<IPolicy>> GetHandlerPolicies<THandler>(IMediatorAction action, THandler[] handlers, CancellationToken cancellationToken)
     {
         var result = new List<IPolicy>();
         var syncType = typeof(IHandlerAuthorization<>);
@@ -99,6 +99,10 @@ internal static class PolicyResolver
         var unauthorizedHandlers = new HashSet<object>();
         foreach (var handler in handlers)
         {
+            if (handler is null)
+            {
+                continue;
+            }
             var isAuthorized = false;
             var handlerType = handler.GetType();
             var handlerAttributes = GetPolicyAttributes(handlerType);

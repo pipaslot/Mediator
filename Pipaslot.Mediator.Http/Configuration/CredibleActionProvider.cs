@@ -8,22 +8,18 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration;
 
-internal class CredibleActionProvider : ICredibleProvider
+/// <param name="configurator"></param>
+/// <param name="trustedTypes">Credible types coming from consumer app configuration</param>
+/// <param name="trustedAssemblies">Credible assemblies coming from consumer app configuration</param>
+internal class CredibleActionProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
+    : ICredibleProvider
 {
-    private readonly MediatorConfigurator _configurator;
-    private readonly HashSet<Type> _trustedTypes;
-    private readonly HashSet<Assembly> _trustedAssemblies;
-
-    public CredibleActionProvider(MediatorConfigurator configurator, IEnumerable<Type> trustedTypes, IEnumerable<Assembly> trustedAssemblies)
-    {
-        _configurator = configurator;
-        _trustedTypes = [..trustedTypes];
-        _trustedAssemblies = [..trustedAssemblies];
-    }
+    private readonly HashSet<Type> _trustedTypes = [..trustedTypes];
+    private readonly HashSet<Assembly> _trustedAssemblies = [..trustedAssemblies];
 
     public void VerifyCredibility(Type actionType)
     {
-        if (_configurator.TrustedAssemblies.Any() && !_configurator.TrustedAssemblies.Contains(actionType.Assembly))
+        if (configurator.TrustedAssemblies.Any() && !configurator.TrustedAssemblies.Contains(actionType.Assembly))
         {
             throw MediatorHttpException.CreateForUnregisteredActionType(actionType);
         }

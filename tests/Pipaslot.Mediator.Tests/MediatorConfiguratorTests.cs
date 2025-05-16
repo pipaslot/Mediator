@@ -7,21 +7,24 @@ namespace Pipaslot.Mediator.Tests;
 
 public class MediatorConfiguratorTests
 {
-    [Fact]
-    public void AddActions_NonActionTypePassed_ThrowException()
+    [Theory]
+    [InlineData(typeof(SingleHandler.Message), true)]
+    [InlineData(typeof(NonActionType), false)]
+    [InlineData(typeof(SingleHandler.Request), true)]
+    public void AddActions_ActionTypePassed(Type type, bool shouldPass)
     {
         var sut = Create();
-        Assert.Throws<MediatorException>(() =>
+        if (shouldPass)
         {
-            sut.AddActions([typeof(object)]);
-        });
-    }
-
-    [Fact]
-    public void AddActions_ActionTypePassed_Pass()
-    {
-        var sut = Create();
-        sut.AddActions([typeof(NopMessage)]);
+            sut.AddActions([type]);
+        }
+        else
+        {
+            Assert.Throws<MediatorException>(() =>
+            {
+                sut.AddActions([type]);
+            });
+        }
     }
 
     [Fact]
@@ -46,4 +49,6 @@ public class MediatorConfiguratorTests
         var sc = new Mock<IServiceCollection>();
         return new MediatorConfigurator(sc.Object);
     }
+
+    private class NonActionType;
 }

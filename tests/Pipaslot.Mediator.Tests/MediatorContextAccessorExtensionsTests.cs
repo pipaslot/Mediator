@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Middlewares.Features;
 using System;
@@ -34,10 +35,11 @@ public class MediatorContextAccessorExtensionsTests
             new Mock<IMediator>().Object
             , new Mock<IMediatorContextAccessor>().Object
             , new Mock<IServiceProvider>().Object
+            , new ReflectionCache()
             , new Mock<IMediatorAction>().Object
             , CancellationToken.None
-            , []
-            , features.Object
+            , null
+            ,features.Object
         );
     }
 

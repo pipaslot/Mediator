@@ -1,22 +1,40 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipaslot.Mediator;
 
+[Obsolete("The class will be set as internal in future versions.")]
 public static class ServiceProviderExtensions
 {
+    internal static HandlerExecutor GetHandlerExecutor(this IServiceProvider services, Type actionType)
+    {
+        var configurator = services.GetRequiredService<MediatorConfigurator>();
+        var executorType = configurator.ReflectionCache.GetHandlerExecutorType(actionType);
+        return (HandlerExecutor)services.GetRequiredService(executorType);
+    }
+    
+    internal static HandlerExecutor GetHandlerExecutor(this IServiceProvider services, ReflectionCache reflectionCache, Type actionType)
+    {
+        var executorType = reflectionCache.GetHandlerExecutorType(actionType);
+        return (HandlerExecutor)services.GetRequiredService(executorType);
+    }
+    
     /// <summary>
     /// Resolve all action handlers
     /// </summary>
+    /// TODO: Remove
     public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
     {
         var actionType = action.GetType();
         if (action is IMediatorActionProvidingData)
         {
-            var resultType = RequestGenericHelpers.GetRequestResultType(actionType);
+            var configurator = serviceProvider.GetRequiredService<MediatorConfigurator>();
+            var resultType = configurator.ReflectionCache.GetRequestResultType(actionType);
             return serviceProvider.GetRequestHandlers(actionType, resultType);
         }
 
@@ -33,7 +51,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
+        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);// TODO get rid of
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)
             // ReSharper disable once RedundantEnumerableCastCall
@@ -51,7 +69,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var mediatorHandlerType = typeof(IMediatorHandler<,>);
+        var mediatorHandlerType = typeof(IMediatorHandler<,>);// TODO get rid of
         var handlerType = mediatorHandlerType.MakeGenericType(requestType, responseType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)

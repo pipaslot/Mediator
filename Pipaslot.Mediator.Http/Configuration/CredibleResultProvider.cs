@@ -31,7 +31,7 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
             return;
         }
 
-        _actionResultTypes ??= [..GetActionResultTypes()];
+        _actionResultTypes ??= BuildActionResultTypes();
 
         if (_actionResultTypes.Contains(resultType))
         {
@@ -47,10 +47,12 @@ internal class CredibleResultProvider(MediatorConfigurator configurator, IEnumer
         throw MediatorHttpException.CreateForUnregisteredResultType(collectionItem ?? resultType);
     }
 
-    private IEnumerable<Type> GetActionResultTypes()
+    private HashSet<Type> BuildActionResultTypes()
     {
-        return configurator.GetRequestActionTypes()
+        // TODO: this is a potential bottleneck slowing down application startup when processing the very first http response on the client
+        var types = configurator.GetRequestActionTypes()
             .Select(t => RequestGenericHelpers.GetRequestResultType(t))
             .Select(t => ContractSerializerTypeHelper.GetEnumeratedType(t) ?? t);
+        return [..types];
     }
 }

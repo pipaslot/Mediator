@@ -1,4 +1,5 @@
 ﻿using Pipaslot.Mediator.Configuration;
+using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration;
 
+// TODO make as abstract in next major version
 public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
 {
     private string _endpoint = MediatorConstants.Endpoint;
@@ -24,10 +26,21 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
     public bool IgnoreReadOnlyProperties { get; set; }
 
     /// <summary>
-    /// Protect deserialization process by check whether target type is credible. 
-    /// Prevents agains exploiting this feature by attackers. Disabled by default.
+    /// Protect deserialization process by check whether the target type is credible. 
+    /// Prevents against exploiting this feature by attackers. Disabled by default.
     /// </summary>
     public bool DeserializeOnlyCredibleResultTypes { get; set; }
+    
+    /// <summary>
+    /// Register <see cref="IMediatorContextAccessor"/> and <see cref="INotificationProvider"/> needed for context accessing out of the mediator middlewares.
+    /// If performance matter, and you do not need to: <br />
+    /// - access the <see cref="MediatorContext"/> <br />
+    /// - track nested calls <br />
+    /// - send notification from nested calls <br />
+    /// - access the context out of mediator handler<br />
+    /// Then you can set this parameter to False and you will save CPU time 70ns and avoid allocation of 380bytes per mediator call.
+    /// </summary>
+    public virtual bool AddContextAccessor { get; set; } = true;
 
     #region Credible types
 

@@ -13,7 +13,7 @@ namespace Pipaslot.Mediator;
 /// <summary>
 /// Mediator which wraps handler execution into pipelines
 /// </summary>
-internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor mediatorContextAccessor, MediatorConfigurator configurator)
+internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccessor? mediatorContextAccessor, MediatorConfigurator configurator)
     : IMediator
 {
     public async Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
@@ -151,7 +151,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var contextsCount = mediatorContextAccessor.Push(context);
+        var contextsCount = mediatorContextAccessor?.Push(context) ?? 1; 
         var pipeline = GetPipeline(action, hasParentContext: contextsCount > 1);
 
         var index = -1;
@@ -183,7 +183,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private MediatorContext CreateContext(IMediatorAction action, CancellationToken cancellationToken)
     {
-        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, action, cancellationToken, null, null);
+        return new MediatorContext(this, mediatorContextAccessor, serviceProvider, configurator.ReflectionCache, action, cancellationToken, null, null);
     }
 
     internal record MiddlewarePair(IMediatorMiddleware? Instance, Type ResolvableType, object[]? Parameters);

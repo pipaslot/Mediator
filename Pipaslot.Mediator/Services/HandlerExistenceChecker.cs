@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Services;
 
-public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTypeProvider actionTypeProvider) : IHandlerExistenceChecker
+public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTypeProvider actionTypeProvider, MediatorConfigurator configurator) : IHandlerExistenceChecker
 {
     /// <summary>
     /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
@@ -49,7 +49,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
                 continue;
             }
 
-            var handlers = serviceProvider.GetMessageHandlers(subject).ToArray();
+            var handlers = serviceProvider.GetHandlerExecutor(subject).GetHandlers(serviceProvider);
             if (setting.CheckMatchingHandlers)
             {
                 VerifyHandlerCount(handlers, subject);
@@ -73,8 +73,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
                 continue;
             }
 
-            var resultType = RequestGenericHelpers.GetRequestResultType(subject);
-            var handlers = serviceProvider.GetRequestHandlers(subject, resultType);
+            var handlers = serviceProvider.GetHandlerExecutor(subject).GetHandlers(serviceProvider);
             if (setting.CheckMatchingHandlers)
             {
                 VerifyHandlerCount(handlers, subject);
