@@ -3,7 +3,7 @@ using System;
 
 namespace Pipaslot.Mediator.Notifications;
 
-public class NotificationReceiverMiddlewarePropagator(IServiceProvider serviceProvider) : INotificationProvider
+internal class NotificationReceiverMiddlewarePropagator(IServiceProvider serviceProvider) : INotificationProvider
 {
     public void Add(Notification notification)
     {
