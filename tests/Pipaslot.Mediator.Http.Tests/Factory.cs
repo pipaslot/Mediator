@@ -2,18 +2,20 @@
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.IO;
+using System.Text;
 
 namespace Pipaslot.Mediator.Http.Tests;
 
-internal class Factory
+internal static class Factory
 {
     public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
     {
         var services = CreateServiceProvider(c =>
             {
-                c.AddActionsFromAssemblyOf<Factory>()
+                c.AddActionsFromAssembly(typeof(Factory).Assembly)
                     .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                    .AddHandlersFromAssemblyOf<Factory>()
+                    .AddHandlersFromAssembly(typeof(Factory).Assembly)
                     .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
                 setup(c);
             }
@@ -28,4 +30,23 @@ internal class Factory
         setup(collection.AddMediator());
         return collection.BuildServiceProvider();
     }
+    
+    
+    #region Streams
+    internal static Stream ConvertToStream(this string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
+
+    internal static string ConvertToString(this Stream stream)
+    {
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        return reader.ReadToEnd();
+    }
+    #endregion
 }

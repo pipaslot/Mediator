@@ -4,7 +4,6 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
@@ -21,8 +20,8 @@ public class ContractSerializer_StreamTest : ContractSerializerBaseTest
         var fileName2 = "Stream 2";
         var files = new FileDto[]
         {
-            new(ToStream(streamContent1), fileName1), 
-            new(ToStream(streamContent2), fileName2)
+            new(streamContent1.ConvertToStream(), fileName1), 
+            new(streamContent2.ConvertToStream(), fileName2)
         };
         var action = new FileUploadAction(files);
         var sut = CreateSerializer();
@@ -35,32 +34,16 @@ public class ContractSerializer_StreamTest : ContractSerializerBaseTest
 
         var file1 = deserialized.Files.First();
         Assert.Equal(fileName1, file1.Name);
-        Assert.Equal(streamContent1, FromStream(file1.Content));
+        Assert.Equal(streamContent1, file1.Content.ConvertToString());
         var file2 = deserialized.Files.Skip(1).First();
         Assert.Equal(fileName2, file2.Name);
-        Assert.Equal(streamContent2, FromStream(file2.Content));
+        Assert.Equal(streamContent2, file2.Content.ConvertToString());
     }
     
     protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
     {
         var optionsMock = new Mock<IMediatorOptions>();
         return new JsonContractSerializer(provider, optionsMock.Object);
-    }
-
-    private Stream ToStream(string s)
-    {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(s);
-        writer.Flush();
-        stream.Position = 0;
-        return stream;
-    }
-
-    private static string FromStream(Stream stream)
-    {
-        using StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-        return reader.ReadToEnd();
     }
 
     private record FileUploadAction(FileDto[] Files) : IMessage;
