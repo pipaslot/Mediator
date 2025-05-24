@@ -46,7 +46,7 @@ internal class JsonContractSerializer : IContractSerializer
         return new SerializedRequest(json, converter.GetStreams());
     }
 
-    public async Task<IMediatorAction> DeserializeRequest(Stream action, ICollection<StreamContract> dataStreams)
+    public async ValueTask<IMediatorAction> DeserializeRequest(Stream action, ICollection<StreamContract> dataStreams)
     {
         try
         {

@@ -32,7 +32,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     public async Task Request_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
-        var ex = await Assert.ThrowsAsync<MediatorHttpException>(() => sut.DeserializeRequest(body?.ConvertToStream() ?? Stream.Null, []));
+        var ex = await Assert.ThrowsAsync<MediatorHttpException>(async() => await sut.DeserializeRequest(body?.ConvertToStream() ?? Stream.Null, []));
         Assert.Equal(MediatorHttpException.CreateForInvalidRequest().Message, ex.Message);
     }
 

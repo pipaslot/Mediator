@@ -83,7 +83,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         }
     }
     
-    private static Task<IMediatorAction> GetActionFromQuery(HttpContext context, IContractSerializer serializer)
+    private static ValueTask<IMediatorAction> GetActionFromQuery(HttpContext context, IContractSerializer serializer)
     {
         var body = context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
                 ? actionQuery.ToString()

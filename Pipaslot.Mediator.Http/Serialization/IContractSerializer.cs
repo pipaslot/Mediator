@@ -8,7 +8,7 @@ namespace Pipaslot.Mediator.Http.Serialization;
 public interface IContractSerializer
 {
     SerializedRequest SerializeRequest(IMediatorAction request);
-    Task<IMediatorAction> DeserializeRequest(Stream action, ICollection<StreamContract> dataStreams);
+    ValueTask<IMediatorAction> DeserializeRequest(Stream action, ICollection<StreamContract> dataStreams);
     string SerializeResponse(IMediatorResponse response);
     IMediatorResponse<TResult> DeserializeResponse<TResult>(string response);
 }
