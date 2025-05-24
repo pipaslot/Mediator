@@ -52,7 +52,7 @@ public class JsonContractSerializer_CredibilityTests : ContractSerializer_Credib
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
-        sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
 
         CredibleProviderMock.VerifyAll();
     }

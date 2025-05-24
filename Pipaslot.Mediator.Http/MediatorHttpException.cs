@@ -6,9 +6,9 @@ namespace Pipaslot.Mediator.Http;
 
 public class MediatorHttpException(string message, Exception? innerException = null) : Exception(message, innerException)
 {
-    internal static MediatorHttpException CreateForInvalidRequest(string? content, Exception? innerException = null)
+    internal static MediatorHttpException CreateForInvalidRequest(Exception? innerException = null)
     {
-        return new MediatorHttpException($"Request body '{content}' is not valid JSON contract expected by the mediator.", innerException);
+        return new MediatorHttpException($"Request body is not valid JSON contract expected by the mediator.", innerException);
     }
 
     internal static MediatorHttpException CreateForInvalidResponse(string? content, Exception? innerException = null)

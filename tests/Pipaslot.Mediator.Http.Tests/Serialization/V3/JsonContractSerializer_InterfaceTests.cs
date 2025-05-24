@@ -5,6 +5,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests;
 
@@ -59,42 +60,42 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     }
 
     [Fact]
-    public void Request_SerializePropertyInterface()
+    public async Task Request_SerializePropertyInterface()
     {
         var contract = new Contract { Name = "Contract name" };
         var action = new MessageWithInterfaceProperty { Contract = contract };
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithInterfaceProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        var deserialized = (MessageWithInterfaceProperty)await sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(deserialized.Contract.GetType(), contract.GetType());
         Assert.Equal(((Contract)deserialized.Contract).Name, contract.Name);
     }
 
     [Fact]
-    public void Request_SerializePropertyInterfaceCollection()
+    public async Task Request_SerializePropertyInterfaceCollection()
     {
         var contract = new Contract { Name = "Contract name" };
         var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithInterfaceArrayProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        var deserialized = (MessageWithInterfaceArrayProperty)await sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(typeof(IContract[]), deserialized.Contracts.GetType());
         Assert.Equal(((Contract)deserialized.Contracts.First()).Name, contract.Name);
     }
 
     [Fact]
-    public void Request_SerializePropertyIMediatorction()
+    public async Task Request_SerializePropertyIMediatorction()
     {
         var subAction = new ChildMediatorAction { Name = "Contract name" };
         var action = new MessageWithIMediatorActionProperty { SubAction = subAction };
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(action);
-        var deserialized = (MessageWithIMediatorActionProperty)sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        var deserialized = (MessageWithIMediatorActionProperty)await sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
         Assert.NotNull(deserialized);
         Assert.Equal(deserialized.SubAction.GetType(), subAction.GetType());
         Assert.Equal(((ChildMediatorAction)deserialized.SubAction).Name, subAction.Name);

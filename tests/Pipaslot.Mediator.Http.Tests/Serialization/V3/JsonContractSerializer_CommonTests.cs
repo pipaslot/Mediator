@@ -3,6 +3,7 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
@@ -10,13 +11,13 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
 public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestBase
 {
     [Fact]
-    public void DeserializeRequest_FromJsonWithShortFormat()
+    public async Task DeserializeRequest_FromJsonWithShortFormat()
     {
         var sut = CreateSerializer();
 
         var serialized =
             @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
-        var deserialized = sut.DeserializeRequest(serialized, []);
+        var deserialized = await sut.DeserializeRequest(serialized.ConvertToStream(), []);
 
         Assert.True(Match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
     }

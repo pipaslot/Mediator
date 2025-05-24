@@ -1,5 +1,8 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
@@ -26,56 +29,52 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     [InlineData(" ")]
     [InlineData("{}")]
     [InlineData(@"{""Content"":"" "",""Type"":"" ""}")]
-    public void Request_InvalidContent_ThrowException(string? body)
+    public async Task Request_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
-        var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body!, []));
-        Assert.Equal(MediatorHttpException.CreateForInvalidRequest(body).Message, ex.Message);
+        var ex = await Assert.ThrowsAsync<MediatorHttpException>(() => sut.DeserializeRequest(body?.ConvertToStream() ?? Stream.Null, []));
+        Assert.Equal(MediatorHttpException.CreateForInvalidRequest().Message, ex.Message);
     }
 
     [Fact]
-    public void Request_PublicPropertyGettersAndSetters_WillPass()
+    public Task Request_PublicPropertyGettersAndSetters_WillPass()
     {
-        RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested },
+        return RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested },
             Match);
     }
 
     [Fact]
-    public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
+    public Task Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
     {
-        RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
+        return RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
             Match);
     }
 
     [Fact]
-    public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
+    public async Task Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
     {
-        var exception = Assert.Throws<MediatorHttpException>(() =>
-        {
-            //This is weakness of Microsoft.Text.Json serializer because if there is no parameterless  constructor and public setters, then it deserialize data via names in constructor parameters
-            RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), Match);
-        });
+        var exception = await Assert.ThrowsAsync<MediatorHttpException>(() => RunRequestTest(new ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(_name, _number, _collection, _nested), Match));
     }
 
     [Fact]
-    public void Request_PublicPropertyGetterAndInitSetter_WillPass()
+    public Task Request_PublicPropertyGetterAndInitSetter_WillPass()
     {
-        RunRequestTest(
+        return RunRequestTest(
             new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
     }
 
     [Fact]
-    public void Request_PositionalRecord_WillPass()
+    public Task Request_PositionalRecord_WillPass()
     {
-        RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
+        return RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
     }
 
-    private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
+    private async Task RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
     {
         var sut = CreateSerializer();
 
         var serialized = sut.SerializeRequest(seed);
-        var deserialized = sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        var deserialized = await sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
 
         Assert.True(match((TContract)deserialized));
     }

@@ -4,6 +4,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
@@ -11,7 +12,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization;
 public class ContractSerializer_StreamTest : ContractSerializerBaseTest
 {
     [Fact]
-    public void StreamsAreExtractedDuringSerializationAndPlacedBackWhenDeserializing()
+    public async Task StreamsAreExtractedDuringSerializationAndPlacedBackWhenDeserializing()
     {
         var streamContent1 = "Stream number one";
         var fileName1 = "Stream 1";
@@ -28,7 +29,7 @@ public class ContractSerializer_StreamTest : ContractSerializerBaseTest
         var serialized = sut.SerializeRequest(action);
         Assert.Equal(2, serialized.Streams.Count);// Two stream are expected because two files were passed
         
-        var deserialized = sut.DeserializeRequest(serialized.Json, serialized.Streams) as FileUploadAction;
+        var deserialized = await sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams) as FileUploadAction;
         Assert.NotNull(deserialized);
         Assert.Equal(2, deserialized.Files.Length);
 

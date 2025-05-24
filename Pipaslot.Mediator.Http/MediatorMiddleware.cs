@@ -6,9 +6,7 @@ using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,17 +52,9 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
             if (!context.Request.HasFormContentType)
             {
                 // Standard JSON expected body or HTTP GET
-                //TODO: read body as stream
-                var body = isPost
-                    ? await GetBody(context).ConfigureAwait(false)
-                    : context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
-                        ? actionQuery.ToString()
-                        : "";
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    throw MediatorHttpException.CreateForInvalidRequest(body);
-                }
-                action = serializer.DeserializeRequest(body, []);
+                action = isPost
+                    ? await serializer.DeserializeRequest(context.Request.Body, []).ConfigureAwait(false)
+                    : await GetActionFromQuery(context, serializer).ConfigureAwait(false);
             }
             else
             {
@@ -79,7 +69,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                     streams.Add(new StreamContract(file.FileName, file.OpenReadStream()));
                 }
 
-                action = serializer.DeserializeRequest(jsonPart, streams);
+                action = await serializer.DeserializeRequest(jsonPart.ConvertToStream(), streams).ConfigureAwait(false);
             }
 
             var mediatorResponse = action is IMediatorActionProvidingData req
@@ -92,6 +82,19 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
             return new MediatorResponse(ex.Message);
         }
     }
+    
+    private static Task<IMediatorAction> GetActionFromQuery(HttpContext context, IContractSerializer serializer)
+    {
+        var body = context.Request.Query.TryGetValue(MediatorConstants.ActionQueryParamName, out var actionQuery)
+                ? actionQuery.ToString()
+                : "";
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            throw MediatorHttpException.CreateForInvalidRequest();
+        }
+
+        return serializer.DeserializeRequest(body.ConvertToStream(), []);
+    }
 
     private static IMediator CreateMediator(HttpContext context)
     {
@@ -101,12 +104,6 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         }
 
         return resolved;
-    }
-
-    private static async Task<string> GetBody(HttpContext context)
-    {
-        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
-        return await reader.ReadToEndAsync().ConfigureAwait(false);
     }
 
     private async Task<IMediatorResponse> ExecuteRequest(IMediator mediator, object query, CancellationToken cancellationToken)

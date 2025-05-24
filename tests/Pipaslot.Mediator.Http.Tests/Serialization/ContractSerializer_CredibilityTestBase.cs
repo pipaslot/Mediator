@@ -1,6 +1,7 @@
 ﻿using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
+using Pipaslot.Mediator.Http.Serialization;
 using System;
 using Xunit;
 
@@ -26,7 +27,7 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
-        sut.DeserializeRequest(serialized.Json, serialized.Streams);
+        sut.DeserializeRequest(serialized.Json.ConvertToStream(), serialized.Streams);
 
         CredibleProviderMock.VerifyAll();
     }

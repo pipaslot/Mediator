@@ -3,9 +3,12 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization.V3.Converters;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http.Serialization.V3;// TODO get rid of the V3 namespace
+namespace Pipaslot.Mediator.Http.Serialization.V3;
+// TODO get rid of the V3 namespace
 
 internal class JsonContractSerializer : IContractSerializer
 {
@@ -43,27 +46,24 @@ internal class JsonContractSerializer : IContractSerializer
         return new SerializedRequest(json, converter.GetStreams());
     }
 
-    public IMediatorAction DeserializeRequest(string body, ICollection<StreamContract> streams)
+    public async Task<IMediatorAction> DeserializeRequest(Stream action, ICollection<StreamContract> dataStreams)
     {
-        if (!string.IsNullOrWhiteSpace(body))
+        try
         {
-            try
+            var options = CreateOptions();
+            options.Converters.Add(new StreamExtractingConverter(dataStreams));
+            var contract = await JsonSerializer.DeserializeAsync<IMediatorAction>(action, options).ConfigureAwait(false);
+            if (contract != null)
             {
-                var options = CreateOptions();
-                options.Converters.Add(new StreamExtractingConverter(streams));
-                var contract = JsonSerializer.Deserialize<IMediatorAction>(body, options);
-                if (contract != null)
-                {
-                    return contract;
-                }
-            }
-            catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
-            {
-                throw MediatorHttpException.CreateForInvalidRequest(body, e);
+                return contract;
             }
         }
+        catch (Exception e) when (e is not MediatorException && e is not MediatorHttpException)
+        {
+            throw MediatorHttpException.CreateForInvalidRequest(e);
+        }
 
-        throw MediatorHttpException.CreateForInvalidRequest(body);
+        throw MediatorHttpException.CreateForInvalidRequest();
     }
 
     public string SerializeResponse(IMediatorResponse response)
