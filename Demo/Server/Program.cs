@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
+using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Notifications;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-services.AddControllersWithViews();
 services.AddRazorPages();
 services.AddResponseCompression();
 services.AddHttpContextAccessor();
@@ -70,9 +71,9 @@ services.AddMediatorServer(o =>
 ////////
 
 var app = builder.Build();
+var isDev = app.Environment.IsDevelopment();
 
-
-if (app.Environment.IsDevelopment())
+if (isDev)
 {
     app.UseDeveloperExceptionPage();
     app.UseWebAssemblyDebugging();
@@ -85,17 +86,15 @@ else
 app.UseResponseCompression();
 
 app.UseBlazorFrameworkFiles();
-app.MapStaticAssets();
 app.UseAuthentication();
 
 //////// Mediator implementation
-var isDev = app.Environment.IsDevelopment();
 app.UseMediator(isDev, isDev);
 ////////
 app.UseRouting();
 
-app.MapRazorPages();
-app.MapControllers();
-app.MapFallbackToFile("index.html");
 
+app.MapStaticAssets();
+app.MapRazorPages();
+app.MapFallbackToPage("/_Host");
 app.Run();
