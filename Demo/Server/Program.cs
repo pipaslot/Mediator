@@ -93,7 +93,6 @@ app.UseMediator(isDev, isDev);
 ////////
 app.UseRouting();
 
-
 app.MapStaticAssets();
 app.MapRazorPages();
 app.MapFallbackToPage("/_Host");
