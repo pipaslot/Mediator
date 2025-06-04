@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Pipaslot.Mediator;
 using Pipaslot.Mediator.Http;
-using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Notifications;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 

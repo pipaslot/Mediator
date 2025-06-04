@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Configuration;
@@ -153,10 +152,7 @@ public static class MiddlewareRegistratorExtensions
     /// <inheritdoc cref="NotificationReceiverMiddleware"/>
     public static IMiddlewareRegistrator UseNotificationReceiver(this IMiddlewareRegistrator config)
     {
-        return config.Use<NotificationReceiverMiddleware>(services =>
-        {
-            services.TryAddScoped<INotificationReceiver>(s => s.GetRequiredService<NotificationReceiverMiddleware>());
-        });
+        return config.Use<NotificationReceiverMiddleware>();
     }
 
     /// <inheritdoc cref="AuthorizationMiddleware"/>

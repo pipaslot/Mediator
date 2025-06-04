@@ -62,6 +62,9 @@ public static class ServiceCollectionExtensions
         // Separate authorization middleware, because we do not want to interrupt by custom middlewares
         configurator.AddPipelineForAuthorizationRequest(static _ => { });
         services.AddScoped<INodeFormatter, DefaultNodeFormatter>();
+        
+        services.AddScoped<NotificationReceiverMiddleware>();
+        services.AddScoped<INotificationReceiver>(s => s.GetRequiredService<NotificationReceiverMiddleware>());
         return configurator;
     }
 }
