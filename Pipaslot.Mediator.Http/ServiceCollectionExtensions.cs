@@ -119,6 +119,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
+        services.AddSingleton<IMediatorUrlFormatter, ServerMediatorUrlFormatter>();
         return config;
     }
 }

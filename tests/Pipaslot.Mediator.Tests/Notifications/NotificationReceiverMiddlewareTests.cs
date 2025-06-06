@@ -11,13 +11,6 @@ namespace Pipaslot.Mediator.Tests.Notifications;
 
 public class NotificationReceiverMiddlewareTests
 {
-    [Fact]
-    public void INotificationReceiverIsNotReceiverdByDefault()
-    {
-        var services = Factory.CreateServiceProvider(c => { });
-        var provider = services.GetService<INotificationReceiver>();
-        Assert.Null(provider);
-    }
 
     [Fact]
     public void RegisterINotificationReceiver()

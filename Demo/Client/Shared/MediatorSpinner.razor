@@ -2,21 +2,33 @@
 @using Demo.Client.Shared.Components
 @using Pipaslot.Mediator.Middlewares
 @implements IDisposable
-@inject ActionEventsMiddleware ActionEvents;
+@inject IServiceProvider Services;
 
 @code {
     private bool _show;
 
+    /// <summary>
+    /// The middleware does need to be available when using server side pre-rendeing
+    /// </summary>
+    private ActionEventsMiddleware? _actionEvents;
+
     protected override void OnInitialized()
     {
-        ActionEvents.ProcessingStarted += OnStarted;
-        ActionEvents.ProcessingCompleted += OnFinished;
+        _actionEvents = Services.GetService<ActionEventsMiddleware>();
+        if (_actionEvents is not null)
+        {
+            _actionEvents.ProcessingStarted += OnStarted;
+            _actionEvents.ProcessingCompleted += OnFinished;
+        }
     }
 
     public void Dispose()
     {
-        ActionEvents.ProcessingStarted -= OnStarted;
-        ActionEvents.ProcessingCompleted -= OnFinished;
+        if (_actionEvents is not null)
+        {
+            _actionEvents.ProcessingStarted -= OnStarted;
+            _actionEvents.ProcessingCompleted -= OnFinished;
+        }
     }
 
     private void OnStarted(object? sender, EventArgs args)
