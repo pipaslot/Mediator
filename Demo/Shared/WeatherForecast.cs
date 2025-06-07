@@ -1,12 +1,9 @@
-﻿using Pipaslot.Mediator;
-using Pipaslot.Mediator.Authorization;
-
-namespace Demo.Shared;
+﻿namespace Demo.Shared;
 
 public static class WeatherForecast
 {
     [AnonymousPolicy]
-    public class Request : IRequest<IResult[]>
+    public class Request : IRequest<Result[]>
     {
         public DateTime Date { get; set; } = DateTime.Now;
 

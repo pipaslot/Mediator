@@ -4,7 +4,7 @@
 
 <p>This component demonstrates fetching data from the server. Watch your XHR network traffic.</p>
 
-@if (_forecasts == null)
+@if (_state == null)
 {
     <p>
         <em>Loading...</em>
@@ -22,7 +22,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in _forecasts)
+        @foreach (var forecast in _state.Forecast)
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
@@ -34,22 +34,44 @@ else
         </tbody>
     </table>
 }
-<p>@(_commonResult?.Description ?? "Status message will be provided from server as well")</p>
+<p>@(_state?.Common?.Description ?? "Status message will be provided from server as well")</p>
+
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 @code {
-    private WeatherForecast.IResult[]? _forecasts;
-    private CommonResult? _commonResult;
+    private State? _state;
+    private PersistingComponentStateSubscription _persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Mediator.Execute(new WeatherForecast.Request());
-
-        if (result.Success)
+        if (ApplicationState.TryTakeFromJson<State>(
+                nameof(_state), out var state))
         {
-            _forecasts = result.Result;
+            _state = state;
+        }
+        else
+        {
+            var res = await Mediator.Execute(new WeatherForecast.Request());
+            if (res.Success)
+            {
+                var common = (CommonResult?)res.Results.FirstOrDefault(r => r is CommonResult);
+                _state = new(res.Result, common);
+            }
         }
 
-        _commonResult = (CommonResult?)result.Results.FirstOrDefault(r => r is CommonResult);
+        _persistingSubscription = ApplicationState.RegisterOnPersisting(PersistState);
     }
+
+    private Task PersistState()
+    {
+        ApplicationState.PersistAsJson(nameof(_state), _state);
+
+        return Task.CompletedTask;
+    }
+
+    void IDisposable.Dispose() => _persistingSubscription.Dispose();
+
+    private record State(WeatherForecast.Result[] Forecast, CommonResult? Common);
 
 }
