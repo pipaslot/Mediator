@@ -35,7 +35,6 @@ namespace Pipaslot.Mediator.Http
             if (context.Request.Path == _option.Endpoint && (isPost || isGet))
             {
                 var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
-                var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
                 // Change status code only if has default value (200: OK)
                 if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
                 {
@@ -43,6 +42,7 @@ namespace Pipaslot.Mediator.Http
                 }
                 if (!context.Response.HasStarted)
                 {
+                    var serializedResponse = _serializer.SerializeResponse(mediatorResponse);
                     context.Response.ContentType = "application/json; charset=utf-8";
                     await context.Response.WriteAsync(serializedResponse).ConfigureAwait(false);
                 }
