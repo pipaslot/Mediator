@@ -1,4 +1,6 @@
 # Pipelines
+Example having 3 custom middlewares applied in the pipeline.
+
 ```mermaid
 sequenceDiagram
     participant Mediator

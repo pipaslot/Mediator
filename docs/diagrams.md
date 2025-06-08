@@ -48,7 +48,7 @@ sequenceDiagram
 ```
 
 
-# Nested calls (also works for client and server)
+# Nested calls (works for both client and server)
 ```mermaid
 sequenceDiagram
     participant Service as Service or API
