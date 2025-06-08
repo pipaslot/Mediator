@@ -26,7 +26,6 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         if (context.Request.Path == option.Endpoint && (isPost || isGet))
         {
             var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
-            var serializedResponse = serializer.SerializeResponse(mediatorResponse);
             // Change status code only if has default value (200: OK)
             if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
             {
@@ -35,6 +34,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 
             if (!context.Response.HasStarted)
             {
+                var serializedResponse = serializer.SerializeResponse(mediatorResponse);
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(serializedResponse).ConfigureAwait(false);
             }
