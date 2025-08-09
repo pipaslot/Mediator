@@ -1,7 +1,7 @@
 ﻿namespace Pipaslot.Mediator.Http.Configuration;
 
 /// <summary>
-/// Options configured and availabl as singleton instance
+/// Options configured and available as singleton instance
 /// </summary>
 public interface IMediatorOptions
 {
