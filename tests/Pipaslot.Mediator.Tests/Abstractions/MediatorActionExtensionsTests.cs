@@ -18,9 +18,9 @@ public class MediatorActionExtensionsTests
     [Arguments(5, "Rude.Dude.TheMITUniversityILove_Action", "The")]
     [Arguments(6, "Rude.Dude.TheMITUniversityILove_Action", "")]
     [Arguments(7, "Rude.Dude.TheMITUniversityILove_Action", "")]
-    public void GetActionFriendlyName_WithoutLastWord(int ignoredLastWords, string? source, string expected)
+    public async Task GetActionFriendlyName_WithoutLastWord(int ignoredLastWords, string? source, string expected)
     {
         var name = source.GetActionFriendlyName(ignoredLastWords);
-        Assert.Equal(expected, name);
+        await Assert.That(name).IsEqualTo(expected);
     }
 }

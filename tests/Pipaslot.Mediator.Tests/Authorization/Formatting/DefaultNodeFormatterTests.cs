@@ -22,7 +22,7 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.Add, "(Sentence1 OR Sentence2) Sentence3 (Sentence4 AND Sentence5)")]
     [Arguments(Operator.And, "(Sentence1 OR Sentence2) AND Sentence3 AND (Sentence4 AND Sentence5)")]
     [Arguments(Operator.Or, "(Sentence1 OR Sentence2) OR Sentence3 OR (Sentence4 AND Sentence5)")]
-    public void Format_OnlyDefaultRules(Operator @operator, string expected)
+    public async Task Format_OnlyDefaultRules(Operator @operator, string expected)
     {
         var set1 = RuleSet.Create(
             Operator.Or,
@@ -41,7 +41,7 @@ public class DefaultNodeFormatterTests
         );
 
         var collection = RuleSet.Create(@operator, set1, set2, set3);
-        AssertEqual(expected, collection);
+        await AssertEqual(expected, collection);
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class DefaultNodeFormatterTests
     [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
     [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
     [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
-    public void Format_CombineRuleSetsWithMultipleRulesAndApplyWrapType(MultipleRuleWrapType wrapType, Operator parentOperator,
+    public async Task Format_CombineRuleSetsWithMultipleRulesAndApplyWrapType(MultipleRuleWrapType wrapType, Operator parentOperator,
         Operator childOperator, string expected)
     {
         var set1 = RuleSet.Create(
@@ -96,7 +96,7 @@ public class DefaultNodeFormatterTests
         );
 
         var collection = RuleSet.Create(parentOperator, set1, set2);
-        AssertEqual(expected, collection, wrapType);
+        await AssertEqual(expected, collection, wrapType);
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.And,
         "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. AND Role 'A6' is required.)")] // Deny result
     [Arguments(Operator.Or, "")] // Allow result
-    public void Format_withoutDefaultRule(Operator @operator, string expected)
+    public async Task Format_withoutDefaultRule(Operator @operator, string expected)
     {
         var set1 = RuleSet.Create(
             Operator.Or,
@@ -123,7 +123,7 @@ public class DefaultNodeFormatterTests
             new Rule("Role", "A6")
         );
         var collection = RuleSet.Create(@operator, set1, set2, set3);
-        AssertEqual(expected, collection);
+        await AssertEqual(expected, collection);
     }
 
     [Test]
@@ -132,7 +132,7 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.And,
         "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. OR Role 'A6' is required.) AND (Claim 'A7' is required. AND Claim 'A8' is required.)")] // Deny result
     [Arguments(Operator.Or, "You did it!")] // Allow result
-    public void Format_WithDefaultRule(Operator @operator, string expected)
+    public async Task Format_WithDefaultRule(Operator @operator, string expected)
     {
         var hiddenSet = RuleSet.Create(
             Operator.Or,
@@ -155,16 +155,16 @@ public class DefaultNodeFormatterTests
             new Rule("Claim", "A8")
         );
         var collection = RuleSet.Create(@operator, hiddenSet, shownOrSet, shownDuplicateOrSet, shownAndSet);
-        AssertEqual(expected, collection);
+        await AssertEqual(expected, collection);
     }
 
     [Test]
     [Arguments(Operator.Add)]
     [Arguments(Operator.And)]
-    public void Format_Single(Operator @operator)
+    public async Task Format_Single(Operator @operator)
     {
         var expected = "Role 'Admin' is required.";
-        AssertEqual(expected, @operator
+        await AssertEqual(expected, @operator
             , new Rule("Role", "Admin")
             , new Rule("Ignored", "IgnoredValue", true)
         );
@@ -175,19 +175,19 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.Add, RuleOutcome.Allow, "")]
     [Arguments(Operator.And, RuleOutcome.Deny, "User has to be authenticated.")]
     [Arguments(Operator.Add, RuleOutcome.Deny, "User has to be authenticated.")]
-    public void Format_Authorization(Operator @operator, RuleOutcome outcome, string expected)
+    public async Task Format_Authorization(Operator @operator, RuleOutcome outcome, string expected)
     {
         var rule = new Rule(IdentityPolicy.AuthenticationPolicyName, IdentityPolicy.AuthenticatedValue, outcome);
-        AssertEqual(expected, @operator, rule);
+        await AssertEqual(expected, @operator, rule);
     }
 
     [Test]
     [Arguments(Operator.Add, "Role 'A1' is required. Claim 'A2' is required.")]
     [Arguments(Operator.And, "Role 'A1' is required. AND Claim 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
     [Arguments(Operator.Or, "Role 'A1' is required. OR Claim 'A2' is required.")]
-    public void Format_TwoWithUniqueName(Operator @operator, string expected)
+    public async Task Format_TwoWithUniqueName(Operator @operator, string expected)
     {
-        AssertEqual(expected,
+        await AssertEqual(expected,
             @operator,
             new Rule("Role", "A1"),
             new Rule("Claim", "A2"),
@@ -199,9 +199,9 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.Add, "Role 'A1' is required. Role 'A2' is required.")]
     [Arguments(Operator.And, "Role 'A1' is required. AND Role 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
     [Arguments(Operator.Or, "Role 'A1' is required. OR Role 'A2' is required.")]
-    public void Format_TwoWithDuplicateName(Operator @operator, string expected)
+    public async Task Format_TwoWithDuplicateName(Operator @operator, string expected)
     {
-        AssertEqual(expected,
+        await AssertEqual(expected,
             @operator,
             new Rule("Role", "A1"),
             new Rule("Role", "A2"),
@@ -216,9 +216,9 @@ public class DefaultNodeFormatterTests
     [Arguments(Operator.And, "", "AHA", "", "AHA")] // Format as single
     [Arguments(Operator.Add, "AHA", "", "BBB", "AHA BBB")] // Format as multiple
     [Arguments(Operator.And, "AHA", "", "BBB", "AHA AND BBB")] // Format as multiple
-    public void Format_EmptyRuleIsIgnored(Operator @operator, string first, string second, string third, string expected)
+    public async Task Format_EmptyRuleIsIgnored(Operator @operator, string first, string second, string third, string expected)
     {
-        AssertEqual(expected, @operator
+        await AssertEqual(expected, @operator
             , Rule.Deny(first)
             , Rule.Deny(second)
             , Rule.Deny(third)
@@ -228,7 +228,7 @@ public class DefaultNodeFormatterTests
     [Test]
     [Arguments(Operator.Add, "AAA BBB")]
     [Arguments(Operator.And, "AAA AND BBB")]
-    public void Format_NestedRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
+    public async Task Format_NestedRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
     {
         var nested = RuleSet.Create(@operator,
             Rule.Deny("AAA"),
@@ -236,13 +236,13 @@ public class DefaultNodeFormatterTests
         );
         var root = new RuleSet(nested);
 
-        AssertEqual(expected, root);
+        await AssertEqual(expected, root);
     }
 
     [Test]
     [Arguments(Operator.Add, "AAA BBB")]
     [Arguments(Operator.And, "AAA AND BBB")]
-    public void Format_NestedRuleAndIgnoredRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
+    public async Task Format_NestedRuleAndIgnoredRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
     {
         var nested = RuleSet.Create(@operator,
             Rule.Deny("AAA"),
@@ -253,30 +253,30 @@ public class DefaultNodeFormatterTests
         );
         var root = new RuleSet(nested, nested2);
 
-        AssertEqual(expected, root);
+        await AssertEqual(expected, root);
     }
 
     [Test]
-    public void Format_AllowWithReason_ReasonIsPropagated()
+    public async Task Format_AllowWithReason_ReasonIsPropagated()
     {
         var reason = "Because system allows it";
         var root = RuleSet.Create(Operator.And,
             Rule.Allow(reason)
         );
-        AssertEqual(reason, root);
+        await AssertEqual(reason, root);
     }
 
-    private void AssertEqual(string expected, Operator @operator, params Rule[] rules)
+    private async Task AssertEqual(string expected, Operator @operator, params Rule[] rules)
     {
         var set = RuleSet.Create(@operator, rules);
-        AssertEqual(expected, set);
+        await AssertEqual(expected, set);
     }
 
-    private void AssertEqual(string expected, RuleSet ruleSet, MultipleRuleWrapType wrapType = MultipleRuleWrapType.Always)
+    private async Task AssertEqual(string expected, RuleSet ruleSet, MultipleRuleWrapType wrapType = MultipleRuleWrapType.Always)
     {
         var sut = Create(true, wrapType);
         var node = ruleSet.Reduce();
         var reason = sut.Format(node);
-        Assert.Equal(expected, reason);
+        await Assert.That(reason).IsEqualTo(expected);
     }
 }

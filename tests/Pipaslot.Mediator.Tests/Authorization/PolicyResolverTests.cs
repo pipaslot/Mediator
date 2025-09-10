@@ -175,7 +175,7 @@ public class PolicyResolverTests
     {
         var policies = await PolicyResolver.GetPolicies(action, handlers, CancellationToken.None);
         var count = policies.Count();
-        Assert.Equal(expectedCount, count);
+        await Assert.That(count).IsEqualTo(expectedCount);
     }
 
     private async Task RunCheckPolicies(IMediatorAction action, AuthorizationExceptionTypes expectedCode, params object[] handlers)
@@ -183,10 +183,10 @@ public class PolicyResolverTests
         _services
             .Setup(s => s.GetService(typeof(INodeFormatter)))
             .Returns(new DefaultNodeFormatter());
-        var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
+        var ex = await Assert.That(async () =>
         {
             await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);
-        });
-        Assert.Equal(expectedCode, ex.Type);
+        }).Throws<AuthorizationException>();
+        await Assert.That(ex.Type).IsEqualTo(expectedCode);
     }
 }

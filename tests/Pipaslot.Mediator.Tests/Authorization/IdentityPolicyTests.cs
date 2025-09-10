@@ -19,11 +19,11 @@ public class IdentityPolicyTests
     {
         var sut = IdentityPolicy.Anonymous();
         var rules = await Resolve(sut, isAuthenticated);
-        Assert.Single(rules);
+        await Assert.That(rules.Count()).IsEqualTo(1);
         var rule = rules.First();
-        Assert.Equal(IdentityPolicy.AuthenticationPolicyName, rule.Name);
-        Assert.Equal(IdentityPolicy.AnonymousValue, rule.Value);
-        Assert.Equal(RuleOutcome.Allow, rule.Outcome);
+        await Assert.That(rule.Name).IsEqualTo(IdentityPolicy.AuthenticationPolicyName);
+        await Assert.That(rule.Value).IsEqualTo(IdentityPolicy.AnonymousValue);
+        await Assert.That(rule.Outcome).IsEqualTo(RuleOutcome.Allow);
     }
 
     [Test]
@@ -34,8 +34,8 @@ public class IdentityPolicyTests
         var sut = IdentityPolicy.Authenticated();
         var rules = await Resolve(sut, isAuthenticated);
 
-        Assert.Single(rules);
-        AssertAuthenticatedRule(rules, isAuthenticated);
+        await Assert.That(rules.Count()).IsEqualTo(1);
+        await AssertAuthenticatedRule(rules, isAuthenticated);
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class IdentityPolicyTests
         var sut = IdentityPolicy.Claim(ClaimName, ClaimValue);
         var rules = await Resolve(sut, true, claim);
 
-        AssertClaimRule(rules, claim, true);
+        await AssertClaimRule(rules, claim, true);
     }
 
     [Test]
@@ -57,20 +57,20 @@ public class IdentityPolicyTests
         var sut = IdentityPolicy.Role(ClaimValue);
         var rules = await Resolve(sut, true, claim);
 
-        AssertClaimRule(rules, claim, true);
+        await AssertClaimRule(rules, claim, true);
     }
 
-    private static void AssertAuthenticatedRule(IEnumerable<Rule> rules, bool shouldGrant)
+    private static async Task AssertAuthenticatedRule(IEnumerable<Rule> rules, bool shouldGrant)
     {
         var rule = rules.First(r => r.Name == IdentityPolicy.AuthenticationPolicyName);
-        Assert.Equal(IdentityPolicy.AuthenticatedValue, rule.Value);
-        Assert.Equal(shouldGrant, rule.Outcome == RuleOutcome.Allow);
+        await Assert.That(rule.Value).IsEqualTo(IdentityPolicy.AuthenticatedValue);
+        await Assert.That(rule.Outcome == RuleOutcome.Allow).IsEqualTo(shouldGrant);
     }
 
-    private static void AssertClaimRule(IEnumerable<Rule> rules, Claim claim, bool shouldGrant)
+    private static async Task AssertClaimRule(IEnumerable<Rule> rules, Claim claim, bool shouldGrant)
     {
         var rule = rules.First(r => r.Name == claim.Type);
-        Assert.Equal(shouldGrant, rule.Outcome == RuleOutcome.Allow);
+        await Assert.That(rule.Outcome == RuleOutcome.Allow).IsEqualTo(shouldGrant);
     }
 
     private async Task<Rule[]> Resolve(IdentityPolicy sut, bool isAuthenticated, params Claim[] claims)

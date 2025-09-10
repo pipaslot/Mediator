@@ -52,12 +52,12 @@ public class RuleSet_GetRuleOutcomeTests
     [Arguments(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.Add, RuleOutcome.Deny)]
     [Arguments(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.And, RuleOutcome.Deny)]
     [Arguments(new[] { RuleOutcome.Allow, RuleOutcome.Deny }, Operator.Or, RuleOutcome.Allow)]
-    public void GetRuleOutcome_Combinations(RuleOutcome[] outcomes, Operator @operator, RuleOutcome expected)
+    public async Task GetRuleOutcome_Combinations(RuleOutcome[] outcomes, Operator @operator, RuleOutcome expected)
     {
         var sut = new RuleSet(@operator);
         sut.Rules.AddRange(outcomes.Select(o => new Rule(o, string.Empty)));
 
         var result = sut.Reduce();
-        Assert.Equal(expected, result.Outcome);
+        await Assert.That(result.Outcome).IsEqualTo(expected);
     }
 }

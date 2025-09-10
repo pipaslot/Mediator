@@ -77,7 +77,7 @@ public class PolicyTests
         var services = new Mock<IServiceProvider>();
         var set = await policy.Resolve(services.Object, CancellationToken.None);
         var evaluated = set.Reduce();
-        Assert.Equal(expected, evaluated.Outcome == RuleOutcome.Allow);
+        await Assert.That(evaluated.Outcome == RuleOutcome.Allow).IsEqualTo(expected);
     }
 
     private class FakeBoolPolicy : IPolicy

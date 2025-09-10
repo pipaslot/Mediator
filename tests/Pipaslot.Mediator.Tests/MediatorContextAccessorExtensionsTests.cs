@@ -10,21 +10,14 @@ namespace Pipaslot.Mediator.Tests;
 
 public class MediatorContextAccessorExtensionsTests
 {
-    public class MockMediatorContextAccessor : IMediatorContextAccessor
+    public class MockMediatorContextAccessor(MediatorContext? mediatorContext) : IMediatorContextAccessor
     {
-        private readonly MediatorContext? _mediatorContext;
-
-        public MockMediatorContextAccessor(MediatorContext? mediatorContext)
-        {
-            _mediatorContext = mediatorContext;
-        }
-
         public MediatorContext MediatorContext => throw new NotImplementedException();
 
         public MediatorContext Context => throw new NotImplementedException();
 
         public IReadOnlyCollection<MediatorContext> ContextStack =>
-            _mediatorContext is not null ? [_mediatorContext] : Array.Empty<MediatorContext>();
+            mediatorContext is not null ? [mediatorContext] : Array.Empty<MediatorContext>();
     }
 
     private record FakeFeature;
@@ -39,22 +32,22 @@ public class MediatorContextAccessorExtensionsTests
             , new Mock<IMediatorAction>().Object
             , CancellationToken.None
             , null
-            ,features.Object
+            , features.Object
         );
     }
 
     [Test]
-    public void GetRootContextFeature_ShouldReturnNull_WhenRootContextIsNull()
+    public async Task GetRootContextFeature_ShouldReturnNull_WhenRootContextIsNull()
     {
         var accessor = new MockMediatorContextAccessor(null);
 
         var result = accessor.GetRootContextFeature<FakeFeature>();
 
-        Assert.Null(result);
+        await Assert.That(result).IsNull();
     }
 
     [Test]
-    public void GetRootContextFeature_ShouldReturnFeature_WhenRootContextIsNotNull()
+    public async Task GetRootContextFeature_ShouldReturnFeature_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();
         var featureCollectionMock = new Mock<IFeatureCollection>();
@@ -65,23 +58,23 @@ public class MediatorContextAccessorExtensionsTests
         accessor.SetRootContextFeature(featureValue);
         var result = accessor.GetRootContextFeature<FakeFeature>();
 
-        Assert.NotNull(result);
-        Assert.Equal(featureValue, result);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsEqualTo(featureValue);
     }
 
     [Test]
-    public void SetRootContextFeature_ShouldReturnFalse_WhenRootContextIsNull()
+    public async Task SetRootContextFeature_ShouldReturnFalse_WhenRootContextIsNull()
     {
         var accessor = new MockMediatorContextAccessor(null);
-        var featureValue = new FakeFeature(); // Replace with an actual feature value
+        var featureValue = new FakeFeature();
 
         var result = accessor.SetRootContextFeature(featureValue);
 
-        Assert.False(result);
+        await Assert.That(result).IsFalse();
     }
 
     [Test]
-    public void SetRootContextFeature_ShouldReturnTrue_WhenRootContextIsNotNull()
+    public async Task SetRootContextFeature_ShouldReturnTrue_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();
         var featureCollectionMock = new Mock<IFeatureCollection>();
@@ -91,7 +84,7 @@ public class MediatorContextAccessorExtensionsTests
 
         var result = accessor.SetRootContextFeature(featureValue);
 
-        Assert.True(result);
+        await Assert.That(result).IsTrue();
         featureCollectionMock.VerifyAll();
     }
 }

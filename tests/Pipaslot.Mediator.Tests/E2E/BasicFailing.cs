@@ -9,7 +9,7 @@ public class BasicFailing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.False(result.Success);
+        await Assert.That(result.Success).IsFalse();
     }
 
     [Test]
@@ -17,7 +17,7 @@ public class BasicFailing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
+        await Assert.That(result.GetErrorMessage()).IsEqualTo(SingleHandler.RequestException.DefaultMessage);
     }
 
     [Test]
@@ -25,17 +25,15 @@ public class BasicFailing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.Null(result.Result);
+        await Assert.That(result.Result).IsNull();
     }
 
     [Test]
     public async Task ExecuteUnhandled_ThrowOriginalException()
     {
         var sut = Factory.CreateConfiguredMediator();
-        var ex = await Assert.ThrowsAsync<SingleHandler.RequestException>(async () =>
-        {
-            await sut.ExecuteUnhandled(new SingleHandler.Request(false));
-        });
+        await Assert.That(async () => await sut.ExecuteUnhandled(new SingleHandler.Request(false)))
+            .Throws<SingleHandler.RequestException>();
         // We do not care about the error message as we only expect the original exception
     }
 
@@ -44,7 +42,7 @@ public class BasicFailing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
-        Assert.False(result.Success);
+        await Assert.That(result.Success).IsFalse();
     }
 
     [Test]
@@ -52,17 +50,15 @@ public class BasicFailing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
-        Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
+        await Assert.That(result.GetErrorMessage()).IsEqualTo(SingleHandler.MessageException.DefaultMessage);
     }
 
     [Test]
     public async Task DispatchUnhandled_ThrowOriginalException()
     {
         var sut = Factory.CreateConfiguredMediator();
-        var ex = await Assert.ThrowsAsync<SingleHandler.MessageException>(async () =>
-        {
-            await sut.DispatchUnhandled(new SingleHandler.Message(false));
-        });
+        await Assert.That(async () => await sut.DispatchUnhandled(new SingleHandler.Message(false)))
+            .Throws<SingleHandler.MessageException>();
         // We do not care about the error message as we only expect the original exception
     }
 }

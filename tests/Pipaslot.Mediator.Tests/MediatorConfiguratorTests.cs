@@ -11,7 +11,7 @@ public class MediatorConfiguratorTests
     [Arguments(typeof(SingleHandler.Message), true)]
     [Arguments(typeof(NonActionType), false)]
     [Arguments(typeof(SingleHandler.Request), true)]
-    public void AddActions_ActionTypePassed(Type type, bool shouldPass)
+    public async Task AddActions_ActionTypePassed(Type type, bool shouldPass)
     {
         var sut = Create();
         if (shouldPass)
@@ -20,21 +20,15 @@ public class MediatorConfiguratorTests
         }
         else
         {
-            Assert.Throws<MediatorException>(() =>
-            {
-                sut.AddActions([type]);
-            });
+            await Assert.That(() => sut.AddActions([type])).Throws<MediatorException>();
         }
     }
 
     [Test]
-    public void AddHandlers_NonHandlerTypePassed_ThrowException()
+    public async Task AddHandlers_NonHandlerTypePassed_ThrowException()
     {
         var sut = Create();
-        Assert.Throws<MediatorException>(() =>
-        {
-            sut.AddHandlers([typeof(object)]);
-        });
+        await Assert.That(() => sut.AddHandlers([typeof(object)])).Throws<MediatorException>();
     }
 
     [Test]

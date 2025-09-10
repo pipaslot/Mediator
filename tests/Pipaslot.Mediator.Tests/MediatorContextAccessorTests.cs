@@ -30,26 +30,26 @@ public class MediatorContextAccessorTests
     }
 
     [Test]
-    public void NoAction_ContextIsNull()
+    public async Task NoAction_ContextIsNull()
     {
-        Assert.Null(_contextAccessor.Context);
-        Assert.Empty(_contextAccessor.ContextStack);
+        await Assert.That(_contextAccessor.Context).IsNull();
+        await Assert.That(_contextAccessor.ContextStack).IsEmpty();
     }
 
     [Test]
     public async Task ExecutionCompleted_ContextIsNull()
     {
         await _mediator.DispatchUnhandled(new Level1Action(ActionBehaviorTestCase.SingleNested));
-        Assert.Null(_contextAccessor.Context);
-        Assert.Empty(_contextAccessor.ContextStack);
+        await Assert.That(_contextAccessor.Context).IsNull();
+        await Assert.That(_contextAccessor.ContextStack).IsEmpty();
     }
 
     [Test]
     public async Task Flow()
     {
-        _service.AssertZero();
+        await _service.AssertZero();
         await _mediator.DispatchUnhandled(new Level1Action(ActionBehaviorTestCase.SingleNested));
-        _service.AssertZero();
+        await _service.AssertZero();
     }
 
     [Test]
@@ -67,32 +67,32 @@ public class MediatorContextAccessorTests
             _accessor = accessor;
         }
 
-        public void AssertZero()
+        public async Task AssertZero()
         {
-            Assert.Empty(_accessor.ContextStack);
-            Assert.Null(_accessor.Context);
+            await Assert.That(_accessor.ContextStack).IsEmpty();
+            await Assert.That(_accessor.Context).IsNull();
             // Verify that helper classes returns the same result as well
-            Assert.Null(_accessor.GetRootContext());
-            Assert.Empty(_accessor.GetParentContexts());
+            await Assert.That(_accessor.GetRootContext()).IsNull();
+            await Assert.That(_accessor.GetParentContexts()).IsEmpty();
         }
 
-        public void AssertSingle()
+        public async Task AssertSingle()
         {
-            Assert.Equal(typeof(Level1Action), _accessor.Context?.Action?.GetType());
-            Assert.Single(_accessor.ContextStack);
+            await Assert.That(_accessor.Context?.Action?.GetType()).IsEqualTo(typeof(Level1Action));
+            await Assert.That(_accessor.ContextStack.Count).IsEqualTo(1);
             // Verify that helper classes returns the same result as well
-            Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action?.GetType());
-            Assert.Empty(_accessor.GetParentContexts());
+            await Assert.That(_accessor.GetRootContext()?.Action?.GetType()).IsEqualTo(typeof(Level1Action));
+            await Assert.That(_accessor.GetParentContexts()).IsEmpty();
         }
 
-        public void AssertTwo()
+        public async Task AssertTwo()
         {
-            Assert.Equal(typeof(Level2Action), _accessor.Context?.Action.GetType());
-            Assert.Equal(2, _accessor.ContextStack.Count);
+            await Assert.That(_accessor.Context?.Action.GetType()).IsEqualTo(typeof(Level2Action));
+            await Assert.That(_accessor.ContextStack.Count).IsEqualTo(2);
             // Verify that helper classes returns the same result as well
-            Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action.GetType());
-            Assert.Single(_accessor.GetParentContexts());
-            Assert.Equal(typeof(Level1Action), _accessor.GetParentContexts().First().Action.GetType());
+            await Assert.That(_accessor.GetRootContext()?.Action.GetType()).IsEqualTo(typeof(Level1Action));
+            await Assert.That(_accessor.GetParentContexts().Count()).IsEqualTo(1);
+            await Assert.That(_accessor.GetParentContexts().First().Action.GetType()).IsEqualTo(typeof(Level1Action));
         }
     }
 
@@ -108,23 +108,14 @@ public class MediatorContextAccessorTests
     /// <param name="Case"></param>
     private record Level1Action(ActionBehaviorTestCase Case) : IMediatorAction;
 
-    private class Level1ActionHandler : IMediatorHandler<Level1Action>
+    private class Level1ActionHandler(FakeService service, IMediator mediator) : IMediatorHandler<Level1Action>
     {
-        private readonly FakeService _service;
-        private readonly IMediator _mediator;
-
-        public Level1ActionHandler(FakeService service, IMediator mediator)
-        {
-            _service = service;
-            _mediator = mediator;
-        }
-
         public async Task Handle(Level1Action action, CancellationToken cancellationToken)
         {
-            _service.AssertSingle();
+            await service.AssertSingle();
             if (action.Case == ActionBehaviorTestCase.SingleNested)
             {
-                await _mediator.DispatchUnhandled(new Level2Action(TimeSpan.FromMilliseconds(10)), cancellationToken);
+                await mediator.DispatchUnhandled(new Level2Action(TimeSpan.FromMilliseconds(10)), cancellationToken);
             }
             else if (action.Case == ActionBehaviorTestCase.ConcurrentNested)
             {
@@ -133,7 +124,7 @@ public class MediatorContextAccessorTests
                     new Level2Action(TimeSpan.FromMilliseconds(50)), new Level2Action(TimeSpan.FromMilliseconds(20)),
                     new Level2Action(TimeSpan.FromMilliseconds(10))
                 };
-                var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a, cancellationToken));
+                var tasks = actions.Select(async a => await mediator.DispatchUnhandled(a, cancellationToken));
                 await Task.WhenAll(tasks);
             }
             else
@@ -141,7 +132,7 @@ public class MediatorContextAccessorTests
                 throw new NotImplementedException();
             }
 
-            _service.AssertSingle();
+            await service.AssertSingle();
         }
     }
 
@@ -151,24 +142,17 @@ public class MediatorContextAccessorTests
     /// <param name="Delay"></param>
     private record Level2Action(TimeSpan? Delay = null) : IMediatorAction;
 
-    private class Level2ActionHandler : IMediatorHandler<Level2Action>
+    private class Level2ActionHandler(FakeService service) : IMediatorHandler<Level2Action>
     {
-        private readonly FakeService _service;
-
-        public Level2ActionHandler(FakeService service)
-        {
-            _service = service;
-        }
-
         public async Task Handle(Level2Action action, CancellationToken cancellationToken)
         {
-            _service.AssertTwo();
+            await service.AssertTwo();
             if (action.Delay.HasValue)
             {
                 await Task.Delay(action.Delay.Value, cancellationToken);
             }
 
-            _service.AssertTwo();
+            await service.AssertTwo();
         }
     }
 }

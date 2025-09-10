@@ -6,43 +6,43 @@ namespace Pipaslot.Mediator.Tests.Authorization;
 public class RuleSet_OperatorTests
 {
     [Test]
-    public void ADD_ThreeTimeTheSame()
+    public async Task ADD_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
         var r3 = Rule.AllowOrDeny(true, "", "R3");
         var combined = r1 + r2 + r3;
-        AssertRuleSet(combined, Operator.Add, 1, r3);
+        await AssertRuleSet(combined, Operator.Add, 1, r3);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.Add, 0, r1, r2);
+        await AssertRuleSet(subSet, Operator.Add, 0, r1, r2);
     }
 
     [Test]
-    public void AND_ThreeTimeTheSame()
+    public async Task AND_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
         var r3 = Rule.AllowOrDeny(true, "", "R3");
         var combined = r1 & r2 & r3;
-        AssertRuleSet(combined, Operator.And, 1, r3);
+        await AssertRuleSet(combined, Operator.And, 1, r3);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.And, 0, r1, r2);
+        await AssertRuleSet(subSet, Operator.And, 0, r1, r2);
     }
 
     [Test]
-    public void OR_ThreeTimeTheSame()
+    public async Task OR_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
         var r3 = Rule.AllowOrDeny(true, "", "R3");
         var combined = r1 | r2 | r3;
-        AssertRuleSet(combined, Operator.Or, 1, r3);
+        await AssertRuleSet(combined, Operator.Or, 1, r3);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
+        await AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
     }
 
     [Test]
-    public void ORADDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+    public async Task ORADDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
@@ -50,14 +50,14 @@ public class RuleSet_OperatorTests
         var combined = (r1
                         | r2)
                        + r3;
-        AssertRuleSet(combined, Operator.Add, 1, r3);
+        await AssertRuleSet(combined, Operator.Add, 1, r3);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
+        await AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
     }
 
 
     [Test]
-    public void ORANDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+    public async Task ORANDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
@@ -65,13 +65,13 @@ public class RuleSet_OperatorTests
         var combined = (r1
                         | r2)
                        & r3;
-        AssertRuleSet(combined, Operator.And, 1, r3);
+        await AssertRuleSet(combined, Operator.And, 1, r3);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
+        await AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
     }
 
     [Test]
-    public void ORADD_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+    public async Task ORADD_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
@@ -79,13 +79,13 @@ public class RuleSet_OperatorTests
         var combined = r1
                        | (r2
                           + r3);
-        AssertRuleSet(combined, Operator.Or, 1, r1);
+        await AssertRuleSet(combined, Operator.Or, 1, r1);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.Add, 0, r2, r3);
+        await AssertRuleSet(subSet, Operator.Add, 0, r2, r3);
     }
 
     [Test]
-    public void ORAND_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
+    public async Task ORAND_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
         var r2 = Rule.AllowOrDeny(true, "", "R2");
@@ -93,13 +93,13 @@ public class RuleSet_OperatorTests
         var combined = r1
                        | (r2
                           & r3);
-        AssertRuleSet(combined, Operator.Or, 1, r1);
+        await AssertRuleSet(combined, Operator.Or, 1, r1);
         var subSet = combined.RuleSets.First();
-        AssertRuleSet(subSet, Operator.And, 0, r2, r3);
+        await AssertRuleSet(subSet, Operator.And, 0, r2, r3);
     }
 
     [Test]
-    public void CastCombinedRulesToPolicy()
+    public async Task CastCombinedRulesToPolicy()
     {
         IPolicy combined = Rule.AllowOrDeny(true)
                            | ((Rule.AllowOrDeny(true)
@@ -107,11 +107,11 @@ public class RuleSet_OperatorTests
                               & Rule.AllowOrDeny(true))
                            | Rule.AllowOrDeny(true);
 
-        Assert.NotNull(combined);
+        await Assert.That(combined).IsNotNull();
     }
 
     [Test]
-    public void CastCombinedRuleSetsToPolicy()
+    public async Task CastCombinedRuleSetsToPolicy()
     {
         var one = Rule.AllowOrDeny(true)
                   | Rule.AllowOrDeny(true);
@@ -122,24 +122,24 @@ public class RuleSet_OperatorTests
 
         IPolicy combined = one | two | three;
 
-        Assert.NotNull(combined);
+        await Assert.That(combined).IsNotNull();
     }
 
-    private static void AssertRuleSet(RuleSet combined, Operator expOperator, int expRuleSets, int expRules = 0)
+    private static async Task AssertRuleSet(RuleSet combined, Operator expOperator, int expRuleSets, int expRules = 0)
     {
-        Assert.Equal(expOperator, combined.Operator);
-        Assert.Equal(expRules, combined.Rules.Count);
-        Assert.Equal(expRuleSets, combined.RuleSets.Count);
+        await Assert.That(combined.Operator).IsEqualTo(expOperator);
+        await Assert.That(combined.Rules.Count).IsEqualTo(expRules);
+        await Assert.That(combined.RuleSets.Count).IsEqualTo(expRuleSets);
     }
 
-    private static void AssertRuleSet(RuleSet combined, Operator expOperator, int expRuleSets, params Rule[] rules)
+    private static async Task AssertRuleSet(RuleSet combined, Operator expOperator, int expRuleSets, params Rule[] rules)
     {
-        Assert.Equal(expOperator, combined.Operator);
-        Assert.Equal(expRuleSets, combined.RuleSets.Count);
+        await Assert.That(combined.Operator).IsEqualTo(expOperator);
+        await Assert.That(combined.RuleSets.Count).IsEqualTo(expRuleSets);
         var index = 0;
         foreach (var rule in rules)
         {
-            Assert.Equal(rule, combined.Rules[index]);
+            await Assert.That(combined.Rules[index]).IsEqualTo(rule);
             index++;
         }
     }

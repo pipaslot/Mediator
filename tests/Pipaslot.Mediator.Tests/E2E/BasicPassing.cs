@@ -9,7 +9,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
-        Assert.True(result.Success);
+        await Assert.That(result.Success).IsTrue();
     }
 
     [Test]
@@ -17,7 +17,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
-        Assert.Equal(string.Empty, result.GetErrorMessage());
+        await Assert.That(result.GetErrorMessage()).IsEqualTo(string.Empty);
     }
 
     [Test]
@@ -25,7 +25,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
-        Assert.Equal(SingleHandler.Response.Instance, result.Result);
+        await Assert.That(result.Result).IsEqualTo(SingleHandler.Response.Instance);
     }
 
     [Test]
@@ -33,7 +33,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.ExecuteUnhandled(new SingleHandler.Request(true));
-        Assert.Equal(SingleHandler.Response.Instance, result);
+        await Assert.That(result).IsEqualTo(SingleHandler.Response.Instance);
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(true));
-        Assert.True(result.Success);
+        await Assert.That(result.Success).IsTrue();
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class BasicPassing
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(true));
-        Assert.Equal(string.Empty, result.GetErrorMessage());
+        await Assert.That(result.GetErrorMessage()).IsEqualTo(string.Empty);
     }
 
     [Test]

@@ -7,16 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 internal static class Factory
 {
     internal static Assembly Assembly { get; } = typeof(Factory).Assembly;
-    
+
     #region Mediator
-    
+
     public static IMediator CreateConfiguredMediator() => CreateConfiguredMediator(c => { });
 
     public static IMediator CreateMediatorWithHandlers<THandler>()
@@ -53,9 +52,9 @@ internal static class Factory
         });
         return services.GetRequiredService<IMediator>();
     }
-    
+
     #endregion
-    
+
     #region ServiceProvider
 
     public static IServiceProvider CreateServiceProvider() => CreateServiceProvider(_ => { });
@@ -89,12 +88,13 @@ internal static class Factory
         {
             s.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
         });
+
     #endregion
 
     public static MiddlewareDelegate CreateMiddlewareDelegate() => ctx => Task.CompletedTask;
 
     #region Context
-    
+
     public static MediatorContext FakeContext(IMediatorAction action)
     {
         var services = CreateServiceProvider();
@@ -107,8 +107,8 @@ internal static class Factory
     {
         var mediator = services.GetRequiredService<IMediator>();
         var ca = services.GetRequiredService<IMediatorContextAccessor>();
-        return new MediatorContext(mediator, ca, services, new ReflectionCache(),action, CancellationToken.None, null, null);
+        return new MediatorContext(mediator, ca, services, new ReflectionCache(), action, CancellationToken.None, null, null);
     }
-    
+
     #endregion
 }
