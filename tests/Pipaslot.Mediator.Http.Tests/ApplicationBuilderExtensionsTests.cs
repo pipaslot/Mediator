@@ -4,48 +4,36 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
-
 public class ApplicationBuilderExtensionsTests
 {
     private static readonly Exception _exception = new();
-
-    [Fact]
+    [Test]
     public void UseMediator_CheckMatchingHandlersEnabled_ResolveAndExecuteHandlerExistenceChecker()
     {
         var ApplicationBuilder = CreateApplicationBuilder();
-
         var expectedEx = Assert.Throws<Exception>(() => ApplicationBuilder.UseMediator(true));
         Assert.Equal(_exception, expectedEx);
     }
 
-    [Fact]
+    [Test]
     public void UseMediator_CheckMatchingHandlersDisabled_ServiceResolverIsNotExecuted()
     {
         var ApplicationBuilder = CreateApplicationBuilder();
-
         ApplicationBuilder.UseMediator();
     }
 
     private IApplicationBuilder CreateApplicationBuilder()
     {
         var servicesMock = new Mock<IServiceCollection>();
-        var serviceProvider = new ServiceCollection()
-            .AddSingleton<IHandlerExistenceChecker>(_ => new FakeChecker())
-            .AddSingleton(_ => new MediatorConfigurator(servicesMock.Object))
-            .BuildServiceProvider();
-
+        var serviceProvider = new ServiceCollection().AddSingleton<IHandlerExistenceChecker>(_ => new FakeChecker()).AddSingleton(_ => new MediatorConfigurator(servicesMock.Object)).BuildServiceProvider();
         var ApplicationBuilderMock = new Mock<IApplicationBuilder>();
-        ApplicationBuilderMock
-            .Setup(x => x.ApplicationServices)
-            .Returns(serviceProvider);
-
+        ApplicationBuilderMock.Setup(x => x.ApplicationServices).Returns(serviceProvider);
         return ApplicationBuilderMock.Object;
     }
 
-    private class FakeChecker : IHandlerExistenceChecker
+    private class FakeChecker : Pipaslot.Mediator.Services.IHandlerExistenceChecker
     {
         public void Verify(ExistenceCheckerSetting setting)
         {

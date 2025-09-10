@@ -1,12 +1,9 @@
 ﻿using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
-
 public class MediatorExceptionLoggingMiddlewareTests
 {
-    [Fact]
+    [Test]
     public async Task Execute_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsSuccessFalse()
     {
         var sut = CreateMediator();
@@ -14,7 +11,7 @@ public class MediatorExceptionLoggingMiddlewareTests
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsErrorMessage()
     {
         var sut = CreateMediator();
@@ -22,7 +19,7 @@ public class MediatorExceptionLoggingMiddlewareTests
         Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsException()
     {
         var sut = CreateMediator();
@@ -32,7 +29,7 @@ public class MediatorExceptionLoggingMiddlewareTests
         });
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsSuccessFalse()
     {
         var sut = CreateMediator();
@@ -40,7 +37,7 @@ public class MediatorExceptionLoggingMiddlewareTests
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsErrorMessage()
     {
         var sut = CreateMediator();
@@ -48,7 +45,7 @@ public class MediatorExceptionLoggingMiddlewareTests
         Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task DispatchUnhandled_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsException()
     {
         var sut = CreateMediator();

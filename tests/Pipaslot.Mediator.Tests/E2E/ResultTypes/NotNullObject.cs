@@ -1,12 +1,11 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
 public class NotNullObject
 {
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -15,7 +14,7 @@ public class NotNullObject
         Assert.NotNull(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsNull_ShouldFailButSuccess()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -25,7 +24,7 @@ public class NotNullObject
             .Success); // Would be nice to get false and detect if null was provided when null is not expected, but we can not achieve it in the current C# version
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -33,7 +32,7 @@ public class NotNullObject
         Assert.NotNull(result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsNull_ShouldFailButSuccess()
     {
         var action = new FakeAction(true);

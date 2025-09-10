@@ -3,13 +3,12 @@ using Pipaslot.Mediator.Middlewares.Features;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
 public class MiddlewareParametersFeatureTests
 {
-    [Fact]
+    [Test]
     public async Task ParametricMiddleware_PropagateParameter()
     {
         var sut = Factory.CreateCustomMediator(s =>
@@ -19,7 +18,7 @@ public class MiddlewareParametersFeatureTests
         await sut.DispatchUnhandled(new NopMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task ParametricMiddleware_FailBecauseMissingExpectedParameter()
     {
         var sut = Factory.CreateCustomMediator(s =>
@@ -29,7 +28,7 @@ public class MiddlewareParametersFeatureTests
         await sut.DispatchUnhandled(new NopMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task ParametersAreAlwaysReset()
     {
         var sut = Factory.CreateCustomMediator(s =>

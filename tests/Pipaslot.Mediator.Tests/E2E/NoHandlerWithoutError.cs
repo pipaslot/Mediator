@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
@@ -8,7 +7,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// </summary>
 public class NoHandlerWithoutError
 {
-    [Fact]
+    [Test]
     public async Task Execute_FailedWithoutError()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
@@ -19,7 +18,7 @@ public class NoHandlerWithoutError
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_FailedWithoutError()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
@@ -33,7 +32,7 @@ public class NoHandlerWithoutError
         Assert.Equal(MediatorExecutionException.CreateForUnhandledError(context).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_FailedWithoutError()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
@@ -44,7 +43,7 @@ public class NoHandlerWithoutError
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task DispatchUnhandled_Exception()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());

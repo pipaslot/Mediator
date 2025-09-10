@@ -1,11 +1,10 @@
 ﻿using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
 public class BasicFailing
 {
-    [Fact]
+    [Test]
     public async Task Execute_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -13,7 +12,7 @@ public class BasicFailing
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_NotEmptyErrorMessage()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -21,7 +20,7 @@ public class BasicFailing
         Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_NullResult()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -29,7 +28,7 @@ public class BasicFailing
         Assert.Null(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ThrowOriginalException()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -40,7 +39,7 @@ public class BasicFailing
         // We do not care about the error message as we only expect the original exception
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -48,7 +47,7 @@ public class BasicFailing
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_NotEmptyErrorMessage()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -56,7 +55,7 @@ public class BasicFailing
         Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task DispatchUnhandled_ThrowOriginalException()
     {
         var sut = Factory.CreateConfiguredMediator();

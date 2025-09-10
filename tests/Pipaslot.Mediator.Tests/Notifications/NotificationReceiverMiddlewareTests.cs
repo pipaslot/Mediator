@@ -5,34 +5,33 @@ using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Notifications;
 
 public class NotificationReceiverMiddlewareTests
 {
 
-    [Fact]
+    [Test]
     public void RegisterINotificationReceiver()
     {
         var services = Factory.CreateServiceProvider(c => c.UseNotificationReceiver());
         var provider = services.GetService<INotificationReceiver>();
-        Assert.NotNull(provider);
+        await Assert.That(provider).IsNotNull();
     }
 
-    [Fact]
+    [Test]
     public async Task AnyOtherObjectDoesNotFireEvent()
     {
         await InvokeMiddleware(c => { c.AddResult(new object()); }, false);
     }
 
-    [Fact]
+    [Test]
     public async Task NotificationObjectFiresEvent()
     {
         await InvokeMiddleware(c => { c.AddResult(new Notification()); }, true);
     }
 
-    [Fact]
+    [Test]
     public async Task ErrorMessageFiresEvent()
     {
         await InvokeMiddleware(c => { c.AddError("haha"); }, true);
@@ -53,6 +52,6 @@ public class NotificationReceiverMiddlewareTests
         var context = new MediatorContext(mediator.Object, mcaMock.Object, services, new ReflectionCache(), new NopMessage(), CancellationToken.None, null, null);
         setup(context);
         await sut.Invoke(context, c => Task.CompletedTask);
-        Assert.Equal(expected, received);
+        await Assert.That(received).IsEqualTo(expected);
     }
 }

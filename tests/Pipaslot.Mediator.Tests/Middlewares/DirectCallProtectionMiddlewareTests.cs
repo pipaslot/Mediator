@@ -1,12 +1,11 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
 public class DirectCallProtectionMiddlewareTests
 {
-    [Fact]
+    [Test]
     public async Task IndirectCall_ShouldPass()
     {
         var sut = CreateMediator();
@@ -14,7 +13,7 @@ public class DirectCallProtectionMiddlewareTests
         Assert.True(res.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task DirectCall_ShouldFail()
     {
         var sut = CreateMediator();

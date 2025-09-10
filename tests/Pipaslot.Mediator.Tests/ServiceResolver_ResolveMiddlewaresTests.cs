@@ -2,22 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 public class ServiceResolver_ResolveMiddlewaresTests
 {
-    [Theory]
-    [InlineData(false, 1, typeof(BeforeMiddleware))]
-    [InlineData(false, 2, typeof(QueryMiddleware))]
-    [InlineData(false, 3, typeof(Query2Middleware))]
-    [InlineData(false, 4, typeof(DefaultMiddleware))]
-    [InlineData(false, 5, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(false, 1, typeof(BeforeMiddleware))]
+    [Arguments(false, 2, typeof(QueryMiddleware))]
+    [Arguments(false, 3, typeof(Query2Middleware))]
+    [Arguments(false, 4, typeof(DefaultMiddleware))]
+    [Arguments(false, 5, typeof(IExecutionMiddleware))]
     
-    [InlineData(true, 1, typeof(BeforeMiddleware))]
-    [InlineData(true, 2, typeof(QueryMiddleware))]
-    [InlineData(true, 3, typeof(HandlerExecutionMiddleware))]
+    [Arguments(true, 1, typeof(BeforeMiddleware))]
+    [Arguments(true, 2, typeof(QueryMiddleware))]
+    [Arguments(true, 3, typeof(HandlerExecutionMiddleware))]
     public void QueryPath(bool executeHandlersInFirstMap, int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = executeHandlersInFirstMap };
@@ -27,17 +26,17 @@ public class ServiceResolver_ResolveMiddlewaresTests
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    [Theory]
-    [InlineData(true, 1, typeof(BeforeMiddleware))]
-    [InlineData(true, 2, typeof(CommandMiddleware))]
-    [InlineData(true, 3, typeof(CommandNestedMiddleware))]
-    [InlineData(true, 4, typeof(DefaultMiddleware))]
-    [InlineData(true, 5, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(true, 1, typeof(BeforeMiddleware))]
+    [Arguments(true, 2, typeof(CommandMiddleware))]
+    [Arguments(true, 3, typeof(CommandNestedMiddleware))]
+    [Arguments(true, 4, typeof(DefaultMiddleware))]
+    [Arguments(true, 5, typeof(IExecutionMiddleware))]
     
-    [InlineData(false, 1, typeof(BeforeMiddleware))]
-    [InlineData(false, 2, typeof(CommandMiddleware))]
-    [InlineData(false, 3, typeof(DefaultMiddleware))]
-    [InlineData(false, 4, typeof(IExecutionMiddleware))]
+    [Arguments(false, 1, typeof(BeforeMiddleware))]
+    [Arguments(false, 2, typeof(CommandMiddleware))]
+    [Arguments(false, 3, typeof(DefaultMiddleware))]
+    [Arguments(false, 4, typeof(IExecutionMiddleware))]
     public void CommandPath(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
@@ -47,10 +46,10 @@ public class ServiceResolver_ResolveMiddlewaresTests
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    [Theory]
-    [InlineData(1, typeof(BeforeMiddleware))]
-    [InlineData(2, typeof(DefaultMiddleware))]
-    [InlineData(3, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(1, typeof(BeforeMiddleware))]
+    [Arguments(2, typeof(DefaultMiddleware))]
+    [Arguments(3, typeof(IExecutionMiddleware))]
     public void DefaultPath(int position, Type expectedMiddleware)
     {
         var action = new FakeNotification();
@@ -60,12 +59,12 @@ public class ServiceResolver_ResolveMiddlewaresTests
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    [Theory]
-    [InlineData(1, true, typeof(QueryMiddleware))]
-    [InlineData(2, true, typeof(Query2Middleware))]
-    [InlineData(3, true, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(1, true, typeof(QueryMiddleware))]
+    [Arguments(2, true, typeof(Query2Middleware))]
+    [Arguments(3, true, typeof(IExecutionMiddleware))]
     
-    [InlineData(1, false, typeof(IExecutionMiddleware))]
+    [Arguments(1, false, typeof(IExecutionMiddleware))]
     public void UseWhen(int position, bool applyCustom, Type expectedMiddleware)
     {
         var action = new FakeNotification();

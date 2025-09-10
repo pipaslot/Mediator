@@ -5,34 +5,29 @@ using Pipaslot.Mediator.Http.Serialization.V3;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public class ContractSerializer_StreamTest : ContractSerializerBaseTest
+public class ContractSerializer_StreamTest : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
-    [Fact]
+    [Test]
     public void StreamsAreExtractedDuringSerializationAndPlacedBackWhenDeserializing()
     {
         var streamContent1 = "Stream number one";
         var fileName1 = "Stream 1";
-
         var streamContent2 = "Stream number two";
         var fileName2 = "Stream 2";
         var files = new FileDto[]
         {
-            new(ToStream(streamContent1), fileName1), 
+            new(ToStream(streamContent1), fileName1),
             new(ToStream(streamContent2), fileName2)
         };
         var action = new FileUploadAction(files);
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
-        Assert.Equal(2, serialized.Streams.Count);// Two stream are expected because two files were passed
-        
+        Assert.Equal(2, serialized.Streams.Count); // Two stream are expected because two files were passed
         var deserialized = sut.DeserializeRequest(serialized.Json, serialized.Streams) as FileUploadAction;
         Assert.NotNull(deserialized);
         Assert.Equal(2, deserialized.Files.Length);
-
         var file1 = deserialized.Files.First();
         Assert.Equal(fileName1, file1.Name);
         Assert.Equal(streamContent1, FromStream(file1.Content));
@@ -40,7 +35,7 @@ public class ContractSerializer_StreamTest : ContractSerializerBaseTest
         Assert.Equal(fileName2, file2.Name);
         Assert.Equal(streamContent2, FromStream(file2.Content));
     }
-    
+
     protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
     {
         var optionsMock = new Mock<IMediatorOptions>();
@@ -64,6 +59,5 @@ public class ContractSerializer_StreamTest : ContractSerializerBaseTest
     }
 
     private record FileUploadAction(FileDto[] Files) : IMessage;
-
     private record FileDto(Stream Content, string Name) : IMessage;
 }

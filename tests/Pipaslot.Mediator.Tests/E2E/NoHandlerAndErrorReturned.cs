@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
@@ -11,7 +10,7 @@ public class NoHandlerAndErrorReturned
 {
     private const string Error = "Fake error";
 
-    [Fact]
+    [Test]
     public async Task Execute_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
@@ -21,7 +20,7 @@ public class NoHandlerAndErrorReturned
         Assert.Null(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ThrowException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
@@ -34,7 +33,7 @@ public class NoHandlerAndErrorReturned
         Assert.Equal(MediatorExecutionException.CreateForUnhandledError($"'{Error}'", context).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
@@ -43,7 +42,7 @@ public class NoHandlerAndErrorReturned
         Assert.Equal(Error, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatchnhandled_ThrowException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());

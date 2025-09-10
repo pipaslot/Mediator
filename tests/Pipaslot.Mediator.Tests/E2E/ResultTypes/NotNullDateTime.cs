@@ -1,14 +1,13 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
 public class NotNullDateTime
 {
-    [Theory]
-    [InlineData("2021-09-01")]
+    [Test]
+    [Arguments("2021-09-01")]
     public async Task Execute_ShouldPass(string dateString)
     {
         var value = DateTime.Parse(dateString);
@@ -18,8 +17,8 @@ public class NotNullDateTime
         Assert.Equal(value, result.Result);
     }
 
-    [Theory]
-    [InlineData("2021-09-01")]
+    [Test]
+    [Arguments("2021-09-01")]
     public async Task ExecuteUnhandled_ShouldPass(string dateString)
     {
         var value = DateTime.Parse(dateString);

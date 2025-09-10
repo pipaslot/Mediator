@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
@@ -30,14 +29,14 @@ public class MediatorContextAccessorTests
         _service = services.GetRequiredService<FakeService>();
     }
 
-    [Fact]
+    [Test]
     public void NoAction_ContextIsNull()
     {
         Assert.Null(_contextAccessor.Context);
         Assert.Empty(_contextAccessor.ContextStack);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecutionCompleted_ContextIsNull()
     {
         await _mediator.DispatchUnhandled(new Level1Action(ActionBehaviorTestCase.SingleNested));
@@ -45,7 +44,7 @@ public class MediatorContextAccessorTests
         Assert.Empty(_contextAccessor.ContextStack);
     }
 
-    [Fact]
+    [Test]
     public async Task Flow()
     {
         _service.AssertZero();
@@ -53,7 +52,7 @@ public class MediatorContextAccessorTests
         _service.AssertZero();
     }
 
-    [Fact]
+    [Test]
     public async Task NestedParallelTask_KnownFailingCase()
     {
         await _mediator.DispatchUnhandled(new Level1Action(ActionBehaviorTestCase.ConcurrentNested));

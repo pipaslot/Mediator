@@ -1,31 +1,24 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public abstract class ContractSerializer_CommonTestBase : ContractSerializerBaseTest
+public abstract class ContractSerializer_CommonTestBase : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
     private const string _name = "JSON name";
     private const int _number = 6;
     private static readonly string[] _collection = ["AAA", "BBB"];
-    private static readonly Nested _nested = new() { Value = 1.2m };
-
-    protected Func<IContract, bool> Match = c =>
-        c.Name == _name &&
-        c.Number == _number &&
-        c.Nested.Value == _nested.Value &&
-        c.Collection[0] == _collection[0] &&
-        c.Collection[1] == _collection[1];
-
-    #region Serialize and deserialize Request
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("{}")]
-    [InlineData(@"{""Content"":"" "",""Type"":"" ""}")]
+    private static readonly Nested _nested = new()
+    {
+        Value = 1.2m
+    };
+    protected Func<IContract, bool> Match = c => c.Name == _name && c.Number == _number && c.Nested.Value == _nested.Value && c.Collection[0] == _collection[0] && c.Collection[1] == _collection[1];
+#region Serialize and deserialize Request
+    [Test]
+    [Arguments(null)]
+    [Arguments("")]
+    [Arguments(" ")]
+    [Arguments("{}")]
+    [Arguments(@"{""Content"":"" "",""Type"":"" ""}")]
     public void Request_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
@@ -33,21 +26,19 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         Assert.Equal(MediatorHttpException.CreateForInvalidRequest(body).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void Request_PublicPropertyGettersAndSetters_WillPass()
     {
-        RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested },
-            Match);
+        RunRequestTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
     }
 
-    [Fact]
+    [Test]
     public void Request_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
     {
-        RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
-            Match);
+        RunRequestTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
     }
 
-    [Fact]
+    [Test]
     public void Request_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
     {
         var exception = Assert.Throws<MediatorHttpException>(() =>
@@ -57,37 +48,33 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         });
     }
 
-    [Fact]
+    [Test]
     public void Request_PublicPropertyGetterAndInitSetter_WillPass()
     {
-        RunRequestTest(
-            new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+        RunRequestTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
     }
 
-    [Fact]
+    [Test]
     public void Request_PositionalRecord_WillPass()
     {
         RunRequestTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
     }
 
-    private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match) where TContract : IContract
+    private void RunRequestTest<TContract>(TContract seed, Func<IContract, bool> match)
+        where TContract : IContract
     {
         var sut = CreateSerializer();
-
         var serialized = sut.SerializeRequest(seed);
         var deserialized = sut.DeserializeRequest(serialized.Json, serialized.Streams);
-
         Assert.True(match((TContract)deserialized));
     }
 
-    #endregion
-
-    #region Serialize and Deserialize Response
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
+#endregion
+#region Serialize and Deserialize Response
+    [Test]
+    [Arguments(null)]
+    [Arguments("")]
+    [Arguments(" ")]
     public void Response_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
@@ -95,7 +82,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         Assert.Equal(MediatorHttpException.CreateForInvalidResponse(body).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void Response_EmptyObject_ReturnsResponseWithFailureStatus()
     {
         var sut = CreateSerializer();
@@ -103,21 +90,19 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         Assert.False(res.Success);
     }
 
-    [Fact]
+    [Test]
     public void Response_PublicPropertyGettersAndSetters_WillPass()
     {
-        RunResponseTest(
-            new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+        RunResponseTest(new PublicPropertyGettersAndSettersContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
     }
 
-    [Fact]
+    [Test]
     public void Response_ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnly_WillPass()
     {
-        RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested),
-            Match);
+        RunResponseTest(new ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(_name, _number, _collection, _nested), Match);
     }
 
-    [Fact]
+    [Test]
     public void Response_ConstructorWithNotMatchingBindingNamesAndWithPrivateGetter_WillFaill()
     {
         Assert.Throws<MediatorHttpException>(() =>
@@ -127,14 +112,13 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         });
     }
 
-    [Fact]
+    [Test]
     public void Response_PublicPropertyGetterAndInitSetter_WillPass()
     {
-        RunResponseTest(
-            new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
+        RunResponseTest(new PublicPropertyGetterAndInitSetterContract { Name = _name, Number = _number, Collection = _collection, Nested = _nested }, Match);
     }
 
-    [Fact]
+    [Test]
     public void Response_PositionalRecord_WillPass()
     {
         RunResponseTest(new PositionalRecordContract(_name, _number, _collection, _nested), Match);
@@ -144,10 +128,8 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     {
         var response = new MediatorResponse(true, [seed!]);
         var sut = CreateSerializer();
-
         var serialized = sut.SerializeResponse(response);
         var deserialized = sut.DeserializeResponse<TDto>(serialized);
-
         Assert.True(match(deserialized.Result));
     }
 
@@ -156,10 +138,8 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         public int Index { get; set; }
     }
 
-    #endregion
-
-    #region Actions
-
+#endregion
+#region Actions
     public interface IContract : IMediatorAction
     {
         public string Name { get; }
@@ -178,8 +158,7 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
 
     public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage, IContract
     {
-        public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number, string[] collection,
-            Nested nested)
+        public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number, string[] collection, Nested nested)
         {
             Name = name;
             Number = number;
@@ -218,11 +197,9 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     }
 
     public record PositionalRecordContract(string Name, int Number, string[] Collection, Nested Nested) : IMessage, IContract;
-
     public class Nested
     {
         public decimal Value { get; init; }
     }
-
-    #endregion
+#endregion
 }

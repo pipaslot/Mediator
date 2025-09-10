@@ -2,16 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 public class ServiceResolver_ResolvePipelinesTests
 {
-    [Theory]
-    [InlineData(1, typeof(BeforeMiddleware))]
-    [InlineData(2, typeof(AfterMiddleware))]
-    [InlineData(3, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(1, typeof(BeforeMiddleware))]
+    [Arguments(2, typeof(AfterMiddleware))]
+    [Arguments(3, typeof(IExecutionMiddleware))]
     public void QueryPath(int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = false };
@@ -21,13 +20,13 @@ public class ServiceResolver_ResolvePipelinesTests
         VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    [Theory]
-    [InlineData(true, 1, typeof(PipelineMiddleware))]
-    [InlineData(true, 2, typeof(PipelineNestedMiddleware))]
-    [InlineData(true, 3, typeof(IExecutionMiddleware))]
+    [Test]
+    [Arguments(true, 1, typeof(PipelineMiddleware))]
+    [Arguments(true, 2, typeof(PipelineNestedMiddleware))]
+    [Arguments(true, 3, typeof(IExecutionMiddleware))]
     
-    [InlineData(false, 1, typeof(PipelineMiddleware))]
-    [InlineData(false, 2, typeof(IExecutionMiddleware))]
+    [Arguments(false, 1, typeof(PipelineMiddleware))]
+    [Arguments(false, 2, typeof(IExecutionMiddleware))]
     public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
@@ -44,7 +43,7 @@ public class ServiceResolver_ResolvePipelinesTests
         Assert.Equal(expectedMiddleware, actual);
     }
 
-    [Fact]
+    [Test]
     public void ActionMatchingMultiplePipelines_ThrowExcepton()
     {
         var action = new FakeCommand();

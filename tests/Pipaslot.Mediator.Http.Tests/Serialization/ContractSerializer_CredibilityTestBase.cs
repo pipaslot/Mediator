@@ -2,13 +2,11 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public abstract class ContractSerializer_CredibilityTestBase : ContractSerializerBaseTest
+public abstract class ContractSerializer_CredibilityTestBase : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
-    [Fact]
+    [Test]
     public void Request_ShouldCallVerifyCredibility()
     {
         var action = new PublicPropertyGetterAndInitSetterContract();
@@ -20,25 +18,23 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
         CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
         foreach (var type in toBeVerified)
         {
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(type));
+            CredibleProviderMock.Setup(p => p.VerifyCredibility(type));
         }
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
         sut.DeserializeRequest(serialized.Json, serialized.Streams);
-
         CredibleProviderMock.VerifyAll();
     }
 
-    [Fact]
+    [Test]
     public void Response_SingleObject_ShouldCallVerifyCredibility()
     {
         var result = new Result();
         VerifyResponseCredibility(result, result.GetType());
     }
 
-    [Fact]
+    [Test]
     public void Response_Collection_ShouldCallVerifyCredibility()
     {
         var result = Array.Empty<Result>();
@@ -50,14 +46,12 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
         CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
         foreach (var type in toBeVerified)
         {
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(type));
+            CredibleProviderMock.Setup(p => p.VerifyCredibility(type));
         }
 
         var sut = CreateSerializer();
         var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         sut.DeserializeResponse<Result>(responseString);
-
         CredibleProviderMock.VerifyAll();
     }
 

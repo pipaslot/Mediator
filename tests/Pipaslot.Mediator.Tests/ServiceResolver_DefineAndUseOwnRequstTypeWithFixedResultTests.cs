@@ -1,12 +1,11 @@
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
 {
-    [Fact]
+    [Test]
     public void ShouldResolveRequest()
     {
         var handlerType = typeof(FakeFixedRequestHandler);
@@ -33,7 +32,7 @@ public class ServiceResolver_DefineAndUseOwnRequstTypeWithFixedResultTests
         }
     }
     
-    [Fact]
+    [Test]
     public void ShouldResolveMessage()
     {
         var handlerType = typeof(FakeFixedMessageHandler);

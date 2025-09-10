@@ -1,12 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Middlewares;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 public class ServiceResolver_MiddlewareRegistrationTests
 {
-    [Fact]
+    [Test]
     public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntTheSamePipeline_ThrowException()
     {
         Assert.Throws<MediatorException>(() =>
@@ -18,7 +17,7 @@ public class ServiceResolver_MiddlewareRegistrationTests
         });
     }
 
-    [Fact]
+    [Test]
     public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntDifferentePipeline_ThrowException()
     {
         Assert.Throws<MediatorException>(() =>
@@ -30,7 +29,7 @@ public class ServiceResolver_MiddlewareRegistrationTests
         });
     }
 
-    [Fact]
+    [Test]
     public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntDifferentePipeline2_ThrowException()
     {
         Assert.Throws<MediatorException>(() =>

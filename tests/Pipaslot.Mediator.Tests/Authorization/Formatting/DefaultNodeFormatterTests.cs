@@ -18,10 +18,10 @@ public class DefaultNodeFormatterTests
         return formatter;
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "(Sentence1 OR Sentence2) Sentence3 (Sentence4 AND Sentence5)")]
-    [InlineData(Operator.And, "(Sentence1 OR Sentence2) AND Sentence3 AND (Sentence4 AND Sentence5)")]
-    [InlineData(Operator.Or, "(Sentence1 OR Sentence2) OR Sentence3 OR (Sentence4 AND Sentence5)")]
+    [Test]
+    [Arguments(Operator.Add, "(Sentence1 OR Sentence2) Sentence3 (Sentence4 AND Sentence5)")]
+    [Arguments(Operator.And, "(Sentence1 OR Sentence2) AND Sentence3 AND (Sentence4 AND Sentence5)")]
+    [Arguments(Operator.Or, "(Sentence1 OR Sentence2) OR Sentence3 OR (Sentence4 AND Sentence5)")]
     public void Format_OnlyDefaultRules(Operator @operator, string expected)
     {
         var set1 = RuleSet.Create(
@@ -44,43 +44,43 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, collection);
     }
 
-    [Theory]
+    [Test]
     // Add
-    [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.And, "Sentence1 AND Sentence2 Sentence3 AND Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.Add, Operator.Or, "Sentence1 OR Sentence2 Sentence3 OR Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Add, Operator.And, "Sentence1 AND Sentence2 Sentence3 AND Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Add, Operator.Or, "Sentence1 OR Sentence2 Sentence3 OR Sentence4")]
     // And
-    [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.Add, "Sentence1 Sentence2 AND Sentence3 Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.And, Operator.Or, "Sentence1 OR Sentence2 AND Sentence3 OR Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.And, Operator.Add, "Sentence1 Sentence2 AND Sentence3 Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.And, Operator.Or, "Sentence1 OR Sentence2 AND Sentence3 OR Sentence4")]
     // Or
-    [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.Add, "Sentence1 Sentence2 OR Sentence3 Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.And, "Sentence1 AND Sentence2 OR Sentence3 AND Sentence4")]
-    [InlineData(MultipleRuleWrapType.Never, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Or, Operator.Add, "Sentence1 Sentence2 OR Sentence3 Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Or, Operator.And, "Sentence1 AND Sentence2 OR Sentence3 AND Sentence4")]
+    [Arguments(MultipleRuleWrapType.Never, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
     // Add
-    [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.Add, "(Sentence1 Sentence2) (Sentence3 Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Add, Operator.Add, "(Sentence1 Sentence2) (Sentence3 Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
     // And
-    [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.And, "(Sentence1 AND Sentence2) AND (Sentence3 AND Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.And, Operator.And, "(Sentence1 AND Sentence2) AND (Sentence3 AND Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
     // Or
-    [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
-    [InlineData(MultipleRuleWrapType.Always, Operator.Or, Operator.Or, "(Sentence1 OR Sentence2) OR (Sentence3 OR Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
+    [Arguments(MultipleRuleWrapType.Always, Operator.Or, Operator.Or, "(Sentence1 OR Sentence2) OR (Sentence3 OR Sentence4)")]
     // Add
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Add, "Sentence1 Sentence2 Sentence3 Sentence4")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.And, "(Sentence1 AND Sentence2) (Sentence3 AND Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Add, Operator.Or, "(Sentence1 OR Sentence2) (Sentence3 OR Sentence4)")]
     // And
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Add, "(Sentence1 Sentence2) AND (Sentence3 Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.And, "Sentence1 AND Sentence2 AND Sentence3 AND Sentence4")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.And, Operator.Or, "(Sentence1 OR Sentence2) AND (Sentence3 OR Sentence4)")]
     // Or
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
-    [InlineData(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Add, "(Sentence1 Sentence2) OR (Sentence3 Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.And, "(Sentence1 AND Sentence2) OR (Sentence3 AND Sentence4)")]
+    [Arguments(MultipleRuleWrapType.DifferentOperator, Operator.Or, Operator.Or, "Sentence1 OR Sentence2 OR Sentence3 OR Sentence4")]
     public void Format_CombineRuleSetsWithMultipleRulesAndApplyWrapType(MultipleRuleWrapType wrapType, Operator parentOperator,
         Operator childOperator, string expected)
     {
@@ -99,12 +99,12 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, collection, wrapType);
     }
 
-    [Theory]
-    [InlineData(Operator.Add,
+    [Test]
+    [Arguments(Operator.Add,
         "(Role 'A3' is required. OR Claim 'A4' is required.) (Role 'A5' is required. AND Role 'A6' is required.)")] // Deny result
-    [InlineData(Operator.And,
+    [Arguments(Operator.And,
         "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. AND Role 'A6' is required.)")] // Deny result
-    [InlineData(Operator.Or, "")] // Allow result
+    [Arguments(Operator.Or, "")] // Allow result
     public void Format_withoutDefaultRule(Operator @operator, string expected)
     {
         var set1 = RuleSet.Create(
@@ -126,12 +126,12 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, collection);
     }
 
-    [Theory]
-    [InlineData(Operator.Add,
+    [Test]
+    [Arguments(Operator.Add,
         "(Role 'A3' is required. OR Claim 'A4' is required.) (Role 'A5' is required. OR Role 'A6' is required.) (Claim 'A7' is required. AND Claim 'A8' is required.)")] // Deny result
-    [InlineData(Operator.And,
+    [Arguments(Operator.And,
         "(Role 'A3' is required. OR Claim 'A4' is required.) AND (Role 'A5' is required. OR Role 'A6' is required.) AND (Claim 'A7' is required. AND Claim 'A8' is required.)")] // Deny result
-    [InlineData(Operator.Or, "You did it!")] // Allow result
+    [Arguments(Operator.Or, "You did it!")] // Allow result
     public void Format_WithDefaultRule(Operator @operator, string expected)
     {
         var hiddenSet = RuleSet.Create(
@@ -158,9 +158,9 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, collection);
     }
 
-    [Theory]
-    [InlineData(Operator.Add)]
-    [InlineData(Operator.And)]
+    [Test]
+    [Arguments(Operator.Add)]
+    [Arguments(Operator.And)]
     public void Format_Single(Operator @operator)
     {
         var expected = "Role 'Admin' is required.";
@@ -170,21 +170,21 @@ public class DefaultNodeFormatterTests
         );
     }
 
-    [Theory]
-    [InlineData(Operator.And, RuleOutcome.Allow, "")]
-    [InlineData(Operator.Add, RuleOutcome.Allow, "")]
-    [InlineData(Operator.And, RuleOutcome.Deny, "User has to be authenticated.")]
-    [InlineData(Operator.Add, RuleOutcome.Deny, "User has to be authenticated.")]
+    [Test]
+    [Arguments(Operator.And, RuleOutcome.Allow, "")]
+    [Arguments(Operator.Add, RuleOutcome.Allow, "")]
+    [Arguments(Operator.And, RuleOutcome.Deny, "User has to be authenticated.")]
+    [Arguments(Operator.Add, RuleOutcome.Deny, "User has to be authenticated.")]
     public void Format_Authorization(Operator @operator, RuleOutcome outcome, string expected)
     {
         var rule = new Rule(IdentityPolicy.AuthenticationPolicyName, IdentityPolicy.AuthenticatedValue, outcome);
         AssertEqual(expected, @operator, rule);
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "Role 'A1' is required. Claim 'A2' is required.")]
-    [InlineData(Operator.And, "Role 'A1' is required. AND Claim 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
-    [InlineData(Operator.Or, "Role 'A1' is required. OR Claim 'A2' is required.")]
+    [Test]
+    [Arguments(Operator.Add, "Role 'A1' is required. Claim 'A2' is required.")]
+    [Arguments(Operator.And, "Role 'A1' is required. AND Claim 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
+    [Arguments(Operator.Or, "Role 'A1' is required. OR Claim 'A2' is required.")]
     public void Format_TwoWithUniqueName(Operator @operator, string expected)
     {
         AssertEqual(expected,
@@ -195,10 +195,10 @@ public class DefaultNodeFormatterTests
         );
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "Role 'A1' is required. Role 'A2' is required.")]
-    [InlineData(Operator.And, "Role 'A1' is required. AND Role 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
-    [InlineData(Operator.Or, "Role 'A1' is required. OR Role 'A2' is required.")]
+    [Test]
+    [Arguments(Operator.Add, "Role 'A1' is required. Role 'A2' is required.")]
+    [Arguments(Operator.And, "Role 'A1' is required. AND Role 'A2' is required. AND Ignored 'IgnoredValue' is required.")]
+    [Arguments(Operator.Or, "Role 'A1' is required. OR Role 'A2' is required.")]
     public void Format_TwoWithDuplicateName(Operator @operator, string expected)
     {
         AssertEqual(expected,
@@ -209,13 +209,13 @@ public class DefaultNodeFormatterTests
         );
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "", "", "", "")]
-    [InlineData(Operator.And, "", "", "", "")]
-    [InlineData(Operator.Add, "", "AHA", "", "AHA")] // Format as single
-    [InlineData(Operator.And, "", "AHA", "", "AHA")] // Format as single
-    [InlineData(Operator.Add, "AHA", "", "BBB", "AHA BBB")] // Format as multiple
-    [InlineData(Operator.And, "AHA", "", "BBB", "AHA AND BBB")] // Format as multiple
+    [Test]
+    [Arguments(Operator.Add, "", "", "", "")]
+    [Arguments(Operator.And, "", "", "", "")]
+    [Arguments(Operator.Add, "", "AHA", "", "AHA")] // Format as single
+    [Arguments(Operator.And, "", "AHA", "", "AHA")] // Format as single
+    [Arguments(Operator.Add, "AHA", "", "BBB", "AHA BBB")] // Format as multiple
+    [Arguments(Operator.And, "AHA", "", "BBB", "AHA AND BBB")] // Format as multiple
     public void Format_EmptyRuleIsIgnored(Operator @operator, string first, string second, string third, string expected)
     {
         AssertEqual(expected, @operator
@@ -225,9 +225,9 @@ public class DefaultNodeFormatterTests
         );
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "AAA BBB")]
-    [InlineData(Operator.And, "AAA AND BBB")]
+    [Test]
+    [Arguments(Operator.Add, "AAA BBB")]
+    [Arguments(Operator.And, "AAA AND BBB")]
     public void Format_NestedRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
     {
         var nested = RuleSet.Create(@operator,
@@ -239,9 +239,9 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, root);
     }
 
-    [Theory]
-    [InlineData(Operator.Add, "AAA BBB")]
-    [InlineData(Operator.And, "AAA AND BBB")]
+    [Test]
+    [Arguments(Operator.Add, "AAA BBB")]
+    [Arguments(Operator.And, "AAA AND BBB")]
     public void Format_NestedRuleAndIgnoredRuleWontBeWrappedBecauseItIsNotNecessary(Operator @operator, string expected)
     {
         var nested = RuleSet.Create(@operator,
@@ -256,7 +256,7 @@ public class DefaultNodeFormatterTests
         AssertEqual(expected, root);
     }
 
-    [Fact]
+    [Test]
     public void Format_AllowWithReason_ReasonIsPropagated()
     {
         var reason = "Because system allows it";

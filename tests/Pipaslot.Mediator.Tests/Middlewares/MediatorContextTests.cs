@@ -9,14 +9,14 @@ namespace Pipaslot.Mediator.Tests.Middlewares;
 
 public class MediatorContextTests
 {
-    [Fact]
+    [Test]
     public void HasActionReturnValue_Message_ReturnsFalse()
     {
         var sut = CreateContext(new SingleHandler.Message(true));
         Assert.False(sut.HasActionReturnValue);
     }
 
-    [Fact]
+    [Test]
     public void HasActionReturnValue_Request_ReturnsTrue()
     {
         var sut = CreateContext(new SingleHandler.Request(true));

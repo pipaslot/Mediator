@@ -5,7 +5,7 @@ namespace Pipaslot.Mediator.Tests.Authorization;
 
 public class RuleSet_OperatorTests
 {
-    [Fact]
+    [Test]
     public void ADD_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -17,7 +17,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.Add, 0, r1, r2);
     }
 
-    [Fact]
+    [Test]
     public void AND_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -29,7 +29,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.And, 0, r1, r2);
     }
 
-    [Fact]
+    [Test]
     public void OR_ThreeTimeTheSame()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -41,7 +41,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
     }
 
-    [Fact]
+    [Test]
     public void ORADDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -56,7 +56,7 @@ public class RuleSet_OperatorTests
     }
 
 
-    [Fact]
+    [Test]
     public void ORANDWithBrackets_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -70,7 +70,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.Or, 0, r1, r2);
     }
 
-    [Fact]
+    [Test]
     public void ORADD_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -84,7 +84,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.Add, 0, r2, r3);
     }
 
-    [Fact]
+    [Test]
     public void ORAND_RuleSetConbinedWitRuleByOrAndWithInverted_AppendTheRule()
     {
         var r1 = Rule.AllowOrDeny(true, "", "R1");
@@ -98,7 +98,7 @@ public class RuleSet_OperatorTests
         AssertRuleSet(subSet, Operator.And, 0, r2, r3);
     }
 
-    [Fact]
+    [Test]
     public void CastCombinedRulesToPolicy()
     {
         IPolicy combined = Rule.AllowOrDeny(true)
@@ -110,7 +110,7 @@ public class RuleSet_OperatorTests
         Assert.NotNull(combined);
     }
 
-    [Fact]
+    [Test]
     public void CastCombinedRuleSetsToPolicy()
     {
         var one = Rule.AllowOrDeny(true)

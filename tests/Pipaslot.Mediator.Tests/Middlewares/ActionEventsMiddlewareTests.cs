@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
@@ -15,21 +14,21 @@ public class ActionEventsMiddlewareTests
 
     #region Basic flow
 
-    [Fact]
+    [Test]
     public void NewMediatorDoesNotFireAnsyActionStartedEvent()
     {
         Create();
         Assert.Empty(_started);
     }
 
-    [Fact]
+    [Test]
     public void NewMediatorDoesNotFireAnsyActionCompletedEvent()
     {
         Create();
         Assert.Empty(_completed);
     }
 
-    [Fact]
+    [Test]
     public async Task SemaphoreActionIsExcetutable()
     {
         var sut = Create();
@@ -39,7 +38,7 @@ public class ActionEventsMiddlewareTests
         Assert.True(response.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task StartedEventIsCalledInTheBeginningOfMediatorExcecution()
     {
         var sut = Create();
@@ -49,7 +48,7 @@ public class ActionEventsMiddlewareTests
         await task;
     }
 
-    [Fact]
+    [Test]
     public async Task CompletedEventIsNotCalledInTheBeginningOfMediatorExcecution()
     {
         var sut = Create();
@@ -59,7 +58,7 @@ public class ActionEventsMiddlewareTests
         await task;
     }
 
-    [Fact]
+    [Test]
     public async Task CompletedEventIsCalledAfterMediatorExcecution()
     {
         var sut = Create();
@@ -69,7 +68,7 @@ public class ActionEventsMiddlewareTests
         Assert.Single(_completed);
     }
 
-    [Fact]
+    [Test]
     public async Task StartedEventIsNotCalledAfterMediatorExcecution()
     {
         var sut = Create();
@@ -81,7 +80,7 @@ public class ActionEventsMiddlewareTests
 
     #endregion
 
-    [Fact]
+    [Test]
     public async Task SendingTheSameActionInstanceTwiceFiresTwoStartedEvents()
     {
         var sut = Create();
@@ -94,7 +93,7 @@ public class ActionEventsMiddlewareTests
         await Task.WhenAll(task1, task2);
     }
 
-    [Fact]
+    [Test]
     public async Task SendingTheSameActionInstanceTwiceFiresTwoCompletedEvents()
     {
         var sut = Create();

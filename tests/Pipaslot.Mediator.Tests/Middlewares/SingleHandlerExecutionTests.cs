@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
@@ -13,7 +12,7 @@ public class SingleHandlerExecutionTests
         SingleHandler.ExecutedCount = 0;
     }
 
-    [Fact]
+    [Test]
     public async Task RequestWithSingleHandler_ExecuteHandler()
     {
         var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler>();
@@ -21,14 +20,14 @@ public class SingleHandlerExecutionTests
         Assert.Equal(1, SingleHandler.ExecutedCount);
     }
 
-    [Fact]
+    [Test]
     public async Task RequestWithoutHandler_DoNotThrowException()
     {
         var services = Factory.CreateServiceProvider();
         await RunRequest(services);
     }
 
-    [Fact]
+    [Test]
     public async Task RequestWithMultipleHandlers_ThrowException()
     {
         var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.RequestHandler, SingleHandler.RequestHandler>();
@@ -38,7 +37,7 @@ public class SingleHandlerExecutionTests
         });
     }
 
-    [Fact]
+    [Test]
     public async Task MessageWithSingleHandler_ExecuteHandler()
     {
         var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler>();
@@ -46,14 +45,14 @@ public class SingleHandlerExecutionTests
         Assert.Equal(1, SingleHandler.ExecutedCount);
     }
 
-    [Fact]
+    [Test]
     public async Task MessageWithoutHandler_DoNotThrowException()
     {
         var services = Factory.CreateServiceProvider();
         await RunMessage(services);
     }
 
-    [Fact]
+    [Test]
     public async Task MessageWithMultipleHandlers_ThrowException()
     {
         var services = Factory.CreateServiceProviderWithHandlers<SingleHandler.MessageHandler, SingleHandler.MessageHandler>();

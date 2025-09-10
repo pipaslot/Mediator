@@ -1,11 +1,10 @@
 ﻿using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
 public class BasicPassing
 {
-    [Fact]
+    [Test]
     public async Task Execute_SuccessAsTrue()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -13,7 +12,7 @@ public class BasicPassing
         Assert.True(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_EmptyErrorMessage()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -21,7 +20,7 @@ public class BasicPassing
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_ResultReturnsDataFromHandler()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -29,7 +28,7 @@ public class BasicPassing
         Assert.Equal(SingleHandler.Response.Instance, result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsResult()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -37,7 +36,7 @@ public class BasicPassing
         Assert.Equal(SingleHandler.Response.Instance, result);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_SuccessAsTrue()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -45,7 +44,7 @@ public class BasicPassing
         Assert.True(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_EmptyErrorMessage()
     {
         var sut = Factory.CreateConfiguredMediator();
@@ -53,7 +52,7 @@ public class BasicPassing
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task DispatchUnhandled_NoAction()
     {
         var sut = Factory.CreateConfiguredMediator();

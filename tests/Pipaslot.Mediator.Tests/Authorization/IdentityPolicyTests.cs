@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Authorization;
 
@@ -14,8 +13,8 @@ public class IdentityPolicyTests
     private const string ClaimName = "Role";
     private const string ClaimValue = "Admin";
 
-    [Theory]
-    [InlineData(false)]
+    [Test]
+    [Arguments(false)]
     public async Task AnonymousPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
     {
         var sut = IdentityPolicy.Anonymous();
@@ -27,9 +26,9 @@ public class IdentityPolicyTests
         Assert.Equal(RuleOutcome.Allow, rule.Outcome);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
     public async Task AuthenticatedPolicy_HasOnlyAuthenticatedRule(bool isAuthenticated)
     {
         var sut = IdentityPolicy.Authenticated();
@@ -39,7 +38,7 @@ public class IdentityPolicyTests
         AssertAuthenticatedRule(rules, isAuthenticated);
     }
 
-    [Fact]
+    [Test]
     public async Task ClaimPolicy_HasClaimRule()
     {
         var claim = new Claim(ClaimName, ClaimValue);
@@ -50,7 +49,7 @@ public class IdentityPolicyTests
         AssertClaimRule(rules, claim, true);
     }
 
-    [Fact]
+    [Test]
     public async Task RolePolicy_HasClaimRule()
     {
         var claim = new Claim(ClaimTypes.Role, ClaimValue);

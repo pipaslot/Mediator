@@ -5,36 +5,40 @@ using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
-
 public class CredibleResultProviderTests
 {
-    [Theory]
-    [InlineData(typeof(CustomResult))]
-    [InlineData(typeof(CustomResult[]))]
-    [InlineData(typeof(List<CustomResult>))]
+    [Test]
+    [Arguments(typeof(CustomResult))]
+    [Arguments(typeof(CustomResult[]))]
+    [Arguments(typeof(List<CustomResult>))]
     public void VerifyCredibility_RegisteredCustomResultType_Pass(Type tested)
     {
-        var sut = Create(c => { }, typeof(CustomResult));
+        var sut = Create(c =>
+        {
+        }, typeof(CustomResult));
         sut.VerifyCredibility(tested);
     }
 
-    [Theory]
-    [InlineData(typeof(CustomResult))]
-    [InlineData(typeof(CustomResult[]))]
-    [InlineData(typeof(List<CustomResult>))]
+    [Test]
+    [Arguments(typeof(CustomResult))]
+    [Arguments(typeof(CustomResult[]))]
+    [Arguments(typeof(List<CustomResult>))]
     public void VerifyCredibility_RegisteredCustomResultTypeAssembly_Pass(Type tested)
     {
-        var sut = CreateForAssembly(c => { }, typeof(CustomResult).Assembly);
+        var sut = CreateForAssembly(c =>
+        {
+        }, typeof(CustomResult).Assembly);
         sut.VerifyCredibility(tested);
     }
 
-    [Fact]
+    [Test]
     public void VerifyCredibility_NonRegisteredCustomResultType_ThrowException()
     {
-        var sut = Create(c => { });
+        var sut = Create(c =>
+        {
+        });
         var exception = Assert.Throws<MediatorHttpException>(() =>
         {
             sut.VerifyCredibility(typeof(CustomResult));
@@ -42,10 +46,12 @@ public class CredibleResultProviderTests
         Assert.Equal(MediatorHttpException.CreateForUnregisteredResultType(typeof(CustomResult)).Message, exception.Message);
     }
 
-    [Fact]
+    [Test]
     public void VerifyCredibility_NonRegisteredActionResultType_ThrowException()
     {
-        var sut = Create(c => { });
+        var sut = Create(c =>
+        {
+        });
         var exception = Assert.Throws<MediatorHttpException>(() =>
         {
             sut.VerifyCredibility(typeof(Result));
@@ -53,10 +59,10 @@ public class CredibleResultProviderTests
         Assert.Equal(MediatorHttpException.CreateForUnregisteredResultType(typeof(Result)).Message, exception.Message);
     }
 
-    [Theory]
-    [InlineData(typeof(Result))]
-    [InlineData(typeof(Result[]))]
-    [InlineData(typeof(List<Result>))]
+    [Test]
+    [Arguments(typeof(Result))]
+    [Arguments(typeof(Result[]))]
+    [Arguments(typeof(List<Result>))]
     public void VerifyCredibility_RegisteredActionResultType_Pass(Type testedType)
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<FakeRequest>());
@@ -80,8 +86,6 @@ public class CredibleResultProviderTests
     }
 
     private class CustomResult;
-
-    private class FakeRequest : IRequest<Result[]>;
-
+    private class FakeRequest : Pipaslot.Mediator.IRequest<Pipaslot.Mediator.Http.Tests.Configuration.CredibleResultProviderTests.Result[]>, Pipaslot.Mediator.IRequest, Pipaslot.Mediator.Abstractions.IMediatorAction<Pipaslot.Mediator.Http.Tests.Configuration.CredibleResultProviderTests.Result[]>, Pipaslot.Mediator.Abstractions.IMediatorAction, Pipaslot.Mediator.Abstractions.IMediatorActionProvidingData;
     private class Result;
 }

@@ -4,7 +4,6 @@ using Pipaslot.Mediator.Authorization.Formatting;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Authorization;
 
@@ -16,7 +15,7 @@ public class PolicyResolverTests
 {
     private readonly Mock<IServiceProvider> _services = new();
 
-    [Fact]
+    [Test]
     public async Task CheckPolicies_NoAuthorization_ThrowException()
     {
         await RunCheckPolicies(
@@ -24,7 +23,7 @@ public class PolicyResolverTests
             AuthorizationExceptionTypes.NoAuthorization);
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_SecuredSyncHandler_ResolveSinglePolicy()
     {
         await RunGetPolicies(
@@ -33,7 +32,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAuthorizationHandler());
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_SecuredAsyncHandler_ResolveSinglePolicy()
     {
         await RunGetPolicies(
@@ -42,7 +41,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAuthorizationAsyncHandler());
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_SecuredAttrHandler_ResolveSinglePolicy()
     {
         await RunGetPolicies(
@@ -51,7 +50,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAttribute());
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_CombineSyncAndAsyncHandler_ResolveTwoPolicies()
     {
         await RunGetPolicies(
@@ -61,7 +60,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAuthorizationAsyncHandler());
     }
 
-    [Fact]
+    [Test]
     public async Task CheckPolicies_MultiHandlersButOneHandlerIsUnsecured_ThrowException()
     {
         await RunCheckPolicies(
@@ -71,7 +70,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAuthorizationAsyncHandler());
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_AuthorizedActionByAttr_ResolveSinglePolicy()
     {
         await RunGetPolicies(
@@ -79,7 +78,7 @@ public class PolicyResolverTests
             1);
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_AuthorizedActionByInterface_ResolveSinglePolicy()
     {
         await RunGetPolicies(
@@ -87,7 +86,7 @@ public class PolicyResolverTests
             1);
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_CombineAllAvailablePolicies_ResolveTwoPolicies()
     {
         await RunGetPolicies(
@@ -98,7 +97,7 @@ public class PolicyResolverTests
             new NoAuthorizationHandlerAuthorizationAsyncHandler());
     }
 
-    [Fact]
+    [Test]
     public async Task GetPolicies_ReadPolicyFromInterfaces()
     {
         await RunGetPolicies(
@@ -107,7 +106,7 @@ public class PolicyResolverTests
     }
 
 
-    [Fact]
+    [Test]
     public async Task CheckPolicies_AuthorizedActionAndSyncAndAsyncHandlersAndUnauthorizedHandler_ThrowException()
     {
         await RunCheckPolicies(

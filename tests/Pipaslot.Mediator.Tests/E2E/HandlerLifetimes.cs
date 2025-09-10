@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
@@ -8,10 +7,10 @@ public class HandlerLifetimes
 {
     #region Manually handled lifecycle
 
-    [Theory]
-    [InlineData(2, ServiceLifetime.Transient)]
-    [InlineData(1, ServiceLifetime.Scoped)]
-    [InlineData(1, ServiceLifetime.Singleton)]
+    [Test]
+    [Arguments(2, ServiceLifetime.Transient)]
+    [Arguments(1, ServiceLifetime.Scoped)]
+    [Arguments(1, ServiceLifetime.Singleton)]
     public async Task NoInterface_Registration_ShareTheSameHandlerInstance(int expectedInstanceCount, ServiceLifetime lifetime)
     {
         var sut = Factory.CreateCustomMediator(c => c
@@ -24,7 +23,7 @@ public class HandlerLifetimes
         Assert.Equal(expectedInstanceCount, InstanceCounterMessageHandler.Instances.Count);
     }
 
-    [Fact]
+    [Test]
     public void MixedReRegistration_Pass()
     {
         var handlerType = typeof(SingletonMessageHandler);
@@ -35,10 +34,10 @@ public class HandlerLifetimes
         );
     }
 
-    [Theory]
-    [InlineData(ServiceLifetime.Transient, ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+    [Test]
+    [Arguments(ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+    [Arguments(ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+    [Arguments(ServiceLifetime.Singleton, ServiceLifetime.Transient)]
     public void ReRegistrationWithDifferentScope_ThrowException(ServiceLifetime initial, ServiceLifetime update)
     {
         var handlerType = typeof(NopMesageHandler);
@@ -56,7 +55,7 @@ public class HandlerLifetimes
 
     #region ISingleton inteface applied to the handler class
 
-    [Fact]
+    [Test]
     public async Task ISingletonInterface_AutomaticRegistration_ShareTheSameHandlerInstance()
     {
         var sut = Factory.CreateCustomMediator(c => c
@@ -69,9 +68,9 @@ public class HandlerLifetimes
         Assert.Single(SingletonMessageHandler.Instances);
     }
 
-    [Theory]
-    //[InlineData(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
-    [InlineData(ServiceLifetime.Scoped)]
+    [Test]
+    //[Arguments(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
+    [Arguments(ServiceLifetime.Scoped)]
     public void ISingletonInterface_Registration_ThrowException(ServiceLifetime lifetime)
     {
         var handlerType = typeof(SingletonMessageHandler);
@@ -85,7 +84,7 @@ public class HandlerLifetimes
         Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, ServiceLifetime.Singleton, lifetime).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void ISingletonInterface_ReRegistration_Pass()
     {
         var handlerType = typeof(SingletonMessageHandler);
@@ -95,7 +94,7 @@ public class HandlerLifetimes
         );
     }
 
-    [Fact]
+    [Test]
     public async Task IScopedInterface_AutomaticRegistration_ShareTheSameHandlerInstance()
     {
         var sut = Factory.CreateCustomMediator(c => c
@@ -108,9 +107,9 @@ public class HandlerLifetimes
         Assert.Single(ScopedMessageHandler.Instances);
     }
 
-    [Theory]
-    //[InlineData(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
-    [InlineData(ServiceLifetime.Singleton)]
+    [Test]
+    //[Arguments(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
+    [Arguments(ServiceLifetime.Singleton)]
     public void IScopedInterface_Registration_ThrowException(ServiceLifetime lifetime)
     {
         var handlerType = typeof(ScopedMessageHandler);
@@ -124,7 +123,7 @@ public class HandlerLifetimes
         Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, ServiceLifetime.Scoped, lifetime).Message, ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void IScopedInterface_ReRegistration_Pass()
     {
         var handlerType = typeof(ScopedMessageHandler);

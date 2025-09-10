@@ -1,13 +1,12 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
 public class NullableDateTime
 {
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
         var value = new DateTime(2020, 01, 01);
@@ -18,7 +17,7 @@ public class NullableDateTime
         Assert.Equal(value, result.Result!.Value);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -27,7 +26,7 @@ public class NullableDateTime
         Assert.Null(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
         var value = new DateTime(2020, 01, 01);
@@ -36,7 +35,7 @@ public class NullableDateTime
         Assert.Equal(value, result!.Value);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();

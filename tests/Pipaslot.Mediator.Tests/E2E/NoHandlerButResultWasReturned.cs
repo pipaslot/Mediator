@@ -1,11 +1,10 @@
 ﻿using Pipaslot.Mediator.Tests.InvalidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
 public class NoHandlerButResultWasReturned
 {
-    [Fact]
+    [Test]
     public async Task Execute_Success()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RequestWithoutHandlerAttacheResultMilldeware>());
@@ -14,7 +13,7 @@ public class NoHandlerButResultWasReturned
         Assert.Equal(typeof(RequestWithoutHandler.ResultDto), result.Result.GetType());
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_Success()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RequestWithoutHandlerAttacheResultMilldeware>());

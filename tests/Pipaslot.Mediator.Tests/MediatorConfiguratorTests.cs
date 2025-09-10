@@ -7,10 +7,10 @@ namespace Pipaslot.Mediator.Tests;
 
 public class MediatorConfiguratorTests
 {
-    [Theory]
-    [InlineData(typeof(SingleHandler.Message), true)]
-    [InlineData(typeof(NonActionType), false)]
-    [InlineData(typeof(SingleHandler.Request), true)]
+    [Test]
+    [Arguments(typeof(SingleHandler.Message), true)]
+    [Arguments(typeof(NonActionType), false)]
+    [Arguments(typeof(SingleHandler.Request), true)]
     public void AddActions_ActionTypePassed(Type type, bool shouldPass)
     {
         var sut = Create();
@@ -27,7 +27,7 @@ public class MediatorConfiguratorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void AddHandlers_NonHandlerTypePassed_ThrowException()
     {
         var sut = Create();
@@ -37,7 +37,7 @@ public class MediatorConfiguratorTests
         });
     }
 
-    [Fact]
+    [Test]
     public void AddHandlers_HandlerTypePassed_Pass()
     {
         var sut = Create();

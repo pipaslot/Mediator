@@ -3,39 +3,31 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Collections.Generic;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
-
-public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestBase
+public class JsonContractSerializer_CommonTests : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase
 {
-    [Fact]
+    [Test]
     public void DeserializeRequest_FromJsonWithShortFormat()
     {
         var sut = CreateSerializer();
-
-        var serialized =
-            @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
+        var serialized = @"{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}";
         var deserialized = sut.DeserializeRequest(serialized, []);
-
         Assert.True(Match((ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract)deserialized));
     }
 
-    [Fact]
+    [Test]
     public void DeserializeResponse_FromJsonWithShortFormat()
     {
         var sut = CreateSerializer();
-
-        var serialized =
-            @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}],""ErrorMessages"":[]}";
+        var serialized = @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializer_CommonTestBase\u002BPublicPropertyGetterAndInitSetterContract, Pipaslot.Mediator.Http.Tests"",""Name"":""JSON name"",""Number"":6,""Collection"":[""AAA"",""BBB""],""Nested"":{""Value"":1.2}}],""ErrorMessages"":[]}";
         var deserialized = sut.DeserializeResponse<PublicPropertyGetterAndInitSetterContract>(serialized);
-
         Assert.True(Match(deserialized.Result));
     }
 
     public class MessageWithInterfaceProperty : IMessage
     {
-        public IContract Contract { get; init; } = null!;
+        public IContract Contract { get; init; } = null !;
     }
 
     public class MessageWithInterfaceArrayProperty : IMessage
@@ -49,7 +41,6 @@ public class JsonContractSerializer_CommonTests : ContractSerializer_CommonTestB
     }
 
     public new interface IContract;
-
     public class Contract : IContract
     {
         public string Name { get; init; } = string.Empty;

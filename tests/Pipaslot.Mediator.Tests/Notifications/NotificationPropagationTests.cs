@@ -4,7 +4,6 @@ using Pipaslot.Mediator.Notifications;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Notifications;
 
@@ -12,46 +11,46 @@ public class NotificationPropagationTests
 {
     private const string NotificationContent = "Hi, I am Elfo!";
 
-    [Theory]
-    [InlineData(ServiceType.NotificationProvider, 0, false, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.NotificationProvider, 0, false, false, true)]
-    [InlineData(ServiceType.NotificationProvider, 1, false, true, false)]
-    [InlineData(ServiceType.NotificationProvider, 1, false, false, true)]
-    [InlineData(ServiceType.NotificationProvider, 2, false, true, false)]
-    [InlineData(ServiceType.NotificationProvider, 2, false, false, true)]
+    [Test]
+    [Arguments(ServiceType.NotificationProvider, 0, false, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.NotificationProvider, 0, false, false, true)]
+    [Arguments(ServiceType.NotificationProvider, 1, false, true, false)]
+    [Arguments(ServiceType.NotificationProvider, 1, false, false, true)]
+    [Arguments(ServiceType.NotificationProvider, 2, false, true, false)]
+    [Arguments(ServiceType.NotificationProvider, 2, false, false, true)]
     // stop propagation in set to false by middleware
-    [InlineData(ServiceType.NotificationProvider, 0, true, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.NotificationProvider, 0, true, false, true)]
-    [InlineData(ServiceType.NotificationProvider, 1, true, true, false)]
-    [InlineData(ServiceType.NotificationProvider, 1, true, false, false)]
-    [InlineData(ServiceType.NotificationProvider, 2, true, true, false)]
-    [InlineData(ServiceType.NotificationProvider, 2, true, false, false)]
-    [InlineData(ServiceType.ContextAccessor, 0, false, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.ContextAccessor, 0, false, false, true)]
-    [InlineData(ServiceType.ContextAccessor, 1, false, true, false)]
-    [InlineData(ServiceType.ContextAccessor, 1, false, false, true)]
-    [InlineData(ServiceType.ContextAccessor, 2, false, true, false)]
-    [InlineData(ServiceType.ContextAccessor, 2, false, false, true)]
+    [Arguments(ServiceType.NotificationProvider, 0, true, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.NotificationProvider, 0, true, false, true)]
+    [Arguments(ServiceType.NotificationProvider, 1, true, true, false)]
+    [Arguments(ServiceType.NotificationProvider, 1, true, false, false)]
+    [Arguments(ServiceType.NotificationProvider, 2, true, true, false)]
+    [Arguments(ServiceType.NotificationProvider, 2, true, false, false)]
+    [Arguments(ServiceType.ContextAccessor, 0, false, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.ContextAccessor, 0, false, false, true)]
+    [Arguments(ServiceType.ContextAccessor, 1, false, true, false)]
+    [Arguments(ServiceType.ContextAccessor, 1, false, false, true)]
+    [Arguments(ServiceType.ContextAccessor, 2, false, true, false)]
+    [Arguments(ServiceType.ContextAccessor, 2, false, false, true)]
     // stop propagation in set to false by middleware
-    [InlineData(ServiceType.ContextAccessor, 0, true, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.ContextAccessor, 0, true, false, true)]
-    [InlineData(ServiceType.ContextAccessor, 1, true, true, false)]
-    [InlineData(ServiceType.ContextAccessor, 1, true, false, false)]
-    [InlineData(ServiceType.ContextAccessor, 2, true, true, false)]
-    [InlineData(ServiceType.ContextAccessor, 2, true, false, false)]
-    [InlineData(ServiceType.Facade, 0, false, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.Facade, 0, false, false, true)]
-    [InlineData(ServiceType.Facade, 1, false, true, false)]
-    [InlineData(ServiceType.Facade, 1, false, false, true)]
-    [InlineData(ServiceType.Facade, 2, false, true, false)]
-    [InlineData(ServiceType.Facade, 2, false, false, true)]
+    [Arguments(ServiceType.ContextAccessor, 0, true, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.ContextAccessor, 0, true, false, true)]
+    [Arguments(ServiceType.ContextAccessor, 1, true, true, false)]
+    [Arguments(ServiceType.ContextAccessor, 1, true, false, false)]
+    [Arguments(ServiceType.ContextAccessor, 2, true, true, false)]
+    [Arguments(ServiceType.ContextAccessor, 2, true, false, false)]
+    [Arguments(ServiceType.Facade, 0, false, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.Facade, 0, false, false, true)]
+    [Arguments(ServiceType.Facade, 1, false, true, false)]
+    [Arguments(ServiceType.Facade, 1, false, false, true)]
+    [Arguments(ServiceType.Facade, 2, false, true, false)]
+    [Arguments(ServiceType.Facade, 2, false, false, true)]
     // stop propagation in set to false by middleware
-    [InlineData(ServiceType.Facade, 0, true, true, true)] //Stop propagation does not have effect when no nesting
-    [InlineData(ServiceType.Facade, 0, true, false, true)]
-    [InlineData(ServiceType.Facade, 1, true, true, false)]
-    [InlineData(ServiceType.Facade, 1, true, false, false)]
-    [InlineData(ServiceType.Facade, 2, true, true, false)]
-    [InlineData(ServiceType.Facade, 2, true, false, false)]
+    [Arguments(ServiceType.Facade, 0, true, true, true)] //Stop propagation does not have effect when no nesting
+    [Arguments(ServiceType.Facade, 0, true, false, true)]
+    [Arguments(ServiceType.Facade, 1, true, true, false)]
+    [Arguments(ServiceType.Facade, 1, true, false, false)]
+    [Arguments(ServiceType.Facade, 2, true, true, false)]
+    [Arguments(ServiceType.Facade, 2, true, false, false)]
     public async Task TestPropagation(ServiceType serviceType, int depth, bool cancelPropagationByMiddleware, bool stopPropagation,
         bool shouldHaveNotification)
     {
@@ -60,11 +59,11 @@ public class NotificationPropagationTests
         var notifications = res.Results.Where(r => r is Notification).Cast<Notification>().ToList();
         if (shouldHaveNotification)
         {
-            Assert.Single(notifications);
+            await Assert.That(notifications.Count).IsEqualTo(1);
         }
         else
         {
-            Assert.Empty(notifications);
+            await Assert.That(notifications.Count).IsEqualTo(0);
         }
     }
 

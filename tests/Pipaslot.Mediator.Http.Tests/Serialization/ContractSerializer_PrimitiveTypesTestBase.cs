@@ -1,50 +1,48 @@
-﻿using Xunit;
-
-namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public abstract class ContractSerializer_PrimitiveTypesTestBase : ContractSerializerBaseTest
+﻿namespace Pipaslot.Mediator.Http.Tests.Serialization;
+public abstract class ContractSerializer_PrimitiveTypesTestBase : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public void Boolean(bool result)
     {
         Test(result);
     }
 
-    [Theory]
-    [InlineData(-100)]
-    [InlineData(0)]
-    [InlineData(100)]
+    [Test]
+    [Arguments(-100)]
+    [Arguments(0)]
+    [Arguments(100)]
     public void Integer(int result)
     {
         Test(result);
     }
 
-    [Theory]
-    [InlineData(-100f)]
-    [InlineData(0f)]
-    [InlineData(100f)]
+    [Test]
+    [Arguments(-100f)]
+    [Arguments(0f)]
+    [Arguments(100f)]
     public void Float(float result)
     {
         Test(result);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("HAHA")]
+    [Test]
+    [Arguments("")]
+    [Arguments("HAHA")]
     public void String(string result)
     {
         Test(result);
     }
 
-    [Fact]
+    [Test]
     public void NullActionResult()
     {
         Test(new NullActionResult());
     }
 
-    protected void Test<T>(T result) where T : notnull
+    protected void Test<T>(T result)
+        where T : notnull
     {
         var sut = CreateSerializer();
         var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));

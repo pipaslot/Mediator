@@ -1,12 +1,11 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
 public class NullableObject
 {
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -15,7 +14,7 @@ public class NullableObject
         Assert.NotNull(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task Execute_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -24,7 +23,7 @@ public class NullableObject
         Assert.Null(result.Result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -32,7 +31,7 @@ public class NullableObject
         Assert.NotNull(result);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();

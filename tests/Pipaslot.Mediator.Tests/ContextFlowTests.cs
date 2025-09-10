@@ -4,7 +4,6 @@ using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
@@ -12,120 +11,118 @@ public class ContextFlowTests
 {
     private readonly ContextFlow _flow = new();
 
-    [Fact]
-    public void GetCurrent_ReturnsTheLast()
+    [Test]
+    public async Task GetCurrent_ReturnsTheLast()
     {
         _flow.Add(CreateContext(1));
         _flow.Add(CreateContext(2));
-        AssertDepth(2, _flow.GetCurrent());
+        await AssertDepth(2, _flow.GetCurrent());
     }
 
-    [Fact]
-    public void ToArray_FirstIsTheCurrent()
+    [Test]
+    public async Task ToArray_FirstIsTheCurrent()
     {
         _flow.Add(CreateContext(1));
         _flow.Add(CreateContext(2));
-        AssertDepth(2, _flow.ToArray().First());
+        await AssertDepth(2, _flow.ToArray().First());
     }
 
-    [Fact]
-    public void ToArray_LastIsTheRootOne()
+    [Test]
+    public async Task ToArray_LastIsTheRootOne()
     {
         _flow.Add(CreateContext(1));
         _flow.Add(CreateContext(2));
-        AssertDepth(1, _flow.ToArray().Last());
+        await AssertDepth(1, _flow.ToArray().Last());
     }
 
-    [Fact]
+    [Test]
     public async Task Flow_AddInSequence()
     {
-        AssertCount(0);
+        await AssertCount(0);
         await TriggerAction(1, AssertCountFunc(1));
-        AssertCount(0);
+        await AssertCount(0);
         await TriggerAction(1, AssertCountFunc(1));
-        AssertCount(0);
+        await AssertCount(0);
     }
 
     /// <summary>
     /// Simulate use case when we trigger another action from already processed action
     /// </summary>
-    [Fact]
+    [Test]
     public async Task Flow_AddInSequenceNested()
     {
-        AssertCount(0);
+        await AssertCount(0);
         await TriggerAction(1, async () =>
         {
-            AssertCount(1);
+            await AssertCount(1);
             await TriggerAction(2, AssertCountFunc(2));
-            AssertCount(1);
+            await AssertCount(1);
             await TriggerAction(2, AssertCountFunc(2));
-            AssertCount(1);
+            await AssertCount(1);
         });
-        AssertCount(0);
+        await AssertCount(0);
         await TriggerAction(1, async () =>
         {
-            AssertCount(1);
+            await AssertCount(1);
             await TriggerAction(2, AssertCountFunc(2));
-            AssertCount(1);
+            await AssertCount(1);
             await TriggerAction(2, AssertCountFunc(2));
-            AssertCount(1);
+            await AssertCount(1);
         });
-        AssertCount(0);
+        await AssertCount(0);
     }
 
-    [Fact]
+    [Test]
     public async Task Flow_AddInParallel()
     {
-        AssertCount(0);
+        await AssertCount(0);
         var actions = Enumerable.Range(1, 2)
             .Select(i => TriggerAction(1, AssertCountFunc(1)))
             .ToArray();
         await Task.WhenAll(actions);
-        AssertCount(0);
+        await AssertCount(0);
     }
 
     /// <summary>
     /// Simulate use case when we trigger another action from already processed action (in paralle/concurrently)
     /// </summary>
-    [Fact]
+    [Test]
     public async Task Flow_AddInParallelNested()
     {
-        AssertCount(0);
+        await AssertCount(0);
         var actions = Enumerable.Range(1, 2)
             .Select(i => TriggerAction(1, async () =>
             {
-                AssertCount(1);
+                await AssertCount(1);
                 await TriggerAction(2, AssertCountFunc(2));
-                AssertCount(1);
+                await AssertCount(1);
                 await TriggerAction(2, AssertCountFunc(2));
-                AssertCount(1);
+                await AssertCount(1);
             }))
             .ToArray();
         await Task.WhenAll(actions);
-        AssertCount(0);
+        await AssertCount(0);
     }
 
     /// <summary>
     /// Prevent System.InvalidOperationException: Collection was modified after the enumerator was instantiated.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ConcurrencyAccess_ShouldNotFail()
     {
         var actions = Enumerable.Range(1, 1000)
             .Select(i => TriggerAction(1, async () =>
             {
                 await Task.Yield(); // force asynchronous context switch
-                await TriggerAction(2, () =>
+                await TriggerAction(2, async () =>
                 {
                     var current = _flow.GetCurrent();
-                    Assert.NotNull(current);
-                    return Task.CompletedTask;
+                    await Assert.That(current).IsNotNull();
                 });
-                await TriggerAction(2, () =>
+                await TriggerAction(2, async () =>
                 {
                     var current = _flow.GetCurrent();
-                    Assert.NotNull(current);
-                    return Task.CompletedTask;
+                    await Assert.That(current).IsNotNull();
                 });
             }))
             .ToArray();
@@ -144,17 +141,16 @@ public class ContextFlowTests
 
     private Func<Task> AssertCountFunc(int expected)
     {
-        return () =>
+        return async () =>
         {
-            AssertCount(expected);
-            return Task.CompletedTask;
+            await AssertCount(expected);
         };
     }
 
-    private void AssertCount(int expected)
+    private async Task AssertCount(int expected)
     {
         var asArray = _flow.ToArray();
-        Assert.Equal(expected, asArray.Count());
+        await Assert.That(asArray.Count()).IsEqualTo(expected);
 
         var expectedRange = Enumerable
             .Range(1, expected)
@@ -163,13 +159,13 @@ public class ContextFlowTests
             .Select(context => ((FakeAction)context.Action).Depth)
             .Reverse()
             .ToArray();
-        Assert.Equal(expectedRange, actual);
+        await Assert.That(actual).IsEqualTo(expectedRange);
     }
 
-    private void AssertDepth(int expected, MediatorContext? context)
+    private async Task AssertDepth(int expected, MediatorContext? context)
     {
         var actual = (context?.Action as FakeAction)?.Depth ?? -1;
-        Assert.Equal(expected, actual);
+        await Assert.That(actual).IsEqualTo(expected);
     }
 
 

@@ -4,33 +4,33 @@ namespace Pipaslot.Mediator.Tests.Authorization;
 
 public class Rule_OperatorTests
 {
-    [Fact]
-    public void Add_TwoRules_AndRuleSet()
+    [Test]
+    public async Task Add_TwoRules_AndRuleSet()
     {
         var combined = Rule.AllowOrDeny(true)
                        + Rule.AllowOrDeny(true);
-        AssertTwoRules(combined, Operator.Add);
+        await AssertTwoRules(combined, Operator.Add);
     }
 
-    [Fact]
-    public void And_TwoRules_AndRuleSet()
+    [Test]
+    public async Task And_TwoRules_AndRuleSet()
     {
         var combined = Rule.AllowOrDeny(true)
                        & Rule.AllowOrDeny(true);
-        AssertTwoRules(combined, Operator.And);
+        await AssertTwoRules(combined, Operator.And);
     }
 
-    [Fact]
-    public void Or_TwoRules_OrRuleSet()
+    [Test]
+    public async Task Or_TwoRules_OrRuleSet()
     {
         var combined = Rule.AllowOrDeny(true)
                        | Rule.AllowOrDeny(true);
-        AssertTwoRules(combined, Operator.Or);
+        await AssertTwoRules(combined, Operator.Or);
     }
 
-    private static void AssertTwoRules(RuleSet combined, Operator expectedOperator)
+    private static async Task AssertTwoRules(RuleSet combined, Operator expectedOperator)
     {
-        Assert.Equal(expectedOperator, combined.Operator);
-        Assert.Equal(2, combined.Rules.Count);
+        await Assert.That(combined.Operator).IsEqualTo(expectedOperator);
+        await Assert.That(combined.Rules.Count).IsEqualTo(2);
     }
 }

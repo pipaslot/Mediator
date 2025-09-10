@@ -1,12 +1,11 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.InvalidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
 public class ResultWasTakenFromTheContext
 {
-    [Fact]
+    [Test]
     public async Task Execute_ReturnFailureBecauseNotResultWasFound()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
@@ -18,7 +17,7 @@ public class ResultWasTakenFromTheContext
             result.GetErrorMessage());
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ThrowMissingResultException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());

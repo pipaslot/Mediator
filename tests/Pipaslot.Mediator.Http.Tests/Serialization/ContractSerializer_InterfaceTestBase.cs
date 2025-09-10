@@ -1,10 +1,7 @@
-﻿using Xunit;
-
-namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public abstract class ContractSerializer_InterfaceTestBase : ContractSerializerBaseTest
+﻿namespace Pipaslot.Mediator.Http.Tests.Serialization;
+public abstract class ContractSerializer_InterfaceTestBase : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
-    [Fact]
+    [Test]
     public void Response_ResultTypeIsInterface_WillKeepTheResultType()
     {
         var sut = CreateSerializer();
@@ -15,7 +12,6 @@ public abstract class ContractSerializer_InterfaceTestBase : ContractSerializerB
     }
 
     public interface IResult;
-
     public class Result : IResult
     {
         public int Index { get; set; }

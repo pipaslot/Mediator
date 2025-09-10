@@ -3,13 +3,11 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
-
 public class CredibleActionProviderTests
 {
-    [Fact]
+    [Test]
     public void VerifyCredibility_ContractTypeIsNotFromRegisteredAssembly_ThrowException()
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<IMediator>());
@@ -17,7 +15,7 @@ public class CredibleActionProviderTests
         Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
     }
 
-    [Fact]
+    [Test]
     public void VerifyCredibility_RegisteredContractTypeNotImplementingIActionMarkerInterface_ThrowException()
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
@@ -25,7 +23,7 @@ public class CredibleActionProviderTests
         Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
     }
 
-    [Fact]
+    [Test]
     public void VerifyCredibility_ContractTypeIsFromRegisteredAssembly_Pass()
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<FakeContract>());
@@ -40,7 +38,6 @@ public class CredibleActionProviderTests
         return new CredibleActionProvider(configurator, customTypes, []);
     }
 
-    public class FakeContract : IMessage;
-
+    public class FakeContract : Pipaslot.Mediator.IMessage, Pipaslot.Mediator.Abstractions.IMediatorAction;
     public class FakeNonContract;
 }

@@ -5,7 +5,7 @@ namespace Pipaslot.Mediator.Tests.Notifications;
 
 public class NotificationTests
 {
-    [Fact]
+    [Test]
     public void TwoSameNotificationsAreEqualEvenIfDifferentTime()
     {
         var notification = Create();
@@ -13,7 +13,7 @@ public class NotificationTests
         Compare(notification, true);
     }
 
-    [Fact]
+    [Test]
     public void NotificationWithDifferentType_AreNotEqual()
     {
         var notification = Create();
@@ -21,7 +21,7 @@ public class NotificationTests
         Compare(notification, false);
     }
 
-    [Fact]
+    [Test]
     public void NotificationWithDifferentSource_AreNotEqual()
     {
         var notification = Create();
@@ -29,7 +29,7 @@ public class NotificationTests
         Compare(notification, false);
     }
 
-    [Fact]
+    [Test]
     public void NotificationWithDifferentContent_AreNotEqual()
     {
         var notification = Create();

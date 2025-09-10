@@ -1,6 +1,5 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
@@ -9,7 +8,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// </summary>
 public class FailingHandlerButWithConsumedException
 {
-    [Fact]
+    [Test]
     public async Task Execute_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
@@ -17,7 +16,7 @@ public class FailingHandlerButWithConsumedException
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteUnhandled_ThrowMediatorException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
@@ -28,7 +27,7 @@ public class FailingHandlerButWithConsumedException
         // We do not care about the message here
     }
 
-    [Fact]
+    [Test]
     public async Task Dispatch_SuccessAsFalse()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
@@ -36,7 +35,7 @@ public class FailingHandlerButWithConsumedException
         Assert.False(result.Success);
     }
 
-    [Fact]
+    [Test]
     public async Task DispatchUnhandled_ThrowMediatorException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());

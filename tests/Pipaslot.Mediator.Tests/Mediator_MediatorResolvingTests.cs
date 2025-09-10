@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Middlewares;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
@@ -9,7 +8,7 @@ public class Mediator_MediatorResolvingTests
     /// Check that middleware will be resolved only when should be executed.
     /// </summary>
     /// <returns></returns>
-    [Fact]
+    [Test]
     public async Task PreviousMiddlewareEndsProcessing_TestedMiddlewareWontBeConstructed()
     {
         var sut = Factory.CreateConfiguredMediator(m =>
@@ -19,7 +18,7 @@ public class Mediator_MediatorResolvingTests
                 .Use<TestedMiddleware>();
         });
         await sut.Dispatch(new ValidActions.NopMessage());
-        Assert.False(TestedMiddleware.WasConstructed);
+        await Assert.That(TestedMiddleware.WasConstructed).IsFalse();
     }
 
     public class BlockingMiddleware : IMediatorMiddleware

@@ -1,26 +1,45 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
-
-public abstract class ContractSerializer_ArrayTestBase : ContractSerializerBaseTest
+public abstract class ContractSerializer_ArrayTestBase : Pipaslot.Mediator.Http.Tests.Serialization.ContractSerializerBaseTest
 {
-    [Fact]
+    [Test]
     public void Response_ResultTypeIsArray_Deserialize()
     {
-        var collection = new Result[] { new() { Index = 1 }, new() { Index = 2 } };
+        var collection = new Result[]
+        {
+            new()
+            {
+                Index = 1
+            },
+            new()
+            {
+                Index = 2
+            }
+        };
         DeserializeCollection(collection);
     }
 
-    [Fact]
+    [Test]
     public void Response_ResultTypeIsList_Deserialize()
     {
-        var collection = new List<Result> { new() { Index = 1 }, new() { Index = 2 } };
+        var collection = new List<Result>
+        {
+            new()
+            {
+                Index = 1
+            },
+            new()
+            {
+                Index = 2
+            }
+        };
         DeserializeCollection(collection);
     }
 
-    private void DeserializeCollection<T>(T result) where T : ICollection<Result>
+    private void DeserializeCollection<T>(T result)
+        where T : ICollection<Result>
     {
         var sut = CreateSerializer();
         var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));

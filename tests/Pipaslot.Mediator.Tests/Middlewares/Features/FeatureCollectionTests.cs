@@ -5,7 +5,7 @@ namespace Pipaslot.Mediator.Tests.Middlewares.Features;
 
 public class FeatureCollectionTests
 {
-    [Fact]
+    [Test]
     public void AddedInterfaceIsReturned()
     {
         var interfaces = new FeatureCollection();
@@ -17,7 +17,7 @@ public class FeatureCollectionTests
         Assert.Equal(thing2, thing);
     }
 
-    [Fact]
+    [Test]
     public void IndexerAlsoAddsItems()
     {
         var interfaces = new FeatureCollection();
@@ -27,7 +27,7 @@ public class FeatureCollectionTests
         Assert.Equal(interfaces[typeof(IThing)], thing);
     }
 
-    [Fact]
+    [Test]
     public void SetNullValueRemoves()
     {
         var interfaces = new FeatureCollection();
@@ -42,7 +42,7 @@ public class FeatureCollectionTests
         Assert.Null(thing2);
     }
 
-    [Fact]
+    [Test]
     public void GetMissingStructFeatureThrows()
     {
         var interfaces = new FeatureCollection();
@@ -54,7 +54,7 @@ public class FeatureCollectionTests
             ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void GetMissingFeatureReturnsNull()
     {
         var interfaces = new FeatureCollection();
@@ -62,7 +62,7 @@ public class FeatureCollectionTests
         Assert.Null(interfaces.Get<Thing>());
     }
 
-    [Fact]
+    [Test]
     public void GetStructFeature()
     {
         var interfaces = new FeatureCollection();
@@ -72,7 +72,7 @@ public class FeatureCollectionTests
         Assert.Equal(value, interfaces.Get<int>());
     }
 
-    [Fact]
+    [Test]
     public void GetNullableStructFeatureWhenSetWithNonNullableStruct()
     {
         var interfaces = new FeatureCollection();
@@ -82,7 +82,7 @@ public class FeatureCollectionTests
         Assert.Null(interfaces.Get<int?>());
     }
 
-    [Fact]
+    [Test]
     public void GetNullableStructFeatureWhenSetWithNullableStruct()
     {
         var interfaces = new FeatureCollection();
@@ -92,7 +92,7 @@ public class FeatureCollectionTests
         Assert.Equal(value, interfaces.Get<int?>());
     }
 
-    [Fact]
+    [Test]
     public void GetFeature()
     {
         var interfaces = new FeatureCollection();

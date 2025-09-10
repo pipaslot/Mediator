@@ -1,13 +1,12 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
 public class ReduceDuplicateProcessingMiddlewareTests
 {
-    [Fact]
+    [Test]
     public async Task RunSingleAction_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -19,7 +18,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         Assert.True(res.Result.Number > 0);
     }
 
-    [Fact]
+    [Test]
     public async Task RunTheSameInstanceActionTwice_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -32,7 +31,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         Assert.NotEqual(res1.Result.Number, res2.Result.Number);
     }
 
-    [Fact]
+    [Test]
     public async Task RunDuplicateTheSameTypeAction_ShouldRuntTwice()
     {
         var action = new FakeAction { Value = 1 };
@@ -46,7 +45,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         Assert.NotEqual(res1.Result.Number, res2.Result.Number);
     }
 
-    [Fact]
+    [Test]
     public async Task RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -63,7 +62,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         Assert.Equal(res1.Result.Number, res2.Result.Number);
     }
 
-    [Fact]
+    [Test]
     public async Task RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -80,7 +79,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
         Assert.NotEqual(res1.Result.Number, res2.Result.Number);
     }
 
-    [Fact]
+    [Test]
     public async Task RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>

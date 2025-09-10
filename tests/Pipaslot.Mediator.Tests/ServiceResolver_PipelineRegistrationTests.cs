@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
@@ -12,9 +11,9 @@ public class ServiceResolver_PipelineRegistrationTests
     private const string Result1 = "result1";
     private const string Result2 = "result2";
 
-    [Theory]
-    [InlineData(typeof(FakeAction1), Result1)]
-    [InlineData(typeof(FakeAction2), Result2)]
+    [Test]
+    [Arguments(typeof(FakeAction1), Result1)]
+    [Arguments(typeof(FakeAction2), Result2)]
     public async Task AddPipeline_PipelinesWithUniqueNamesWillBeResolvedIndependently(Type actionType, string expectedResult)
     {
         var sp = Factory.CreateServiceProvider(c => c
@@ -32,7 +31,7 @@ public class ServiceResolver_PipelineRegistrationTests
         await AssertAction(sp, actionType, expectedResult);
     }
 
-    [Fact]
+    [Test]
     public async Task AddPipeline_WithCustomSpecifiedName_PipelineWithTheSameIdentifier_ReplaceFirst()
     {
         var name = "pipenineName";
@@ -51,7 +50,7 @@ public class ServiceResolver_PipelineRegistrationTests
         await AssertAction(sp, typeof(FakeAction1), Result2);
     }
 
-    [Fact]
+    [Test]
     public async Task AddPipelineForAction_PipelineWithTheSameIdentifier_ReplaceFirst()
     {
         var sp = Factory.CreateServiceProvider(c => c

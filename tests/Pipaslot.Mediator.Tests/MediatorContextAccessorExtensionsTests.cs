@@ -43,7 +43,7 @@ public class MediatorContextAccessorExtensionsTests
         );
     }
 
-    [Fact]
+    [Test]
     public void GetRootContextFeature_ShouldReturnNull_WhenRootContextIsNull()
     {
         var accessor = new MockMediatorContextAccessor(null);
@@ -53,7 +53,7 @@ public class MediatorContextAccessorExtensionsTests
         Assert.Null(result);
     }
 
-    [Fact]
+    [Test]
     public void GetRootContextFeature_ShouldReturnFeature_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();
@@ -69,7 +69,7 @@ public class MediatorContextAccessorExtensionsTests
         Assert.Equal(featureValue, result);
     }
 
-    [Fact]
+    [Test]
     public void SetRootContextFeature_ShouldReturnFalse_WhenRootContextIsNull()
     {
         var accessor = new MockMediatorContextAccessor(null);
@@ -80,7 +80,7 @@ public class MediatorContextAccessorExtensionsTests
         Assert.False(result);
     }
 
-    [Fact]
+    [Test]
     public void SetRootContextFeature_ShouldReturnTrue_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();

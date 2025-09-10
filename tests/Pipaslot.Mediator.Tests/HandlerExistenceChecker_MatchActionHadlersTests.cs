@@ -4,66 +4,68 @@ using Pipaslot.Mediator.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
 public class HandlerExistenceChecker_MatchActionHadlersTests
 {
-    [Theory]
-    [InlineData(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(SequenceMessageHandler) })]
-    [InlineData(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(SingleMessageHandler) })]
-    [InlineData(typeof(Message), new[] { typeof(SequenceMessageHandler), typeof(SingleMessageHandler) })]
-    [InlineData(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(SequenceRequestHandler) })]
-    [InlineData(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(SingleRequestHandler) })]
-    [InlineData(typeof(Request), new[] { typeof(SequenceRequestHandler), typeof(SingleRequestHandler) })]
-    public void TestCombineInvalid(Type subject, Type[] handlers)
+    [Test]
+    [Arguments(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(SequenceMessageHandler) })]
+    [Arguments(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(SingleMessageHandler) })]
+    [Arguments(typeof(Message), new[] { typeof(SequenceMessageHandler), typeof(SingleMessageHandler) })]
+    [Arguments(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(SequenceRequestHandler) })]
+    [Arguments(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(SingleRequestHandler) })]
+    [Arguments(typeof(Request), new[] { typeof(SequenceRequestHandler), typeof(SingleRequestHandler) })]
+    public async Task TestCombineInvalid(Type subject, Type[] handlers)
     {
         var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
-        var exception = Assert.Throws<MediatorException>(() =>
+        var exception = await Assert.That(() =>
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-        });
-        CompareExceptions(MediatorException.CreateForCanNotCombineHandlers(subject, handlers), exception);
+        }).Throws<MediatorException>();
+        await CompareExceptions(MediatorException.CreateForCanNotCombineHandlers(subject, handlers), exception);
     }
 
-    [Theory]
-    [InlineData(typeof(Message), new[] { typeof(SingleMessageHandler) })]
-    [InlineData(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(ConcurrentMessage2Handler) })]
-    [InlineData(typeof(Message), new[] { typeof(SequenceMessageHandler), typeof(SequenceMessage2Handler) })]
-    [InlineData(typeof(Request), new[] { typeof(SingleRequestHandler) })]
-    [InlineData(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(ConcurrentRequest2Handler) })]
-    [InlineData(typeof(Request), new[] { typeof(SequenceRequestHandler), typeof(SequenceRequest2Handler) })]
-    public void TestCombineValid(Type subject, Type[] handlers)
+    [Test]
+    [Arguments(typeof(Message), new[] { typeof(SingleMessageHandler) })]
+    [Arguments(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(ConcurrentMessage2Handler) })]
+    [Arguments(typeof(Message), new[] { typeof(SequenceMessageHandler), typeof(SequenceMessage2Handler) })]
+    [Arguments(typeof(Request), new[] { typeof(SingleRequestHandler) })]
+    [Arguments(typeof(Request), new[] { typeof(ConcurrentRequestHandler), typeof(ConcurrentRequest2Handler) })]
+    [Arguments(typeof(Request), new[] { typeof(SequenceRequestHandler), typeof(SequenceRequest2Handler) })]
+    public async Task TestCombineValid(Type subject, Type[] handlers)
     {
         var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
-        sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
+        await Assert.That(() =>
+        {
+            sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
+        }).DoesNotThrow();
     }
 
-    [Theory]
-    [InlineData(typeof(Message))]
-    [InlineData(typeof(Request))]
-    public void TestNoHandler(Type subject)
+    [Test]
+    [Arguments(typeof(Message))]
+    [Arguments(typeof(Request))]
+    public async Task TestNoHandler(Type subject)
     {
         var sut = CreateServiceProviderWithHandlersAndActions([], subject);
-        var exception = Assert.Throws<MediatorException>(() =>
+        var exception = await Assert.That(() =>
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-        });
-        CompareExceptions(MediatorExecutionException.CreateForNoHandler(subject), exception);
+        }).Throws<MediatorException>();
+        await CompareExceptions(MediatorExecutionException.CreateForNoHandler(subject), exception);
     }
 
-    [Theory]
-    [InlineData(typeof(Message), new[] { typeof(SingleMessageHandler), typeof(SingleMessage2Handler) })]
-    [InlineData(typeof(Request), new[] { typeof(SingleRequestHandler), typeof(SingleRequest2Handler) })]
-    public void TestSingleInvalid(Type subject, Type[] handlers)
+    [Test]
+    [Arguments(typeof(Message), new[] { typeof(SingleMessageHandler), typeof(SingleMessage2Handler) })]
+    [Arguments(typeof(Request), new[] { typeof(SingleRequestHandler), typeof(SingleRequest2Handler) })]
+    public async Task TestSingleInvalid(Type subject, Type[] handlers)
     {
         var sut = CreateServiceProviderWithHandlersAndActions(handlers, subject);
-        var exception = Assert.Throws<MediatorException>(() =>
+        var exception = await Assert.That(() =>
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-        });
-        CompareExceptions(MediatorException.CreateForDuplicateHandlers(subject, handlers), exception);
+        }).Throws<MediatorException>();
+        await CompareExceptions(MediatorException.CreateForDuplicateHandlers(subject, handlers), exception);
     }
 
     private IHandlerExistenceChecker CreateServiceProviderWithHandlersAndActions(Type[] handlers, Type subject)
@@ -77,12 +79,12 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
         return sp.GetRequiredService<IHandlerExistenceChecker>();
     }
 
-    private void CompareExceptions(MediatorException expected, MediatorException actual)
+    private async Task CompareExceptions(MediatorException expected, MediatorException actual)
     {
         var data = actual.Data.GetEnumerator();
         data.MoveNext();
         var msg = (string)(data.Value ?? string.Empty);
-        Assert.Equal(expected.Message, msg);
+        await Assert.That(msg).IsEqualTo(expected.Message);
     }
 
     #region Actions

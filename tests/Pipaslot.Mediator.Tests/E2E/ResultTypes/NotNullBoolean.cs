@@ -1,14 +1,13 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
 public class NotNullBoolean
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Execute_ShouldPass(bool value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
@@ -17,9 +16,9 @@ public class NotNullBoolean
         Assert.Equal(value, result.Result);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task ExecuteUnhandled_ShouldPass(bool value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
