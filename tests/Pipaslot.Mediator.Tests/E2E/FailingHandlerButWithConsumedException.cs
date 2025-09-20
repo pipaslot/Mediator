@@ -13,7 +13,7 @@ public class FailingHandlerButWithConsumedException
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.False(result.Success);
+        await Assert.That(result.Success).IsFalse();
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class FailingHandlerButWithConsumedException
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
         var result = await sut.Dispatch(new SingleHandler.Message(false));
-        Assert.False(result.Success);
+        await Assert.That(result.Success).IsFalse();
     }
 
     [Test]

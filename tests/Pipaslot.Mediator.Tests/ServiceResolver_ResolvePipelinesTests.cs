@@ -11,40 +11,39 @@ public class ServiceResolver_ResolvePipelinesTests
     [Arguments(1, typeof(BeforeMiddleware))]
     [Arguments(2, typeof(AfterMiddleware))]
     [Arguments(3, typeof(IExecutionMiddleware))]
-    public void QueryPath(int position, Type expectedMiddleware)
+    public async Task QueryPath(int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = false };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
-        VerifyMiddleware(middlewares, position, expectedMiddleware);
+        await VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
     [Test]
     [Arguments(true, 1, typeof(PipelineMiddleware))]
     [Arguments(true, 2, typeof(PipelineNestedMiddleware))]
     [Arguments(true, 3, typeof(IExecutionMiddleware))]
-    
     [Arguments(false, 1, typeof(PipelineMiddleware))]
     [Arguments(false, 2, typeof(IExecutionMiddleware))]
-    public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
+    public async Task CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
         var sp = CreateServiceResolver();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
-        VerifyMiddleware(middlewares, position, expectedMiddleware);
+        await VerifyMiddleware(middlewares, position, expectedMiddleware);
     }
 
-    private void VerifyMiddleware(IEnumerable<Mediator.MiddlewarePair> middlewares, int position,
+    private async Task VerifyMiddleware(IEnumerable<Mediator.MiddlewarePair> middlewares, int position,
         Type expectedMiddleware)
     {
         var actual = middlewares.Skip(position - 1).First().ResolvableType;
-        Assert.Equal(expectedMiddleware, actual);
+        await Assert.That(actual).IsEqualTo(expectedMiddleware);
     }
 
     [Test]
-    public void ActionMatchingMultiplePipelines_ThrowExcepton()
+    public async Task ActionMatchingMultiplePipelines_ThrowExcepton()
     {
         var action = new FakeCommand();
         var sp = Factory.CreateServiceProvider(c =>
@@ -53,11 +52,11 @@ public class ServiceResolver_ResolvePipelinesTests
             c.AddPipeline(x => true, x => { });
         });
         var sut = sp.GetConcreteMediator();
-        Assert.Throws<MediatorException>(() =>
+        await Assert.That(async () =>
         {
             var pipeline = sut.GetPipeline(action, false).ToArray();
-            Assert.NotNull(pipeline);
-        });
+            await Assert.That(pipeline).IsNotNull();
+        }).Throws<MediatorException>();
     }
 
     private static IServiceProvider CreateServiceResolver()
@@ -73,7 +72,7 @@ public class ServiceResolver_ResolvePipelinesTests
         });
         return sp;
     }
-    
+
 
     public interface IQuery : IRequest;
 

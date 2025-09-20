@@ -39,7 +39,7 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
         await Assert.That(() =>
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
-        }).DoesNotThrow();
+        }).ThrowsNothing();
     }
 
     [Test]
