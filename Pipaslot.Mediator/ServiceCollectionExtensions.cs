@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
             services.AddScoped<MediatorContextAccessor>();
             services.AddScoped<IMediatorContextAccessor>(s => s.GetRequiredService<MediatorContextAccessor>());
             services.AddScoped<INotificationProvider>(s => s.GetRequiredService<MediatorContextAccessor>());
+            services.AddScoped<IMediatorFacade, MediatorFacade>();
         }
         else
         {
@@ -52,7 +53,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
         services.AddSingleton<IActionTypeProvider>(configurator);
         services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
-        services.AddScoped<IMediatorFacade, MediatorFacade>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
         services.AddTransient(typeof(MessageHandlerExecutor<>));
         services.AddTransient(typeof(RequestHandlerExecutor<,>));

@@ -11,13 +11,23 @@ namespace Pipaslot.Mediator.Middlewares;
 
 public class MediatorContext
 {
+    private Guid? _guid;
+
     /// <summary>
     /// Unique context identifier
     /// </summary>
-    private Guid? _guid;
-    public Guid Guid => _guid ??= Guid.NewGuid();
+    public Guid Guid => _guid ??= CreateGuid();
 
-    public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
+    private static Guid CreateGuid()
+    {
+        #if NET9_0_OR_GREATER
+        return Guid.CreateVersion7();
+        #else
+        return Guid.NewGuid();
+        #endif
+    }
+
+public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
 
     private readonly List<object> _results = new(1);
 

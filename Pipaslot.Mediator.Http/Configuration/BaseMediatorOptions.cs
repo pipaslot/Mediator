@@ -35,6 +35,7 @@ public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : B
     /// Register <see cref="IMediatorContextAccessor"/> and <see cref="INotificationProvider"/> needed for context accessing out of the mediator middlewares.
     /// If performance matter, and you do not need to: <br />
     /// - access the <see cref="MediatorContext"/> <br />
+    /// - Use service <see cref="MediatorFacade"/> <br />
     /// - track nested calls <br />
     /// - send notification from nested calls <br />
     /// - access the context out of mediator handler<br />
