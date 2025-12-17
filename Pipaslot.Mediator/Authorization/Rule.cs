@@ -10,9 +10,14 @@ namespace Pipaslot.Mediator.Authorization;
 /// </summary>
 public class Rule : IPolicy
 {
-    public RuleScope Scope { get; } = RuleScope.State;
+    /// <summary>
+    /// Default rule that is always evaluated as <see cref="AccessType.Deny"/> when not combined with other other rules
+    /// </summary>
+    public static Rule Default = new (RuleOutcome.Ignored, string.Empty);
+    
+    public RuleScope Scope { get; }
 
-    public RuleOutcome Outcome { get; } = RuleOutcome.Deny;
+    public RuleOutcome Outcome { get; }
 
     /// <summary>
     /// Default rule name if not specified. It is used in cases where the value should serve as a sentence or when we want to prevent additional formatting.
