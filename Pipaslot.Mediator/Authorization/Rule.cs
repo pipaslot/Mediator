@@ -169,4 +169,9 @@ public class Rule : IPolicy
     {
         return new RuleSet(Operator.Or, [rule1, rule2]);
     }
+
+    public static implicit operator RuleSet(Rule rule)
+    {
+        return new RuleSet(rule);
+    }
 }

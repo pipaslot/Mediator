@@ -7,8 +7,7 @@ public class RuleTests
     [Fact]
     public void Default_IsReducedToDeny()
     {
-        var set = new RuleSet(Rule.Default);
-        AssertAccessType(set, AccessType.Deny);
+        AssertAccessType(Rule.Default, AccessType.Deny);
     }
     
     [Theory]
