@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,9 @@ namespace Pipaslot.Mediator.Authorization;
 /// </summary>
 public class RuleSet : IPolicy
 {
+    /// <inheritdoc cref="Rule.Default"/>
+    public static readonly RuleSet Default = new (Rule.Default);
+
     public Operator Operator { get; }
     public List<Rule> Rules { get; set; } = [];
     public List<RuleSet> RuleSets { get; set; } = [];
@@ -27,6 +31,7 @@ public class RuleSet : IPolicy
     {
     }
 
+    [JsonConstructor]
     public RuleSet(Operator @operator)
     {
         Operator = @operator;

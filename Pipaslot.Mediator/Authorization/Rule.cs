@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,9 +11,14 @@ namespace Pipaslot.Mediator.Authorization;
 /// </summary>
 public class Rule : IPolicy
 {
-    public RuleScope Scope { get; } = RuleScope.State;
+    /// <summary>
+    /// Default rule that is always evaluated as <see cref="AccessType.Deny"/> when not combined with other other rules
+    /// </summary>
+    public static readonly Rule Default = new (RuleOutcome.Ignored, string.Empty);
+    
+    public RuleScope Scope { get; }
 
-    public RuleOutcome Outcome { get; } = RuleOutcome.Deny;
+    public RuleOutcome Outcome { get; }
 
     /// <summary>
     /// Default rule name if not specified. It is used in cases where the value should serve as a sentence or when we want to prevent additional formatting.
@@ -33,7 +39,8 @@ public class Rule : IPolicy
     internal Rule(RuleOutcome outcome, string value) : this(DefaultName, value, outcome)
     {
     }
-
+    
+    [JsonConstructor]
     public Rule(string name, string value, RuleOutcome outcome = RuleOutcome.Deny, RuleScope scope = RuleScope.State)
     {
         Name = name;
@@ -163,5 +170,10 @@ public class Rule : IPolicy
     public static RuleSet operator |(Rule rule1, Rule rule2)
     {
         return new RuleSet(Operator.Or, [rule1, rule2]);
+    }
+
+    public static implicit operator RuleSet(Rule rule)
+    {
+        return new RuleSet(rule);
     }
 }
