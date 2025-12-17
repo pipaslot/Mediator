@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,7 +39,8 @@ public class Rule : IPolicy
     internal Rule(RuleOutcome outcome, string value) : this(DefaultName, value, outcome)
     {
     }
-
+    
+    [JsonConstructor]
     public Rule(string name, string value, RuleOutcome outcome = RuleOutcome.Deny, RuleScope scope = RuleScope.State)
     {
         Name = name;
