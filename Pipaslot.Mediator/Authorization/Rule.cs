@@ -13,7 +13,7 @@ public class Rule : IPolicy
     /// <summary>
     /// Default rule that is always evaluated as <see cref="AccessType.Deny"/> when not combined with other other rules
     /// </summary>
-    public static Rule Default = new (RuleOutcome.Ignored, string.Empty);
+    public static readonly Rule Default = new (RuleOutcome.Ignored, string.Empty);
     
     public RuleScope Scope { get; }
 
