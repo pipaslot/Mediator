@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Middlewares;
 /// </summary>
 public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
 {
-    private static readonly Dictionary<Type, Dictionary<int, Task<MediatorContext>>> _running = new();
+    private readonly Dictionary<Type, Dictionary<int, Task<MediatorContext>>> _running = new();
     private readonly object _lock = new();
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
@@ -40,7 +40,7 @@ public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
         }
     }
 
-    private static Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
+    private Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
     {
         var contextCopy = context.CopyEmpty();
         Task<MediatorContext> task;
@@ -67,7 +67,7 @@ public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
         return context;
     }
 
-    private static void Remove(Type actionType, int hashCode)
+    private void Remove(Type actionType, int hashCode)
     {
         if (_running.TryGetValue(actionType, out var instances) && instances != null)
         {
