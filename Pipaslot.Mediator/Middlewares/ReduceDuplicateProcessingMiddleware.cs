@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Middlewares;
@@ -12,22 +13,30 @@ namespace Pipaslot.Mediator.Middlewares;
 /// </summary>
 public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
 {
-    private readonly Dictionary<Type, Dictionary<int, Task<MediatorContext>>> _running = new();
+    private readonly Dictionary<Type, Dictionary<int, RunningTask>> _running = new();
     private readonly object _lock = new();
+
+    private sealed record RunningTask(Task<MediatorContext> Task, CancellationToken CancellationToken)
+    {
+        public bool CanReuse()
+        {
+            return !Task.IsCompleted && !CancellationToken.IsCancellationRequested;
+        }
+    }
 
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         var type = context.Action.GetType();
         var hashCode = context.Action.GetHashCode();
-        Task<MediatorContext> task;
+        RunningTask runningTask;
         lock (_lock)
         {
-            task = GetOrAddTask(type, hashCode, context, next);
+            runningTask = GetOrAddTask(type, hashCode, context, next);
         }
 
         try
         {
-            var innerContext = await task.ConfigureAwait(false);
+            var innerContext = await runningTask.Task.ConfigureAwait(false);
             context.Append(innerContext);
             context.Status = innerContext.Status;
         }
@@ -35,30 +44,40 @@ public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
         {
             lock (_lock)
             {
-                Remove(type, hashCode);
+                Remove(type, hashCode, runningTask.Task);
             }
         }
     }
 
-    private Task<MediatorContext> GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
+    private RunningTask GetOrAddTask(Type actionType, int hashCode, MediatorContext context, MiddlewareDelegate next)
     {
-        var contextCopy = context.CopyEmpty();
-        Task<MediatorContext> task;
         if (_running.TryGetValue(actionType, out var instances) && instances != null)
         {
             if (instances.TryGetValue(hashCode, out var runningTask) && runningTask != null)
             {
-                return runningTask;
+                if (runningTask.CanReuse())
+                {
+                    return runningTask;
+                }
+
+                instances.Remove(hashCode);
             }
 
-            task = Run(contextCopy, next);
-            instances.Add(hashCode, task);
-            return task;
+            var created = CreateRunningTask(context, next);
+            instances.Add(hashCode, created);
+            return created;
         }
 
-        task = Run(contextCopy, next);
-        _running.Add(actionType, new Dictionary<int, Task<MediatorContext>> { { hashCode, task } });
-        return task;
+        var createdNewType = CreateRunningTask(context, next);
+        _running.Add(actionType, new Dictionary<int, RunningTask> { { hashCode, createdNewType } });
+        return createdNewType;
+    }
+
+    private static RunningTask CreateRunningTask(MediatorContext context, MiddlewareDelegate next)
+    {
+        var contextCopy = context.CopyEmpty();
+        var task = Run(contextCopy, next);
+        return new RunningTask(task, contextCopy.CancellationToken);
     }
 
     private static async Task<MediatorContext> Run(MediatorContext context, MiddlewareDelegate next)
@@ -67,11 +86,15 @@ public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
         return context;
     }
 
-    private void Remove(Type actionType, int hashCode)
+    private void Remove(Type actionType, int hashCode, Task<MediatorContext> ownerTask)
     {
         if (_running.TryGetValue(actionType, out var instances) && instances != null)
         {
-            instances.Remove(hashCode);
+            if (instances.TryGetValue(hashCode, out var current) && ReferenceEquals(current.Task, ownerTask))
+            {
+                instances.Remove(hashCode);
+            }
+
             if (instances.Count == 0)
             {
                 _running.Remove(actionType);
