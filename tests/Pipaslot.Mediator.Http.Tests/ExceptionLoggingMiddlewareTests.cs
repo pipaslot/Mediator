@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
 
-public class MediatorExceptionLoggingMiddlewareTests
+public class ExceptionLoggingMiddlewareTests
 {
     [Fact]
     public async Task Execute_ExceptionCatchedByMiddlewareIsPropagatedOutOfMediatorAsSuccessFalse()
