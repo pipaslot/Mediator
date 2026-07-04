@@ -95,7 +95,7 @@ Nodes are then pruned to eliminate nodes without any effect on the final grant (
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 - Added .NET 7 target framework
 - Added `IMediatorFacade` combining services `IMediator`, `IMediatorContextAccessor`, and `INotificationProvider`
-- Fix: Propagate notifications from nested handler to all parent results
+- Fix: Propagate notifications from a nested handler to all parent results
 
 ## Version 6.2.0
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
