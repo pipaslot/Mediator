@@ -8,7 +8,7 @@
 ## Version 8.3.0
 * Upgrade to .NET 10
 * MediatorContext uses Sequential GUID Version 7
-* Fix: Register service `IMediatorFacade` only when ContextAccessor is available(not disabled) in the mediator setup
+* Fix: Register service `IMediatorFacade` only when ContextAccessor is available (not disabled) in the mediator setup
 
 ## Version 8.2.2
 - MediatorMiddleware: Prevent serializing result when response already started (custom result writes)
@@ -19,7 +19,7 @@
 
 ## Version 8.2.0
 - Performance and memory consumption improvements (hot paths and for serializer)
-- IMediatorContextAccessor was made as optional service as performance optimization for cases where it is not needed
+- IMediatorContextAccessor was made an optional service, as a performance optimization for cases where it is not needed
 - Serializer: Added support for DateOnly and TimeOnly types
 
 ## Version 8.1.0
@@ -40,7 +40,7 @@ Nodes are then pruned to eliminate nodes without any effect on the final grant (
 - IRule, IRuleFormatter, EvaluatedRule, and IEvaluatedRule - were removed
 - DefaultRuleFormatter - was replaced by DefaultNodeFormatter and is used as template
 - Serializer V2 was removed (including serializer type selection)
-- Default Error HTTP status code was set to 500 (previously was used 200)
+- Default Error HTTP status code was set to 500 (previously 200 was used)
 
 ## Version 7.6.5 - Mediator.Http
 - MediatorMiddleware: Prevent serializing result when response already started (custom result writes)
@@ -75,7 +75,7 @@ Nodes are then pruned to eliminate nodes without any effect on the final grant (
 ## Version 7.1.0
 - Added a new overload `Pipaslot.Mediator.Configuration.MediatorConfigurator.UseWhen((IMediatorAction, IServiceProvider) => bool)` supporting application service resolving.
 - Added new overloads for `Pipaslot.Mediator.Configuration.MediatorConfigurator.AddPipelineForActions` specifying multiple action types for what the middlewares will be applied
-- Added methods `UseWhenDirectHttpCall` and `UseAuthorizationWhenDirectHttpCall` on `Pipaslot.Mediator.Configuration.MediatorConfigurator` applying specified middleware only when the first call from HTTP
+- Added methods `UseWhenDirectHttpCall` and `UseAuthorizationWhenDirectHttpCall` on `Pipaslot.Mediator.Configuration.MediatorConfigurator` applying the specified middleware only on the first call from HTTP
 
 ## Version 7.0.0
 - Added an action extension method for formatting action names to friendly names `Pipaslot.Mediator.Abstractions.MediatorActionExtensions.GetActionFriendlyName`
@@ -99,7 +99,7 @@ Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 
 ## Version 6.2.0
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
-- Added support for defining actions without handlers (to suppress exceptions from HandlerExistenceChecker add `NoHandlerAttribute` to the action class.
+- Added support for defining actions without handlers (to suppress exceptions from HandlerExistenceChecker, add `NoHandlerAttribute` to the action class).
 - Added authorization support. For more details see [documentation](https://github.com/pipaslot/Mediator/wiki/2.1.-Authorization).
 
 ## Version 6.1.0
@@ -108,10 +108,10 @@ Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 - Handlers to be executed are available on MediatorContext 
 - Returned back pipeline definition via `.AddPipeline(condition, p => { p.Use<...>().Use<...>(); })`. Pipelines replace default middleware if the pipeline condition is met.
 - New V3 Serializer supporting interface serialization
-- new methods `AddCredibleResultAssemblyOf<T>()` and `AddCredibleResultAssembly()` for registering types from the assembly as credible: `services.AddMediatorClient(o => o.AddCredibleResultAssemblyOf<MyCustomDTO>())`
+- New methods `AddCredibleResultAssemblyOf<T>()` and `AddCredibleResultAssembly()` for registering types from the assembly as credible: `services.AddMediatorClient(o => o.AddCredibleResultAssemblyOf<MyCustomDTO>())`
 - Added `IMediatorConfiguration.AddHandlers` `IMediatorConfiguration.AddActions` for direct action and handler registration by specifying exact types instead of scanning the whole assembly
-- object `MediatorContext` has a new `Status` property used for error detection during pipeline processing. Error messages are marked as obsolete and will be replaced by Notifications in the next major release.
-- Error messages are not sent directly, but they are wrapped as Notification objects in results collection with specified Type (severity)
+- The object `MediatorContext` has a new `Status` property used for error detection during pipeline processing. Error messages are marked as obsolete and will be replaced by Notifications in the next major release.
+- Error messages are not sent directly, but they are wrapped as Notification objects in the results collection with a specified Type (severity)
 
 
 ## Version 6.0.0
@@ -124,7 +124,7 @@ Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 ### Breaking Changes
 - Renamed `MediatorExceptionLoggingMiddleware` to `ExceptionLoggingMiddleware`
 - Removed abstract class `ExecutionMiddleware`
-- Middlewares `.UseSequenceMultiHandler()` (`MultiHandlerSequenceExecutionMiddleware`), `.UseConcurrentMultiHandler()`(`MultiHandlerConcurrentExecutionMiddleware`), `.UseSingleHandler()` (`SingleHandlerExecutionMiddleware`) were replaced by `HandlerExecutionMiddleware` supporting all handler type executions. Middleware `HandlerExecutionMiddlewar` is added automatically to the end of every pipeline if you configure in-process mediator usage.
+- Middlewares `.UseSequenceMultiHandler()` (`MultiHandlerSequenceExecutionMiddleware`), `.UseConcurrentMultiHandler()` (`MultiHandlerConcurrentExecutionMiddleware`), `.UseSingleHandler()` (`SingleHandlerExecutionMiddleware`) were replaced by `HandlerExecutionMiddleware` supporting all handler type executions. Middleware `HandlerExecutionMiddlewar` is added automatically to the end of every pipeline if you configure in-process mediator usage.
 - Renamed `PipelineConfigurator` to `MediatorConfigurator`
 - Properties: `MediatorContext.ErrorMessages` and `MediatorContext.Results` were changed to read-only collections. Use methods `AddError()` or `AddResult()` for attaching own data
 - Events `IMediator.ActionStarted` and `IMediator.ActionCompleted` were moved to `ActionEventsMiddleware`
@@ -138,18 +138,18 @@ Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 
 - Mediator server can be configured to provide different status codes (409, 500...) in case of error during processing
-- Mediator server accepts HTTP GET requests. See `Pipaslot.Mediator.Http.IMediatorUrlFormatter`. Provides support for file download.
-- New method `Mediator.ExecuteOrNew` returning data or new instance depending on success status. It is an alternative for the method `Mediator.ExecuteOrDefault` returning null in case of failure.
+- Mediator server accepts HTTP GET requests. See `Pipaslot.Mediator.Http.IMediatorUrlFormatter`. It provides support for file download.
+- New method `Mediator.ExecuteOrNew` returning data or a new instance depending on success status. It is an alternative to the method `Mediator.ExecuteOrDefault` returning null in case of failure.
 - Added `IMediatorConfiguration.AddHandlers` `IMediatorConfiguration.AddActions` for direct action and handler registration by specifying exact types instead of scanning the whole assembly
 
 ### Fixed
-- NotificationProviderMiddlewar: Serving exception even if an exception was thrown during handler processing
+- NotificationProviderMiddleware: Serving exception even if an exception was thrown during handler processing
 
 ### Breaking Changes
 - API changed for HttpClientExecutionMiddleware
-- API changed for IMediatorMiddleware: method `Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)` was replaced by `Invoke(MediatorContext context, MiddlewareDelegate next)`. Action and cancellation token is available as a context property.
+- API changed for IMediatorMiddleware: method `Task Invoke<TAction>(TAction action, MediatorContext context, MiddlewareDelegate next, CancellationToken cancellationToken)` was replaced by `Invoke(MediatorContext context, MiddlewareDelegate next)`. Action and cancellation token are available as a context property.
 - Interface `IPipelineConfigurator` was renamed to `IMediatorConfigurator`
-- class `MediatorContext` has a private constructor. If you need to create a new instance, you can clone the original context by method `context.CopyEmpty()`
+- The class `MediatorContext` has a private constructor. If you need to create a new instance, you can clone the original context by the method `context.CopyEmpty()`
 
 ## Version 4.2.0
 Nuget: **Pipaslot.Mediator**
@@ -161,13 +161,13 @@ Nuget: **Pipaslot.Mediator**
 
 ## Version 4.0.0
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
- - Client mediator supports its own pipeline, action, and handler registration, but by default, it sends actions to the server via HTTP protocol
- - Serialization logic from server and client was extracted into service IActionSerializer and IResponseSerializer which can be replaced via DI re-configuration
+ - The client mediator supports its own pipeline, action, and handler registration, but by default, it sends actions to the server via the HTTP protocol
+ - Serialization logic from the server and client was extracted into the services IActionSerializer and IResponseSerializer, which can be replaced via DI re-configuration
  - New data serializer was implemented supporting full JSON support
  - IMediatorResponse has a new property `Results` as an object array type providing messages from middlewares
  - All middlewares (except execution middlewares) can have configured ServiceLifetime (default is scoped)
  - ServiceLifetime for handlers can be changed (default is transient)
- - The mediator provides events ActionStarted and ActionCompleted notifying subscribers when a new action is started and completed. These events provide also a collection of all running actions.
+ - The mediator provides events ActionStarted and ActionCompleted notifying subscribers when a new action is started and completed. These events also provide a collection of all running actions.
  - New method Mediator.ExecuteOrDefault returning data or default object depending on success status
  - Added configurable middleware UseReduceDuplicateProcessing for reducing concurrent action calls to minimize server load 
 
