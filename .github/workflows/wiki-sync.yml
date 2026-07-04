@@ -1,0 +1,49 @@
+name: sync wiki
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/wiki/**'
+  workflow_dispatch:
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-wiki:
+    name: push docs/wiki to GitHub Wiki
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: repo
+          fetch-depth: 1
+
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Sync content
+        run: rsync -av --delete --exclude='.git' repo/docs/wiki/ wiki/
+
+      - name: Commit and push
+        run: |
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "Sync wiki from docs/wiki@${GITHUB_SHA::7}"
+            git push
+          fi
