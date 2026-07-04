@@ -135,6 +135,7 @@ public static class MiddlewareRegistratorExtensions
         return config.Use<HandlerExecutionMiddleware>();
     }
 
+    [Obsolete("Hash-based deduplication risks collisions and is a consumer-specific business decision. Implement your own middleware with an explicit dedup key instead.")]
     /// <inheritdoc cref="ReduceDuplicateProcessingMiddleware"/>
     public static IMiddlewareRegistrator UseReduceDuplicateProcessing(this IMiddlewareRegistrator config)
     {
