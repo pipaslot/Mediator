@@ -44,6 +44,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to sync"
           else
-            # git commit -m "Sync wiki from docs/wiki@${GITHUB_SHA::7}"
-            # git push
+            git commit -m "Sync wiki from docs/wiki@${GITHUB_SHA::7}"
+            git push
           fi
