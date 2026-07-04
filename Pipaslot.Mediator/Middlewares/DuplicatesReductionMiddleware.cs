@@ -10,6 +10,7 @@ namespace Pipaslot.Mediator.Middlewares;
 /// IMPORTANT!: object method GetHashcode() is used for evaluating object similarities.
 /// WARNING!: If you manipulate with the context through MediatorContextAccess, then you will modify the original context, not his copy!
 /// </summary>
+[Obsolete("Hash-based deduplication risks collisions and is a consumer-specific business decision. Implement your own middleware with an explicit dedup key instead.")]
 public class ReduceDuplicateProcessingMiddleware : IMediatorMiddleware
 {
     private static readonly Dictionary<Type, Dictionary<int, Task<MediatorContext>>> _running = new();
