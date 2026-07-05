@@ -66,6 +66,7 @@ public class Rule : IPolicy
     /// <summary>
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
+    /// <param name="reason">Text stating the fact that holds true when access is granted (e.g. "Is member of area"). Often left empty, since a successful check rarely needs explaining.</param>
     /// <returns>Rule with Allow outcome</returns>
     public static Rule Allow(string reason = "")
     {
@@ -75,6 +76,7 @@ public class Rule : IPolicy
     /// <summary>
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
+    /// <param name="reason">Text stating the requirement needed to pass, phrased as an actionable statement (e.g. "Must be a member of area 5"), consistent with the style used by built-in rules such as RolePolicy ("Role 'X' is required.").</param>
     /// <returns>Rule with Deny outcome</returns>
     public static Rule Deny(string reason = "")
     {
@@ -84,6 +86,7 @@ public class Rule : IPolicy
     /// <summary>
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
+    /// <param name="reason">Text stating the requirement needed for the operation to become available, phrased as an actionable statement (e.g. "Must have a Pro subscription"), the same way a Deny reason would be.</param>
     /// <returns>Rule with Undefined outcome</returns>
     public static Rule Unavailable(string reason = "")
     {
@@ -94,7 +97,7 @@ public class Rule : IPolicy
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
     /// <param name="condition">Condition</param>
-    /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
+    /// <param name="reason">Reason applied when condition is TRUE, i.e. when the rule allows the operation. Should state the fact that holds true (e.g. "Is member of area"); often left empty since a successful check rarely needs explaining.</param>
     /// <returns>Returns Allow if the condition is true, otherwise returns Ignored</returns>
     public static Rule AllowIf(bool condition, string reason = "")
     {
@@ -107,7 +110,7 @@ public class Rule : IPolicy
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
     /// <param name="condition">Condition</param>
-    /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
+    /// <param name="reason">Reason applied when condition is TRUE, i.e. when the rule denies the operation. Should state the requirement needed to pass, phrased as an actionable statement (e.g. "Must be a member of area 5"), consistent with the style used by built-in rules such as RolePolicy ("Role 'X' is required.").</param>
     /// <returns>Returns Deny if the condition is true, otherwise returns Ignored</returns>
     public static Rule DenyIf(bool condition, string reason = "")
     {
@@ -120,7 +123,7 @@ public class Rule : IPolicy
     /// Create Rule/Policy depending on application state
     /// </summary>
     /// <param name="condition">Condition</param>
-    /// <param name="reason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
+    /// <param name="reason">Reason applied when condition is TRUE, i.e. when the rule makes the operation unavailable. Should state the requirement needed for it to become available, phrased as an actionable statement (e.g. "Must have a Pro subscription"), the same way a Deny reason would be.</param>
     /// <returns>Returns Unavailable if the condition is true, otherwise returns Ignored</returns>
     public static Rule UnavailableIf(bool condition, string reason = "")
     {
@@ -133,8 +136,8 @@ public class Rule : IPolicy
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
     /// <param name="condition">Condition</param>
-    /// <param name="allowReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
-    /// <param name="denyReason">Reason applied when condition is FALSE.</param>
+    /// <param name="allowReason">Reason applied when condition is TRUE. Should state the fact that holds true (e.g. "Is member of area"); often left empty since a successful check rarely needs explaining.</param>
+    /// <param name="denyReason">Reason applied when condition is FALSE. Should state the requirement needed to pass, phrased as an actionable statement (e.g. "Must be a member of area 5"), consistent with the style used by built-in rules such as RolePolicy ("Role 'X' is required.").</param>
     /// <returns>Returns Allow if the condition is true, otherwise returns Deny</returns>
     public static Rule AllowOrDeny(bool condition, string allowReason = "", string denyReason = "")
     {
@@ -147,8 +150,8 @@ public class Rule : IPolicy
     /// Create a rule/policy depending on the state of the application and provide feedback to the user
     /// </summary>
     /// <param name="condition">Condition</param>
-    /// <param name="denyReason">Reason applied when condition is TRUE. The text should express exactly what the condition means, nothing more, nothing less.</param>
-    /// <param name="allowReason">Reason applied when condition is FALSE.</param>
+    /// <param name="denyReason">Reason applied when condition is TRUE. Should state the requirement needed to pass, phrased as an actionable statement (e.g. "Must be a member of area 5"), consistent with the style used by built-in rules such as RolePolicy ("Role 'X' is required.").</param>
+    /// <param name="allowReason">Reason applied when condition is FALSE. Should state the fact that holds true (e.g. "Is member of area"); often left empty since a successful check rarely needs explaining.</param>
     /// <returns>Returns Deny if the condition is true, otherwise returns Allow</returns>
     public static Rule DenyOrAllow(bool condition, string denyReason = "", string allowReason = "")
     {
