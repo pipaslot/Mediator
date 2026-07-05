@@ -100,7 +100,7 @@ Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 ## Version 6.2.0
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
 - Added support for defining actions without handlers (to suppress exceptions from HandlerExistenceChecker, add `NoHandlerAttribute` to the action class).
-- Added authorization support. For more details see [documentation](https://github.com/pipaslot/Mediator/wiki/2.1.-Authorization).
+- Added authorization support. For more details see [documentation](https://github.com/pipaslot/Mediator/wiki/7.-Authorization).
 
 ## Version 6.1.0
 Nuget: **Pipaslot.Mediator**, **Pipaslot.Mediator.Http**
