@@ -59,7 +59,6 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 
 - **[diátaxis-mix]** Kapitoly 5, 6, 6.1, 7, 8 jsou vedené jako Reference, ale průběžně obsahují How-to recepty (např. "Control handler status" v 5, postup TypeNameHandling v 8) i Explanation odstavce (např. proč `Unavailable` vyhrává nad `Allow` v 7) bez vizuálního oddělení.
 - **[chybí-odkaz]** Nekonzistentní "Next steps"/"See also" patička – mají ji 3, 4; chybí u 1, 2, 5, 6, 6.1, 7, 8, 9.2, 9.3, 10. [NEPLATÍ pro „1“ v původní verzi nálezu – ověřeno proti aktuálnímu obsahu `1.-Why-Pipaslot.Mediator.md` (26 řádků), žádná patička tam není, takže seznam byl opraven] **[OPRAVENO, 2026-07-06]** – sjednocena patička na `## See also` (přejmenováno i u 3 a 4, kde se dřív používalo `## Next steps`) a doplněna do 1, 2, 5, 6, 6.1, 7, 8, 9.1, 9.2, 9.3, 10. Zároveň doplněny konkrétní chybějící prokliky zmíněné níže u jednotlivých dokumentů: `Feature` odkaz u `MiddlewareParametersFeature` (6), zpětný odkaz na `.UseAuthorization()` v 6.1 (7), a odkazy z 8 na `5.-Mediator-API.md` (Dispatch/Execute/DispatchUnhandled/ExecuteUnhandled) a na `6.1` (`ExceptionLoggingMiddleware`). Diátaxis-mix nálezy (mimo navigaci) zůstávají neřešeny.
-- **[chybí-odkaz]** Prokliky na `2.-Core-concepts-and-glossary.md` jsou nahodilé – 6 a částečně 7 odkazují na definice pojmů; 9.1 odkazuje na glosář jen pro pojmy Request/Message/Action/Pipeline/Middleware na úvodní a závěrečné větě, ale ne pro `IMediatorAction` použitý přímo v kódu; 3, 4, 9.2 termíny (Handler, Action, Feature, Pipeline) používají zcela bez odkazu. [upřesněno po ověření aktuálního obsahu 9.1]
 
 ## Nálezy podle dokumentu
 
@@ -69,11 +68,9 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 
 ### 2.-Core-concepts-and-glossary.md
 - **[diátaxis-mix]** Sekce "How a call flows" (diagramy) je Explanation obsah zamíchaný do jinak čistě referenčního glosáře.
-- **[chybí-odkaz]** Chybí patička s odkazem zpět na Home / dál na Quickstart.
 
 ### 3.-Quickstart-In-process-usage.md
 - **[bez-vysvětlení]** Není vysvětleno, proč se odděluje "Shared" a "Executable" projekt – čtenář to musí odvodit sám.
-- **[chybí-odkaz]** Termíny `IRequest<T>`, `IRequestHandler` nejsou odkázané na definice v glosáři.
 
 ### 4.-Quickstart-Client-Server-Blazor-WASM-usage.md
 - **[technická-přesnost]** Duplikuje velkou část kódu z kapitoly 3 místo odkazu zpět (riziko rozjetí obsahu při budoucích úpravách).
@@ -84,9 +81,6 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 ### 6.-Pipelines-and-Middlewares.md
 - **[diátaxis-mix]** Sekce "HandlerExistenceChecker" přerušuje logický tok mezi registrací handlerů a vysvětlením pipeline konceptu – tematicky by patřila jinam (např. Cookbook nebo samostatná sekce).
 - Poznámka: nejlépe strukturovaná kapitola z celé wiki, hodně interních odkazů na glosář – vhodný vzor pro ostatní kapitoly.
-
-### 6.1.-Ready-to-use-middlewares.md
-- **[chybí-odkaz]** `.UseNotificationReceiver()` a `.UseActionEvents()` jsou zmíněné, ale bez řádkového popisu (na rozdíl od ostatních middlewarů) – jen odkaz do Cookbooku, což narušuje úplnost referenční stránky.
 
 ### 7.-Authorization.md
 - **[diátaxis-mix]** Pořadí je obrácené: praktické příklady (`[AuthenticatedPolicy]`) jsou uvedené dřív, než je vysvětlen koncept `IPolicy`/`Rule`/`RuleSet`/`RuleOutcome`, který přichází až v sekci "Custom rules" mnohem níž.
@@ -107,12 +101,10 @@ Technická přesnost obsahu byla ověřena proti zdrojovému kódu (`Pipaslot.Me
 - Bez zásadních nálezů – krátký index s dobrým kontextovým úvodem ("opt-in customizations for less common scenarios").
 
 ### 9.1.-Custom-action-and-handler-types.md
-- **[chybí-odkaz]** Chybí explicitní odkaz na glosář pro `IMediatorAction`/marker interfaces hned na začátku (jen sporadicky v textu).
 - **[bez-vysvětlení]** Chybí vysvětlení trade-offů (kdy tento přístup nepoužívat) a přesnější odkaz na interakci s "Pipeline types" v kapitole 6.  vysvětlení trade-offů (kdy tento přístup nepoužívat) stále chybí.
 
 ### 9.2.-Multi-handler-execution.md
 - **[diátaxis-mix]** Mísí aktuální chování s historickým kontextem ("konfigurace v pipeline byla odstraněna ve verzi 6") – historie patří spíš do Release notes, ne do referenční kapitoly.
-- **[chybí-odkaz]** Chybí odkazy na související 9.1 a 6.
 
 ### 9.3.-Custom-HTTP-responses-and-file-download.md
 - **[diátaxis-mix]** Pořadí sekcí je obrácené: "Handler implementation" je popsaná dřív než "File download (via HTTP GET)", ačkoli druhá vysvětluje, jak se k handleru vůbec dostat (URL formatter) – logicky by mělo jít nejdřív.
