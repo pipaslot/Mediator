@@ -58,22 +58,8 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 ## Průřezová zjištění (napříč více dokumenty)
 
 - **[diátaxis-mix]** Kapitoly 5, 6, 6.1, 7, 8 jsou vedené jako Reference, ale průběžně obsahují How-to recepty (např. "Control handler status" v 5, postup TypeNameHandling v 8) i Explanation odstavce (např. proč `Unavailable` vyhrává nad `Allow` v 7) bez vizuálního oddělení.
-- **[chybí-odkaz]** Nekonzistentní "Next steps"/"See also" patička – mají ji 3, 4; chybí u 1, 2, 5, 6, 6.1, 7, 8, 9.2, 9.3, 10. [NEPLATÍ pro „1“ v původní verzi nálezu – ověřeno proti aktuálnímu obsahu `1.-Why-Pipaslot.Mediator.md` (26 řádků), žádná patička tam není, takže seznam byl opraven] **[OPRAVENO, 2026-07-06]** – sjednocena patička na `## See also` (přejmenováno i u 3 a 4, kde se dřív používalo `## Next steps`) a doplněna do 1, 2, 5, 6, 6.1, 7, 8, 9.1, 9.2, 9.3, 10. Zároveň doplněny konkrétní chybějící prokliky zmíněné níže u jednotlivých dokumentů: `Feature` odkaz u `MiddlewareParametersFeature` (6), zpětný odkaz na `.UseAuthorization()` v 6.1 (7), a odkazy z 8 na `5.-Mediator-API.md` (Dispatch/Execute/DispatchUnhandled/ExecuteUnhandled) a na `6.1` (`ExceptionLoggingMiddleware`). Diátaxis-mix nálezy (mimo navigaci) zůstávají neřešeny.
 
 ## Nálezy podle dokumentu
-
-### 1.-Why-Pipaslot.Mediator.md
-- **[technická-přesnost]** Duplikuje první větu z Home.md ("The Mediator concept is an alternative to SOA..."). **[OPRAVENO, 2026-07-06]** – první věta přepsána, aby neopakovala Home.md doslovně (přeformulováno na "direct service-to-service calls (SOA-style)").
-- **[diátaxis-mix]** Sekce "Library structure" je fakticky Reference obsah (seznam NuGet balíčků a jejich API) vložený do Explanation kapitoly.
-
-### 2.-Core-concepts-and-glossary.md
-- **[diátaxis-mix]** Sekce "How a call flows" (diagramy) je Explanation obsah zamíchaný do jinak čistě referenčního glosáře.
-
-### 3.-Quickstart-In-process-usage.md
-- **[bez-vysvětlení]** Není vysvětleno, proč se odděluje "Shared" a "Executable" projekt – čtenář to musí odvodit sám.
-
-### 4.-Quickstart-Client-Server-Blazor-WASM-usage.md
-- **[technická-přesnost]** Duplikuje velkou část kódu z kapitoly 3 místo odkazu zpět (riziko rozjetí obsahu při budoucích úpravách).
 
 ### 5.-Mediator-API.md
 - **[diátaxis-mix]** Sekce "Control handler status" je How-to recept vložený do jinak referenční kapitoly.
@@ -93,29 +79,3 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 Technická přesnost obsahu byla ověřena proti zdrojovému kódu (`Pipaslot.Mediator.Http/MediatorMiddleware.cs`, `Pipaslot.Mediator.Http/Middlewares/HttpClientExecutionMiddleware.cs`, `Pipaslot.Mediator/Mediator.cs`, `Pipaslot.Mediator/Middlewares/MediatorContextExtensions.cs`): popis fallbacku HTTP status kódu, chování `HttpClientExecutionMiddleware` (nekontroluje status kód, nikdy nehází výjimku kromě cancelace/transportní chyby), rozdíl `Dispatch`/`Execute` vs. `DispatchUnhandled`/`ExecuteUnhandled`, a převod výjimky na chybovou `Notification` – to vše odpovídá skutečné implementaci. Žádný nový nález kategorie technická-přesnost.
 
 - **[diátaxis-mix]** Sekce pod jedním nadpisem "Error handling" mísí Explanation (proč a jak mediator zachytává výjimky), Reference (přesné chování `MediatorMiddleware` a `HttpClientExecutionMiddleware` popsané bod po bodu) a How-to recepty (`ValidatorMiddleware`, `CustomLoggingMiddleware` jako kopírovatelné vzory) bez vizuálního nebo strukturálního oddělení kategorií – posiluje již zaznamenaný průřezový nález diátaxis-mix pro kapitolu 8.
-- **[bez-vysvětlení]** Sekce otevírá odstavec termíny `Dispatch`/`Execute`/`DispatchUnhandled`/`ExecuteUnhandled` bez odkazu na [5.-Mediator-API.md](5.-Mediator-API.md), kde jsou tyto metody podrobně představeny – čtenář, který se do kapitoly 8 dostane přímo (např. přes vyhledávání), nemusí vědět, co tyto metody znamenají. **[OPRAVENO, 2026-07-06]**
-- **[chybí-odkaz]** Odstavec "Note that Mediator also exposes DispatchUnhandled/ExecuteUnhandled counterparts..." fakticky duplikuje vysvětlení již uvedené v `5.-Mediator-API.md` (sekce "ExecuteUnhandled and DispatchUnhandled" / "In-process exceptions"), aniž by na něj odkazoval – riziko rozjetí obsahu při budoucích úpravách (stejná kategorie rizika jako u duplicitního kódu v kapitole 4). **[OPRAVENO, 2026-07-06]**
-- **[chybí-odkaz]** Podsekce "Server: logging and notifying an administrator" popisuje middleware `ExceptionLoggingMiddleware`/`.UseExceptionLogging()`, který už je referenčně zdokumentovaný v `6.1.-Ready-to-use-middlewares.md`, ale vzájemně na sebe neodkazují. **[OPRAVENO, 2026-07-06]**
-
-### 9.-Advanced-usage.md
-- Bez zásadních nálezů – krátký index s dobrým kontextovým úvodem ("opt-in customizations for less common scenarios").
-
-### 9.1.-Custom-action-and-handler-types.md
-- **[bez-vysvětlení]** Chybí vysvětlení trade-offů (kdy tento přístup nepoužívat) a přesnější odkaz na interakci s "Pipeline types" v kapitole 6.  vysvětlení trade-offů (kdy tento přístup nepoužívat) stále chybí.
-
-### 9.2.-Multi-handler-execution.md
-- **[diátaxis-mix]** Mísí aktuální chování s historickým kontextem ("konfigurace v pipeline byla odstraněna ve verzi 6") – historie patří spíš do Release notes, ne do referenční kapitoly.
-
-### 9.3.-Custom-HTTP-responses-and-file-download.md
-- **[diátaxis-mix]** Pořadí sekcí je obrácené: "Handler implementation" je popsaná dřív než "File download (via HTTP GET)", ačkoli druhá vysvětluje, jak se k handleru vůbec dostat (URL formatter) – logicky by mělo jít nejdřív.
-
-### 10.-Cookbook-and-integrations.md
-- Poznámka: má nejlepší úvodní větu vymezující rozsah kapitoly ze všech dokumentů ("groups middleware + UI code that consumes it") – vzorové řešení.
-
-### Release-notes-and-breaking-changes.md
-- Bez nálezů – správně strohý, chronologický changelog bez potřeby Diátaxis narativu.
-
----
-
-## Po dokončení úprav
-aktulizuj CLAUDE.md a přidej pravidla jež bude udržovat stejný koncept dokumentace i pro budoucí upravy
