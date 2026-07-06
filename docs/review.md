@@ -69,7 +69,7 @@ Pokud ověřuješ existující nález (ne přidáváš nový), přidej k němu t
 | 6.-Pipelines-and-Middlewares.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
 | 6.1.-Ready-to-use-middlewares.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
 | 7.-Authorization.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
-| 8.-HTTP-transport-and-configuration-for-Client-Server-usage.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
+| 8.-HTTP-transport-and-configuration-for-Client-Server-usage.md | HOTOVO (2. průchod – doplněná sekce "Error handling" znovu revidována) | Claude, 2026-07-05 a 2026-07-06 |
 | 9.-Advanced-usage.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
 | 9.1.-Custom-action-and-handler-types.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
 | 9.2.-Multi-handler-execution.md | HOTOVO (1. průchod) | Claude, 2026-07-05 |
@@ -85,14 +85,11 @@ Poznámka: "1. průchod" znamená, že šlo o jediného agenta v jedné konverza
 
 - **[diátaxis-mix]** Kapitoly 5, 6, 6.1, 7, 8 jsou vedené jako Reference, ale průběžně obsahují How-to recepty (např. "Control handler status" v 5, postup TypeNameHandling v 8) i Explanation odstavce (např. proč `Unavailable` vyhrává nad `Allow` v 7) bez vizuálního oddělení.
 - **[chybí-předpoklady]** Chybí jednotný vzorec "Prerequisites" na začátku Tutorial/How-to stránek – 3, 4, 9.1, 9.3 skáčou rovnou na instalaci/kód.
-- **[chybí-odkaz]** Nekonzistentní "Next steps"/"See also" patička – mají ji 1, 3, 4; chybí u 5, 6, 6.1, 7, 8, 9.2, 9.3, 10.
-- **[chybí-odkaz]** Prokliky na `2.-Core-concepts-and-glossary.md` jsou nahodilé – 6 a částečně 7 odkazují na definice pojmů, ale 3, 4, 9.1, 9.2, 9.3 termíny (Handler, Action, Feature, Pipeline) používají bez odkazu.
+- **[chybí-odkaz]** Nekonzistentní "Next steps"/"See also" patička – mají ji 3, 4; chybí u 1, 2, 5, 6, 6.1, 7, 8, 9.2, 9.3, 10. [NEPLATÍ pro „1“ v původní verzi nálezu – ověřeno proti aktuálnímu obsahu `1.-Why-Pipaslot.Mediator.md` (26 řádků), žádná patička tam není, takže seznam byl opraven] **[OPRAVENO, 2026-07-06]** – sjednocena patička na `## See also` (přejmenováno i u 3 a 4, kde se dřív používalo `## Next steps`) a doplněna do 1, 2, 5, 6, 6.1, 7, 8, 9.1, 9.2, 9.3, 10. Zároveň doplněny konkrétní chybějící prokliky zmíněné níže u jednotlivých dokumentů: `Feature` odkaz u `MiddlewareParametersFeature` (6), zpětný odkaz na `.UseAuthorization()` v 6.1 (7), a odkazy z 8 na `5.-Mediator-API.md` (Dispatch/Execute/DispatchUnhandled/ExecuteUnhandled) a na `6.1` (`ExceptionLoggingMiddleware`). Diátaxis-mix a chybějící "Prerequisites" nálezy (mimo navigaci) zůstávají neřešeny.
+- **[chybí-odkaz]** Prokliky na `2.-Core-concepts-and-glossary.md` jsou nahodilé – 6 a částečně 7 odkazují na definice pojmů; 9.1 odkazuje na glosář jen pro pojmy Request/Message/Action/Pipeline/Middleware na úvodní a závěrečné větě, ale ne pro `IMediatorAction` použitý přímo v kódu; 3, 4, 9.2 termíny (Handler, Action, Feature, Pipeline) používají zcela bez odkazu. [upřesněno po ověření aktuálního obsahu 9.1]
 - **[technická-přesnost]** Nalezené chyby v kódových ukázkách:
-  - 3, 4: `unsigned int` není platný C# typ; handler `WheatherForecastRequestHandler` (překlep "Wheatherforecast") má metodu se signaturou `WeatherForecast.Result`/`WeatherForecast.Request`, což neodpovídá dříve deklarovaným typům `WeatherForecastRequest`/`WeatherForecastResult[]`.
-  - 5: sekce "Control handler status" obsahuje osamocené slovo "Just" bez pokračování věty.
-  - 8: nadpis `### Error handling` je prázdný, hned pod ním následuje `## Communication over HTTP` bez obsahu k původnímu nadpisu.
-  - 9.1: `interface ICommand :  : IMediatorAction` – zdvojená dvojtečka.
-
+  - 8: nadpis `### Error handling` je prázdný, hned pod ním následuje `## Communication over HTTP` bez obsahu k původnímu nadpisu. **[ZASTARALÉ – opraveno manuálně v commitu `86e98ba` "error handling", sekce nyní obsahuje rozsáhlý obsah; viz nová revize této sekce v nálezech k dokumentu 8 níže.]**
+ 
 ## Nálezy podle dokumentu
 
 ### Home.md
