@@ -112,7 +112,6 @@ Poznámka: "1. průchod" znamená, že šlo o jediného agenta v jedné konverza
 - **[chybí-předpoklady]** Chybí uvedení předpokladů (znalost DI, C#, .NET projektová struktura).
 - **[bez-vysvětlení]** Není vysvětleno, proč se odděluje "Shared" a "Executable" projekt – čtenář to musí odvodit sám.
 - **[chybí-odkaz]** Termíny `IRequest<T>`, `IRequestHandler` nejsou odkázané na definice v glosáři.
-- **[technická-přesnost]** `unsigned int` (neplatný typ) a nekonzistence `WheatherForecastRequestHandler`/`WeatherForecast.Result` vs. `WeatherForecastRequest`/`WeatherForecastResult[]`.
 
 ### 4.-Quickstart-Client-Server-Blazor-WASM-usage.md
 - **[chybí-předpoklady]** Chybí předpoklady o Blazor WASM hostování a HttpClient DI.
@@ -122,7 +121,6 @@ Poznámka: "1. průchod" znamená, že šlo o jediného agenta v jedné konverza
 ### 5.-Mediator-API.md
 - **[diátaxis-mix]** Sekce "Control handler status" je How-to recept vložený do jinak referenční kapitoly.
 - **[chybí-kontext]** Sekce "IMediatorFacade" je nepřiměřeně stručná oproti ostatním (bez příkladu použití).
-- **[technická-přesnost]** Nedokončený text "Just" bez pokračování věty v sekci "Control handler status".
 
 ### 6.-Pipelines-and-Middlewares.md
 - **[diátaxis-mix]** Sekce "HandlerExistenceChecker" přerušuje logický tok mezi registrací handlerů a vysvětlením pipeline konceptu – tematicky by patřila jinam (např. Cookbook nebo samostatná sekce).
@@ -140,9 +138,16 @@ Poznámka: "1. průchod" znamená, že šlo o jediného agenta v jedné konverza
 - **[chybí-předpoklady]** Chybí předpoklad obeznámenosti s ASP.NET Core ClaimsPrincipal / policy-based auth.
 
 ### 8.-HTTP-transport-and-configuration-for-Client-Server-usage.md
-- **[technická-přesnost]** Prázdná sekce `### Error handling` bez obsahu, hned následovaná `## Communication over HTTP`.
 - **[chybí-odkaz]** Chybí patička s odkazy na konci dokumentu.
 - Poznámka: sekce "TypeNameHandling and Security" je dobrým vzorem (nejdřív "proč", pak "jak") – lze použít jako šablonu pro ostatní kapitoly.
+
+#### Revize doplněné sekce "Error handling" (řádky 42–119)
+Technická přesnost obsahu byla ověřena proti zdrojovému kódu (`Pipaslot.Mediator.Http/MediatorMiddleware.cs`, `Pipaslot.Mediator.Http/Middlewares/HttpClientExecutionMiddleware.cs`, `Pipaslot.Mediator/Mediator.cs`, `Pipaslot.Mediator/Middlewares/MediatorContextExtensions.cs`): popis fallbacku HTTP status kódu, chování `HttpClientExecutionMiddleware` (nekontroluje status kód, nikdy nehází výjimku kromě cancelace/transportní chyby), rozdíl `Dispatch`/`Execute` vs. `DispatchUnhandled`/`ExecuteUnhandled`, a převod výjimky na chybovou `Notification` – to vše odpovídá skutečné implementaci. Žádný nový nález kategorie technická-přesnost.
+
+- **[diátaxis-mix]** Sekce pod jedním nadpisem "Error handling" mísí Explanation (proč a jak mediator zachytává výjimky), Reference (přesné chování `MediatorMiddleware` a `HttpClientExecutionMiddleware` popsané bod po bodu) a How-to recepty (`ValidatorMiddleware`, `CustomLoggingMiddleware` jako kopírovatelné vzory) bez vizuálního nebo strukturálního oddělení kategorií – posiluje již zaznamenaný průřezový nález diátaxis-mix pro kapitolu 8.
+- **[bez-vysvětlení]** Sekce otevírá odstavec termíny `Dispatch`/`Execute`/`DispatchUnhandled`/`ExecuteUnhandled` bez odkazu na [5.-Mediator-API.md](5.-Mediator-API.md), kde jsou tyto metody podrobně představeny – čtenář, který se do kapitoly 8 dostane přímo (např. přes vyhledávání), nemusí vědět, co tyto metody znamenají.
+- **[chybí-odkaz]** Odstavec "Note that Mediator also exposes DispatchUnhandled/ExecuteUnhandled counterparts..." fakticky duplikuje vysvětlení již uvedené v `5.-Mediator-API.md` (sekce "ExecuteUnhandled and DispatchUnhandled" / "In-process exceptions"), aniž by na něj odkazoval – riziko rozjetí obsahu při budoucích úpravách (stejná kategorie rizika jako u duplicitního kódu v kapitole 4).
+- **[chybí-odkaz]** Podsekce "Server: logging and notifying an administrator" popisuje middleware `ExceptionLoggingMiddleware`/`.UseExceptionLogging()`, který už je referenčně zdokumentovaný v `6.1.-Ready-to-use-middlewares.md`, ale vzájemně na sebe neodkazují.
 
 ### 9.-Advanced-usage.md
 - Bez zásadních nálezů – krátký index s dobrým kontextovým úvodem ("opt-in customizations for less common scenarios").
@@ -150,7 +155,6 @@ Poznámka: "1. průchod" znamená, že šlo o jediného agenta v jedné konverza
 ### 9.1.-Custom-action-and-handler-types.md
 - **[chybí-odkaz]** Chybí explicitní odkaz na glosář pro `IMediatorAction`/marker interfaces hned na začátku (jen sporadicky v textu).
 - **[bez-vysvětlení]** Chybí vysvětlení trade-offů (kdy tento přístup nepoužívat) a přesnější odkaz na interakci s "Pipeline types" v kapitole 6.
-- **[technická-přesnost]** `interface ICommand :  : IMediatorAction` – zdvojená dvojtečka v ukázce kódu.
 
 ### 9.2.-Multi-handler-execution.md
 - **[diátaxis-mix]** Mísí aktuální chování s historickým kontextem ("konfigurace v pipeline byla odstraněna ve verzi 6") – historie patří spíš do Release notes, ne do referenční kapitoly.
