@@ -1,3 +1,26 @@
+# Mediator pipeline (in process)
+Component view of the same flow as the sequence diagram below — redrawn from `img/mediator-in-process.png` / `diagrams.drawio`.
+```mermaid
+flowchart LR
+    Req(["Request"]) <-->|"Success status + data"| RErr
+    Msg(["Message"]) <-->|"Success status"| MErr
+
+    subgraph Mediator["Mediator"]
+        direction TB
+        subgraph ReqPipe["Request pipeline · middlewares"]
+            direction LR
+            RErr["Error handling"] <--> RAuth["Authorization"] <--> RCache["Caching"]
+        end
+        subgraph MsgPipe["Message pipeline · middlewares"]
+            direction LR
+            MErr["Error handling"] <--> MAuth["Authorization"] <--> MAudit["Auditing"]
+        end
+    end
+
+    RCache <--> ReqHandler["Request handler"]
+    MAudit <--> MsgHandler["Message handler"]
+```
+
 # Simple Mediator call example (in process)
 ```mermaid
 sequenceDiagram
@@ -15,6 +38,34 @@ sequenceDiagram
     Handler-->>Mediator: Return sync result
     Note over Mediator: Finish pipeline for SyncAction
     Mediator-->>Service: Return data
+```
+
+# Mediator pipeline (over HTTP)
+Component view of the same flow as the sequence diagram below — redrawn from `img/mediator-over-http.png` / `diagrams.drawio`.
+```mermaid
+flowchart LR
+    Req(["Request"]) <-->|"Success status + data"| CDedup
+
+    subgraph Client["Mediator Client"]
+        direction LR
+        subgraph ClientPipe["Request pipeline · middlewares"]
+            direction LR
+            CDedup["Reduce duplicate requests"] <--> CErr["Error handling"]
+        end
+    end
+
+    CErr <--> Http[["POST /_mediator/request"]]
+    Http <--> SErr
+
+    subgraph Server["Mediator Server"]
+        direction LR
+        subgraph ServerPipe["Request pipeline · middlewares"]
+            direction LR
+            SErr["Error handling"] <--> SAuth["Authorization"] <--> SCache["Caching"]
+        end
+    end
+
+    SCache <--> Handler["Request handler"]
 ```
 
 # Mediator call over HTTP
