@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/Demo/">
+    <Project Path="Demo/Client/Demo.Client.csproj" />
+    <Project Path="Demo/Server/Demo.Server.csproj" />
+    <Project Path="Demo/Shared/Demo.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="CLAUDE.md" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Pipaslot.Mediator.Benchmarks/Pipaslot.Mediator.Benchmarks.csproj" />
+    <Project Path="tests/Pipaslot.Mediator.Http.Tests/Pipaslot.Mediator.Http.Tests.csproj" />
+    <Project Path="tests/Pipaslot.Mediator.Tests.InvalidActions/Pipaslot.Mediator.Tests.InvalidActions.csproj" />
+    <Project Path="tests/Pipaslot.Mediator.Tests.ValidActions/Pipaslot.Mediator.Tests.ValidActions.csproj" />
+    <Project Path="tests/Pipaslot.Mediator.Tests/Pipaslot.Mediator.Tests.csproj" />
+  </Folder>
+  <Project Path="Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj" />
+  <Project Path="Pipaslot.Mediator/Pipaslot.Mediator.csproj" />
+</Solution>

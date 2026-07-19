@@ -13,7 +13,7 @@ NuGet packages published from this repo:
 ## Build & test commands
 
 ```bash
-dotnet build Pipaslot.Mediator.sln              # build everything (multi-targets net6.0–net10.0 for the core/Http libs)
+dotnet build Pipaslot.Mediator.slnx             # build everything (multi-targets net6.0–net10.0 for the core/Http libs)
 dotnet test tests/Pipaslot.Mediator.Tests                       # core library tests (xUnit + Moq)
 dotnet test tests/Pipaslot.Mediator.Http.Tests                   # HTTP transport / serialization tests
 dotnet test --filter "FullyQualifiedName~RuleSet_OperatorTests"  # run a single test class
@@ -35,7 +35,7 @@ Every call into the mediator flows through `Mediator.Dispatch`/`Execute` (`Pipas
 - **`MediatorConfigurator`** (`Configuration/`) is the single place middleware pipelines are assembled: global middlewares via `Use<T>`/`UseWhen`, and fully separate named pipelines via `AddPipeline(condition, ...)` for a subset of action types (only one pipeline may match a given action — `MediatorException.TooManyPipelines` otherwise).
 - **`HandlerExecutionMiddleware`** (implements `IExecutionMiddleware`) is always the terminal middleware unless a custom `IExecutionMiddleware` is registered instead — this is how `Pipaslot.Mediator.Http`'s client swaps handler execution for an HTTP call (`HttpClientExecutionMiddleware` is registered as the `IExecutionMiddleware`, see `AddMediatorClient`).
 - **`MediatorContext`** carries the action, accumulated `Results`, `ExecutionStatus`, and an `IFeatureCollection` (ASP.NET Core-style extensible per-request feature bag, see `Middlewares/Features/`) through the whole pipeline.
-- Nested mediator calls (a handler calling `IMediator` again for another action) get an extra `NotificationPropagationMiddleware` automatically inserted so results/notifications bubble back to the parent context — see `docs/diagrams.md` "Nested calls" sequence diagram and `MediatorContextAccessor.Push`.
+- Nested mediator calls (a handler calling `IMediator` again for another action) get an extra `NotificationPropagationMiddleware` automatically inserted so results/notifications bubble back to the parent context — see the "Nested calls" sequence diagram in `docs/wiki/5.-Mediator-API.md` and `MediatorContextAccessor.Push`.
 
 ### Registration entry points
 
@@ -64,6 +64,18 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 
 ## Documentation
 
-- `docs/diagrams.md` / `docs/pipelines.md` — Mermaid sequence diagrams for in-process calls, HTTP calls, nested calls, and custom middleware ordering. Update these if you change pipeline ordering or the client/server call flow.
+- Pipeline/call-flow diagrams (component views, in-process calls, HTTP calls, nested calls, custom middleware ordering) live directly in `docs/wiki/2.-Core-concepts-and-glossary.md`, `5.-Mediator-API.md`, `6.-Pipelines-and-Middlewares.md`, and `8.-HTTP-transport-and-configuration-for-Client-Server-usage.md`. Update the relevant diagram there if you change pipeline ordering or the client/server call flow.
 - `docs/archive/version4/`, `docs/archive/version5/` — old wiki snapshots, kept for historical reference only; do not treat as current API documentation.
 - `docs/wiki/` is the source of truth for the GitHub Wiki: `.github/workflows/wiki-sync.yml` mirrors this folder verbatim (via `rsync --delete`) onto the wiki whenever it changes on `main`, so anything not in `docs/wiki/` will be deleted from the wiki on the next sync. **Whenever a code change affects public API surface, configuration, setup steps, middleware behavior, or any other user-facing behavior described there, update the relevant page(s) under `docs/wiki/` in the same change** — don't leave it for a follow-up. Purely internal refactors with no observable behavior change don't need a wiki update. `Home.md` is the wiki's landing/nav page — add an entry there for any new page.
+
+### Expected wiki page structure
+
+Apply this to every new or edited page under `docs/wiki/`:
+
+- **Footer**: end every page (except `Home.md`, which is itself the nav index, and `Release-notes-and-breaking-changes.md`, a plain changelog) with a `## See also` section listing 1-3 related pages and a short reason each is relevant. Use `## See also` as the only heading name for this — don't reintroduce `## Next steps` or other variants; the wiki previously had both, which is the inconsistency this rule replaces.
+- **Glossary links**: the first time a page uses a term defined in `2.-Core-concepts-and-glossary.md` (Mediator, Action, Request, Message, Handler, Pipeline, Middleware, Feature, Context, Response, Result, Facade, ...) and the reader could plausibly land on that page directly (e.g. via search) without having read the glossary first, link it as `[Term](2.-Core-concepts-and-glossary.md#term-anchor)`.
+- **No silent duplication**: if a concept is already explained canonically on another page (e.g. `Dispatch`/`Execute`/`DispatchUnhandled`/`ExecuteUnhandled` in `5.-Mediator-API.md`, or a middleware documented in `6.1.-Ready-to-use-middlewares.md`), link to it instead of re-explaining or re-copying it. This includes example/contract code: the Client-Server quickstart (`4.-`) reuses the same `WeatherForecastRequest`/`WeatherForecastResult` shapes as the in-process quickstart (`3.-`) and links back to it instead of re-pasting the code block. Duplicated explanations or code drift apart over time.
+- **Anchors**: link to a specific heading with `<page>.md#<slug>`, where `<slug>` follows GitHub's heading-to-slug rule (lowercase, spaces to hyphens, punctuation stripped) — this is the convention already used throughout `docs/wiki/`.
+- **Diátaxis separation**: keep Tutorial/How-to content (step-by-step recipes) visually distinguishable from Reference/Explanation content within the same page (e.g. its own heading/subsection) rather than interleaving them under one heading. Where a page legitimately covers more than one Diátaxis category in sequence (e.g. `1.-Why-Pipaslot.Mediator.md` moving from Explanation into a Reference "Library structure" section, or `2.-Core-concepts-and-glossary.md` moving from Explanation into the Reference glossary), add an explicit one-line signpost sentence marking the transition — a heading alone is not enough for the reader to notice the category shift.
+- **Historical context belongs in the changelog**: don't narrate past/removed behavior (e.g. "in version X this was done differently") inline in a Reference or How-to chapter. Keep the chapter describing only current behavior, and link to the relevant entry in `Release-notes-and-breaking-changes.md` for readers who want the history (a short "Historical note" subsection with a link is enough if it's worth flagging at all).
+- **Explain non-obvious structural choices**: if a Tutorial/How-to page makes a structural choice that isn't self-evident (e.g. splitting a quickstart's code into "Shared" vs "Executable" projects), add a short "why" sentence or paragraph before the steps rather than letting the reader infer it — this applies even though the surrounding content is otherwise pure Tutorial/How-to.

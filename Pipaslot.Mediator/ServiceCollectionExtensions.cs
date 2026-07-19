@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
 using Pipaslot.Mediator.Configuration;
@@ -66,5 +67,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<NotificationReceiverMiddleware>();
         services.AddScoped<INotificationReceiver>(s => s.GetRequiredService<NotificationReceiverMiddleware>());
         return configurator;
+    }
+
+    /// <summary>
+    /// Replaces the <see cref="INodeFormatter"/> registered by <see cref="AddMediator(IServiceCollection, bool)"/> (<see cref="DefaultNodeFormatter"/> by default)
+    /// with a custom implementation, instead of adding a second, competing registration.
+    /// Must be called after <see cref="AddMediator(IServiceCollection, bool)"/>.
+    /// </summary>
+    public static IServiceCollection ReplaceNodeFormatter<TNodeFormatter>(this IServiceCollection services)
+        where TNodeFormatter : class, INodeFormatter
+    {
+        services.Replace(ServiceDescriptor.Scoped<INodeFormatter, TNodeFormatter>());
+        return services;
     }
 }
