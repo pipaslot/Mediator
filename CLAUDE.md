@@ -35,7 +35,7 @@ Every call into the mediator flows through `Mediator.Dispatch`/`Execute` (`Pipas
 - **`MediatorConfigurator`** (`Configuration/`) is the single place middleware pipelines are assembled: global middlewares via `Use<T>`/`UseWhen`, and fully separate named pipelines via `AddPipeline(condition, ...)` for a subset of action types (only one pipeline may match a given action — `MediatorException.TooManyPipelines` otherwise).
 - **`HandlerExecutionMiddleware`** (implements `IExecutionMiddleware`) is always the terminal middleware unless a custom `IExecutionMiddleware` is registered instead — this is how `Pipaslot.Mediator.Http`'s client swaps handler execution for an HTTP call (`HttpClientExecutionMiddleware` is registered as the `IExecutionMiddleware`, see `AddMediatorClient`).
 - **`MediatorContext`** carries the action, accumulated `Results`, `ExecutionStatus`, and an `IFeatureCollection` (ASP.NET Core-style extensible per-request feature bag, see `Middlewares/Features/`) through the whole pipeline.
-- Nested mediator calls (a handler calling `IMediator` again for another action) get an extra `NotificationPropagationMiddleware` automatically inserted so results/notifications bubble back to the parent context — see `docs/diagrams.md` "Nested calls" sequence diagram and `MediatorContextAccessor.Push`.
+- Nested mediator calls (a handler calling `IMediator` again for another action) get an extra `NotificationPropagationMiddleware` automatically inserted so results/notifications bubble back to the parent context — see the "Nested calls" sequence diagram in `docs/wiki/5.-Mediator-API.md` and `MediatorContextAccessor.Push`.
 
 ### Registration entry points
 
@@ -64,7 +64,7 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 
 ## Documentation
 
-- `docs/diagrams.md` / `docs/pipelines.md` — Mermaid sequence diagrams for in-process calls, HTTP calls, nested calls, and custom middleware ordering. Update these if you change pipeline ordering or the client/server call flow.
+- Pipeline/call-flow diagrams (component views, in-process calls, HTTP calls, nested calls, custom middleware ordering) live directly in `docs/wiki/2.-Core-concepts-and-glossary.md`, `5.-Mediator-API.md`, `6.-Pipelines-and-Middlewares.md`, and `8.-HTTP-transport-and-configuration-for-Client-Server-usage.md`. Update the relevant diagram there if you change pipeline ordering or the client/server call flow.
 - `docs/archive/version4/`, `docs/archive/version5/` — old wiki snapshots, kept for historical reference only; do not treat as current API documentation.
 - `docs/wiki/` is the source of truth for the GitHub Wiki: `.github/workflows/wiki-sync.yml` mirrors this folder verbatim (via `rsync --delete`) onto the wiki whenever it changes on `main`, so anything not in `docs/wiki/` will be deleted from the wiki on the next sync. **Whenever a code change affects public API surface, configuration, setup steps, middleware behavior, or any other user-facing behavior described there, update the relevant page(s) under `docs/wiki/` in the same change** — don't leave it for a follow-up. Purely internal refactors with no observable behavior change don't need a wiki update. `Home.md` is the wiki's landing/nav page — add an entry there for any new page.
 
