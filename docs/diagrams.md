@@ -1,24 +1,21 @@
 # Mediator pipeline (in process)
 Component view of the same flow as the sequence diagram below — redrawn from `img/mediator-in-process.png` / `diagrams.drawio`.
-```mermaid
-flowchart LR
-    Req(["Request"]) <-->|"Success status + data"| RErr
-    Msg(["Message"]) <-->|"Success status"| MErr
-
-    subgraph Mediator["Mediator"]
-        direction TB
-        subgraph ReqPipe["Request pipeline · middlewares"]
-            direction LR
-            RErr["Error handling"] <--> RAuth["Authorization"] <--> RCache["Caching"]
-        end
-        subgraph MsgPipe["Message pipeline · middlewares"]
-            direction LR
-            MErr["Error handling"] <--> MAuth["Authorization"] <--> MAudit["Auditing"]
-        end
-    end
-
-    RCache <--> ReqHandler["Request handler"]
-    MAudit <--> MsgHandler["Message handler"]
+```text
+       +---------+            +----------------+     +---------------+     +----------+     +-----------------+
+       | Request |        --> |                | --> |               | --> |          | --> |                 |
+       +---------+            |                |     |               |     |          |     |                 |
+                              | Error handling |     | Authorization |     | Caching  |     | Request handler |
++-----------------------+     |                |     |               |     |          |     |                 |
+| Success status + data | <-- |                | <-- |               | <-- |          | <-- |                 |
++-----------------------+     +----------------+     +---------------+     +----------+     +-----------------+
+  
+       +---------+            +----------------+     +---------------+     +----------+     +-----------------+
+       | Message |        --> |                | --> |               | --> |          | --> |                 |
+       +---------+            |                |     |               |     |          |     |                 |
+                              | Error handling |     | Authorization |     | Auditing |     | Message handler |
+    +----------------+        |                |     |               |     |          |     |                 |
+    | Success status |    <-- |                | <-- |               | <-- |          | <-- |                 |
+    +----------------+        +----------------+     +---------------+     +----------+     +-----------------+
 ```
 
 # Simple Mediator call example (in process)
@@ -42,30 +39,17 @@ sequenceDiagram
 
 # Mediator pipeline (over HTTP)
 Component view of the same flow as the sequence diagram below — redrawn from `img/mediator-over-http.png` / `diagrams.drawio`.
-```mermaid
-flowchart LR
-    Req(["Request"]) <-->|"Success status + data"| CDedup
-
-    subgraph Client["Mediator Client"]
-        direction LR
-        subgraph ClientPipe["Request pipeline · middlewares"]
-            direction LR
-            CDedup["Reduce duplicate requests"] <--> CErr["Error handling"]
-        end
-    end
-
-    CErr <--> Http[["POST /_mediator/request"]]
-    Http <--> SErr
-
-    subgraph Server["Mediator Server"]
-        direction LR
-        subgraph ServerPipe["Request pipeline · middlewares"]
-            direction LR
-            SErr["Error handling"] <--> SAuth["Authorization"] <--> SCache["Caching"]
-        end
-    end
-
-    SCache <--> Handler["Request handler"]
+```text
+                                   Mediator Client (pipeline)                                                Mediator Server (pipeline)
+                              +--------------------------------+                                +-----------------------------------------------------+
+       +---------+            | +-----------+     +----------+ |                                | +----------+     +---------------+     +---------+  |
+       | Request |        --> | |           | --> |          | |     +--------------------+     | |          | --> |               | --> |         |  |     +---------+
+       +---------+            | |  Reduce   |     |   Error  | | --> |        POST        | --> | |   Error  |     |               |     |         |  | --> | Request |
+                              | | duplicate |     | handling | |     | /_mediator/request |     | | handling |     | Authorization |     | Caching |  |     | handler |
++-----------------------+     | | requests  |     |          | | <-- |                    | <-- | |          |     |               |     |         |  | <-- |         |
+| Success status + data | <-- | |           | <-- |          | |     +--------------------+     | |          | <-- |               | <-- |         |  |     +---------+
++-----------------------+     | +-----------+     +----------+ |                                | +----------+     +---------------+     +---------+  |
+                              +--------------------------------+                                +-----------------------------------------------------+
 ```
 
 # Mediator call over HTTP
