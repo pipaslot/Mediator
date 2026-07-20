@@ -7,24 +7,14 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator;
 
-public class MediatorFacade : IMediatorFacade
+public class MediatorFacade(IMediator mediator, IMediatorContextAccessor mediatorContextAccessor, INotificationProvider notificationProvider)
+    : IMediatorFacade
 {
-    private readonly IMediator _mediator;
-    private readonly IMediatorContextAccessor _mediatorContextAccessor;
-    private readonly INotificationProvider _notificationProvider;
-
-    public MediatorFacade(IMediator mediator, IMediatorContextAccessor mediatorContextAccessor, INotificationProvider notificationProvider)
-    {
-        _mediator = mediator;
-        _mediatorContextAccessor = mediatorContextAccessor;
-        _notificationProvider = notificationProvider;
-    }
-
     #region MediatorContextAccessor
 
-    public MediatorContext? Context => _mediatorContextAccessor.Context;
+    public MediatorContext? Context => mediatorContextAccessor.Context;
 
-    public IReadOnlyCollection<MediatorContext> ContextStack => _mediatorContextAccessor.ContextStack;
+    public IReadOnlyCollection<MediatorContext> ContextStack => mediatorContextAccessor.ContextStack;
 
     #endregion
 
@@ -32,7 +22,7 @@ public class MediatorFacade : IMediatorFacade
 
     public void AddNotification(Notification notification)
     {
-        _notificationProvider.Add(notification);
+        notificationProvider.Add(notification);
     }
 
     #endregion
@@ -41,22 +31,22 @@ public class MediatorFacade : IMediatorFacade
 
     public Task<IMediatorResponse> Dispatch(IMediatorAction message, CancellationToken cancellationToken = default)
     {
-        return _mediator.Dispatch(message, cancellationToken);
+        return mediator.Dispatch(message, cancellationToken);
     }
 
     public Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default)
     {
-        return _mediator.DispatchUnhandled(message, cancellationToken);
+        return mediator.DispatchUnhandled(message, cancellationToken);
     }
 
     public Task<IMediatorResponse<TResult>> Execute<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
     {
-        return _mediator.Execute(request, cancellationToken);
+        return mediator.Execute(request, cancellationToken);
     }
 
     public Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default)
     {
-        return _mediator.ExecuteUnhandled(request, cancellationToken);
+        return mediator.ExecuteUnhandled(request, cancellationToken);
     }
 
     #endregion

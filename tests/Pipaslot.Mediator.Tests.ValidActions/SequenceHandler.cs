@@ -7,14 +7,9 @@ public static class SequenceHandler
 {
     public static int ExecutedCount { get; set; }
 
-    public class Request : IRequest<Response>
+    public class Request(bool pass) : IRequest<Response>
     {
-        public bool Pass { get; }
-
-        public Request(bool pass)
-        {
-            Pass = pass;
-        }
+        public bool Pass { get; } = pass;
     }
 
     public class Response
@@ -22,32 +17,19 @@ public static class SequenceHandler
         public static Response Instance = new();
     }
 
-    public class Message : IMessage
+    public class Message(bool pass) : IMessage
     {
-        public bool Pass { get; }
-
-        public Message(bool pass)
-        {
-            Pass = pass;
-        }
+        public bool Pass { get; } = pass;
     }
 
-    public class RequestException : System.Exception
+    public class RequestException() : System.Exception(DefaultMessage)
     {
         public static string DefaultMessage = "Requesthandler failed";
-
-        public RequestException() : base(DefaultMessage)
-        {
-        }
     }
 
-    public class MessageException : System.Exception
+    public class MessageException() : System.Exception(DefaultMessage)
     {
         public static string DefaultMessage = "Message handler failed";
-
-        public MessageException() : base(DefaultMessage)
-        {
-        }
     }
 
     public class RequestHandler1 : IRequestHandler<Request, Response>, ISequenceHandler

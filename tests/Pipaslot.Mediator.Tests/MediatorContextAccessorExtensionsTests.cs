@@ -10,21 +10,14 @@ namespace Pipaslot.Mediator.Tests;
 
 public class MediatorContextAccessorExtensionsTests
 {
-    public class MockMediatorContextAccessor : IMediatorContextAccessor
+    public class MockMediatorContextAccessor(MediatorContext? mediatorContext) : IMediatorContextAccessor
     {
-        private readonly MediatorContext? _mediatorContext;
-
-        public MockMediatorContextAccessor(MediatorContext? mediatorContext)
-        {
-            _mediatorContext = mediatorContext;
-        }
-
         public MediatorContext MediatorContext => throw new NotImplementedException();
 
         public MediatorContext Context => throw new NotImplementedException();
 
         public IReadOnlyCollection<MediatorContext> ContextStack =>
-            _mediatorContext is not null ? [_mediatorContext] : Array.Empty<MediatorContext>();
+            mediatorContext is not null ? [mediatorContext] : Array.Empty<MediatorContext>();
     }
 
     private record FakeFeature;
