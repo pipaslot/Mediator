@@ -23,6 +23,52 @@ public class MediatorContextTests
         Assert.True(sut.HasActionReturnValue);
     }
 
+    [Fact]
+    public void Depth_DefaultsToOne()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        Assert.Equal(1, sut.Depth);
+    }
+
+    [Fact]
+    public void IsNested_DefaultsToFalse()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        Assert.False(sut.IsNested);
+    }
+
+    [Fact]
+    public void SetDepth_One_IsNestedIsFalse()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        sut.SetDepth(1);
+        Assert.Equal(1, sut.Depth);
+        Assert.False(sut.IsNested);
+    }
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void SetDepth_GreaterThanOne_IsNestedIsTrue(int depth)
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        sut.SetDepth(depth);
+        Assert.Equal(depth, sut.Depth);
+        Assert.True(sut.IsNested);
+    }
+
+    [Fact]
+    public void CopyEmpty_PreservesDepth()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        sut.SetDepth(2);
+
+        var copy = sut.CopyEmpty();
+
+        Assert.Equal(2, copy.Depth);
+        Assert.True(copy.IsNested);
+    }
+
     private MediatorContext CreateContext(IMediatorAction action)
     {
         var mediator = new Mock<IMediator>();

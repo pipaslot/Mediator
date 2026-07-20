@@ -151,8 +151,9 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     private Task ProcessPipeline(IMediatorAction action, MediatorContext context)
     {
-        var contextsCount = mediatorContextAccessor?.Push(context) ?? 1; 
-        var pipeline = GetPipeline(action, hasParentContext: contextsCount > 1);
+        var contextsCount = mediatorContextAccessor?.Push(context) ?? 1;
+        context.SetDepth(contextsCount);
+        var pipeline = GetPipeline(action, hasParentContext: context.IsNested);
 
         var index = -1;
         return Next(context);

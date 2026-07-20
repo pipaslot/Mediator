@@ -84,6 +84,9 @@ public class MediatorContextAccessorTests
             // Verify that helper classes returns the same result as well
             Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action?.GetType());
             Assert.Empty(_accessor.GetParentContexts());
+            // Root execution: depth 1, not nested
+            Assert.Equal(1, _accessor.Context?.Depth);
+            Assert.False(_accessor.Context?.IsNested);
         }
 
         public void AssertTwo()
@@ -94,6 +97,11 @@ public class MediatorContextAccessorTests
             Assert.Equal(typeof(Level1Action), _accessor.GetRootContext()?.Action.GetType());
             Assert.Single(_accessor.GetParentContexts());
             Assert.Equal(typeof(Level1Action), _accessor.GetParentContexts().First().Action.GetType());
+            // Nested execution: depth 2, nested; parent remains at depth 1
+            Assert.Equal(2, _accessor.Context?.Depth);
+            Assert.True(_accessor.Context?.IsNested);
+            Assert.Equal(1, _accessor.GetParentContexts().First().Depth);
+            Assert.False(_accessor.GetParentContexts().First().IsNested);
         }
     }
 
@@ -109,23 +117,14 @@ public class MediatorContextAccessorTests
     /// <param name="Case"></param>
     private record Level1Action(ActionBehaviorTestCase Case) : IMediatorAction;
 
-    private class Level1ActionHandler : IMediatorHandler<Level1Action>
+    private class Level1ActionHandler(FakeService service, IMediator mediator) : IMediatorHandler<Level1Action>
     {
-        private readonly FakeService _service;
-        private readonly IMediator _mediator;
-
-        public Level1ActionHandler(FakeService service, IMediator mediator)
-        {
-            _service = service;
-            _mediator = mediator;
-        }
-
         public async Task Handle(Level1Action action, CancellationToken cancellationToken)
         {
-            _service.AssertSingle();
+            service.AssertSingle();
             if (action.Case == ActionBehaviorTestCase.SingleNested)
             {
-                await _mediator.DispatchUnhandled(new Level2Action(TimeSpan.FromMilliseconds(10)), cancellationToken);
+                await mediator.DispatchUnhandled(new Level2Action(TimeSpan.FromMilliseconds(10)), cancellationToken);
             }
             else if (action.Case == ActionBehaviorTestCase.ConcurrentNested)
             {
@@ -134,7 +133,7 @@ public class MediatorContextAccessorTests
                     new Level2Action(TimeSpan.FromMilliseconds(50)), new Level2Action(TimeSpan.FromMilliseconds(20)),
                     new Level2Action(TimeSpan.FromMilliseconds(10))
                 };
-                var tasks = actions.Select(async a => await _mediator.DispatchUnhandled(a, cancellationToken));
+                var tasks = actions.Select(async a => await mediator.DispatchUnhandled(a, cancellationToken));
                 await Task.WhenAll(tasks);
             }
             else
@@ -142,7 +141,7 @@ public class MediatorContextAccessorTests
                 throw new NotImplementedException();
             }
 
-            _service.AssertSingle();
+            service.AssertSingle();
         }
     }
 
@@ -152,24 +151,17 @@ public class MediatorContextAccessorTests
     /// <param name="Delay"></param>
     private record Level2Action(TimeSpan? Delay = null) : IMediatorAction;
 
-    private class Level2ActionHandler : IMediatorHandler<Level2Action>
+    private class Level2ActionHandler(FakeService service) : IMediatorHandler<Level2Action>
     {
-        private readonly FakeService _service;
-
-        public Level2ActionHandler(FakeService service)
-        {
-            _service = service;
-        }
-
         public async Task Handle(Level2Action action, CancellationToken cancellationToken)
         {
-            _service.AssertTwo();
+            service.AssertTwo();
             if (action.Delay.HasValue)
             {
                 await Task.Delay(action.Delay.Value, cancellationToken);
             }
 
-            _service.AssertTwo();
+            service.AssertTwo();
         }
     }
 }
