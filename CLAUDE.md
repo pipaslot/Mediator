@@ -21,6 +21,7 @@ dotnet test --filter "DisplayName~SomeTestMethodName"            # run a single 
 ```
 
 - `tests/Pipaslot.Mediator.Tests` references two helper projects that only exist to be scanned by reflection: `Pipaslot.Mediator.Tests.ValidActions` (well-formed actions/handlers) and `Pipaslot.Mediator.Tests.InvalidActions` (actions intentionally missing a handler). Don't "fix" the invalid-actions project — its lack of handlers is the test fixture.
+- Both xUnit test projects need `xunit.runner.visualstudio` to be discoverable by `dotnet test` (plain VSTest CLI, unlike Rider's own test runner, needs this adapter explicitly — it's not pulled in transitively by `Microsoft.NET.Test.Sdk`/`xunit`). If `dotnet test` ever reports "A total of 1 test files matched the specified pattern." followed by zero tests run instead of a pass/fail summary, this package reference is what's missing from the `.csproj`.
 - `Demo/` (Server + Client Blazor WASM + Shared) is a runnable example app, not a test suite. Use it as a reference for real usage patterns (auth, file upload, notifications, custom middlewares) rather than editing it to satisfy internal library changes.
 - `Pipaslot.Mediator.Benchmarks` uses BenchmarkDotNet; results are checked into `Report/results/*.md`. Only re-run/regenerate these when explicitly asked.
 
