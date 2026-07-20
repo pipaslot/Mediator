@@ -14,9 +14,9 @@ internal class NotificationPropagationMiddleware : IMediatorMiddleware
     {
         await next(context).ConfigureAwait(false);
 
-        var parentContext = context.ParentContexts.FirstOrDefault();
-        if (parentContext is not null)
+        if (context.IsNested)
         {
+            var parentContext = context.ParentContexts.First();
             var notifications = context.Results.Where(r => r is Notification n && !n.StopPropagation);
             parentContext.AddResults(notifications);
         }

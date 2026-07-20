@@ -81,18 +81,11 @@ public class PolicyTests
         Assert.Equal(expected, evaluated.Outcome == RuleOutcome.Allow);
     }
 
-    private class FakeBoolPolicy : IPolicy
+    private class FakeBoolPolicy(bool value) : IPolicy
     {
-        private readonly bool _value;
-
-        public FakeBoolPolicy(bool value)
-        {
-            _value = value;
-        }
-
         public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
         {
-            var set = new RuleSet(new Rule("FakeName", "FakeValue", _value));
+            var set = new RuleSet(new Rule("FakeName", "FakeValue", value));
             return Task.FromResult(set);
         }
     }

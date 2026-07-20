@@ -4,21 +4,16 @@ using System.Collections.Generic;
 
 namespace Pipaslot.Mediator;
 
-public class ActionCompletedEventArgs : EventArgs
+public class ActionCompletedEventArgs(IMediatorAction action, IReadOnlyCollection<IMediatorAction> runningActions)
+    : EventArgs
 {
-    public ActionCompletedEventArgs(IMediatorAction action, IReadOnlyCollection<IMediatorAction> runningActions)
-    {
-        Action = action;
-        RunningActions = runningActions;
-    }
-
     /// <summary>
     /// Completed action
     /// </summary>
-    public IMediatorAction Action { get; }
+    public IMediatorAction Action { get; } = action;
 
     /// <summary>
     /// Actions currently in progress
     /// </summary>
-    public IReadOnlyCollection<IMediatorAction> RunningActions { get; }
+    public IReadOnlyCollection<IMediatorAction> RunningActions { get; } = runningActions;
 }

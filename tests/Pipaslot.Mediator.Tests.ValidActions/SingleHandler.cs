@@ -9,14 +9,9 @@ public static class SingleHandler
     [ThreadStatic]
     public static int ExecutedCount;
 
-    public class Request : IRequest<Response>
+    public class Request(bool pass) : IRequest<Response>
     {
-        public bool Pass { get; }
-
-        public Request(bool pass)
-        {
-            Pass = pass;
-        }
+        public bool Pass { get; } = pass;
     }
 
     public class Response
@@ -24,32 +19,19 @@ public static class SingleHandler
         public static Response Instance = new();
     }
 
-    public class Message : IMessage
+    public class Message(bool pass) : IMessage
     {
-        public bool Pass { get; }
-
-        public Message(bool pass)
-        {
-            Pass = pass;
-        }
+        public bool Pass { get; } = pass;
     }
 
-    public class RequestException : Exception
+    public class RequestException() : Exception(DefaultMessage)
     {
         public static string DefaultMessage = "Requesthandler failed";
-
-        public RequestException() : base(DefaultMessage)
-        {
-        }
     }
 
-    public class MessageException : Exception
+    public class MessageException() : Exception(DefaultMessage)
     {
         public static string DefaultMessage = "Message handler failed";
-
-        public MessageException() : base(DefaultMessage)
-        {
-        }
     }
 
     public class RequestHandler : IRequestHandler<Request, Response>

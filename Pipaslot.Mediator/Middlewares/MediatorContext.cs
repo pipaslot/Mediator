@@ -75,12 +75,22 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     public IMediator Mediator { get; }
 
     /// <summary>
-    /// Parent action contexts. 
-    /// Will be empty if current action is executed independently. 
-    /// Will contain parent contexts of actions which executed current action as nested call. 
+    /// Parent action contexts.
+    /// Will be empty if current action is executed independently.
+    /// Will contain parent contexts of actions which executed current action as nested call.
     /// The last member is always the root action.
     /// </summary>
     public MediatorContext[] ParentContexts => _contextAccessor?.GetParentContexts() ?? [];
+
+    /// <summary>
+    /// Nesting level of the current execution. 1 = root execution, 2 = first nesting level, and so on.
+    /// </summary>
+    public int Depth { get; private set; } = 1;
+
+    /// <summary>
+    /// True when this execution was started from within another mediator execution (i.e. <see cref="Depth"/> is greater than 1).
+    /// </summary>
+    public bool IsNested => Depth > 1;
     
     private readonly IMediatorContextAccessor? _contextAccessor;
     internal readonly IServiceProvider Services;
@@ -112,7 +122,16 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     public MediatorContext CopyEmpty()
     {
         var copy = new MediatorContext(Mediator, _contextAccessor, Services, _reflectionCache, Action, CancellationToken, _handlerExecutor, _features);
+        copy.Depth = Depth;
         return copy;
+    }
+
+    /// <summary>
+    /// Sets the nesting depth once resolved by the pipeline construction.
+    /// </summary>
+    internal void SetDepth(int depth)
+    {
+        Depth = depth;
     }
 
     /// <summary>

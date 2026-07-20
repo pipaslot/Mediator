@@ -9,18 +9,11 @@ using System.Text;
 
 namespace Demo.Server.Handlers.Auth;
 
-public class LoginRequestHandler : IRequestHandler<LoginRequest, LoginRequestResult>
+public class LoginRequestHandler(IOptions<LoginRequestHandler.AuthOptions> authOptions) : IRequestHandler<LoginRequest, LoginRequestResult>
 {
-    private readonly IOptions<AuthOptions> _authOptions;
-
-    public LoginRequestHandler(IOptions<AuthOptions> authOptions)
-    {
-        _authOptions = authOptions;
-    }
-
     public Task<LoginRequestResult> Handle(LoginRequest action, CancellationToken cancellationToken)
     {
-        var options = _authOptions.Value;
+        var options = authOptions.Value;
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, action.Login), new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), new("role", "visitor")

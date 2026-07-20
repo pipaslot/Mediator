@@ -176,37 +176,26 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
         public Nested Nested { get; init; } = new();
     }
 
-    public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract : IMessage, IContract
+    public class ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(
+        string name,
+        int number,
+        string[] collection,
+        Nested nested)
+        : IMessage, IContract
     {
-        public ParametricConstructorWithMatchingNamesAndPublicPropertyGetterOnlyContract(string name, int number, string[] collection,
-            Nested nested)
-        {
-            Name = name;
-            Number = number;
-            Collection = collection;
-            Nested = nested;
-        }
-
-        public string Name { get; }
-        public int Number { get; }
-        public string[] Collection { get; }
-        public Nested Nested { get; }
+        public string Name { get; } = name;
+        public int Number { get; } = number;
+        public string[] Collection { get; } = collection;
+        public Nested Nested { get; } = nested;
     }
 
-    public class ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract : IMessage, IContract
+    public class ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(string par1, int par2, string[] collection, Nested nested)
+        : IMessage, IContract
     {
-        public ConstructorWithNotMatchingBindingNamesAndWithPrivateGetterContract(string par1, int par2, string[] collection, Nested nested)
-        {
-            Name = par1;
-            Number = par2;
-            Collection = collection;
-            Nested = nested;
-        }
-
-        public string Name { get; }
-        public int Number { get; }
-        public string[] Collection { get; }
-        public Nested Nested { get; }
+        public string Name { get; } = par1;
+        public int Number { get; } = par2;
+        public string[] Collection { get; } = collection;
+        public Nested Nested { get; } = nested;
     }
 
     public class PublicPropertyGetterAndInitSetterContract : IMessage, IContract
