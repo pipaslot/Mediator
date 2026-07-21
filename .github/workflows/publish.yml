@@ -1,17 +1,44 @@
 name: publish to nuget
 on:
   push:
-    branches:
-      - release/*
-      - main
+    tags:
+      - 'v*.*.*'
 jobs:
   publish:
     name: build, pack & publish
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required to request the OIDC token for NuGet Trusted Publishing
+      contents: write # required to create the GitHub Release
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # MinVer needs full tag history to compute the version
 
-      - uses: actions/setup-dotnet@v1
+      - name: Verify tag is on main or a release branch
+        run: |
+          git fetch origin main '+refs/heads/release/*:refs/remotes/origin/release/*' --quiet
+          git branch -r --contains HEAD | grep -qE '(^|/)(main|release/)' \
+            || { echo "::error::Tag ${{ github.ref_name }} (commit $GITHUB_SHA) is not reachable from main or any release/* branch. Tag a commit that has been merged first."; exit 1; }
+
+      - name: Extract release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          CHANGELOG="docs/wiki/Release-notes-and-breaking-changes.md"
+          ESCAPED_VERSION=$(printf '%s' "$VERSION" | sed 's/[.[\*^$]/\\&/g')
+          if ! grep -qE "^## Version ${ESCAPED_VERSION}([^0-9.]|\$)" "$CHANGELOG"; then
+            echo "::error::Changelog entry for v$VERSION missing in $CHANGELOG — rename '## Unreleased' to '## Version $VERSION' first."
+            exit 1
+          fi
+          awk -v ver="$ESCAPED_VERSION" '
+            /^## Version / {
+              if (printing) exit
+              if ($0 ~ "^## Version " ver "([^0-9.]|$)") { printing = 1; next }
+            }
+            printing { print }
+          ' "$CHANGELOG" > release-notes.md
+
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
@@ -24,8 +51,8 @@ jobs:
         run: |
           cd ./tests/Pipaslot.Mediator.Http.Tests/
           dotnet test
-      
-      # Publish      
+
+      # Publish
 
       - name: Pack Core
         run: dotnet pack Pipaslot.Mediator/Pipaslot.Mediator.csproj -c Release -o ./packed/
@@ -33,5 +60,16 @@ jobs:
       - name: Pack Http
         run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release -o ./packed/
 
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: pipaslot
+
       - name: Publish
-        run: dotnet nuget push ./packed/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./packed/*.nupkg --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" --notes-file release-notes.md
