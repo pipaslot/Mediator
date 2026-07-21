@@ -15,6 +15,23 @@ jobs:
         with:
           fetch-depth: 0 # MinVer needs full tag history to compute the version
 
+      - name: Verify tag is on main or a release branch
+        run: |
+          git fetch origin main --quiet
+          if git merge-base --is-ancestor HEAD origin/main; then
+            echo "OK: ${{ github.ref_name }} is reachable from main."
+            exit 0
+          fi
+          git fetch origin '+refs/heads/release/*:refs/remotes/origin/release/*' --quiet
+          for ref in $(git for-each-ref --format='%(refname)' refs/remotes/origin/release/); do
+            if git merge-base --is-ancestor HEAD "$ref"; then
+              echo "OK: ${{ github.ref_name }} is reachable from $ref."
+              exit 0
+            fi
+          done
+          echo "::error::Tag ${{ github.ref_name }} (commit $GITHUB_SHA) is not reachable from main or any release/* branch. Tag a commit that has been merged first."
+          exit 1
+
       - name: Extract release notes
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
