@@ -9,6 +9,11 @@ This file documents maintainer workflows for this repo. It is not part of the pu
 - Any PR that changes user-observable behavior adds a bullet under the `## Unreleased` section at the top of the file. Do not invent a version number for it — that happens later, at release time.
 - `## Unreleased` stays empty between releases; it's fine for it to have no bullets for a while.
 
+## CI quality gate
+
+- `.github/workflows/ci.yml` builds and runs both test suites (Core + Http) on every PR targeting `main` and on every push to `main`.
+- This only blocks merging if branch protection on `main` requires it: Settings → Branches → branch protection rule for `main` → "Require status checks to pass before merging" → select the `build & test` check. Without that setting, a failing CI run shows as a red X on the PR but does not stop the merge button.
+
 ## Versioning
 
 - `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` always share the same version number. One git tag releases both packages together.
