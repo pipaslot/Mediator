@@ -1,3 +1,6 @@
+## Unreleased
+* Added `MediatorContext.Depth` and `MediatorContext.IsNested` to expose the nesting level of the current execution (1 = root execution, `IsNested` true when `Depth > 1`).
+
 ## Version 8.3.1
 * Removed the unnecessary System.Text.Json dependency to simplify the codebase.
 * Added support for serialization of Rule and RuleSet objects.
