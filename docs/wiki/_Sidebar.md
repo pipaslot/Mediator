@@ -1,8 +1,5 @@
 **[Home](Home)**
 
-**Release notes**
-- [Release notes and breaking changes](Release-notes-and-breaking-changes)
-
 **Where to start**
 1. [Why Pipaslot.Mediator](1.-Why-Pipaslot.Mediator)
 2. [Core concepts and glossary](2.-Core-concepts-and-glossary)
@@ -17,4 +14,7 @@
    - [9.1. Custom action and handler types](9.1.-Custom-action-and-handler-types)
    - [9.2. Multi-handler execution](9.2.-Multi-handler-execution)
    - [9.3. Custom HTTP responses and file download](9.3.-Custom-HTTP-responses-and-file-download)
-10. [Cookbook and integrations](10.-Cookbook-and-integrations)
+   - [9.4. Cookbook and integrations](9.4.-Cookbook-and-integrations)
+
+**Release notes**
+- [Release notes and breaking changes](Release-notes-and-breaking-changes)
