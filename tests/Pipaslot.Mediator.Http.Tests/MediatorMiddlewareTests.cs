@@ -130,7 +130,7 @@ public class MediatorMiddlewareTests
     }
 
     [Fact]
-    public async Task WillApplyFirstHttpResult_WhenMultiplePresent()
+    public async Task WillThrow_WhenMultipleHttpResultsPresent()
     {
         var first = new FakeHttpResult();
         var second = new FakeHttpResult();
@@ -141,9 +141,11 @@ public class MediatorMiddlewareTests
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakePostRequest(_message), services);
-        await sut.Invoke(context);
 
-        Assert.True(first.Applied);
+        var ex = await Assert.ThrowsAsync<MediatorHttpException>(() => sut.Invoke(context));
+
+        Assert.Equal(MediatorHttpException.CreateForMultipleHttpResults(2).Message, ex.Message);
+        Assert.False(first.Applied);
         Assert.False(second.Applied);
     }
 

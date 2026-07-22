@@ -15,6 +15,11 @@ namespace Pipaslot.Mediator.Http;
 /// automatically, so no nesting check is required by the handler.
 /// </para>
 /// <para>
+/// At most one <see cref="IMediatorHttpResult"/> may be present in the root Results. If more than one is found,
+/// <see cref="MediatorMiddleware"/> throws a <see cref="MediatorHttpException"/> instead of silently applying one
+/// and discarding the rest.
+/// </para>
+/// <para>
 /// The implementation owns and is responsible for disposing of any resources (streams, etc.) it holds.
 /// </para>
 /// </summary>

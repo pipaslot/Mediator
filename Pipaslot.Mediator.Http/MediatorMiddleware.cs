@@ -28,10 +28,15 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         {
             var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
 
-            var httpResult = mediatorResponse.Results.OfType<IMediatorHttpResult>().FirstOrDefault();
-            if (httpResult is not null)
+            var httpResults = mediatorResponse.Results.OfType<IMediatorHttpResult>().ToList();
+            if (httpResults.Count > 1)
             {
-                await httpResult.ApplyAsync(context, context.RequestAborted).ConfigureAwait(false);
+                throw MediatorHttpException.CreateForMultipleHttpResults(httpResults.Count);
+            }
+
+            if (httpResults.Count == 1)
+            {
+                await httpResults[0].ApplyAsync(context, context.RequestAborted).ConfigureAwait(false);
                 return;
             }
 
