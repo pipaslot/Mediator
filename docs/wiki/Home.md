@@ -1,4 +1,4 @@
-See release changes [here](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes).
+See release changes [here](Release-notes-and-breaking-changes).
 
 Pipaslot.Mediator implements the Mediator pattern for .NET with an ASP.NET Core-style middleware pipeline: a single, consistent entry point for your business actions instead of scattering calls across services, with cross-cutting concerns (validation, authorization, logging, transactions, ...) centralized once in middleware instead of duplicated per handler.
 
