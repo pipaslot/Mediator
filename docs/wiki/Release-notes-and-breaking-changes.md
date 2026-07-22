@@ -1,3 +1,6 @@
+## Unreleased
+* Added `Pipaslot.Mediator.Http.IMediatorHttpResult` — a handler can return a result implementing this interface to have `MediatorMiddleware` apply it directly to the HTTP response instead of serializing the default JSON body. Because nested mediator call results never leak into the root response unless the calling handler explicitly forwards them, no `IsNested` check is required. Additive, non-breaking.
+
 ## Version 8.4.0
 * Added `MediatorContext.Depth` and `MediatorContext.IsNested` to expose the nesting level of the current execution (1 = root execution, `IsNested` true when `Depth > 1`).
 

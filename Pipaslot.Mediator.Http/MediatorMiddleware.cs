@@ -7,6 +7,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -26,6 +27,14 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         if (context.Request.Path == option.Endpoint && (isPost || isGet))
         {
             var mediatorResponse = await SafeExecute(context, isPost).ConfigureAwait(false);
+
+            var httpResult = mediatorResponse.Results.OfType<IMediatorHttpResult>().FirstOrDefault();
+            if (httpResult is not null)
+            {
+                await httpResult.ApplyAsync(context, context.RequestAborted).ConfigureAwait(false);
+                return;
+            }
+
             // Change status code only if has default value (200: OK)
             if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
             {
