@@ -7,7 +7,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
     <File Path="CLAUDE.md" />
-    <File Path="LICENSE.txt" />
+    <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
