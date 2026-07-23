@@ -52,11 +52,20 @@ public class NotificationPropagationTests
     [InlineData(ServiceType.Facade, 1, true, false, false)]
     [InlineData(ServiceType.Facade, 2, true, true, false)]
     [InlineData(ServiceType.Facade, 2, true, false, false)]
+    // Results-forwarding must not depend on the notification type: an Error notification propagates through
+    // Results exactly like a Success one (see NotificationPropagationStatusTests for the separate concern of
+    // whether it also flips the parent's Status).
+    [InlineData(ServiceType.Facade, 0, false, true, true, NotificationType.Error)]
+    [InlineData(ServiceType.Facade, 0, false, false, true, NotificationType.Error)]
+    [InlineData(ServiceType.Facade, 1, false, true, false, NotificationType.Error)]
+    [InlineData(ServiceType.Facade, 1, false, false, true, NotificationType.Error)]
+    [InlineData(ServiceType.Facade, 2, false, true, false, NotificationType.Error)]
+    [InlineData(ServiceType.Facade, 2, false, false, true, NotificationType.Error)]
     public async Task TestPropagation(ServiceType serviceType, int depth, bool cancelPropagationByMiddleware, bool stopPropagation,
-        bool shouldHaveNotification)
+        bool shouldHaveNotification, NotificationType type = NotificationType.Success)
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<StopPropagationMiddleware>());
-        var res = await sut.Dispatch(new NotifyingAction(depth, stopPropagation, serviceType, cancelPropagationByMiddleware));
+        var res = await sut.Dispatch(new NotifyingAction(depth, stopPropagation, serviceType, cancelPropagationByMiddleware, type));
         var notifications = res.Results.Where(r => r is Notification).Cast<Notification>().ToList();
         if (shouldHaveNotification)
         {
@@ -68,7 +77,8 @@ public class NotificationPropagationTests
         }
     }
 
-    private record NotifyingAction(int Depth, bool StopPropagation, ServiceType ServiceType, bool CancelPropagationByMiddleware) : IMediatorAction;
+    private record NotifyingAction(int Depth, bool StopPropagation, ServiceType ServiceType, bool CancelPropagationByMiddleware,
+        NotificationType Type = NotificationType.Success) : IMediatorAction;
 
     private record NotifyingActionHandler : IMediatorHandler<NotifyingAction>
     {
@@ -93,7 +103,7 @@ public class NotificationPropagationTests
             {
                 var notifiaction = new Notification
                 {
-                    Content = NotificationContent, Type = NotificationType.Success, StopPropagation = action.StopPropagation
+                    Content = NotificationContent, Type = action.Type, StopPropagation = action.StopPropagation
                 };
                 if (action.ServiceType == ServiceType.NotificationProvider)
                 {
