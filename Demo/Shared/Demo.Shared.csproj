@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
+        <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
