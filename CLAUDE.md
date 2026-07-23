@@ -25,6 +25,20 @@ dotnet test --filter "DisplayName~SomeTestMethodName"            # run a single 
 - `Demo/` (Server + Client Blazor WASM + Shared) is a runnable example app, not a test suite. Use it as a reference for real usage patterns (auth, file upload, notifications, custom middlewares) rather than editing it to satisfy internal library changes.
 - `Pipaslot.Mediator.Benchmarks` uses BenchmarkDotNet; results are checked into `Report/results/*.md`. Only re-run/regenerate these when explicitly asked.
 
+### Code coverage
+
+Both test projects already reference `coverlet.collector` (in-box, no install needed). To produce an HTML coverage report for `Pipaslot.Mediator` and `Pipaslot.Mediator.Http`:
+
+```bash
+dotnet test tests/Pipaslot.Mediator.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Mediator
+dotnet test tests/Pipaslot.Mediator.Http.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Http
+
+dotnet tool install -g dotnet-reportgenerator-globaltool   # one-time, skip if already installed
+reportgenerator -reports:"TestResults/Mediator/**/coverage.cobertura.xml;TestResults/Http/**/coverage.cobertura.xml" -targetdir:TestResults/CoverageReport -reporttypes:Html
+```
+
+Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated artifact directory, not checked in — re-run the commands above rather than expecting a stale report to exist.
+
 ## Architecture
 
 ### The pipeline model
