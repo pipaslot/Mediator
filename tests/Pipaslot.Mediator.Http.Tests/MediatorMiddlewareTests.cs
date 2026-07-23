@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Tests.Fakes;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -40,6 +42,111 @@ public class MediatorMiddlewareTests
     public async Task GetRequestWillBePropagatedToMediator()
     {
         await ExecuteRequest(new FakeGetRequest(_request));
+    }
+
+    [Fact]
+    public async Task WillNotWriteResponse_WhenResponseAlreadyHasStarted()
+    {
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse(hasStarted: true);
+        var context = new FakeContext(new FakePostRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        // Default JSON serialization must be skipped once something else already wrote to the response
+        Assert.Equal(string.Empty, response.ContentType);
+    }
+
+    [Fact]
+    public async Task WillSetErrorStatusCode_WhenMediatorResponseFailed()
+    {
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, Array.Empty<object>()));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse();
+        var context = new FakeContext(new FakePostRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        Assert.Equal(MediatorConstants.ErrorHttpStatusCode, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task WillPreserveStatusCode_WhenAlreadyChangedByMiddleware()
+    {
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, Array.Empty<object>()));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse { StatusCode = (int)HttpStatusCode.BadRequest };
+        var context = new FakeContext(new FakePostRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        Assert.Equal((int)HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task WillApplyHttpResult_InsteadOfWritingJson()
+    {
+        var httpResult = new FakeHttpResult();
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [httpResult]));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse();
+        var context = new FakeContext(new FakePostRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        Assert.True(httpResult.Applied);
+        Assert.Equal(string.Empty, response.ContentType);
+    }
+
+    [Fact]
+    public async Task WillNotOverwriteStatusCode_WhenHttpResultApplied()
+    {
+        var httpResult = new FakeHttpResult();
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, [httpResult]));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse();
+        var context = new FakeContext(new FakePostRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        Assert.True(httpResult.Applied);
+        Assert.Equal((int)HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task WillThrow_WhenMultipleHttpResultsPresent()
+    {
+        var first = new FakeHttpResult();
+        var second = new FakeHttpResult();
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [first, second]));
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediatorMock);
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var context = new FakeContext(new FakePostRequest(_message), services);
+
+        var ex = await Assert.ThrowsAsync<MediatorHttpException>(() => sut.Invoke(context));
+
+        Assert.Equal(MediatorHttpException.CreateForMultipleHttpResults(2).Message, ex.Message);
+        Assert.False(first.Applied);
+        Assert.False(second.Applied);
     }
 
     private async Task ExecuteRequest(HttpRequest request)

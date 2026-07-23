@@ -25,6 +25,20 @@ dotnet test --filter "DisplayName~SomeTestMethodName"            # run a single 
 - `Demo/` (Server + Client Blazor WASM + Shared) is a runnable example app, not a test suite. Use it as a reference for real usage patterns (auth, file upload, notifications, custom middlewares) rather than editing it to satisfy internal library changes.
 - `Pipaslot.Mediator.Benchmarks` uses BenchmarkDotNet; results are checked into `Report/results/*.md`. Only re-run/regenerate these when explicitly asked.
 
+### Code coverage
+
+Both test projects already reference `coverlet.collector` (in-box, no install needed). To produce an HTML coverage report for `Pipaslot.Mediator` and `Pipaslot.Mediator.Http`:
+
+```bash
+dotnet test tests/Pipaslot.Mediator.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Mediator
+dotnet test tests/Pipaslot.Mediator.Http.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Http
+
+dotnet tool install -g dotnet-reportgenerator-globaltool   # one-time, skip if already installed
+reportgenerator -reports:"TestResults/Mediator/**/coverage.cobertura.xml;TestResults/Http/**/coverage.cobertura.xml" -targetdir:TestResults/CoverageReport -reporttypes:Html
+```
+
+Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated artifact directory, not checked in — re-run the commands above rather than expecting a stale report to exist.
+
 ## Architecture
 
 ### The pipeline model
@@ -37,6 +51,7 @@ Every call into the mediator flows through `Mediator.Dispatch`/`Execute` (`Pipas
 - **`HandlerExecutionMiddleware`** (implements `IExecutionMiddleware`) is always the terminal middleware unless a custom `IExecutionMiddleware` is registered instead — this is how `Pipaslot.Mediator.Http`'s client swaps handler execution for an HTTP call (`HttpClientExecutionMiddleware` is registered as the `IExecutionMiddleware`, see `AddMediatorClient`).
 - **`MediatorContext`** carries the action, accumulated `Results`, `ExecutionStatus`, and an `IFeatureCollection` (ASP.NET Core-style extensible per-request feature bag, see `Middlewares/Features/`) through the whole pipeline.
 - Nested mediator calls (a handler calling `IMediator` again for another action) get an extra `NotificationPropagationMiddleware` automatically inserted so results/notifications bubble back to the parent context — see the "Nested calls" sequence diagram in `docs/wiki/5.-Mediator-API.md` and `MediatorContextAccessor.Push`.
+- **Design principle: nested calls must not touch the shared `HttpContext`.** Only the root context (applied centrally from `Pipaslot.Mediator.Http.MediatorMiddleware` after the pipeline finishes) may write to `HttpContext`
 
 ### Registration entry points
 
@@ -69,6 +84,7 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 - `docs/archive/version4/`, `docs/archive/version5/` — old wiki snapshots, kept for historical reference only; do not treat as current API documentation.
 - `docs/wiki/` is the source of truth for the GitHub Wiki: `.github/workflows/wiki-sync.yml` mirrors this folder verbatim (via `rsync --delete`) onto the wiki whenever it changes on `main`, so anything not in `docs/wiki/` will be deleted from the wiki on the next sync. **Whenever a code change affects public API surface, configuration, setup steps, middleware behavior, or any other user-facing behavior described there, update the relevant page(s) under `docs/wiki/` in the same change** — don't leave it for a follow-up. Purely internal refactors with no observable behavior change don't need a wiki update. `Home.md` is the wiki's landing/nav page — add an entry there for any new page.
 - **Every change with user-observable behavior also gets a changelog bullet.** Add it under `## Unreleased` at the top of `docs/wiki/Release-notes-and-breaking-changes.md`, in the same change — don't leave it for a follow-up, and don't invent a version number (that's assigned later, at release time; see `CONTRIBUTING.md`). Purely internal refactors with no observable behavior change don't need an entry.
+- **Changelog bullets are one terse sentence each** — what changed, not why or how. No rationale, no design justification, no enumeration of edge cases/exceptions/behavioral nuances. If a reader needs more than the one-liner, link to the relevant `docs/wiki/` page (`[Page](page.md#anchor)`) rather than explaining inline — the wiki page is where that detail belongs and stays current.
 
 ### Expected wiki page structure
 

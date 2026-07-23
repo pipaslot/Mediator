@@ -48,4 +48,11 @@ public class MediatorHttpException(string message, Exception? innerException = n
     {
         return new MediatorHttpException("Can not activate JsonConverter class");
     }
+
+    internal static MediatorHttpException CreateForMultipleHttpResults(int count)
+    {
+        return new MediatorHttpException(
+            $"Root action Results contain {count} objects implementing {nameof(IMediatorHttpResult)}, but at most one is allowed. " +
+            $"Only one handler in the call chain may forward a {nameof(IMediatorHttpResult)} as its own result.");
+    }
 }
