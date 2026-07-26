@@ -17,8 +17,13 @@ internal class NotificationPropagationMiddleware : IMediatorMiddleware
         if (context.IsNested)
         {
             var parentContext = context.ParentContexts.First();
-            var notifications = context.Results.Where(r => r is Notification n && !n.StopPropagation);
-            parentContext.AddResults(notifications);
+            var notifications = context.Results
+                .Where(r => r is Notification n && !n.StopPropagation)
+                .Cast<Notification>();
+            foreach (var notification in notifications)
+            {
+                parentContext.AddForwardedNotification(notification);
+            }
         }
     }
 }

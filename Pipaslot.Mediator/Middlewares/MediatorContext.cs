@@ -147,14 +147,29 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
                 Status = ExecutionStatus.Failed;
             }
 
-            if (!ContainsNotification(notification))
-            {
-                _results.Add(notification);
-            }
+            AppendNotification(notification);
         }
         else
         {
             _results.Add(result);
+        }
+    }
+
+    /// <summary>
+    /// Registers a notification forwarded from a nested/child context's own Results (used by <see cref="NotificationPropagationMiddleware"/>).
+    /// Unlike <see cref="AddResult"/>, this never mutates <see cref="Status"/> - a descendant context's already-resolved outcome
+    /// must not silently flip this context's own status; only this context's own local AddResult/AddError calls do that.
+    /// </summary>
+    internal void AddForwardedNotification(Notification notification)
+    {
+        AppendNotification(notification);
+    }
+
+    private void AppendNotification(Notification notification)
+    {
+        if (!ContainsNotification(notification))
+        {
+            _results.Add(notification);
         }
     }
 
