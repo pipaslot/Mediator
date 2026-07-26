@@ -1,5 +1,6 @@
 ## Unreleased
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.
+* Added `Pipaslot.Mediator.Http.MediatorContextExtensions.SetResponseStatusCodeHint`, letting a middleware or handler hint the root HTTP response status code without touching `HttpContext` directly — see [8.-HTTP-transport-and-configuration-for-Client-Server-usage.md](8.-HTTP-transport-and-configuration-for-Client-Server-usage.md#server-choosing-the-http-status-code). Additive, non-breaking.
 * Fix: a nested action's error notification, once forwarded into an ancestor context, no longer flips that ancestor's own ExecutionStatus/Success — see [Notification propagation across nested calls](9.4.-Cookbook-and-integrations.md#notification-propagation-across-nested-calls).
 
 ## Version 8.4.0

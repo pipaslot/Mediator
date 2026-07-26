@@ -40,15 +40,25 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 return;
             }
 
+            // A later hint overrides an earlier one, same as MediatorContext.Features.Set would.
+            var statusCodeHint = mediatorResponse.Results.OfType<ResponseStatusCodeHint>().LastOrDefault();
+            if (statusCodeHint is not null && !context.Response.HasStarted)
+            {
+                context.Response.StatusCode = statusCodeHint.StatusCode;
+            }
             // Change status code only if has default value (200: OK)
-            if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
+            else if (context.Response.StatusCode == (int)HttpStatusCode.OK && mediatorResponse.Failure)
             {
                 context.Response.StatusCode = option.ErrorHttpStatusCode;
             }
 
             if (!context.Response.HasStarted)
             {
-                var serializedResponse = serializer.SerializeResponse(mediatorResponse);
+                // The hint is an internal signal for the status code only - never part of the serialized JSON body.
+                var bodyResponse = statusCodeHint is null
+                    ? mediatorResponse
+                    : new MediatorResponse(mediatorResponse.Success, mediatorResponse.Results.Where(r => r is not ResponseStatusCodeHint));
+                var serializedResponse = serializer.SerializeResponse(bodyResponse);
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(serializedResponse).ConfigureAwait(false);
             }

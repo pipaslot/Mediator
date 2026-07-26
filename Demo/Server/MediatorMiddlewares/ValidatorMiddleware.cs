@@ -1,10 +1,11 @@
 ﻿using Demo.Shared;
 using Pipaslot.Mediator.Middlewares;
 using System.Net;
+using Pipaslot.Mediator.Http;
 
 namespace Demo.Server.MediatorMiddlewares;
 
-public class ValidatorMiddleware(IHttpContextAccessor httpContextAccessor) : IMediatorMiddleware
+public class ValidatorMiddleware : IMediatorMiddleware
 {
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
@@ -14,14 +15,8 @@ public class ValidatorMiddleware(IHttpContextAccessor httpContextAccessor) : IMe
             if (errors != null && errors.Any())
             {
                 context.AddErrors(errors);
-                // Optional:
-                // Notify the client via response status code to imporove logging and debugging experience
-                var httpContext = httpContextAccessor.HttpContext;
-                if (httpContext != null)
-                {
-                    httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                }
-
+                context.SetResponseStatusCodeHint((int)HttpStatusCode.BadRequest);
+               
                 return;
             }
         }
