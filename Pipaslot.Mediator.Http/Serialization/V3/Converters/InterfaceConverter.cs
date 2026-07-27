@@ -35,6 +35,7 @@ internal class InterfaceConverter<T>(ICredibleProvider credibleActions) : JsonCo
         var typeValue = readerClone.GetString() ?? string.Empty;
         var resultType = ContractSerializerTypeHelper.GetType(typeValue);
         var arrayItemType = ContractSerializerTypeHelper.GetEnumeratedType(resultType);
+        object des;
         if (arrayItemType != null)
         {
             if (!arrayItemType.IsInterface)
@@ -58,14 +59,21 @@ internal class InterfaceConverter<T>(ICredibleProvider credibleActions) : JsonCo
             reader.Read();
             reader.Read();
             reader.Read();
+
+            des = JsonSerializer.Deserialize(ref reader, resultType, options)
+                  ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+            
+            // The reads above only advance up to the "Items" array value, so the wrapping object's
+            // closing brace is still unconsumed. JsonConverter<T>.Read must consume exactly one full
+            // value or the framework's VerifyRead check fails with "read too much or not enough".
+            reader.Read();
         }
         else
         {
             credibleActions.VerifyCredibility(resultType);
-        }
-
-        var des = JsonSerializer.Deserialize(ref reader, resultType, options)
+            des = JsonSerializer.Deserialize(ref reader, resultType, options)
                   ?? throw new MediatorException($"Can not deserialize json to type {resultType}");
+        }
         return (T)des;
     }
 
