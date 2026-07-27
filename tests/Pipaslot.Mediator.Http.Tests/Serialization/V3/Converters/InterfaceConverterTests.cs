@@ -2,6 +2,7 @@ using Moq;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3.Converters;
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
@@ -65,6 +66,49 @@ public class InterfaceConverterTests
 
         _credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(IContract[])), Times.Never);
         Assert.Equal("A", ((Contract)deserialized[0]).Name);
+    }
+
+    [Fact]
+    public void RoundTrip_EmptyArrayOfInterfaceItems_Items()
+    {
+        var options = CreateOptions<IEnumerable>();
+        IEnumerable value = Array.Empty<IContract>();
+
+        var json = JsonSerializer.Serialize(value, options);
+        var deserialized = (IContract[])JsonSerializer.Deserialize<IEnumerable>(json, options)!;
+
+        Assert.Empty(deserialized);
+    }
+
+    [Fact]
+    public void Write_ArrayOfInterfaceItems_ProducesItemsPropertyWithTypeIdentifier()
+    {
+        // Pairs with RoundTrip_ArrayOfInterfaceItems_SkipsCredibilityVerificationOfArrayType above,
+        // which round-trips the same shape but never pins the exact wire format.
+        var options = CreateOptions<IEnumerable>();
+        IEnumerable value = new IContract[] { new Contract { Name = "A" } };
+
+        var json = JsonSerializer.Serialize(value, options);
+
+        var arrayTypeJson = JsonSerializer.Serialize(ContractSerializerTypeHelper.GetIdentifier(typeof(IContract[])));
+        var itemTypeJson = JsonSerializer.Serialize(ContractSerializerTypeHelper.GetIdentifier(typeof(Contract)));
+        var expected = $$"""{"$type":{{arrayTypeJson}},"Items":[{"$type":{{itemTypeJson}},"Name":"A"}]}""";
+        Assert.Equal(expected, json);
+    }
+
+    [Fact]
+    public void RoundTrip_NonArrayObject_VerifiesCredibilityAndDeserializes()
+    {
+        // Exercises the "else" branch of Read (arrayItemType == null) directly at converter level;
+        // previously only reached indirectly via JsonContractSerializer_InterfaceTests/CredibilityTests.
+        var options = CreateOptions<IContract>();
+        IContract value = new Contract { Name = "A" };
+
+        var json = JsonSerializer.Serialize(value, options);
+        var deserialized = JsonSerializer.Deserialize<IContract>(json, options)!;
+
+        _credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(Contract)), Times.Once);
+        Assert.Equal("A", ((Contract)deserialized).Name);
     }
 
     [Fact]
