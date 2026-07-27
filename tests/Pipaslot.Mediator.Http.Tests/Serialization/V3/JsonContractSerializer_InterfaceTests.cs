@@ -190,11 +190,4 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
     {
         public IMediatorAction SubAction { get; init; } = null!;
     }
-
-    public class ResultSetResponse
-    {
-        public IResultSet[] Sets { get; set; } = [];
-    }
-
-    public interface IResultSet : ICollection<Result>;
 }

@@ -39,6 +39,10 @@ reportgenerator -reports:"TestResults/Mediator/**/coverage.cobertura.xml;TestRes
 
 Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated artifact directory, not checked in — re-run the commands above rather than expecting a stale report to exist.
 
+### Test-writing conventions
+
+- **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
+
 ## Architecture
 
 ### The pipeline model

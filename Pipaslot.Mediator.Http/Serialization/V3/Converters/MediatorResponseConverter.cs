@@ -31,6 +31,12 @@ internal class MediatorResponseConverter(ICredibleProvider credibleResults) : Js
                     case nameof(IMediatorResponse.Results):
                         results = ReadResults(ref reader, options);
                         break;
+                    default:
+                        // Skip past this property's whole value so an unrecognized property whose value is
+                        // an object/array (e.g. added by a newer server version) doesn't leave a nested
+                        // EndObject/EndArray behind for the loop above to mistake for the response's own.
+                        reader.Skip();
+                        break;
                 }
             }
         }
