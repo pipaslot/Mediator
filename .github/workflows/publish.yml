@@ -37,6 +37,7 @@ jobs:
             }
             printing { print }
           ' "$CHANGELOG" > release-notes.md
+          sed -i -E 's/\(([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/(https:\/\/github.com\/pipaslot\/Mediator\/wiki\/\1\2)/g' release-notes.md
 
       - uses: actions/setup-dotnet@v4
         with:
