@@ -54,7 +54,7 @@ jobs:
             local pct
             pct=$(awk "BEGIN { printf \"%.2f\", $rate * 100 }")
             echo "$name line coverage: $pct%"
-            if awk "BEGIN { exit !($rate < 0.75) }"; then
+            if awk "BEGIN { exit !($rate < 0.80) }"; then
               echo "::error::$name line coverage $pct% is below the 80% threshold"
               return 1
             fi
