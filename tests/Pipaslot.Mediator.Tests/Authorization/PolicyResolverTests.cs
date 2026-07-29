@@ -211,13 +211,11 @@ public class PolicyResolverTests
     }
 
     [Fact]
-    public void HasActionPolicies_ActionImplementsIActionAuthorizationOnly_ReturnsFalse()
+    public void HasActionPolicies_ActionImplementsIActionAuthorizationOnly_ReturnsTrue()
     {
-        // Documents current behavior: the check is `action.IsAssignableFrom(typeof(IActionAuthorization))`, the reverse
-        // of what detecting "action implements IActionAuthorization" requires, so this case is never picked up on its own.
         var result = PolicyResolver.HasActionPolicies(typeof(ActionAuthorizedByInterface), Array.Empty<object>());
 
-        Assert.False(result);
+        Assert.True(result);
     }
 
     [AnonymousPolicy]
