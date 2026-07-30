@@ -66,7 +66,7 @@ internal static class PolicyResolver
 
     internal static bool HasActionPolicies(Type action, object[] handlers)
     {
-        if (action.IsAssignableFrom(typeof(IActionAuthorization))
+        if (typeof(IActionAuthorization).IsAssignableFrom(action)
             || GetPolicyAttributes(action).Any())
         {
             return true;

@@ -1,4 +1,5 @@
 ## Unreleased
+* Fix: `IHandlerExistenceChecker.Verify` with `CheckExistingPolicies` no longer flags an action as missing authorization when it implements `IActionAuthorization` directly (without also carrying a policy attribute).
 
 ## Version 8.5.0
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.

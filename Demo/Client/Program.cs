@@ -30,7 +30,6 @@ services.AddMediatorClient(o =>
     })
     .UseNotificationReceiver()
     .UseWhenAction<IRequest>(s => s
-        .UseReduceDuplicateProcessing()
         .Use<CancellationOnNavigationMediatorMiddleware>(ServiceLifetime.Singleton))
     .UseActionEvents();
 ////////
