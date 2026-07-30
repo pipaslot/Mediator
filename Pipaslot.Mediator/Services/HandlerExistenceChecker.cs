@@ -8,7 +8,10 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Services;
 
+// TODO: remove the unused 'configurator' constructor parameter in the next major version (breaking change for consumers constructing this class directly instead of resolving it from DI).
+#pragma warning disable CS9113
 public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTypeProvider actionTypeProvider, MediatorConfigurator configurator) : IHandlerExistenceChecker
+#pragma warning restore CS9113
 {
     /// <summary>
     /// We need to ignore handlers on less generic type. For example once command is catch, then we do not expect that generic IHandler will process that command as well.
