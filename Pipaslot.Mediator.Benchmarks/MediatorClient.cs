@@ -38,7 +38,7 @@ public class MediatorClient
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri.LocalPath.StartsWith(MediatorConstants.Endpoint)),
+                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri!.LocalPath.StartsWith(MediatorConstants.Endpoint)),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(() => new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_mediatorResponse) });
@@ -47,7 +47,7 @@ public class MediatorClient
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri.LocalPath.StartsWith(_apiEndpoint)),
+                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri!.LocalPath.StartsWith(_apiEndpoint)),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(() => new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_apiResponse) });
