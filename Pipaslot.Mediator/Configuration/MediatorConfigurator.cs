@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Middlewares.Handlers;
 using Pipaslot.Mediator.Middlewares.Pipelines;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
 {
     internal readonly HashSet<Assembly> TrustedAssemblies = [];
     internal readonly ReflectionCache ReflectionCache = new();
+    internal readonly ExceptionHandlerCache ExceptionHandlerCache = new();
     private readonly MiddlewareCollection _middlewares = new(services);
     private readonly List<(IPipelineCondition Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
 
@@ -138,6 +140,38 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
     
+    public IMediatorConfigurator AddExceptionHandler<THandler>(ServiceLifetime lifetime = ServiceLifetime.Transient) where THandler : class
+    {
+        return AddExceptionHandlers([typeof(THandler)], lifetime);
+    }
+
+    public IMediatorConfigurator AddExceptionHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime lifetime = ServiceLifetime.Transient)
+    {
+        var openHandlerType = typeof(IMediatorExceptionHandler<>);
+        foreach (var handlerType in handlerTypes)
+        {
+            var exceptionTypes = handlerType.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == openHandlerType)
+                .Select(i => i.GetGenericArguments()[0])
+                .ToArray();
+            if (exceptionTypes.Length == 0)
+            {
+                throw MediatorException.CreateForNoExceptionHandlerType(handlerType);
+            }
+
+            foreach (var exceptionType in exceptionTypes)
+            {
+                var executorType = typeof(ExceptionHandlerExecutor<>).MakeGenericType(exceptionType);
+                ExceptionHandlerCache.Add(exceptionType, executorType);
+
+                var closedInterfaceType = openHandlerType.MakeGenericType(exceptionType);
+                services.Add(new ServiceDescriptor(closedInterfaceType, handlerType, lifetime));
+            }
+        }
+
+        return this;
+    }
+
     [Obsolete("Resolve IActionTypeProvider instead.")]
     public ICollection<Type> GetActionTypes()
     {

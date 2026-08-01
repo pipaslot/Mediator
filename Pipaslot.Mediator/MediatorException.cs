@@ -73,4 +73,17 @@ public class MediatorException(string message) : Exception(message)
         return new MediatorException(
             $"Handler type {handlerType} can be registered only with '{expected}' ServiceLifetime but was registered as '{actual}'.");
     }
+
+    public static MediatorException CreateForNoExceptionHandlerType(Type type)
+    {
+        return new MediatorException($"Type {type} does not implement {nameof(IMediatorExceptionHandler<Exception>)} interface");
+    }
+
+    public static MediatorException CreateForDuplicateExceptionHandler(Type exceptionType)
+    {
+        return new MediatorException(
+            $"An exception handler for type {exceptionType} is already registered. Only one handler can be registered per exception type through the configurator. " +
+            $"To replace it (e.g. in tests), call services.AddTransient<IMediatorExceptionHandler<{exceptionType.Name}>, YourHandler>() " +
+            "on the IServiceCollection instead of calling AddExceptionHandler/AddExceptionHandlers again for the same type.");
+    }
 }

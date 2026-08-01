@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
         services.AddTransient(typeof(MessageHandlerExecutor<>));
         services.AddTransient(typeof(RequestHandlerExecutor<,>));
+        services.AddTransient(typeof(ExceptionHandlerExecutor<>));
         configurator.AddActions([typeof(AuthorizeRequest)]);
         configurator.AddHandlers([typeof(AuthorizeRequestHandler)]);
 
