@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Tests.ValidActions;
+﻿using Microsoft.Extensions.Logging;
+using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
@@ -14,11 +15,11 @@ public class BasicFailing
     }
 
     [Fact]
-    public async Task Execute_NotEmptyErrorMessage()
+    public async Task Execute_GenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]
@@ -27,6 +28,18 @@ public class BasicFailing
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
         Assert.Null(result.Result);
+    }
+
+    [Fact]
+    public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+
+        await sut.Execute(new SingleHandler.Request(false));
+
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<SingleHandler.RequestException>(entry.Exception);
+        Assert.DoesNotContain(logger.Entries, e => e.Level == LogLevel.Warning);
     }
 
     [Fact]
@@ -49,11 +62,23 @@ public class BasicFailing
     }
 
     [Fact]
-    public async Task Dispatch_NotEmptyErrorMessage()
+    public async Task Dispatch_GenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
-        Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+    }
+
+    [Fact]
+    public async Task Dispatch_LogsOriginalExceptionDetailAtErrorLevel()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+
+        await sut.Dispatch(new SingleHandler.Message(false));
+
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<SingleHandler.MessageException>(entry.Exception);
+        Assert.DoesNotContain(logger.Entries, e => e.Level == LogLevel.Warning);
     }
 
     [Fact]

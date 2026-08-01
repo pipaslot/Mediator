@@ -19,7 +19,7 @@ public class ExceptionLoggingMiddlewareTests
     {
         var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
-        Assert.Equal(SingleHandler.RequestException.DefaultMessage, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class ExceptionLoggingMiddlewareTests
     {
         var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
-        Assert.Equal(SingleHandler.MessageException.DefaultMessage, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]

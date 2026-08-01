@@ -83,6 +83,11 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 
 `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` multi-target `net6.0` through `net10.0` (see their `.csproj`) because they're published to NuGet for consumers on older TFMs; test/benchmark/demo projects target `net10.0` only. When editing the core libraries, keep API usage compatible across that whole range (per-TFM `PackageReference` blocks already pin `Microsoft.Extensions.DependencyInjection.Abstractions` to the matching version).
 
+## Code comments
+
+- **Never cite a planning/analysis document (e.g. anything under `docs/Todos/`) in a code comment, XML doc, or commit-adjacent annotation.** Those documents are working artifacts for a single change; once the change ships they stop being maintained and often get deleted, leaving a comment that points at a file which no longer exists or no longer reflects reality. `docs/wiki/` is the only doc tree that's a maintained, permanent source of truth — linking to a wiki page (e.g. `see docs/wiki/6.2.-Exception-handling.md`) is fine.
+- Instead, write the comment so it stands on its own: state the business rule, invariant, or constraint the code enforces, not which document or unit of work introduced it. E.g. prefer "does not create a `Notification` — recorded exceptions must not leak into client-facing `Results`" over "see 1.3 Unit 3 — per the design doc, `AddException` must not touch `Results`".
+
 ## Documentation
 
 - Pipeline/call-flow diagrams (component views, in-process calls, HTTP calls, nested calls, custom middleware ordering) live directly in `docs/wiki/2.-Core-concepts-and-glossary.md`, `5.-Mediator-API.md`, `6.-Pipelines-and-Middlewares.md`, and `8.-HTTP-transport-and-configuration-for-Client-Server-usage.md`. Update the relevant diagram there if you change pipeline ordering or the client/server call flow.

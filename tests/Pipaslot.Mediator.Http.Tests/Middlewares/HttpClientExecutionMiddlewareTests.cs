@@ -128,7 +128,10 @@ public class HttpClientExecutionMiddlewareTests
 
         Assert.False(response.Success);
         var message = response.GetErrorMessage();
-        Assert.Equal("cancelled", message);
+        // Safe-by-default (core Unit 4): the middleware rethrows the cancellation exception unwrapped, but the
+        // core Execute boundary is the single catching point for the whole library - it still applies the generic
+        // safe-by-default fallback for this unmapped exception rather than leaking its own message.
+        Assert.Equal(Mediator.GenericErrorMessage, message);
         Assert.DoesNotContain("Error occured when executed action", message);
     }
 

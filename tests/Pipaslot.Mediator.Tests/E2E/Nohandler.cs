@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Tests.InvalidActions;
+﻿using Microsoft.Extensions.Logging;
+using Pipaslot.Mediator.Tests.InvalidActions;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
@@ -6,14 +7,25 @@ namespace Pipaslot.Mediator.Tests.E2E;
 public class Nohandler
 {
     [Fact]
-    public async Task Execute_ReturnFailureBecauseNotResultWasFound()
+    public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()
     {
         var sut = Factory.CreateConfiguredMediator();
         var action = new RequestWithoutHandler();
         var result = await sut.Execute(action);
+        
         Assert.False(result.Success);
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+    }
+
+    [Fact]
+    public async Task Execute_ogsOriginalExceptionDetailAtErrorLevel()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+
+        await sut.Execute(new RequestWithoutHandler());
+
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<MediatorNoHandlerFoundException>(entry.Exception);
     }
 
     [Fact]
@@ -26,7 +38,6 @@ public class Nohandler
             {
                 await sut.ExecuteUnhandled(action);
             });
-        var context = Factory.FakeContext(action);
         Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, ex.Message);
     }
 
@@ -37,7 +48,7 @@ public class Nohandler
         var action = new MessageWithoutHandler();
         var result = await sut.Dispatch(action);
         Assert.False(result.Success);
-        Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]
@@ -50,7 +61,6 @@ public class Nohandler
             {
                 await sut.DispatchUnhandled(action);
             });
-        var context = Factory.FakeContext(action);
         Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, ex.Message);
     }
 }

@@ -6,7 +6,7 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Linq;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -263,6 +263,52 @@ public class MediatorMiddlewareTests
         Assert.NotNull(serialized);
         Assert.DoesNotContain(serialized!.Results, r => r is ResponseStatusCodeHint);
         Assert.Contains(otherResult, serialized.Results);
+    }
+
+    /// <summary>
+    /// Integration-level sanity check for safe-by-default error handling across the real HTTP pipeline: a real
+    /// handler throws, the dispatch boundary converts it to a generic failure, and the JSON serializer writes the
+    /// response body. This verifies that internal exception details never leak to the wire payload, not just to the
+    /// in-memory <see cref="IMediatorResponse"/> passed between components.
+    /// </summary>
+    [Fact]
+    public async Task UnmappedExceptionFromServerHandler_NeverPutsInternalDetailOnTheWire()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddMediatorServer()
+            .AddActions([typeof(ThrowingMessage)])
+            .AddHandlers([typeof(ThrowingMessageHandler)]);
+        services.AddScoped<MediatorMiddleware>();
+        services.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
+        var provider = services.BuildServiceProvider();
+
+        var serializer = provider.GetRequiredService<IContractSerializer>();
+        var body = serializer.SerializeRequest(new ThrowingMessage()).Json;
+
+        var sut = provider.GetRequiredService<MediatorMiddleware>();
+        var response = new FakeResponse { Body = new MemoryStream() };
+        var context = new FakeContext(new FakePostRequest(body), provider, response);
+
+        await sut.Invoke(context);
+
+        response.Body.Position = 0;
+        var wireContent = await new StreamReader(response.Body).ReadToEndAsync();
+
+        Assert.DoesNotContain(ThrowingMessageHandler.InternalDetail, wireContent);
+        Assert.Contains(Mediator.GenericErrorMessage, wireContent);
+    }
+
+    public class ThrowingMessage : IMessage;
+
+    public class ThrowingMessageHandler : IMessageHandler<ThrowingMessage>
+    {
+        public const string InternalDetail = "connection string secret detail";
+
+        public Task Handle(ThrowingMessage action, CancellationToken cancellationToken)
+        {
+            throw new InvalidOperationException(InternalDetail);
+        }
     }
 
     private async Task ExecuteRequest(HttpRequest request)

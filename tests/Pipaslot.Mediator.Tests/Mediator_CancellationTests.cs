@@ -10,21 +10,21 @@ public class Mediator_CancelaltionTests
     #region Execute single handler
 
     [Fact]
-    public async Task Execute_TaskCancelled_SuccessAsFalse()
+    public async Task Execute_TaskCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.False(result.Success);
-        Assert.Equal(new TaskCanceledException().Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]
-    public async Task Execute_OperationCancelled_SuccessAsFalse()
+    public async Task Execute_OperationCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.False(result.Success);
-        Assert.Equal(new OperationCanceledException().Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     #endregion
@@ -56,21 +56,21 @@ public class Mediator_CancelaltionTests
     #region Dispatch single handler
 
     [Fact]
-    public async Task Dispatch_TaskCancelled_SuccessAsFalse()
+    public async Task Dispatch_TaskCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.False(result.Success);
-        Assert.Equal(new TaskCanceledException().Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     [Fact]
-    public async Task Dispatch_OperationCancelled_SuccessAsFalse()
+    public async Task Dispatch_OperationCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.False(result.Success);
-        Assert.Equal(new OperationCanceledException().Message, result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
 
     #endregion

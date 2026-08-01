@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Authorization.Formatting;
 using Pipaslot.Mediator.Configuration;
@@ -49,7 +51,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMediator>(s =>
         {
             var mca = s.GetService<MediatorContextAccessor>();// Optional
-            return new Mediator(s, mca, configurator);
+            var logger = s.GetService<ILogger<Mediator>>() ?? NullLogger<Mediator>.Instance;// Optional, no-op when no logging provider is configured
+            return new Mediator(s, mca, configurator, logger);
         });
         services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
         services.AddSingleton<IActionTypeProvider>(configurator);

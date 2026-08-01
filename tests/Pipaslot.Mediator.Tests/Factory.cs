@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
@@ -44,6 +45,27 @@ internal static class Factory
     }
 
     public static Mediator GetConcreteMediator(this IServiceProvider sp) => (Mediator)sp.GetRequiredService<IMediator>();
+
+    /// <summary>
+    /// Same fixture wiring as <see cref="CreateConfiguredMediator(Action{IMediatorConfigurator})"/>, plus a
+    /// <see cref="TestLogger{T}"/> registered as <c>ILogger&lt;Mediator&gt;</c> so Execute/Dispatch boundary logging
+    /// (level, exception, message) can be asserted directly instead of only inferred from Results.
+    /// </summary>
+    public static (IMediator Mediator, TestLogger<Mediator> Logger) CreateConfiguredMediatorWithLogger(Action<IMediatorConfigurator>? setup = null)
+    {
+        var logger = new TestLogger<Mediator>();
+        var services = CreateServiceProvider((c, sc) =>
+            {
+                c.AddActionsFromAssembly(Assembly)
+                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                    .AddHandlersFromAssembly(Assembly)
+                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
+                setup?.Invoke(c);
+                sc.AddSingleton<ILogger<Mediator>>(logger);
+            }
+        );
+        return (services.GetRequiredService<IMediator>(), logger);
+    }
 
     public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
     {
