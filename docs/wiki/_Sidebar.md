@@ -8,6 +8,7 @@
 5. [Mediator API](5.-Mediator-API)
 6. [Pipelines and Middlewares](6.-Pipelines-and-Middlewares)
    - [6.1. Ready-to-use middlewares](6.1.-Ready-to-use-middlewares)
+   - [6.2. Exception handling](6.2.-Exception-handling)
 7. [Authorization](7.-Authorization)
 8. [HTTP transport and configuration for Client-Server usage](8.-HTTP-transport-and-configuration-for-Client-Server-usage)
 9. [Advanced usage](9.-Advanced-usage)
