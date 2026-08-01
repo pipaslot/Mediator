@@ -42,6 +42,7 @@ Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated arti
 ### Test-writing conventions
 
 - **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
+- **Check for existing coverage before adding a test.** Test classes are organized by scenario/trigger condition, not by which unit of work introduced the assertion — a class whose doc comment says "new API only" or "not covered elsewhere" is a claim about the state *when that comment was written*, not a guarantee. Before adding a new test for behavior that might already be exercised, search for an existing test with the same setup/trigger and extend it instead of adding a parallel one elsewhere; two tests asserting the same trigger condition from two different files is a sign the search was skipped.
 
 ## Architecture
 
