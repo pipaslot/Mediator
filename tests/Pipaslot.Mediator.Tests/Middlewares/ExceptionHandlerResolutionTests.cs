@@ -141,28 +141,31 @@ public class ExceptionHandlerResolutionTests
     }
 
     [Fact]
-    public void Resolve_ClassAndUnrelatedInterfaceBothMatch_ClassWinsDeterministically()
+    public void Resolve_ThreeClassesInChainAllRegistered_PicksMostDerived()
     {
         var cache = new ExceptionHandlerCache();
+        cache.Add(typeof(Exception), typeof(ExceptionHandlerExecutor<Exception>));
         cache.Add(typeof(ValidationException), typeof(ExceptionHandlerExecutor<ValidationException>));
-        cache.Add(typeof(IUserFacingException), typeof(object));
+        cache.Add(typeof(FieldValidationException), typeof(ExceptionHandlerExecutor<FieldValidationException>));
 
         var entry = cache.Resolve(typeof(FieldValidationException));
 
         Assert.NotNull(entry);
-        Assert.Equal(typeof(ValidationException), entry!.ExceptionType);
+        Assert.Equal(typeof(FieldValidationException), entry!.ExceptionType);
     }
 
     [Fact]
-    public void Resolve_TwoUnrelatedInterfacesBothMatch_ThrowsAmbiguousException()
+    public void Resolve_ThreeClassesInChainRegisteredOutOfOrder_StillPicksMostDerived()
     {
         var cache = new ExceptionHandlerCache();
-        cache.Add(typeof(IUserFacingException), typeof(object));
-        cache.Add(typeof(IAuditableException), typeof(object));
+        cache.Add(typeof(FieldValidationException), typeof(ExceptionHandlerExecutor<FieldValidationException>));
+        cache.Add(typeof(Exception), typeof(ExceptionHandlerExecutor<Exception>));
+        cache.Add(typeof(ValidationException), typeof(ExceptionHandlerExecutor<ValidationException>));
 
-        var ex = Assert.Throws<MediatorAmbiguousExceptionHandlerException>(() => cache.Resolve(typeof(FieldValidationException)));
+        var entry = cache.Resolve(typeof(FieldValidationException));
 
-        Assert.Contains(nameof(FieldValidationException), ex.Message);
+        Assert.NotNull(entry);
+        Assert.Equal(typeof(FieldValidationException), entry!.ExceptionType);
     }
 
     [Fact]
@@ -294,15 +297,7 @@ public class ExceptionHandlerResolutionTests
 
     public class ValidationException(string message) : Exception(message);
 
-    public interface IUserFacingException;
-
-    public interface IAuditableException;
-
-    /// <summary>
-    /// Implements both marker interfaces directly (not through <see cref="ValidationException"/>) so the
-    /// class-vs-interface and interface-vs-interface specificity tests exercise a genuine tie, not a dominated pair.
-    /// </summary>
-    public class FieldValidationException(string message) : ValidationException(message), IUserFacingException, IAuditableException;
+    public class FieldValidationException(string message) : ValidationException(message);
 
     private class ValidationExceptionHandler : IMediatorExceptionHandler<ValidationException>
     {
