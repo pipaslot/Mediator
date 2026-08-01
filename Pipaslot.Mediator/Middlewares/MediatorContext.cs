@@ -36,6 +36,16 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     /// </summary>
     public IReadOnlyCollection<object> Results => _results;
 
+    private readonly List<Exception> _exceptions = new(0);
+
+    /// <summary>
+    /// Exceptions recorded via <see cref="MediatorContextExtensions.AddException"/>. Kept separate from
+    /// <see cref="Results"/> by construction: only <see cref="IMediator.DispatchUnhandled"/>/<see cref="IMediator.ExecuteUnhandled"/>
+    /// read this collection (to rethrow the original exception instead of a generic wrapper) - it never reaches
+    /// <see cref="IMediator.Dispatch"/>/<see cref="IMediator.Execute{TResult}"/> callers or gets serialized to a client.
+    /// </summary>
+    public IReadOnlyCollection<Exception> Exceptions => _exceptions;
+
     /// <summary>
     /// Executed/Dispatched action
     /// </summary>
@@ -171,6 +181,19 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
         {
             _results.Add(notification);
         }
+    }
+    /// <summary>
+    /// Record an exception that <see cref="IMediator.DispatchUnhandled"/>/<see cref="IMediator.ExecuteUnhandled"/> should
+    /// rethrow (or aggregate, if more than one is recorded) instead of wrapping it in a generic <see cref="MediatorUnhandledErrorException"/>.
+    /// Sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>. Does not add a <see cref="Notification"/>
+    /// and never appears in <see cref="MediatorContext.Results"/> - unlike <see cref="AddError(MediatorContext, string, bool)"/>,
+    /// it is invisible to <see cref="IMediator.Dispatch"/>/<see cref="IMediator.Execute{TResult}"/> callers.
+    /// </summary>
+    /// <param name="exception">The original exception to preserve for the re-throw bridge</param>
+    public void AddException(Exception exception)
+    {
+        Status = ExecutionStatus.Failed;
+        _exceptions.Add(exception);
     }
 
     private bool ContainsNotification(Notification notification)

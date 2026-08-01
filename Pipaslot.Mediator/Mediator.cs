@@ -5,6 +5,9 @@ using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Middlewares.Features;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,7 +61,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
         if (context.Status != ExecutionStatus.Succeeded)
         {
-            throw MediatorUnhandledErrorException.Create(context);
+            ThrowForFailedStatus(context);
         }
     }
 
@@ -121,7 +124,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
         if (!success)
         {
-            throw MediatorUnhandledErrorException.Create(context);
+            ThrowForFailedStatus(context);
         }
 
         var result = response.GetResult<TResult>();
@@ -132,6 +135,29 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Boundary used by DispatchUnhandled/ExecuteUnhandled once the pipeline finished with a non-succeeded status:
+    /// rethrows the original exception(s) recorded via <see cref="MediatorContextExtensions.AddException"/> instead
+    /// of wrapping them in the generic <see cref="MediatorUnhandledErrorException"/>, which remains the fallback for
+    /// legacy middlewares that only ever set the status/message via <c>AddError</c>.
+    /// </summary>
+    [DoesNotReturn]
+    private static void ThrowForFailedStatus(MediatorContext context)
+    {
+        var exceptions = context.Exceptions;
+        if (exceptions.Count == 1)
+        {
+            ExceptionDispatchInfo.Capture(exceptions.First()).Throw();
+        }
+
+        if (exceptions.Count > 1)
+        {
+            throw new AggregateException(exceptions);
+        }
+
+        throw MediatorUnhandledErrorException.Create(context);
     }
 
     internal List<MiddlewarePair> GetPipeline(IMediatorAction action, bool hasParentContext)
