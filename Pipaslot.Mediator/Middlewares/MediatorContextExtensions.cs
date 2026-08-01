@@ -26,7 +26,8 @@ public static class MediatorContextExtensions
     }
 
     /// <summary>
-    /// Register processing errors. Ignores duplicate entries.
+    /// Register processing errors and fail the action (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>).
+    /// Ignores duplicate entries.
     /// </summary>
     /// <param name="context"></param>
     /// <param name="messages">The contents</param>
@@ -40,7 +41,8 @@ public static class MediatorContextExtensions
     }
 
     /// <summary>
-    /// Register processing error. Ignores duplicate entries.
+    /// Register processing error and fail the action (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>).
+    /// Ignores duplicate entries.
     /// </summary>
     /// <param name="context"></param>
     /// <param name="message">The content</param>
@@ -49,10 +51,12 @@ public static class MediatorContextExtensions
     {
         var notification = Notification.Error(message, context.Action, stopPropagation);
         context.AddResult(notification);
+        context.Status = ExecutionStatus.Failed;
     }
 
     /// <summary>
-    /// Register processing error. Ignores duplicate entries.
+    /// Register processing error and fail the action (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>).
+    /// Ignores duplicate entries.
     /// </summary>
     /// <param name="context"></param>
     /// <param name="message">The content</param>
@@ -62,6 +66,7 @@ public static class MediatorContextExtensions
     {
         var notification = Notification.Error(message, source, stopPropagation);
         context.AddResult(notification);
+        context.Status = ExecutionStatus.Failed;
     }
 
     /// <summary>

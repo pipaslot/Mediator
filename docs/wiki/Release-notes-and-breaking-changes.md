@@ -10,6 +10,7 @@
 ### Breaking changes
 * `Dispatch`/`Execute` no longer copy a caught exception's `Message` into the response; an exception without a registered handler produces a generic message and an `Error`-level log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#safe-by-default).
 * A middleware catching exceptions to convert them into error messages should be replaced by typed exception handlers — see [Migrating from a catch-all ErrorHandlingMiddleware](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
+* Adding an error-typed `Notification` via `MediatorContext.AddResult`/`INotificationProvider.Add` (and the `AddError`/`AddWarning`/etc. helpers built on it) no longer sets `MediatorContext.Status` to `Failed` by itself — only `MediatorContext.AddError()`/`AddErrors()` do that now. See [Notifications in server response](9.4.-Cookbook-and-integrations.md#notifications-in-server-response).
 
 ## Version 8.5.0
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.

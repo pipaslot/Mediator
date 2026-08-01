@@ -145,18 +145,16 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     }
 
     /// <summary>
-    /// Register processing result
+    /// Register processing result.
+    /// Adding an error-typed <see cref="Notification"/> here does not by itself change <see cref="Status"/> -
+    /// use <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>/<see cref="MediatorContextExtensions.AddErrors"/> to both
+    /// report an error message and fail the action.
     /// </summary>
     /// <param name="result"></param>
     public void AddResult(object result)
     {
         if (result is Notification notification)
         {
-            if (notification.Type.IsError())
-            {
-                Status = ExecutionStatus.Failed;
-            }
-
             AppendNotification(notification);
         }
         else
