@@ -37,7 +37,7 @@ public class BasicFailing
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(false));
         });
-        // We do not care about the error message as we only expect the original exception
+        Assert.Equal(SingleHandler.RequestException.DefaultMessage, ex.Message);
     }
 
     [Fact]
@@ -64,6 +64,6 @@ public class BasicFailing
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(false));
         });
-        // We do not care about the error message as we only expect the original exception
+        Assert.Equal(SingleHandler.MessageException.DefaultMessage, ex.Message);
     }
 }
