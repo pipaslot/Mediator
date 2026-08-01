@@ -29,7 +29,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             await ProcessPipeline(message, context).ConfigureAwait(false);
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
-                throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
+                throw MediatorNoHandlerFoundException.Create(message.GetType(), context);
             }
 
             return new MediatorResponse(context.Status == ExecutionStatus.Succeeded, context.Results);
@@ -53,12 +53,12 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         await ProcessPipeline(message, context).ConfigureAwait(false);
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
-            throw MediatorExecutionException.CreateForNoHandler(message.GetType(), context);
+            throw MediatorNoHandlerFoundException.Create(message.GetType(), context);
         }
 
         if (context.Status != ExecutionStatus.Succeeded)
         {
-            throw MediatorExecutionException.CreateForUnhandledError(context);
+            throw MediatorUnhandledErrorException.Create(context);
         }
     }
 
@@ -77,14 +77,14 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
             if (context.Status == ExecutionStatus.NoHandlerFound)
             {
-                throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+                throw MediatorNoHandlerFoundException.Create(request.GetType(), context);
             }
 
             var success = context.Status == ExecutionStatus.Succeeded;
             var response = new MediatorResponse<TResult>(success, context.Results);
             if (success && !response.HasResult<TResult>())
             {
-                return new MediatorResponse<TResult>(MediatorExecutionException.CreateForMissingResult(context, typeof(TResult)).Message);
+                return new MediatorResponse<TResult>(MediatorMissingResultException.Create(typeof(TResult), context).Message);
             }
 
             return response;
@@ -108,7 +108,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         //If somebody wants to provide result event if there is no handler, then they should change the Context.Status or the HandlerExecutionMiddleware shouldnt be executed
         if (context.Status == ExecutionStatus.NoHandlerFound)
         {
-            throw MediatorExecutionException.CreateForNoHandler(request.GetType(), context);
+            throw MediatorNoHandlerFoundException.Create(request.GetType(), context);
         }
 
         var success = context.Status == ExecutionStatus.Succeeded;
@@ -116,12 +116,12 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         var hasResult = response.HasResult<TResult>();
         if (success && !hasResult)
         {
-            throw MediatorExecutionException.CreateForMissingResult(context, typeof(TResult));
+            throw MediatorMissingResultException.Create(typeof(TResult), context);
         }
 
         if (!success)
         {
-            throw MediatorExecutionException.CreateForUnhandledError(context);
+            throw MediatorUnhandledErrorException.Create(context);
         }
 
         var result = response.GetResult<TResult>();

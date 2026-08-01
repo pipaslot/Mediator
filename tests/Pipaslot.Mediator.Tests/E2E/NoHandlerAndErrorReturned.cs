@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// </summary>
 public class NoHandlerAndErrorReturned
 {
-    private const string Error = "Fake error";
+    internal const string Error = "Fake error";
 
     [Fact]
     public async Task Execute_SuccessAsFalse()
@@ -26,12 +26,12 @@ public class NoHandlerAndErrorReturned
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
         var action = new SingleHandler.Request(true);
-        var ex = await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+        var ex = await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.ExecuteUnhandled(action);
         });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError($"'{Error}'", context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
     }
 
     [Fact]
@@ -48,12 +48,12 @@ public class NoHandlerAndErrorReturned
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
         var action = new SingleHandler.Message(true);
-        var ex = await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+        var ex = await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.DispatchUnhandled(action);
         });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError($"'{Error}'", context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
     }
 
     public class AddErrorAndEndMiddleware : IMediatorMiddleware

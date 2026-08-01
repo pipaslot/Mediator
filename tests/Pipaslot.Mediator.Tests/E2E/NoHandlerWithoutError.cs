@@ -25,7 +25,7 @@ public class NoHandlerWithoutError
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
         var action = new BlockedRequest();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             {
                 await sut.ExecuteUnhandled(action);
             });
@@ -50,7 +50,7 @@ public class NoHandlerWithoutError
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
         var action = new BlockedRequest();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             {
                 await sut.DispatchUnhandled(action);
             });

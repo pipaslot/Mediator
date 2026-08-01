@@ -21,7 +21,7 @@ public class FailingHandlerButWithConsumedException
     public async Task ExecuteUnhandled_ThrowMediatorException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
-        await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+        await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(false));
         });
@@ -40,7 +40,7 @@ public class FailingHandlerButWithConsumedException
     public async Task DispatchUnhandled_ThrowMediatorException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
-        await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+        await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(false));
         });

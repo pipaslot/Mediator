@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Services;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System;
 
 namespace Pipaslot.Mediator.Tests.Services;
 
@@ -23,13 +22,13 @@ public class HandlerExistenceCheckerTests
     [Fact]
     public void Verify_MessageWithoutHandler_ThrowExceptions()
     {
-        ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(MessageWithoutHandler)).Message);
+        ShouldThrow(MediatorNoHandlerFoundException.Create(typeof(MessageWithoutHandler)).Message);
     }
 
     [Fact]
     public void Verify_RequestWithoutHandler_ThrowExceptions()
     {
-        ShouldThrow(MediatorExecutionException.CreateForNoHandler(typeof(RequestWithoutHandler)).Message);
+        ShouldThrow(MediatorNoHandlerFoundException.Create(typeof(RequestWithoutHandler)).Message);
     }
 
     private void ShouldThrow(string expectedError)
@@ -61,7 +60,7 @@ public class HandlerExistenceCheckerTests
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
         var actualMessage = ex.Data["Error:1"]?.ToString() ?? string.Empty;
-        Assert.Equal(MediatorExecutionException.CreateForNoHandler(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
+        Assert.Equal(MediatorNoHandlerFoundException.Create(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
     }
 
     [Fact]

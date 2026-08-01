@@ -14,7 +14,7 @@ public class ResultWasTakenFromTheContext
         var result = await sut.Execute(action);
         Assert.False(result.Success);
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message,
+        Assert.Equal(MediatorMissingResultException.Create(typeof(RequestWithoutHandler.ResultDto), context).Message,
             result.GetErrorMessage());
     }
 
@@ -24,12 +24,12 @@ public class ResultWasTakenFromTheContext
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
         var action = new RequestWithoutHandler();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorMissingResultException>(async () =>
             {
                 await sut.ExecuteUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, ex.Message);
+        Assert.Equal(MediatorMissingResultException.Create(typeof(RequestWithoutHandler.ResultDto), context).Message, ex.Message);
     }
 
     // Does not make sense for Dispatch and DispatchUnhandled

@@ -65,7 +65,7 @@ public class NotificationPropagationStatusTests
     {
         var sut = Factory.CreateConfiguredMediator();
 
-        await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+        await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             await sut.DispatchUnhandled(new ErrorNotifyingAction(0, StopPropagation: false)));
     }
 
@@ -85,8 +85,8 @@ public class NotificationPropagationStatusTests
     }
 
     /// <summary>
-    /// Recurses <paramref name="Depth"/> times before adding an error notification, reproducing
-    /// Todos/1.3's <c>ErrorNotifyingAction</c>/<c>Handler</c> pair.
+    /// Recurses <paramref name="Depth"/> times before adding an error notification, so the theory above can vary
+    /// how many nested contexts the notification propagates through.
     /// </summary>
     private record ErrorNotifyingAction(int Depth, bool StopPropagation) : IMediatorAction;
 
