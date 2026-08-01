@@ -15,7 +15,7 @@ namespace Pipaslot.Mediator.Tests;
 /// <c>AddError</c>) instead of throwing, or throws a business exception directly. Because the call is nested, a
 /// recorded notification propagates up to the parent context via <see cref="NotificationPropagationMiddleware"/>
 /// before <c>*Unhandled</c> throws for the same failure.
-/// Introduced in version 8.5.0: the parent's own unguarded <c>Dispatch</c>/<c>Execute</c> boundary no longer re-adds a
+/// Introduced in version 9.0.0: the parent's own unguarded <c>Dispatch</c>/<c>Execute</c> boundary no longer re-adds a
 /// duplicate generic wrapper message for a <see cref="MediatorUnhandledErrorException"/>, and resolves a typed
 /// <see cref="IMediatorExceptionHandler{TException}"/> for the original exception type when the inner failure
 /// reaches it as a real exception rather than a swallowed one.

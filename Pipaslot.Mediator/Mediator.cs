@@ -150,7 +150,7 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     /// <summary>
     /// Boundary used by DispatchUnhandled/ExecuteUnhandled once the pipeline finished with a non-succeeded status:
-    /// rethrows the original exception(s) recorded via <see cref="MediatorContextExtensions.AddException"/> instead
+    /// rethrows the original exception(s) recorded via <see cref="MediatorContext.AddException"/> instead
     /// of wrapping them in the generic <see cref="MediatorUnhandledErrorException"/>, which remains the fallback for
     /// legacy middlewares that only ever set the status/message via <c>AddError</c>.
     /// </summary>

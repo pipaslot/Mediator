@@ -48,6 +48,7 @@ services.AddMediatorServer(o =>
     })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddHandlersFromAssemblyOf<WeatherForecastRequestHandler>()
+    .AddExceptionHandler<OperationCanceledExceptionHandler>()
     // Log all unhalded exception via ILogger. Wont catch exception from IMessage as the next middleware provides custom handling for the Messages
     .UseExceptionLogging()
     .UseWhenAction<CustomInternalRequest>(s=>s.UseDirectHttpCallProtection())
