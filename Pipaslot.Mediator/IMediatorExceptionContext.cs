@@ -27,13 +27,14 @@ public interface IMediatorExceptionContext
     CancellationToken CancellationToken { get; }
 
     /// <summary>
-    /// False until <see cref="SetHandled"/> is called. False means "fall through to the safe-by-default fallback,
-    /// exactly as if no handler had been registered for this exception type".
+    /// False until <see cref="SetHandled"/>/<see cref="SetHandledWithoutMessage"/> is called. False means "fall
+    /// through to the safe-by-default fallback, exactly as if no handler had been registered for this exception type".
     /// </summary>
     bool IsHandled { get; }
 
     /// <summary>
     /// Message the boundary adds to <see cref="MediatorContext.Results"/> when <see cref="IsHandled"/> is true.
+    /// Null means "handled, no message" - the boundary then adds nothing to <see cref="MediatorContext.Results"/>.
     /// </summary>
     string? Message { get; }
 
@@ -42,4 +43,11 @@ public interface IMediatorExceptionContext
     /// <see cref="MediatorContext.Results"/>.
     /// </summary>
     void SetHandled(string message);
+
+    /// <summary>
+    /// Marks the exception as handled with no client-facing message - <see cref="Message"/> stays null and the
+    /// boundary adds nothing to <see cref="MediatorContext.Results"/>. The action still fails: only the client-facing
+    /// message is optional, not the failure itself.
+    /// </summary>
+    void SetHandledWithoutMessage();
 }

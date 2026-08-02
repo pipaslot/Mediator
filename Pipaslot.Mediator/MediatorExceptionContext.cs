@@ -26,4 +26,10 @@ public sealed class MediatorExceptionContext(Exception exception, MediatorContex
         IsHandled = true;
         Message = message;
     }
+
+    public void SetHandledWithoutMessage()
+    {
+        IsHandled = true;
+        Message = null;
+    }
 }

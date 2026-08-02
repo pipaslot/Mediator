@@ -12,8 +12,8 @@ internal abstract class ExceptionHandlerExecutor
     /// <summary>
     /// Resolves and invokes the typed handler. Returns false when the handler could not be resolved from DI or threw
     /// - both degrade to the same "no match" outcome so the caller can fall back to the default translation. Returns
-    /// true when the handler ran to completion; whether it actually called <see cref="IMediatorExceptionContext.SetHandled"/>
-    /// is then read back off <paramref name="context"/> by the caller.
+    /// true when the handler ran to completion; whether it actually called <see cref="IMediatorExceptionContext.SetHandled"/>/
+    /// <see cref="IMediatorExceptionContext.SetHandledWithoutMessage"/> is then read back off <paramref name="context"/> by the caller.
     /// </summary>
     internal abstract Task<bool> Handle(Exception exception, IServiceProvider services, IMediatorExceptionContext context);
 }

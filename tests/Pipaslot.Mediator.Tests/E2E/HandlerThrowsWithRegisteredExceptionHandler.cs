@@ -96,6 +96,37 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         Assert.Equal(action.GetType().ToString(), result.GetErrorMessage());
     }
 
+    /// <summary>
+    /// <see cref="IMediatorExceptionContext.SetHandledWithoutMessage"/> still fails the action, but adds nothing to
+    /// <see cref="MediatorContext.Results"/> - not even an empty-content notification.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerCallsSetHandledWithoutMessage_FailsWithEmptyResultsAndWarningLog()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<HandledWithoutMessageExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Empty(result.Results);
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Warning);
+    }
+
+    /// <summary>
+    /// Proves the boundary does not also add a generic message when the handler already reported its own via
+    /// <see cref="MediatorContext.AddError(string, bool)"/> before declining a client-facing message on the context itself.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerAddsOwnErrorThenCallsSetHandledWithoutMessage_ResultsContainOnlyItsOwnNotification()
+    {
+        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<HandledWithoutMessageButOwnErrorExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Equal(HandledWithoutMessageButOwnErrorExceptionHandler.OwnMessage, Assert.Single(result.GetErrorMessages()));
+    }
+
     private class RequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
     {
         public const string TranslatedMessage = "The request could not be completed.";
@@ -120,6 +151,27 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
         {
             context.SetHandled(context.Context.ActionIdentifier);
+            return Task.CompletedTask;
+        }
+    }
+
+    private class HandledWithoutMessageExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetHandledWithoutMessage();
+            return Task.CompletedTask;
+        }
+    }
+
+    private class HandledWithoutMessageButOwnErrorExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public const string OwnMessage = "own message reported by the handler itself";
+
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.Context.AddError(OwnMessage);
+            context.SetHandledWithoutMessage();
             return Task.CompletedTask;
         }
     }

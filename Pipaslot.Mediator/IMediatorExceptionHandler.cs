@@ -13,7 +13,8 @@ public interface IMediatorExceptionHandler<in TException> where TException : Exc
 {
     /// <summary>
     /// Translates the caught exception into a client-safe message by calling <see cref="IMediatorExceptionContext.SetHandled"/>
-    /// on <paramref name="context"/>. Returning without calling it declines - the boundary falls back to its generic message.
+    /// (or <see cref="IMediatorExceptionContext.SetHandledWithoutMessage"/> for a handled failure with no message) on
+    /// <paramref name="context"/>. Returning without calling either declines - the boundary falls back to its generic message.
     /// </summary>
     Task Handle(TException exception, IMediatorExceptionContext context);
 }

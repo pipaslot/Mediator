@@ -221,7 +221,17 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         }
 
         logger.LogWarning(exception, "Mediator action '{Action}' failed with an exception translated by a registered exception handler.", context.ActionIdentifier);
-        context.AddError(exceptionContext.Message ?? GenericErrorMessage);
+        if (exceptionContext.Message is not null)
+        {
+            context.AddError(exceptionContext.Message);
+        }
+        else
+        {
+            // SetHandledWithoutMessage(): the action still fails, but the boundary must not invent a generic
+            // message on the handler's behalf - that is the whole point of that call.
+            context.Status = ExecutionStatus.Failed;
+        }
+
         return true;
     }
 
