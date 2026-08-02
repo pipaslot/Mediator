@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator;
@@ -13,7 +12,8 @@ namespace Pipaslot.Mediator;
 public interface IMediatorExceptionHandler<in TException> where TException : Exception
 {
     /// <summary>
-    /// Translates the caught exception into a client-safe message.
+    /// Translates the caught exception into a client-safe message by calling <see cref="IMediatorExceptionContext.SetHandled"/>
+    /// on <paramref name="context"/>. Returning without calling it declines - the boundary falls back to its generic message.
     /// </summary>
-    Task<string> Handle(TException exception, CancellationToken cancellationToken);
+    Task Handle(TException exception, IMediatorExceptionContext context);
 }

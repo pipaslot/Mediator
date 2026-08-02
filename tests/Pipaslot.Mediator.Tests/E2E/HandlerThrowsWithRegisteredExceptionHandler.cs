@@ -80,21 +80,47 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         Assert.DoesNotContain(RecordThenContinueMiddleware.RecordedSecretMessage, result.GetErrorMessage());
     }
 
+    /// <summary>
+    /// Proves the pipeline context reaches the handler correctly, not just a translated message - the handler
+    /// reports <see cref="MediatorContext.ActionIdentifier"/> back as its "translated" message.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerReadsActionIdentifierFromContext_ResultContainsIt()
+    {
+        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<ActionIdentifierReportingExceptionHandler>());
+        var action = new SingleHandler.Request(false);
+
+        var result = await sut.Execute(action);
+
+        Assert.False(result.Success);
+        Assert.Equal(action.GetType().ToString(), result.GetErrorMessage());
+    }
+
     private class RequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
     {
         public const string TranslatedMessage = "The request could not be completed.";
 
-        public Task<string> Handle(SingleHandler.RequestException exception, System.Threading.CancellationToken cancellationToken)
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult(TranslatedMessage);
+            context.SetHandled(TranslatedMessage);
+            return Task.CompletedTask;
         }
     }
 
     private class ThrowingRequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
     {
-        public Task<string> Handle(SingleHandler.RequestException exception, System.Threading.CancellationToken cancellationToken)
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
         {
             throw new InvalidOperationException("Translator is broken.");
+        }
+    }
+
+    private class ActionIdentifierReportingExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetHandled(context.Context.ActionIdentifier);
+            return Task.CompletedTask;
         }
     }
 

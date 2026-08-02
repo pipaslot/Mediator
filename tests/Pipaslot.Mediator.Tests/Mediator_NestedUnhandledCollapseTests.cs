@@ -139,9 +139,10 @@ public class Mediator_NestedUnhandledCollapseTests
     {
         public const string TranslatedMessage = "A business rule prevented this action.";
 
-        public Task<string> Handle(BusinessException exception, CancellationToken cancellationToken)
+        public Task Handle(BusinessException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult(TranslatedMessage);
+            context.SetHandled(TranslatedMessage);
+            return Task.CompletedTask;
         }
     }
 

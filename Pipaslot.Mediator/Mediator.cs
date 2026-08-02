@@ -213,14 +213,15 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             return false;
         }
 
-        var result = await executor.Handle(exception, serviceProvider, context.CancellationToken).ConfigureAwait(false);
-        if (!result.IsHandled)
+        var exceptionContext = new MediatorExceptionContext(exception, context);
+        var ranToCompletion = await executor.Handle(exception, serviceProvider, exceptionContext).ConfigureAwait(false);
+        if (!ranToCompletion || !exceptionContext.IsHandled)
         {
             return false;
         }
 
         logger.LogWarning(exception, "Mediator action '{Action}' failed with an exception translated by a registered exception handler.", context.ActionIdentifier);
-        context.AddError(result.Message ?? GenericErrorMessage);
+        context.AddError(exceptionContext.Message ?? GenericErrorMessage);
         return true;
     }
 

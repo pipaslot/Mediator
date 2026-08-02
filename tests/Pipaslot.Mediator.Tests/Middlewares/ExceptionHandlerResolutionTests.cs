@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares.Handlers;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
@@ -213,11 +212,14 @@ public class ExceptionHandlerResolutionTests
         var services = Factory.CreateServiceProvider(c => c.AddExceptionHandler<ThrowingExceptionHandler>());
         var configurator = services.GetRequiredService<MediatorConfigurator>();
         var executor = services.GetExceptionHandlerExecutor(configurator.ExceptionHandlerCache, typeof(ValidationException));
+        var exception = new ValidationException("boom");
+        var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var result = await executor!.Handle(new ValidationException("boom"), services, CancellationToken.None);
+        var ranToCompletion = await executor!.Handle(exception, services, context);
 
-        Assert.False(result.IsHandled);
+        Assert.False(ranToCompletion);
+        Assert.False(context.IsHandled);
     }
 
     [Fact]
@@ -230,11 +232,14 @@ public class ExceptionHandlerResolutionTests
         });
         var configurator = services.GetRequiredService<MediatorConfigurator>();
         var executor = services.GetExceptionHandlerExecutor(configurator.ExceptionHandlerCache, typeof(ValidationException));
+        var exception = new ValidationException("boom");
+        var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var result = await executor!.Handle(new ValidationException("boom"), services, CancellationToken.None);
+        var ranToCompletion = await executor!.Handle(exception, services, context);
 
-        Assert.False(result.IsHandled);
+        Assert.False(ranToCompletion);
+        Assert.False(context.IsHandled);
     }
 
     [Fact]
@@ -243,12 +248,15 @@ public class ExceptionHandlerResolutionTests
         var services = Factory.CreateServiceProvider(c => c.AddExceptionHandler<ValidationExceptionHandler>());
         var configurator = services.GetRequiredService<MediatorConfigurator>();
         var executor = services.GetExceptionHandlerExecutor(configurator.ExceptionHandlerCache, typeof(ValidationException));
+        var exception = new ValidationException("boom");
+        var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var result = await executor!.Handle(new ValidationException("boom"), services, CancellationToken.None);
+        var ranToCompletion = await executor!.Handle(exception, services, context);
 
-        Assert.True(result.IsHandled);
-        Assert.Equal(ValidationExceptionHandler.TranslatedMessage, result.Message);
+        Assert.True(ranToCompletion);
+        Assert.True(context.IsHandled);
+        Assert.Equal(ValidationExceptionHandler.TranslatedMessage, context.Message);
     }
 
     #endregion
@@ -266,12 +274,15 @@ public class ExceptionHandlerResolutionTests
         });
         var configurator = services.GetRequiredService<MediatorConfigurator>();
         var executor = services.GetExceptionHandlerExecutor(configurator.ExceptionHandlerCache, typeof(ValidationException));
+        var exception = new ValidationException("boom");
+        var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var result = await executor!.Handle(new ValidationException("boom"), services, CancellationToken.None);
+        var ranToCompletion = await executor!.Handle(exception, services, context);
 
-        Assert.True(result.IsHandled);
-        Assert.Equal(FakeValidationExceptionHandler.TranslatedMessage, result.Message);
+        Assert.True(ranToCompletion);
+        Assert.True(context.IsHandled);
+        Assert.Equal(FakeValidationExceptionHandler.TranslatedMessage, context.Message);
     }
 
     [Fact]
@@ -284,11 +295,14 @@ public class ExceptionHandlerResolutionTests
         });
         var configurator = services.GetRequiredService<MediatorConfigurator>();
         var executor = services.GetExceptionHandlerExecutor(configurator.ExceptionHandlerCache, typeof(ValidationException));
+        var exception = new ValidationException("boom");
+        var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var result = await executor!.Handle(new ValidationException("boom"), services, CancellationToken.None);
+        var ranToCompletion = await executor!.Handle(exception, services, context);
 
-        Assert.False(result.IsHandled);
+        Assert.False(ranToCompletion);
+        Assert.False(context.IsHandled);
     }
 
     #endregion
@@ -303,17 +317,19 @@ public class ExceptionHandlerResolutionTests
     {
         public const string TranslatedMessage = "Validation failed.";
 
-        public Task<string> Handle(ValidationException exception, CancellationToken cancellationToken)
+        public Task Handle(ValidationException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult(TranslatedMessage);
+            context.SetHandled(TranslatedMessage);
+            return Task.CompletedTask;
         }
     }
 
     private class AnotherValidationExceptionHandler : IMediatorExceptionHandler<ValidationException>
     {
-        public Task<string> Handle(ValidationException exception, CancellationToken cancellationToken)
+        public Task Handle(ValidationException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult("Other translation.");
+            context.SetHandled("Other translation.");
+            return Task.CompletedTask;
         }
     }
 
@@ -321,36 +337,40 @@ public class ExceptionHandlerResolutionTests
     {
         public const string TranslatedMessage = "Fake translation.";
 
-        public Task<string> Handle(ValidationException exception, CancellationToken cancellationToken)
+        public Task Handle(ValidationException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult(TranslatedMessage);
+            context.SetHandled(TranslatedMessage);
+            return Task.CompletedTask;
         }
     }
 
     private class TimeoutExceptionHandler : IMediatorExceptionHandler<TimeoutException>
     {
-        public Task<string> Handle(TimeoutException exception, CancellationToken cancellationToken)
+        public Task Handle(TimeoutException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult("Timeout occurred.");
+            context.SetHandled("Timeout occurred.");
+            return Task.CompletedTask;
         }
     }
 
     private class MultiExceptionHandler : IMediatorExceptionHandler<ValidationException>, IMediatorExceptionHandler<TimeoutException>
     {
-        Task<string> IMediatorExceptionHandler<ValidationException>.Handle(ValidationException exception, CancellationToken cancellationToken)
+        Task IMediatorExceptionHandler<ValidationException>.Handle(ValidationException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult("Validation.");
+            context.SetHandled("Validation.");
+            return Task.CompletedTask;
         }
 
-        Task<string> IMediatorExceptionHandler<TimeoutException>.Handle(TimeoutException exception, CancellationToken cancellationToken)
+        Task IMediatorExceptionHandler<TimeoutException>.Handle(TimeoutException exception, IMediatorExceptionContext context)
         {
-            return Task.FromResult("Timeout.");
+            context.SetHandled("Timeout.");
+            return Task.CompletedTask;
         }
     }
 
     private class ThrowingExceptionHandler : IMediatorExceptionHandler<ValidationException>
     {
-        public Task<string> Handle(ValidationException exception, CancellationToken cancellationToken)
+        public Task Handle(ValidationException exception, IMediatorExceptionContext context)
         {
             throw new InvalidOperationException("Handler itself is broken.");
         }
