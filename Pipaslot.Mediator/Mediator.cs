@@ -215,8 +215,18 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
         }
 
         var exceptionContext = new MediatorExceptionContext(exception, context);
-        var ranToCompletion = await executor.Handle(exception, serviceProvider, exceptionContext).ConfigureAwait(false);
-        if (!ranToCompletion || !exceptionContext.IsHandled)
+        var handlerException = await executor.Handle(exception, serviceProvider, exceptionContext).ConfigureAwait(false);
+        if (handlerException is not null)
+        {
+            // The handler's own fault is logged separately from the original exception's own fallback entry below -
+            // a broken handler and "no handler registered" must be distinguishable from the log alone. Mutations the
+            // handler already made to context.Results before throwing are not rolled back; only its IsHandled/Message
+            // state is discarded here by falling through to the unmapped-exception fallback.
+            logger.LogError(handlerException, "Exception handler for '{ExceptionType}' failed while translating an exception for action '{Action}'.", exception.GetType(), context.ActionIdentifier);
+            return false;
+        }
+
+        if (!exceptionContext.IsHandled)
         {
             return false;
         }

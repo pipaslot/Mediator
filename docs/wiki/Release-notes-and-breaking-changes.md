@@ -1,5 +1,5 @@
 ## Unreleased
-* Added `IMediatorExceptionHandler<TException>` with `AddExceptionHandler`/`AddExceptionHandlers` for translating exceptions into client-facing messages — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md).
+* Added `IMediatorExceptionHandler<TException>` with `AddExceptionHandler`/`AddExceptionHandlers` for translating exceptions into client-facing messages via an `IMediatorExceptionContext` (handled without a message, per-handler log level including suppression, conditional decline) — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md).
 * Added `MediatorContext.AddException` and `MediatorContext.Exceptions`, letting a middleware fail an action while keeping the original exception server-side — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#contextaddexception-and-contextexceptions).
 * Added `MediatorUnhandledErrorException`, `MediatorNoHandlerFoundException` and `MediatorMissingResultException` as subtypes of `MediatorExecutionException`.
 * Added the opt-in `OperationCanceledExceptionHandler`, reporting a cancelled action with a dedicated message and a Warning log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#report-cancellation-as-something-other-than-a-generic-failure).

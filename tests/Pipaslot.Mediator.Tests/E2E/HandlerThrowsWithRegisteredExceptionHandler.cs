@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
@@ -46,7 +47,9 @@ public class HandlerThrowsWithRegisteredExceptionHandler
     /// A typed exception handler that itself throws while translating must not crash the call or mask the
     /// original exception - the boundary falls through to the same safe-by-default fallback as an unmapped
     /// exception. Exercises that guarantee through the real Execute/Dispatch boundary, not the standalone
-    /// resolver/executor.
+    /// resolver/executor. Also proves the handler's own fault is no longer invisible: it gets its own Error entry,
+    /// distinct from the original exception's own fallback entry, so "handler is broken" and "no handler registered"
+    /// remain distinguishable from the log alone.
     /// </summary>
     [Fact]
     public async Task Execute_RegisteredHandlerItselfThrows_DegradesToGenericMessageAndErrorLog()
@@ -57,8 +60,10 @@ public class HandlerThrowsWithRegisteredExceptionHandler
 
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
-        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
-        Assert.IsType<SingleHandler.RequestException>(entry.Exception);
+        var errorEntries = logger.Entries.Where(e => e.Level == LogLevel.Error).ToList();
+        Assert.Equal(2, errorEntries.Count);
+        Assert.Contains(errorEntries, e => e.Exception is SingleHandler.RequestException);
+        Assert.Contains(errorEntries, e => e.Exception is InvalidOperationException);
     }
 
     /// <summary>

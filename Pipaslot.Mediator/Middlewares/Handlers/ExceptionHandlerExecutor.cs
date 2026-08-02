@@ -10,37 +10,38 @@ namespace Pipaslot.Mediator.Middlewares.Handlers;
 internal abstract class ExceptionHandlerExecutor
 {
     /// <summary>
-    /// Resolves and invokes the typed handler. Returns false when the handler could not be resolved from DI or threw
-    /// - both degrade to the same "no match" outcome so the caller can fall back to the default translation. Returns
-    /// true when the handler ran to completion; whether it actually called <see cref="IMediatorExceptionContext.SetHandled"/>/
-    /// <see cref="IMediatorExceptionContext.SetHandledWithoutMessage"/> is then read back off <paramref name="context"/> by the caller.
+    /// Resolves and invokes the typed handler. Returns null when the handler could not be resolved from DI, or when
+    /// it ran to completion without throwing - whether it actually called <see cref="IMediatorExceptionContext.SetHandled"/>/
+    /// <see cref="IMediatorExceptionContext.SetHandledWithoutMessage"/> is then read back off <paramref name="context"/>
+    /// by the caller. Returns the handler's own exception when it threw, so the caller can log that as a fault
+    /// distinguishable from "no handler registered" or "handler declined".
     /// </summary>
-    internal abstract Task<bool> Handle(Exception exception, IServiceProvider services, IMediatorExceptionContext context);
+    internal abstract Task<Exception?> Handle(Exception exception, IServiceProvider services, IMediatorExceptionContext context);
 }
 
 internal sealed class ExceptionHandlerExecutor<TException> : ExceptionHandlerExecutor
     where TException : Exception
 {
-    internal override async Task<bool> Handle(Exception exception, IServiceProvider services, IMediatorExceptionContext context)
+    internal override async Task<Exception?> Handle(Exception exception, IServiceProvider services, IMediatorExceptionContext context)
     {
         // GetService (not GetRequiredService): the resolved routing entry must tolerate a handler removed from DI
         // (e.g. via RemoveAll in tests) and degrade to the "not handled" fallback instead of throwing.
         var handler = services.GetService<IMediatorExceptionHandler<TException>>();
         if (handler is null)
         {
-            return false;
+            return null;
         }
 
         try
         {
             await handler.Handle((TException)exception, context).ConfigureAwait(false);
-            return true;
+            return null;
         }
-        catch
+        catch (Exception handlerException)
         {
-            // A throwing handler must never mask the original exception - it degrades to "not handled" here;
-            // the caller is responsible for logging this as a secondary failure.
-            return false;
+            // The handler's own exception must never mask the original exception - the caller falls back to
+            // "not handled" and logs this exception separately as a distinct, secondary fault.
+            return handlerException;
         }
     }
 }

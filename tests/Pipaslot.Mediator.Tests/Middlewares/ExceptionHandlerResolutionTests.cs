@@ -207,7 +207,7 @@ public class ExceptionHandlerResolutionTests
     #region Invocation / fault isolation
 
     [Fact]
-    public async Task Handle_RegisteredHandlerThrows_DegradesToNotHandled()
+    public async Task Handle_RegisteredHandlerThrows_ReturnsTheHandlersOwnExceptionAndLeavesContextNotHandled()
     {
         var services = Factory.CreateServiceProvider(c => c.AddExceptionHandler<ThrowingExceptionHandler>());
         var configurator = services.GetRequiredService<MediatorConfigurator>();
@@ -216,14 +216,19 @@ public class ExceptionHandlerResolutionTests
         var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var ranToCompletion = await executor!.Handle(exception, services, context);
+        var handlerException = await executor!.Handle(exception, services, context);
 
-        Assert.False(ranToCompletion);
+        Assert.IsType<InvalidOperationException>(handlerException);
         Assert.False(context.IsHandled);
     }
 
+    /// <summary>
+    /// Distinct from the throwing-handler case above: a handler missing from DI is not a fault of the handler
+    /// itself, so the executor must report no exception at all - not the same "something is broken" signal as a
+    /// handler that threw.
+    /// </summary>
     [Fact]
-    public async Task Handle_HandlerResolvesToNullViaDi_DegradesToNotHandledWithoutThrowing()
+    public async Task Handle_HandlerResolvesToNullViaDi_ReturnsNullExceptionAndLeavesContextNotHandled()
     {
         var services = Factory.CreateServiceProvider((c, sc) =>
         {
@@ -236,9 +241,9 @@ public class ExceptionHandlerResolutionTests
         var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var ranToCompletion = await executor!.Handle(exception, services, context);
+        var handlerException = await executor!.Handle(exception, services, context);
 
-        Assert.False(ranToCompletion);
+        Assert.Null(handlerException);
         Assert.False(context.IsHandled);
     }
 
@@ -252,9 +257,9 @@ public class ExceptionHandlerResolutionTests
         var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var ranToCompletion = await executor!.Handle(exception, services, context);
+        var handlerException = await executor!.Handle(exception, services, context);
 
-        Assert.True(ranToCompletion);
+        Assert.Null(handlerException);
         Assert.True(context.IsHandled);
         Assert.Equal(ValidationExceptionHandler.TranslatedMessage, context.Message);
     }
@@ -278,9 +283,9 @@ public class ExceptionHandlerResolutionTests
         var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var ranToCompletion = await executor!.Handle(exception, services, context);
+        var handlerException = await executor!.Handle(exception, services, context);
 
-        Assert.True(ranToCompletion);
+        Assert.Null(handlerException);
         Assert.True(context.IsHandled);
         Assert.Equal(FakeValidationExceptionHandler.TranslatedMessage, context.Message);
     }
@@ -299,9 +304,9 @@ public class ExceptionHandlerResolutionTests
         var context = new MediatorExceptionContext(exception, Factory.FakeContext(new Pipaslot.Mediator.Tests.ValidActions.SingleHandler.Request(false)));
 
         Assert.NotNull(executor);
-        var ranToCompletion = await executor!.Handle(exception, services, context);
+        var handlerException = await executor!.Handle(exception, services, context);
 
-        Assert.False(ranToCompletion);
+        Assert.Null(handlerException);
         Assert.False(context.IsHandled);
     }
 
