@@ -44,7 +44,7 @@ public class NoHandlerAndErrorReturned
     }
 
     [Fact]
-    public async Task Dispatchnhandled_ThrowException()
+    public async Task DispatchUnhandled_ThrowException()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
         var action = new SingleHandler.Message(true);

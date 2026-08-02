@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 
-public class ContractSerializer_StreamTest : ContractSerializerBaseTest
+public class ContractSerializer_StreamsTests : ContractSerializerBaseTest
 {
     [Fact]
     public void StreamsAreExtractedDuringSerializationAndPlacedBackWhenDeserializing()

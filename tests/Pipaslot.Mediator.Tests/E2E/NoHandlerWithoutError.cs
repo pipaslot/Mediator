@@ -11,7 +11,7 @@ public class NoHandlerWithoutError
     [Fact]
     public async Task Execute_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
         var action = new BlockedRequest();
         var result = await sut.Execute(action);
         Assert.False(result.Success);
@@ -22,7 +22,7 @@ public class NoHandlerWithoutError
     [Fact]
     public async Task ExecuteUnhandled_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
         var action = new BlockedRequest();
         var ex =
             await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
@@ -36,7 +36,7 @@ public class NoHandlerWithoutError
     [Fact]
     public async Task Dispatch_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
         var action = new BlockedRequest();
         var result = await sut.Dispatch(action);
         Assert.False(result.Success);
@@ -47,7 +47,7 @@ public class NoHandlerWithoutError
     [Fact]
     public async Task DispatchUnhandled_Exception()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
         var action = new BlockedRequest();
         var ex =
             await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
@@ -65,7 +65,7 @@ public class NoHandlerWithoutError
 
     public class BlockedMessage : IMessage;
 
-    public class BlockRequestMilldeware : IMediatorMiddleware
+    public class BlockRequestMiddleware : IMediatorMiddleware
     {
         public Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {

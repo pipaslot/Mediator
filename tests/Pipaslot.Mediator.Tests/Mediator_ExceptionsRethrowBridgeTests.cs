@@ -145,7 +145,7 @@ public class Mediator_ExceptionsRethrowBridgeTests
             }
 
             // Do not call next - mirrors a terminal validator middleware that stops the pipeline (like
-            // E2E.NoHandlerWithoutError.BlockRequestMilldeware), so the handler never runs.
+            // E2E.NoHandlerWithoutError.BlockRequestMiddleware), so the handler never runs.
             return Task.CompletedTask;
         }
 

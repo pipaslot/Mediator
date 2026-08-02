@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
-public class HandlerExistenceChecker_MatchActionHadlersTests
+public class HandlerExistenceChecker_MatchActionHandlersTests
 {
     [Theory]
     [InlineData(typeof(Message), new[] { typeof(ConcurrentMessageHandler), typeof(SequenceMessageHandler) })]

@@ -12,7 +12,7 @@ public class RequestWithoutHandler : IRequest<ResultDto>
 /// <summary>
 /// Simulate that the expected DTO was attached event if the action does not have handler
 /// </summary>
-public class RequestWithoutHandlerAttacheResultMilldeware : IMediatorMiddleware
+public class RequestWithoutHandlerAttacheResultMiddleware : IMediatorMiddleware
 {
     public Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {

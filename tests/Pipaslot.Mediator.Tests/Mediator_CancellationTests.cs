@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
-public class Mediator_CancelaltionTests
+public class Mediator_CancellationTests
 {
     #region Execute single handler
 

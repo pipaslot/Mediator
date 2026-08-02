@@ -34,7 +34,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async Task RunDuplicateTheSameTypeAction_ShouldRuntTwice()
+    public async Task RunDuplicateTheSameTypeAction_ShouldRunTwice()
     {
         var action = new FakeAction { Value = 1 };
         var mediator = Factory.CreateConfiguredMediator(s =>
@@ -65,7 +65,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async Task RunTwoDifferentActionsWithTheSameHashCode_ShouldRuntTwice()
+    public async Task RunTwoDifferentActionsWithTheSameHashCode_ShouldRunTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {
@@ -82,7 +82,7 @@ public class ReduceDuplicateProcessingMiddlewareTests
     }
 
     [Fact]
-    public async Task RunTwoDifferentActionsWithDifferentHashCode_ShouldRuntTwice()
+    public async Task RunTwoDifferentActionsWithDifferentHashCode_ShouldRunTwice()
     {
         var mediator = Factory.CreateConfiguredMediator(s =>
         {

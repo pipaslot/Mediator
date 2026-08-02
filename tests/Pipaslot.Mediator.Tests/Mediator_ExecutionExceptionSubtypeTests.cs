@@ -25,8 +25,8 @@ public class Mediator_ExecutionExceptionSubtypeTests
     {
         var sut = trigger switch
         {
-            SubtypeTrigger.MissingResult => Factory.CreateConfiguredMediator(c => c.Use<E2E.ResultWasTakenFromTheContext.RemoveResultFromContextMilldeware>()),
-            SubtypeTrigger.UnhandledError => Factory.CreateConfiguredMediator(c => c.Use<E2E.NoHandlerWithoutError.BlockRequestMilldeware>()),
+            SubtypeTrigger.MissingResult => Factory.CreateConfiguredMediator(c => c.Use<E2E.ResultWasTakenFromTheContext.RemoveResultFromContextMiddleware>()),
+            SubtypeTrigger.UnhandledError => Factory.CreateConfiguredMediator(c => c.Use<E2E.NoHandlerWithoutError.BlockRequestMiddleware>()),
             _ => Factory.CreateConfiguredMediator(),
         };
 

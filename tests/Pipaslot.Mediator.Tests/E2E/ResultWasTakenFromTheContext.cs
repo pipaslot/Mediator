@@ -10,7 +10,7 @@ public class ResultWasTakenFromTheContext
     [Fact]
     public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMiddleware>());
         var action = new RequestWithoutHandler();
         var result = await sut.Execute(action);
         Assert.False(result.Success);
@@ -20,7 +20,7 @@ public class ResultWasTakenFromTheContext
     [Fact]
     public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMilldeware>());
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMiddleware>());
 
         await sut.Execute(new RequestWithoutHandler());
 
@@ -31,7 +31,7 @@ public class ResultWasTakenFromTheContext
     [Fact]
     public async Task ExecuteUnhandled_ThrowMissingResultException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
+        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMiddleware>());
         var action = new RequestWithoutHandler();
         var ex =
             await Assert.ThrowsAsync<MediatorMissingResultException>(async () =>
@@ -44,7 +44,7 @@ public class ResultWasTakenFromTheContext
 
     // Does not make sense for Dispatch and DispatchUnhandled
 
-    public class RemoveResultFromContextMilldeware : IMediatorMiddleware
+    public class RemoveResultFromContextMiddleware : IMediatorMiddleware
     {
         public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
         {

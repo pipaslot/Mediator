@@ -18,7 +18,7 @@ public class Nohandler
     }
 
     [Fact]
-    public async Task Execute_ogsOriginalExceptionDetailAtErrorLevel()
+    public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
     {
         var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
 
