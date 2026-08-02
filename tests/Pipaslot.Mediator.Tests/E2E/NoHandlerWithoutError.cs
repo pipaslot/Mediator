@@ -30,7 +30,7 @@ public class NoHandlerWithoutError
                 await sut.ExecuteUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError(context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class NoHandlerWithoutError
                 await sut.DispatchUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError(context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
     }
 
     public class BlockedRequest : IRequest<BlockedRequest.ResultDto>
