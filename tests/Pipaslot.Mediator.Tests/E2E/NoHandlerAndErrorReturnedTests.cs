@@ -1,4 +1,4 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
@@ -9,7 +9,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// </summary>
 public class NoHandlerAndErrorReturnedTests
 {
-    internal const string Error = "Fake error";
+    private const string Error = AddErrorAndEndMiddleware.Error;
 
     [Fact]
     public async Task Execute_SuccessAsFalse()
@@ -54,14 +54,5 @@ public class NoHandlerAndErrorReturnedTests
         });
         var context = Factory.FakeContext(action);
         Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
-    }
-
-    public class AddErrorAndEndMiddleware : IMediatorMiddleware
-    {
-        public Task Invoke(MediatorContext context, MiddlewareDelegate next)
-        {
-            context.AddError(Error);
-            return Task.CompletedTask;
-        }
     }
 }

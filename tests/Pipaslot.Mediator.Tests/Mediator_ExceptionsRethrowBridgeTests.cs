@@ -111,8 +111,8 @@ public class Mediator_ExceptionsRethrowBridgeTests
     /// <summary>
     /// The outer handler wraps a nested ExecuteUnhandled call in a plain try/catch. It must observe the original
     /// recorded exception type directly - proving the outer pipeline needs no special-casing for exceptions that
-    /// bubble up through a nested *Unhandled call (forward-reference to Unit 4's boundary resolution, which relies
-    /// on seeing the real business exception type here rather than a generic wrapper).
+    /// bubble up through a nested *Unhandled call: the boundary relies on seeing the real business exception type
+    /// here rather than a generic wrapper.
     /// </summary>
     [Fact]
     public async Task Dispatch_NestedExecuteUnhandledException_CaughtByOrdinaryOuterTryCatchAsOriginalType()
@@ -145,7 +145,7 @@ public class Mediator_ExceptionsRethrowBridgeTests
             }
 
             // Do not call next - mirrors a terminal validator middleware that stops the pipeline (like
-            // E2E.NoHandlerWithoutErrorTests.BlockRequestMiddleware), so the handler never runs.
+            // E2E.Fixtures.BlockRequestMiddleware), so the handler never runs.
             return Task.CompletedTask;
         }
 

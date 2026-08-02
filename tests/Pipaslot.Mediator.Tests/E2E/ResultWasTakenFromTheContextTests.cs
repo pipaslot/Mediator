@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using System.Threading.Tasks;
 
@@ -43,14 +43,4 @@ public class ResultWasTakenFromTheContextTests
     }
 
     // Does not make sense for Dispatch and DispatchUnhandled
-
-    public class RemoveResultFromContextMiddleware : IMediatorMiddleware
-    {
-        public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
-        {
-            // The result will be attached to the fake context instead to the actual one
-            var fakeContext = context.CopyEmpty();
-            await next(fakeContext);
-        }
-    }
 }

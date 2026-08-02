@@ -1,4 +1,4 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
@@ -56,22 +56,5 @@ public class NoHandlerWithoutErrorTests
             });
         var context = Factory.FakeContext(action);
         Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
-    }
-
-    public class BlockedRequest : IRequest<BlockedRequest.ResultDto>
-    {
-        public class ResultDto;
-    }
-
-    public class BlockedMessage : IMessage;
-
-    public class BlockRequestMiddleware : IMediatorMiddleware
-    {
-        public Task Invoke(MediatorContext context, MiddlewareDelegate next)
-        {
-            context.Status = ExecutionStatus.Failed;
-            // Do not run next delegate
-            return Task.CompletedTask;
-        }
     }
 }

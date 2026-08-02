@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Tests.InvalidActions;
+﻿using Pipaslot.Mediator.Tests.E2E.Fixtures;
+using Pipaslot.Mediator.Tests.InvalidActions;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
@@ -20,7 +21,6 @@ public class NoHandlerButResultWasReturnedTests
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
         var action = new RequestWithoutHandler();
         var dto = await sut.ExecuteUnhandled(action);
-        var context = Factory.FakeContext(action);
         Assert.Equal(typeof(RequestWithoutHandler.ResultDto), dto.GetType());
     }
 
