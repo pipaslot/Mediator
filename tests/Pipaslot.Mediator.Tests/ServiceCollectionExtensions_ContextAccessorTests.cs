@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
-public class ServiceResolver_OptionalContextAccessorTests
+public class ServiceCollectionExtensions_ContextAccessorTests
 {
     [Fact]
     public async Task WithoutContextAccessor_MediatorCallPasses()

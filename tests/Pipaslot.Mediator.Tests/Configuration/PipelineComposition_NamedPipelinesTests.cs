@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.Configuration;
 
-public class ServiceResolver_ResolvePipelinesTests
+public class PipelineComposition_NamedPipelinesTests
 {
     [Theory]
     [InlineData(1, typeof(BeforeMiddleware))]
@@ -15,7 +15,7 @@ public class ServiceResolver_ResolvePipelinesTests
     public void QueryPath(int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = false };
-        var sp = CreateServiceResolver();
+        var sp = CreateServiceProvider();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
@@ -31,7 +31,7 @@ public class ServiceResolver_ResolvePipelinesTests
     public void CommandPathNested(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
-        var sp = CreateServiceResolver();
+        var sp = CreateServiceProvider();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
@@ -61,7 +61,7 @@ public class ServiceResolver_ResolvePipelinesTests
         });
     }
 
-    private static IServiceProvider CreateServiceResolver()
+    private static IServiceProvider CreateServiceProvider()
     {
         var sp = Factory.CreateServiceProvider(c =>
         {

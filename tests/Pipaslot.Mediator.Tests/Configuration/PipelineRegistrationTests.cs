@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.Configuration;
 
-public class ServiceResolver_PipelineRegistrationTests
+public class PipelineRegistrationTests
 {
     private const string Result1 = "result1";
     private const string Result2 = "result2";

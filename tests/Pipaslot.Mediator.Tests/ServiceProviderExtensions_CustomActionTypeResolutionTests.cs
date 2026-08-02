@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
 
-public class ServiceResolver_DefineAndUseOwnRequestTypeWithFixedResultTests
+public class ServiceProviderExtensions_CustomActionTypeResolutionTests
 {
     [Fact]
     public void ShouldResolveRequest()

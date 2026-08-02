@@ -2,9 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Middlewares;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.Configuration;
 
-public class ServiceResolver_MiddlewareRegistrationTests
+public class MiddlewareRegistrationTests
 {
     [Fact]
     public void Use_AddTheSameMiddlewareWithDifferentLifetimeOntTheSamePipeline_ThrowException()

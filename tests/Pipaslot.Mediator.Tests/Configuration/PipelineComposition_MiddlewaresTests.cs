@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.Configuration;
 
-public class ServiceResolver_ResolveMiddlewaresTests
+public class PipelineComposition_MiddlewaresTests
 {
     [Theory]
     [InlineData(false, 1, typeof(BeforeMiddleware))]
@@ -21,7 +21,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
     public void QueryPath(bool executeHandlersInFirstMap, int position, Type expectedMiddleware)
     {
         var action = new FakeQuery { ExecuteHandlers = executeHandlersInFirstMap };
-        var sp = CreateServiceResolver();
+        var sp = CreateServiceProvider();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
@@ -41,7 +41,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
     public void CommandPath(bool enableNested, int position, Type expectedMiddleware)
     {
         var action = new FakeCommand { ExecuteNested = enableNested };
-        var sp = CreateServiceResolver();
+        var sp = CreateServiceProvider();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
@@ -54,7 +54,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
     public void DefaultPath(int position, Type expectedMiddleware)
     {
         var action = new FakeNotification();
-        var sp = CreateServiceResolver();
+        var sp = CreateServiceProvider();
         var sut = sp.GetConcreteMediator();
         var middlewares = sut.GetPipeline(action, false);
         VerifyMiddleware(middlewares, position, expectedMiddleware);
@@ -86,7 +86,7 @@ public class ServiceResolver_ResolveMiddlewaresTests
         Assert.Equal(expectedMiddleware, actual);
     }
 
-    private static IServiceProvider CreateServiceResolver()
+    private static IServiceProvider CreateServiceProvider()
     {
         var sp = Factory.CreateServiceProvider(c => c
             .Use<BeforeMiddleware>()
