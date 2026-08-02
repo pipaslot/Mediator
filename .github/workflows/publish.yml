@@ -11,7 +11,7 @@ jobs:
       id-token: write # required to request the OIDC token for NuGet Trusted Publishing
       contents: write # required to create the GitHub Release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # MinVer needs full tag history to compute the version
 
@@ -39,7 +39,7 @@ jobs:
           ' "$CHANGELOG" > release-notes.md
           sed -i -E 's/\(([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/(https:\/\/github.com\/pipaslot\/Mediator\/wiki\/\1\2)/g' release-notes.md
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
