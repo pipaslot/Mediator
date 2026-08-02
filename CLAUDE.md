@@ -44,6 +44,31 @@ Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated arti
 - **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
 - **Check for existing coverage before adding a test.** Test classes are organized by scenario/trigger condition, not by which unit of work introduced the assertion — a class whose doc comment says "new API only" or "not covered elsewhere" is a claim about the state *when that comment was written*, not a guarantee. Before adding a new test for behavior that might already be exercised, search for an existing test with the same setup/trigger and extend it instead of adding a parallel one elsewhere; two tests asserting the same trigger condition from two different files is a sign the search was skipped.
 
+### Where a test belongs
+
+Three levels, one mechanical rule. Grep the test for `Dispatch(` / `Execute(`:
+
+| Level | Rule | Folder | Class name |
+|---|---|---|---|
+| Unit | SUT is one production type; no DI container | mirrors the production namespace | `<Type>Tests` / `<Type>_<Aspect>Tests` |
+| Wiring | Builds a container but never dispatches; SUT is the configuration result (pipeline shape, registration errors) | mirrors the production namespace of the wiring type (`Configuration/`, `Services/`) | `<Type>_<Aspect>Tests` |
+| E2E | Calls `IMediator.Dispatch`/`Execute`/`*Unhandled` on a real container | `E2E/<theme>/` | `<Scenario>Tests` |
+
+- **Every test class ends with `Tests`.** The file name and the class name must match exactly.
+- **Test methods are named `Method_Condition_ExpectedOutcome`.**
+- **Nested fixtures inside a test class are `private`.** The moment a second class needs one, move it to
+  `E2E/Fixtures/` — never widen the visibility of a nested class to share it. A test that reaches into another
+  test class's nested type couples two files that look independent.
+- **`Tests.InvalidActions` holds only actions without handlers.** Middlewares and helpers belong to the test
+  project that uses them.
+- **Assert the exception type plus its key data, not the whole formatted message.** Comparing against
+  `SomeException.Create(...).Message` makes the test reimplement the production code it is checking.
+- **A test class doc comment states the trigger condition and how it differs from neighbouring test classes.**
+  It must not narrate history ("before unit 4…", "introduced in version X") — that belongs in
+  `docs/wiki/Release-notes-and-breaking-changes.md`.
+- **Static state in `Tests.ValidActions` fixtures is reset in the test class constructor**, never inline inside a
+  test method. Classes sharing the same static fixture must share an xUnit `[Collection]`.
+
 ## Architecture
 
 ### The pipeline model
