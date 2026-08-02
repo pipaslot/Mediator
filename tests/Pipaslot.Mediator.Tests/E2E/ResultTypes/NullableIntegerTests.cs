@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
-public class NullableDecimal
+public class NullableIntegerTests
 {
     [Fact]
     public async Task Execute_ReturnsValue_ShouldPass()
@@ -43,11 +43,11 @@ public class NullableDecimal
         Assert.Null(result);
     }
 
-    public record FakeAction(decimal? Value) : IMediatorAction<decimal?>;
+    public record FakeAction(int? Value) : IMediatorAction<int?>;
 
-    public class FakeActionHandler : IMediatorHandler<FakeAction, decimal?>
+    public class FakeActionHandler : IMediatorHandler<FakeAction, int?>
     {
-        public Task<decimal?> Handle(FakeAction action, CancellationToken cancellationToken)
+        public Task<int?> Handle(FakeAction action, CancellationToken cancellationToken)
         {
             return Task.FromResult(action.Value);
         }

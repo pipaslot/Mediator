@@ -6,7 +6,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// <summary>
 /// No result is returned and Context status is set to Failed. No error message was added so no error should be produced
 /// </summary>
-public class NoHandlerWithoutError
+public class NoHandlerWithoutErrorTests
 {
     [Fact]
     public async Task Execute_FailedWithoutError()

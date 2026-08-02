@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator.Tests;
 
 /// <summary>
-/// Covers the DispatchUnhandled/ExecuteUnhandled re-throw bridge built on top of <c>context.AddException</c>
-/// (Unit 3): a single recorded exception is rethrown with its original type and stack trace instead of being
+/// Covers the DispatchUnhandled/ExecuteUnhandled re-throw bridge built on top of <c>context.AddException</c>:
+/// a single recorded exception is rethrown with its original type and stack trace instead of being
 /// wrapped in <see cref="MediatorUnhandledErrorException"/>; multiple recorded exceptions are aggregated; the
 /// recorded collection never auto-propagates to a parent context. The legacy AddError-only fallback (no
-/// AddException call anywhere) is unchanged and already covered by <c>E2E.NoHandlerWithoutError</c>/
-/// <c>E2E.NoHandlerAndErrorReturned</c> - not duplicated here. <c>context.AddException</c>/<c>Exceptions</c>
+/// AddException call anywhere) is unchanged and already covered by <c>E2E.NoHandlerWithoutErrorTests</c>/
+/// <c>E2E.NoHandlerAndErrorReturnedTests</c> - not duplicated here. <c>context.AddException</c>/<c>Exceptions</c>
 /// themselves (status flip, no Notification, no Results entry) are covered directly on the context in
 /// <c>Middlewares/MediatorContextTests.cs</c>.
 /// </summary>
@@ -145,7 +145,7 @@ public class Mediator_ExceptionsRethrowBridgeTests
             }
 
             // Do not call next - mirrors a terminal validator middleware that stops the pipeline (like
-            // E2E.NoHandlerWithoutError.BlockRequestMiddleware), so the handler never runs.
+            // E2E.NoHandlerWithoutErrorTests.BlockRequestMiddleware), so the handler never runs.
             return Task.CompletedTask;
         }
 

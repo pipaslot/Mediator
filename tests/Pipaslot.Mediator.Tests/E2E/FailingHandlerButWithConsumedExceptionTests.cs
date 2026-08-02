@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// <summary>
 /// Ensure that failure is returned event if there is some middleware consuming all exception produced by handler
 /// </summary>
-public class FailingHandlerButWithConsumedException
+public class FailingHandlerButWithConsumedExceptionTests
 {
     [Fact]
     public async Task Execute_SuccessAsFalse()

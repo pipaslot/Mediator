@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
-public class NotNullInteger
+public class NotNullDecimalTests
 {
     [Theory]
     [InlineData(-100)]
     [InlineData(0)]
     [InlineData(100)]
-    public async Task Execute_ShouldPass(int value)
+    public async Task Execute_ShouldPass(decimal value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(value));
@@ -22,18 +22,18 @@ public class NotNullInteger
     [InlineData(-100)]
     [InlineData(0)]
     [InlineData(100)]
-    public async Task ExecuteUnhandled_ShouldPass(int value)
+    public async Task ExecuteUnhandled_ShouldPass(decimal value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(value));
         Assert.Equal(value, result);
     }
 
-    public record FakeAction(int Value) : IMediatorAction<int>;
+    public record FakeAction(decimal Value) : IMediatorAction<decimal>;
 
-    public class FakeActionHandler : IMediatorHandler<FakeAction, int>
+    public class FakeActionHandler : IMediatorHandler<FakeAction, decimal>
     {
-        public Task<int> Handle(FakeAction action, CancellationToken cancellationToken)
+        public Task<decimal> Handle(FakeAction action, CancellationToken cancellationToken)
         {
             return Task.FromResult(action.Value);
         }

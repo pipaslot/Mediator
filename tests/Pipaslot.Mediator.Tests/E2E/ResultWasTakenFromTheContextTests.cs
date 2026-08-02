@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
-public class ResultWasTakenFromTheContext
+public class ResultWasTakenFromTheContextTests
 {
     [Fact]
     public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
-public class NoHandlerButResultWasReturned
+public class NoHandlerButResultWasReturnedTests
 {
     [Fact]
     public async Task Execute_Success()

@@ -1,28 +1,25 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
-public class NullableDateTime
+public class NullableObjectTests
 {
     [Fact]
     public async Task Execute_ReturnsValue_ShouldPass()
     {
-        var value = new DateTime(2020, 01, 01);
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
-        var result = await sut.Execute(new FakeAction(value));
+        var result = await sut.Execute(new FakeAction(false));
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(value, result.Result!.Value);
     }
 
     [Fact]
     public async Task Execute_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
-        var result = await sut.Execute(new FakeAction(null));
+        var result = await sut.Execute(new FakeAction(true));
         Assert.True(result.Success, result.GetErrorMessage());
         Assert.Null(result.Result);
     }
@@ -30,27 +27,29 @@ public class NullableDateTime
     [Fact]
     public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
-        var value = new DateTime(2020, 01, 01);
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
-        var result = await sut.ExecuteUnhandled(new FakeAction(value));
-        Assert.Equal(value, result!.Value);
+        var result = await sut.ExecuteUnhandled(new FakeAction(false));
+        Assert.NotNull(result);
     }
 
     [Fact]
     public async Task ExecuteUnhandled_ReturnsNull_ShouldPass()
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
-        var result = await sut.ExecuteUnhandled(new FakeAction(null));
+        var result = await sut.ExecuteUnhandled(new FakeAction(true));
         Assert.Null(result);
     }
 
-    public record FakeAction(DateTime? Value) : IMediatorAction<DateTime?>;
+    public record FakeAction(bool ReturnNull) : IMediatorAction<FakeResult?>;
 
-    public class FakeActionHandler : IMediatorHandler<FakeAction, DateTime?>
+    public record FakeResult;
+
+    public class FakeActionHandler : IMediatorHandler<FakeAction, FakeResult?>
     {
-        public Task<DateTime?> Handle(FakeAction action, CancellationToken cancellationToken)
+        public Task<FakeResult?> Handle(FakeAction action, CancellationToken cancellationToken)
         {
-            return Task.FromResult(action.Value);
+            var result = action.ReturnNull ? null : new FakeResult();
+            return Task.FromResult(result);
         }
     }
 }

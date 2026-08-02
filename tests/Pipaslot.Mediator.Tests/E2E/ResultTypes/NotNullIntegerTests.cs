@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
-public class NotNullBoolean
+public class NotNullIntegerTests
 {
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task Execute_ShouldPass(bool value)
+    [InlineData(-100)]
+    [InlineData(0)]
+    [InlineData(100)]
+    public async Task Execute_ShouldPass(int value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(value));
@@ -18,20 +19,21 @@ public class NotNullBoolean
     }
 
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task ExecuteUnhandled_ShouldPass(bool value)
+    [InlineData(-100)]
+    [InlineData(0)]
+    [InlineData(100)]
+    public async Task ExecuteUnhandled_ShouldPass(int value)
     {
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(value));
         Assert.Equal(value, result);
     }
 
-    public record FakeAction(bool Value) : IMediatorAction<bool>;
+    public record FakeAction(int Value) : IMediatorAction<int>;
 
-    public class FakeActionHandler : IMediatorHandler<FakeAction, bool>
+    public class FakeActionHandler : IMediatorHandler<FakeAction, int>
     {
-        public Task<bool> Handle(FakeAction action, CancellationToken cancellationToken)
+        public Task<int> Handle(FakeAction action, CancellationToken cancellationToken)
         {
             return Task.FromResult(action.Value);
         }

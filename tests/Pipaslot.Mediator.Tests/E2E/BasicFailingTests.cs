@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
-public class BasicFailing
+public class BasicFailingTests
 {
     [Fact]
     public async Task Execute_SuccessAsFalse()

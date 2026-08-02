@@ -1,16 +1,16 @@
 ﻿using Pipaslot.Mediator.Abstractions;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ResultTypes;
 
-public class NullableBoolean
+public class NullableDateTimeTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task Execute_ReturnsValue_ShouldPass(bool value)
+    [Fact]
+    public async Task Execute_ReturnsValue_ShouldPass()
     {
+        var value = new DateTime(2020, 01, 01);
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.Execute(new FakeAction(value));
         Assert.True(result.Success);
@@ -27,11 +27,10 @@ public class NullableBoolean
         Assert.Null(result.Result);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task ExecuteUnhandled_ReturnsValue_ShouldPass(bool value)
+    [Fact]
+    public async Task ExecuteUnhandled_ReturnsValue_ShouldPass()
     {
+        var value = new DateTime(2020, 01, 01);
         var sut = Factory.CreateMediatorWithHandlers<FakeActionHandler>();
         var result = await sut.ExecuteUnhandled(new FakeAction(value));
         Assert.Equal(value, result!.Value);
@@ -45,12 +44,11 @@ public class NullableBoolean
         Assert.Null(result);
     }
 
+    public record FakeAction(DateTime? Value) : IMediatorAction<DateTime?>;
 
-    public record FakeAction(bool? Value) : IMediatorAction<bool?>;
-
-    public class FakeActionHandler : IMediatorHandler<FakeAction, bool?>
+    public class FakeActionHandler : IMediatorHandler<FakeAction, DateTime?>
     {
-        public Task<bool?> Handle(FakeAction action, CancellationToken cancellationToken)
+        public Task<DateTime?> Handle(FakeAction action, CancellationToken cancellationToken)
         {
             return Task.FromResult(action.Value);
         }

@@ -7,7 +7,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// <summary>
 /// This case simulates validator intercepting the processing and returning error message. The handler is not executed on purpose.
 /// </summary>
-public class NoHandlerAndErrorReturned
+public class NoHandlerAndErrorReturnedTests
 {
     internal const string Error = "Fake error";
 

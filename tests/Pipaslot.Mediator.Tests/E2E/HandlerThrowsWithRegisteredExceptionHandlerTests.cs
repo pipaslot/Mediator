@@ -18,7 +18,7 @@ namespace Pipaslot.Mediator.Tests.E2E;
 /// boundary, unlike <c>Middlewares/ExceptionHandlerResolutionTests.cs</c>, which only exercises the
 /// resolver/executor standalone.
 /// </summary>
-public class HandlerThrowsWithRegisteredExceptionHandler
+public class HandlerThrowsWithRegisteredExceptionHandlerTests
 {
     [Fact]
     public async Task Execute_RegisteredHandlerMatchesThrownType_ResultsContainTranslatedMessageOnly()

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E;
 
-public class HandlerLifetimes
+public class HandlerLifetimesTests
 {
     #region Manually handled lifecycle
 
