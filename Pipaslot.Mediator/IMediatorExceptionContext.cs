@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Threading;
@@ -50,4 +51,17 @@ public interface IMediatorExceptionContext
     /// message is optional, not the failure itself.
     /// </summary>
     void SetHandledWithoutMessage();
+
+    /// <summary>
+    /// Level of the boundary's own log entry for the original exception, recorded when <see cref="IsHandled"/> is
+    /// true. <see cref="LogLevel.Warning"/> by default; <see cref="LogLevel.None"/> suppresses the entry entirely -
+    /// for a handler that already logs the failure itself. Has no effect when the handler ends up not handling the
+    /// exception, since that path owns its own Error entry.
+    /// </summary>
+    LogLevel LogLevel { get; }
+
+    /// <summary>
+    /// Overrides <see cref="LogLevel"/> for the boundary's own log entry.
+    /// </summary>
+    void SetLogLevel(LogLevel level);
 }

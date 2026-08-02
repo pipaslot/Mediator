@@ -202,8 +202,9 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
 
     /// <summary>
     /// Resolves and invokes a typed exception handler for the caught exception's runtime type, if one is registered.
-    /// Logs at Warning (with the full original exception) before applying the translation, so the log always retains
-    /// the original detail even though the client only ever sees the translated message.
+    /// Logs the full original exception at the handler's chosen <see cref="IMediatorExceptionContext.LogLevel"/>
+    /// (Warning by default, suppressible via <c>LogLevel.None</c>) before applying the translation, so the log
+    /// retains the original detail even though the client only ever sees the translated message.
     /// </summary>
     private async Task<bool> TryTranslate(Exception exception, MediatorContext context)
     {
@@ -220,7 +221,13 @@ internal class Mediator(IServiceProvider serviceProvider, MediatorContextAccesso
             return false;
         }
 
-        logger.LogWarning(exception, "Mediator action '{Action}' failed with an exception translated by a registered exception handler.", context.ActionIdentifier);
+        if (exceptionContext.LogLevel != LogLevel.None)
+        {
+            // Explicit level check rather than relying on the ILogger implementation to no-op on LogLevel.None -
+            // custom ILogger implementations are not guaranteed to.
+            logger.Log(exceptionContext.LogLevel, exception, "Mediator action '{Action}' failed with an exception translated by a registered exception handler.", context.ActionIdentifier);
+        }
+
         if (exceptionContext.Message is not null)
         {
             context.AddError(exceptionContext.Message);

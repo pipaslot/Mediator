@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Threading;
@@ -31,5 +32,12 @@ public sealed class MediatorExceptionContext(Exception exception, MediatorContex
     {
         IsHandled = true;
         Message = null;
+    }
+
+    public LogLevel LogLevel { get; private set; } = LogLevel.Warning;
+
+    public void SetLogLevel(LogLevel level)
+    {
+        LogLevel = level;
     }
 }

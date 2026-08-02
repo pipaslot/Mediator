@@ -127,6 +127,57 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         Assert.Equal(HandledWithoutMessageButOwnErrorExceptionHandler.OwnMessage, Assert.Single(result.GetErrorMessages()));
     }
 
+    /// <summary>
+    /// <see cref="IMediatorExceptionContext.SetLogLevel"/> lets a handler escalate the boundary's own log entry for
+    /// the original exception past the Warning default.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerSetsLogLevelToError_LogsSingleErrorEntryNoWarning()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<ErrorLogLevelExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<SingleHandler.RequestException>(entry.Exception);
+        Assert.DoesNotContain(logger.Entries, e => e.Level == LogLevel.Warning);
+    }
+
+    /// <summary>
+    /// <see cref="LogLevel.None"/> suppresses the boundary's own log entry entirely - for a handler that already
+    /// logs the failure itself - without affecting the translated message reported to the client.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerSetsLogLevelToNone_SuppressesLogEntryButKeepsTranslatedMessage()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<SuppressedLogExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Equal(SuppressedLogExceptionHandler.TranslatedMessage, result.GetErrorMessage());
+        Assert.Empty(logger.Entries);
+    }
+
+    /// <summary>
+    /// A <see cref="IMediatorExceptionContext.SetLogLevel"/> call has no effect when the handler ends up not handling
+    /// the exception - the unmapped-exception fallback owns its own Error entry regardless of what the declining
+    /// handler did to the context first.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerSetsLogLevelButDoesNotCallSetHandled_FallsBackToGenericMessageAndErrorLog()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<LogLevelSetButNotHandledExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<SingleHandler.RequestException>(entry.Exception);
+    }
+
     private class RequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
     {
         public const string TranslatedMessage = "The request could not be completed.";
@@ -172,6 +223,37 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         {
             context.Context.AddError(OwnMessage);
             context.SetHandledWithoutMessage();
+            return Task.CompletedTask;
+        }
+    }
+
+    private class ErrorLogLevelExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetLogLevel(LogLevel.Error);
+            context.SetHandled("Escalated translation.");
+            return Task.CompletedTask;
+        }
+    }
+
+    private class SuppressedLogExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public const string TranslatedMessage = "Suppressed-log translation.";
+
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetLogLevel(LogLevel.None);
+            context.SetHandled(TranslatedMessage);
+            return Task.CompletedTask;
+        }
+    }
+
+    private class LogLevelSetButNotHandledExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetLogLevel(LogLevel.None);
             return Task.CompletedTask;
         }
     }

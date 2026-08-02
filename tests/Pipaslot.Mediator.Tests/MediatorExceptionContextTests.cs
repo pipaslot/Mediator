@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
@@ -39,6 +40,35 @@ public class MediatorExceptionContextTests
 
         Assert.True(sut.IsHandled);
         Assert.Equal("translated message", sut.Message);
+    }
+
+    [Fact]
+    public void SetHandledWithoutMessage_SetsIsHandledTrueAndMessageStaysNull()
+    {
+        var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
+
+        sut.SetHandledWithoutMessage();
+
+        Assert.True(sut.IsHandled);
+        Assert.Null(sut.Message);
+    }
+
+    [Fact]
+    public void LogLevel_FreshContext_DefaultsToWarning()
+    {
+        var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
+
+        Assert.Equal(LogLevel.Warning, sut.LogLevel);
+    }
+
+    [Fact]
+    public void SetLogLevel_ChangesLogLevel()
+    {
+        var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
+
+        sut.SetLogLevel(LogLevel.None);
+
+        Assert.Equal(LogLevel.None, sut.LogLevel);
     }
 
     [Fact]
