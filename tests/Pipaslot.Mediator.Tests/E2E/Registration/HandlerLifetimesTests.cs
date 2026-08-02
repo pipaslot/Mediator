@@ -6,6 +6,13 @@ namespace Pipaslot.Mediator.Tests.E2E.Registration;
 
 public class HandlerLifetimesTests
 {
+    public HandlerLifetimesTests()
+    {
+        InstanceCounterMessageHandler.Instances.Clear();
+        SingletonMessageHandler.Instances.Clear();
+        ScopedMessageHandler.Instances.Clear();
+    }
+
     #region Manually handled lifecycle
 
     [Theory]
@@ -18,7 +25,6 @@ public class HandlerLifetimesTests
             .AddActions([typeof(InstanceCounterMessage)])
             .AddHandlers([typeof(InstanceCounterMessageHandler)], lifetime)
         );
-        InstanceCounterMessageHandler.Instances.Clear();
         await sut.Dispatch(new InstanceCounterMessage());
         await sut.Dispatch(new InstanceCounterMessage());
         Assert.Equal(expectedInstanceCount, InstanceCounterMessageHandler.Instances.Count);
@@ -63,7 +69,6 @@ public class HandlerLifetimesTests
             .AddActionsFromAssemblyOf<SingletonMessage>()
             .AddHandlersFromAssemblyOf<SingletonMessageHandler>()
         );
-        SingletonMessageHandler.Instances.Clear();
         await sut.Dispatch(new SingletonMessage());
         await sut.Dispatch(new SingletonMessage());
         Assert.Single(SingletonMessageHandler.Instances);
@@ -102,7 +107,6 @@ public class HandlerLifetimesTests
             .AddActionsFromAssemblyOf<ScopedMessage>()
             .AddHandlersFromAssemblyOf<ScopedMessageHandler>()
         );
-        ScopedMessageHandler.Instances.Clear();
         await sut.Dispatch(new ScopedMessage());
         await sut.Dispatch(new ScopedMessage());
         Assert.Single(ScopedMessageHandler.Instances);
