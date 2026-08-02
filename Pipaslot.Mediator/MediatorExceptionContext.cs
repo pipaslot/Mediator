@@ -34,6 +34,12 @@ public sealed class MediatorExceptionContext(Exception exception, MediatorContex
         Message = null;
     }
 
+    public void SetNotHandled()
+    {
+        IsHandled = false;
+        Message = null;
+    }
+
     public LogLevel LogLevel { get; private set; } = LogLevel.Warning;
 
     public void SetLogLevel(LogLevel level)

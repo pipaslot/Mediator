@@ -178,6 +178,86 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         Assert.IsType<SingleHandler.RequestException>(entry.Exception);
     }
 
+    /// <summary>
+    /// A handler registered for a base exception type inspects the concrete instance and declines to translate one
+    /// subtype while translating another - the realistic case of a handler for a shared base type (e.g. a
+    /// <c>SqlException</c>-style hierarchy) that only recognizes specific subtypes. Declining here is a plain return
+    /// without calling <c>SetHandled*</c>, which is equivalent to <see cref="IMediatorExceptionContext.SetNotHandled"/>.
+    /// </summary>
+    [Fact]
+    public async Task Execute_HandlerDeclinesOneSubtypeButTranslatesAnother_DeclinedGetsGenericTranslatedGetsItsMessage()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c =>
+        {
+            c.AddExceptionHandler<BaseExceptionHandler>();
+            c.UseWhenAction<SingleHandler.Request, ThrowBaseOrDerivedExceptionMiddleware>();
+        });
+
+        var declinedResult = await sut.Execute(new SingleHandler.Request(false));
+        var translatedResult = await sut.Execute(new SingleHandler.Request(true));
+
+        Assert.False(declinedResult.Success);
+        Assert.Equal(Mediator.GenericErrorMessage, declinedResult.GetErrorMessage());
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Error && e.Exception is DeclinedSubException);
+
+        Assert.False(translatedResult.Success);
+        Assert.Equal(BaseExceptionHandler.TranslatedMessage, translatedResult.GetErrorMessage());
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Warning && e.Exception is TranslatedSubException);
+    }
+
+    /// <summary>
+    /// <see cref="IMediatorExceptionContext.SetNotHandled"/> reverses an earlier <see cref="IMediatorExceptionContext.SetHandled(string)"/>
+    /// call on the same context - the boundary falls back to its generic message, and the reversed message never
+    /// reaches <see cref="MediatorContext.Results"/>.
+    /// </summary>
+    [Fact]
+    public async Task Execute_RegisteredHandlerCallsSetHandledThenSetNotHandled_FallsBackToGenericMessageWithoutReversedMessage()
+    {
+        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<HandledThenReversedExceptionHandler>());
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+        Assert.DoesNotContain(HandledThenReversedExceptionHandler.ReversedMessage, result.GetErrorMessage());
+    }
+
+    /// <summary>
+    /// Resolution asks the single most specific registered handler once; a decline does not fall back to search for
+    /// a less specific match. A base-type handler is registered alongside a derived-type handler that declines - the
+    /// base handler's invocation counter proves it is never asked.
+    ///
+    /// This mirrors how a C# try/catch chain resolves: only the first, most specific matching catch runs, and if that
+    /// block does not handle the exception (e.g. it rethrows), execution does not fall through to a broader catch
+    /// further down in the same try - the exception simply propagates. For example:
+    /// <code>
+    /// try { ... }
+    /// catch (SqlException ex) when (ex.Number == 1205) { /* only deadlocks */ }
+    /// catch (Exception ex) { /* never reached for a SqlException with a different Number -
+    ///                           the runtime does not "fall back" to this broader catch */ }
+    /// </code>
+    /// A less specific handler here is exactly that broader catch: declining in the more specific one must not
+    /// silently route the exception to a handler that never expected to see this concrete type - it could translate
+    /// it with a message that does not fit the case the specific handler explicitly rejected.
+    /// </summary>
+    [Fact]
+    public async Task Execute_MostSpecificHandlerDeclines_DoesNotFallBackToLessSpecificHandler()
+    {
+        BaseCountingExceptionHandler.InvocationCount = 0;
+        var sut = Factory.CreateConfiguredMediator(c =>
+        {
+            c.AddExceptionHandler<BaseCountingExceptionHandler>();
+            c.AddExceptionHandler<DerivedDecliningExceptionHandler>();
+            c.UseWhenAction<SingleHandler.Request, ThrowDerivedCountingExceptionMiddleware>();
+        });
+
+        var result = await sut.Execute(new SingleHandler.Request(false));
+
+        Assert.False(result.Success);
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+        Assert.Equal(0, BaseCountingExceptionHandler.InvocationCount);
+    }
+
     private class RequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
     {
         public const string TranslatedMessage = "The request could not be completed.";
@@ -255,6 +335,81 @@ public class HandlerThrowsWithRegisteredExceptionHandler
         {
             context.SetLogLevel(LogLevel.None);
             return Task.CompletedTask;
+        }
+    }
+
+    private class BaseException(string message) : Exception(message);
+
+    private class DeclinedSubException() : BaseException("declined subtype detail");
+
+    private class TranslatedSubException() : BaseException("translated subtype detail");
+
+    private class BaseExceptionHandler : IMediatorExceptionHandler<BaseException>
+    {
+        public const string TranslatedMessage = "A recoverable condition occurred.";
+
+        public Task Handle(BaseException exception, IMediatorExceptionContext context)
+        {
+            if (exception is not DeclinedSubException)
+            {
+                context.SetHandled(TranslatedMessage);
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private class ThrowBaseOrDerivedExceptionMiddleware : IMediatorMiddleware
+    {
+        public Task Invoke(MediatorContext context, MiddlewareDelegate next)
+        {
+            var request = (SingleHandler.Request)context.Action;
+            throw request.Pass ? new TranslatedSubException() : new DeclinedSubException();
+        }
+    }
+
+    private class HandledThenReversedExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>
+    {
+        public const string ReversedMessage = "reversed-message-marker";
+
+        public Task Handle(SingleHandler.RequestException exception, IMediatorExceptionContext context)
+        {
+            context.SetHandled(ReversedMessage);
+            context.SetNotHandled();
+            return Task.CompletedTask;
+        }
+    }
+
+    private class BaseCountingException(string message) : Exception(message);
+
+    private class DerivedDecliningException() : BaseCountingException("derived detail");
+
+    private class BaseCountingExceptionHandler : IMediatorExceptionHandler<BaseCountingException>
+    {
+        public static int InvocationCount;
+
+        public Task Handle(BaseCountingException exception, IMediatorExceptionContext context)
+        {
+            InvocationCount++;
+            context.SetHandled("Base translation.");
+            return Task.CompletedTask;
+        }
+    }
+
+    private class DerivedDecliningExceptionHandler : IMediatorExceptionHandler<DerivedDecliningException>
+    {
+        public Task Handle(DerivedDecliningException exception, IMediatorExceptionContext context)
+        {
+            // Declines - the most specific match must not fall back to the less specific BaseCountingExceptionHandler.
+            return Task.CompletedTask;
+        }
+    }
+
+    private class ThrowDerivedCountingExceptionMiddleware : IMediatorMiddleware
+    {
+        public Task Invoke(MediatorContext context, MiddlewareDelegate next)
+        {
+            throw new DerivedDecliningException();
         }
     }
 

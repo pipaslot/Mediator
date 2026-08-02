@@ -28,8 +28,10 @@ public interface IMediatorExceptionContext
     CancellationToken CancellationToken { get; }
 
     /// <summary>
-    /// False until <see cref="SetHandled"/>/<see cref="SetHandledWithoutMessage"/> is called. False means "fall
-    /// through to the safe-by-default fallback, exactly as if no handler had been registered for this exception type".
+    /// False until <see cref="SetHandled"/>/<see cref="SetHandledWithoutMessage"/> is called, or after a subsequent
+    /// <see cref="SetNotHandled"/>. False means "fall through to the safe-by-default fallback, exactly as if no
+    /// handler had been registered for this exception type" - the same outcome as returning without calling either
+    /// <c>SetHandled*</c> method in the first place.
     /// </summary>
     bool IsHandled { get; }
 
@@ -51,6 +53,17 @@ public interface IMediatorExceptionContext
     /// message is optional, not the failure itself.
     /// </summary>
     void SetHandledWithoutMessage();
+
+    /// <summary>
+    /// Reverses a decision to handle the exception - clears <see cref="IsHandled"/> and <see cref="Message"/>, so the
+    /// boundary falls through to the safe-by-default fallback as if this handler had declined from the start. Lets a
+    /// base-class handler's <see cref="SetHandled(string)"/>/<see cref="SetHandledWithoutMessage"/> call be reversed
+    /// by an overriding subclass that inspects the concrete exception instance and decides not to translate it after
+    /// all - the realistic case being a handler registered for a base exception type that only translates some of its
+    /// subtypes. Resolution asks the single most specific registered handler once; declining does not fall back to a
+    /// less specific one.
+    /// </summary>
+    void SetNotHandled();
 
     /// <summary>
     /// Level of the boundary's own log entry for the original exception, recorded when <see cref="IsHandled"/> is

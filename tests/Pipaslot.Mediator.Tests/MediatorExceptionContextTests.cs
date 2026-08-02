@@ -54,6 +54,29 @@ public class MediatorExceptionContextTests
     }
 
     [Fact]
+    public void SetNotHandled_AfterSetHandled_ClearsIsHandledAndMessage()
+    {
+        var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
+        sut.SetHandled("translated message");
+
+        sut.SetNotHandled();
+
+        Assert.False(sut.IsHandled);
+        Assert.Null(sut.Message);
+    }
+
+    [Fact]
+    public void SetNotHandled_AfterSetHandledWithoutMessage_ClearsIsHandled()
+    {
+        var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
+        sut.SetHandledWithoutMessage();
+
+        sut.SetNotHandled();
+
+        Assert.False(sut.IsHandled);
+    }
+
+    [Fact]
     public void LogLevel_FreshContext_DefaultsToWarning()
     {
         var sut = new MediatorExceptionContext(new InvalidOperationException("boom"), Factory.FakeContext(new SingleHandler.Message(true)));
