@@ -42,6 +42,7 @@ Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated arti
 ### Test-writing conventions
 
 - **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
+- **Check for existing coverage before adding a test.** Test classes are organized by scenario/trigger condition, not by which unit of work introduced the assertion — a class whose doc comment says "new API only" or "not covered elsewhere" is a claim about the state *when that comment was written*, not a guarantee. Before adding a new test for behavior that might already be exercised, search for an existing test with the same setup/trigger and extend it instead of adding a parallel one elsewhere; two tests asserting the same trigger condition from two different files is a sign the search was skipped.
 
 ## Architecture
 
@@ -81,6 +82,11 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 ### Multi-targeting
 
 `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` multi-target `net6.0` through `net10.0` (see their `.csproj`) because they're published to NuGet for consumers on older TFMs; test/benchmark/demo projects target `net10.0` only. When editing the core libraries, keep API usage compatible across that whole range (per-TFM `PackageReference` blocks already pin `Microsoft.Extensions.DependencyInjection.Abstractions` to the matching version).
+
+## Code comments
+
+- **Never cite a planning/analysis document (e.g. anything under `docs/Todos/`) in a code comment, XML doc, or commit-adjacent annotation.** Those documents are working artifacts for a single change; once the change ships they stop being maintained and often get deleted, leaving a comment that points at a file which no longer exists or no longer reflects reality. `docs/wiki/` is the only doc tree that's a maintained, permanent source of truth — linking to a wiki page (e.g. `see docs/wiki/6.2.-Exception-handling.md`) is fine.
+- Instead, write the comment so it stands on its own: state the business rule, invariant, or constraint the code enforces, not which document or unit of work introduced it. E.g. prefer "does not create a `Notification` — recorded exceptions must not leak into client-facing `Results`" over "see 1.3 Unit 3 — per the design doc, `AddException` must not touch `Results`".
 
 ## Documentation
 

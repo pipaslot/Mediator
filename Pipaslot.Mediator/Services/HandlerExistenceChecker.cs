@@ -115,7 +115,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
                 return;
             }
 
-            _errors.Add(MediatorExecutionException.CreateForNoHandler(subject).Message);
+            _errors.Add(MediatorNoHandlerFoundException.Create(subject).Message);
         }
 
         var anyIsSequence = false;

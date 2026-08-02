@@ -1,6 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading;
@@ -67,6 +68,60 @@ public class MediatorContextTests
 
         Assert.Equal(2, copy.Depth);
         Assert.True(copy.IsNested);
+    }
+
+    [Fact]
+    public void AddException_SetsStatusFailed()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+
+        sut.AddException(new InvalidOperationException("boom"));
+
+        Assert.Equal(ExecutionStatus.Failed, sut.Status);
+    }
+
+    [Fact]
+    public void AddException_AddsToExceptions()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        var ex = new InvalidOperationException("boom");
+
+        sut.AddException(ex);
+
+        Assert.Same(ex, Assert.Single(sut.Exceptions));
+    }
+
+    [Fact]
+    public void AddException_DoesNotAddToResults()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+
+        sut.AddException(new InvalidOperationException("boom"));
+
+        Assert.Empty(sut.Results);
+    }
+
+    [Fact]
+    public void AddException_DoesNotCreateNotification()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+
+        sut.AddException(new InvalidOperationException("boom"));
+
+        Assert.DoesNotContain(sut.Results, r => r is Notification);
+    }
+
+    [Fact]
+    public void AddException_CalledTwice_BothRecordedInOrder()
+    {
+        var sut = CreateContext(new SingleHandler.Message(true));
+        var first = new InvalidOperationException("first");
+        var second = new ArgumentException("second");
+
+        sut.AddException(first);
+        sut.AddException(second);
+
+        Assert.Equal([first, second], sut.Exceptions);
     }
 
     private MediatorContext CreateContext(IMediatorAction action)

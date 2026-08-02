@@ -23,11 +23,26 @@ public static class ServiceProviderExtensions
         var executorType = reflectionCache.GetHandlerExecutorType(actionType);
         return (HandlerExecutor)services.GetRequiredService(executorType);
     }
+
+    /// <summary>
+    /// Resolves the exception handler executor for the most specific registered handler matching <paramref name="concreteExceptionType"/>,
+    /// or null when no registered handler matches.
+    /// </summary>
+    internal static ExceptionHandlerExecutor? GetExceptionHandlerExecutor(this IServiceProvider services, ExceptionHandlerCache exceptionHandlerCache, Type concreteExceptionType)
+    {
+        var entry = exceptionHandlerCache.Resolve(concreteExceptionType);
+        if (entry is null)
+        {
+            return null;
+        }
+
+        return (ExceptionHandlerExecutor)services.GetRequiredService(entry.ExecutorType);
+    }
     
     /// <summary>
     /// Resolve all action handlers
     /// </summary>
-    /// TODO: Remove
+    /// TODO: Remove in next major version
     public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
     {
         var actionType = action.GetType();

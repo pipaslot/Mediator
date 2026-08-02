@@ -8,19 +8,22 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator.Tests.Notifications;
 
 /// <summary>
-/// A nested action's error <see cref="Notification"/>, once forwarded into the parent context, must not by
-/// itself flip the parent's <see cref="ExecutionStatus"/> to Failed.
+/// An error-typed <see cref="Notification"/> added through <see cref="INotificationProvider"/>/<see cref="IMediatorFacade.AddNotification"/>
+/// (directly on <see cref="MediatorContext.AddResult"/>) never flips <see cref="ExecutionStatus"/> by itself - neither when it is
+/// forwarded from a nested context nor when it is added locally on the root context. Only
+/// <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>/<see cref="MediatorContextExtensions.AddErrors"/>
+/// fail the action (see Todos/1.5.2-analysis-open-design-questions.md, "narrow the coupling").
 /// </summary>
 public class NotificationPropagationStatusTests
 {
-    // Depth 1 and 2 are the propagation scenario the report describes (root never touches Status/AddNotification
-    // itself; only a nested call several levels down does). Depth 0 is deliberately excluded here and covered
-    // instead by LocalErrorNotification_AtRoot_StillFailsStatus, because at depth 0 the notification is added
-    // directly on the root/only context - that is a *local* failure, not a forwarded one.
+    // Depth 0 is the local case (the notification is added directly on the root/only context); depth 1 and 2 are
+    // the forwarded case (a nested call several levels down adds it, and it propagates up). Both must leave the
+    // root Status untouched.
     [Theory]
+    [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task ForwardedErrorNotification_DoesNotFailRootStatus(int depth)
+    public async Task ErrorNotification_ViaProvider_NeverFailsStatus(int depth)
     {
         var sut = Factory.CreateConfiguredMediator();
         var res = await sut.Dispatch(new ErrorNotifyingAction(depth, StopPropagation: false));
@@ -30,10 +33,10 @@ public class NotificationPropagationStatusTests
     }
 
     [Fact]
-    public async Task LocalErrorNotification_AtRoot_StillFailsStatus()
+    public async Task LocalAddError_AtRoot_FailsStatus()
     {
         var sut = Factory.CreateConfiguredMediator();
-        var res = await sut.Dispatch(new ErrorNotifyingAction(0, StopPropagation: false));
+        var res = await sut.Dispatch(new AddErrorAction());
 
         Assert.False(res.Success);
     }
@@ -61,12 +64,12 @@ public class NotificationPropagationStatusTests
     }
 
     [Fact]
-    public async Task DispatchUnhandled_StillThrowsForItsOwnLocalError()
+    public async Task DispatchUnhandled_StillThrowsForItsOwnLocalAddError()
     {
         var sut = Factory.CreateConfiguredMediator();
 
-        await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
-            await sut.DispatchUnhandled(new ErrorNotifyingAction(0, StopPropagation: false)));
+        await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
+            await sut.DispatchUnhandled(new AddErrorAction()));
     }
 
     [Theory]
@@ -85,10 +88,21 @@ public class NotificationPropagationStatusTests
     }
 
     /// <summary>
-    /// Recurses <paramref name="Depth"/> times before adding an error notification, reproducing
-    /// Todos/1.3's <c>ErrorNotifyingAction</c>/<c>Handler</c> pair.
+    /// Recurses <paramref name="Depth"/> times before adding an error notification, so the theory above can vary
+    /// how many nested contexts the notification propagates through.
     /// </summary>
     private record ErrorNotifyingAction(int Depth, bool StopPropagation) : IMediatorAction;
+
+    private record AddErrorAction(bool StopPropagation = false) : IMediatorAction;
+
+    private record AddErrorActionHandler(IMediatorFacade Facade) : IMediatorHandler<AddErrorAction>
+    {
+        public Task Handle(AddErrorAction action, CancellationToken cancellationToken)
+        {
+            Facade.Context!.AddError("boom", action.StopPropagation);
+            return Task.CompletedTask;
+        }
+    }
 
     private record ErrorNotifyingActionHandler(IMediatorFacade Facade) : IMediatorHandler<ErrorNotifyingAction>
     {
@@ -116,7 +130,7 @@ public class NotificationPropagationStatusTests
         {
             // StopPropagation:true isolates the mechanism under test: the parent's failure must come only from
             // its own explicit AddError below, not from the nested notification also auto-propagating.
-            var nestedResult = await Facade.Dispatch(new ErrorNotifyingAction(0, StopPropagation: true), cancellationToken);
+            var nestedResult = await Facade.Dispatch(new AddErrorAction(StopPropagation: true), cancellationToken);
             if (!nestedResult.Success)
             {
                 Facade.Context!.AddError("Parent explicitly failing because a nested action failed");

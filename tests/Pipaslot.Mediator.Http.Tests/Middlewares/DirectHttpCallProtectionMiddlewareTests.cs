@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Internal;
-using Pipaslot.Mediator.Http.Middlewares;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,13 +13,13 @@ namespace Pipaslot.Mediator.Http.Tests.Middlewares;
 public class DirectHttpCallProtectionMiddlewareTests
 {
     [Fact]
-    public async Task RootHttpCall_ShouldFail()
+    public async Task RootHttpCall_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var mediator = CreateMediator(featureSet: true);
         var res = await mediator.Dispatch(new ProtectedAction());
 
         Assert.False(res.Success);
-        Assert.Equal(MediatorException.CreateForForbidenDirectCall().Message, res.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, res.GetErrorMessage());
     }
 
     [Fact]

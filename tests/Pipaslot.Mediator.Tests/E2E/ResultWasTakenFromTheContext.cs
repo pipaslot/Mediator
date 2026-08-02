@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Middlewares;
+﻿using Microsoft.Extensions.Logging;
+using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using System.Threading.Tasks;
 
@@ -7,15 +8,24 @@ namespace Pipaslot.Mediator.Tests.E2E;
 public class ResultWasTakenFromTheContext
 {
     [Fact]
-    public async Task Execute_ReturnFailureBecauseNotResultWasFound()
+    public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()
     {
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
         var action = new RequestWithoutHandler();
         var result = await sut.Execute(action);
         Assert.False(result.Success);
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message,
-            result.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
+    }
+
+    [Fact]
+    public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
+    {
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMilldeware>());
+
+        await sut.Execute(new RequestWithoutHandler());
+
+        var entry = Assert.Single(logger.Entries, e => e.Level == LogLevel.Error);
+        Assert.IsType<MediatorMissingResultException>(entry.Exception);
     }
 
     [Fact]
@@ -24,12 +34,12 @@ public class ResultWasTakenFromTheContext
         var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMilldeware>());
         var action = new RequestWithoutHandler();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorMissingResultException>(async () =>
             {
                 await sut.ExecuteUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForMissingResult(context, typeof(RequestWithoutHandler.ResultDto)).Message, ex.Message);
+        Assert.Equal(MediatorMissingResultException.Create(typeof(RequestWithoutHandler.ResultDto), context).Message, ex.Message);
     }
 
     // Does not make sense for Dispatch and DispatchUnhandled

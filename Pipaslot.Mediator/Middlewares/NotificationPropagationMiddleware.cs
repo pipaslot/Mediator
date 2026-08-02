@@ -20,10 +20,7 @@ internal class NotificationPropagationMiddleware : IMediatorMiddleware
             var notifications = context.Results
                 .Where(r => r is Notification n && !n.StopPropagation)
                 .Cast<Notification>();
-            foreach (var notification in notifications)
-            {
-                parentContext.AddForwardedNotification(notification);
-            }
+            parentContext.AddResults(notifications);
         }
     }
 }

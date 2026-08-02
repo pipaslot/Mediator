@@ -58,13 +58,13 @@ public class HttpClientExecutionMiddleware(
             return await ProcessRuntimeError<TResult>(context, e).ConfigureAwait(false);
         }
 
-        IMediatorResponse<TResult> result;
+        IMediatorResponse<TResult>? result;
         try
         {
             var serializedResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             result = serializer.DeserializeResponse<TResult>(serializedResult);
 
-            context.Status = result.Success ? ExecutionStatus.Succeeded : ExecutionStatus.Failed;
+            context.Status = result is not null && result.Success ? ExecutionStatus.Succeeded : ExecutionStatus.Failed;
         }
         catch (Exception e)
         {
@@ -98,7 +98,7 @@ public class HttpClientExecutionMiddleware(
     }
 
     protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorContext context, HttpResponseMessage response,
-        IMediatorResponse<TResult> result)
+        IMediatorResponse<TResult>? result)
     {
         return result != null
             ? Task.FromResult(result)

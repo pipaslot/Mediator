@@ -51,4 +51,19 @@ public interface IMediatorConfigurator : IMiddlewareRegistrator
     /// <param name="identifier">Customized unique pipeline identifier. Pipeline with the same identifier will be replaced</param>
     IMediatorConfigurator AddPipeline(IPipelineCondition condition, Action<IMiddlewareRegistrator> subMiddlewares,
         string? identifier = null);
+
+    /// <summary>
+    /// Register a typed exception handler translating exceptions caught at the Execute/Dispatch boundary into client-safe messages.
+    /// The handled exception type(s) are discovered from the handler type's <see cref="IMediatorExceptionHandler{TException}"/> implementations -
+    /// one handler type can cover several exception types, producing one routing entry per implemented interface.
+    /// </summary>
+    /// <exception cref="MediatorException">
+    /// <typeparamref name="THandler"/> implements no <see cref="IMediatorExceptionHandler{TException}"/>, or a handler is already registered for one of its exception types.
+    /// </exception>
+    IMediatorConfigurator AddExceptionHandler<THandler>(ServiceLifetime lifetime = ServiceLifetime.Transient) where THandler : class;
+
+    /// <summary>
+    /// Register multiple typed exception handler types. See <see cref="AddExceptionHandler{THandler}"/> for the per-type rules.
+    /// </summary>
+    IMediatorConfigurator AddExceptionHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime lifetime = ServiceLifetime.Transient);
 }

@@ -36,6 +36,16 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     /// </summary>
     public IReadOnlyCollection<object> Results => _results;
 
+    private readonly List<Exception> _exceptions = new(0);
+
+    /// <summary>
+    /// Exceptions recorded via <see cref="AddException"/>. Kept separate from
+    /// <see cref="Results"/> by construction: only <see cref="IMediator.DispatchUnhandled"/>/<see cref="IMediator.ExecuteUnhandled"/>
+    /// read this collection (to rethrow the original exception instead of a generic wrapper) - it never reaches
+    /// <see cref="IMediator.Dispatch"/>/<see cref="IMediator.Execute{TResult}"/> callers or gets serialized to a client.
+    /// </summary>
+    public IReadOnlyCollection<Exception> Exceptions => _exceptions;
+
     /// <summary>
     /// Executed/Dispatched action
     /// </summary>
@@ -135,42 +145,39 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     }
 
     /// <summary>
-    /// Register processing result
+    /// Register processing result.
+    /// Adding an error-typed <see cref="Notification"/> here does not by itself change <see cref="Status"/> -
+    /// use <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>/<see cref="MediatorContextExtensions.AddErrors"/> to both
+    /// report an error message and fail the action.
     /// </summary>
     /// <param name="result"></param>
     public void AddResult(object result)
     {
         if (result is Notification notification)
         {
-            if (notification.Type.IsError())
+            if (!ContainsNotification(notification))
             {
-                Status = ExecutionStatus.Failed;
+                _results.Add(notification);
             }
-
-            AppendNotification(notification);
         }
         else
         {
             _results.Add(result);
         }
     }
-
+    
     /// <summary>
-    /// Registers a notification forwarded from a nested/child context's own Results (used by <see cref="NotificationPropagationMiddleware"/>).
-    /// Unlike <see cref="AddResult"/>, this never mutates <see cref="Status"/> - a descendant context's already-resolved outcome
-    /// must not silently flip this context's own status; only this context's own local AddResult/AddError calls do that.
+    /// Record an exception that <see cref="IMediator.DispatchUnhandled"/>/<see cref="IMediator.ExecuteUnhandled"/> should
+    /// rethrow (or aggregate, if more than one is recorded) instead of wrapping it in a generic <see cref="MediatorUnhandledErrorException"/>.
+    /// Sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>. Does not add a <see cref="Notification"/>
+    /// and never appears in <see cref="MediatorContext.Results"/> - unlike <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>,
+    /// it is invisible to <see cref="IMediator.Dispatch"/>/<see cref="IMediator.Execute{TResult}"/> callers.
     /// </summary>
-    internal void AddForwardedNotification(Notification notification)
+    /// <param name="exception">The original exception to preserve for the re-throw bridge</param>
+    public void AddException(Exception exception)
     {
-        AppendNotification(notification);
-    }
-
-    private void AppendNotification(Notification notification)
-    {
-        if (!ContainsNotification(notification))
-        {
-            _results.Add(notification);
-        }
+        Status = ExecutionStatus.Failed;
+        _exceptions.Add(exception);
     }
 
     private bool ContainsNotification(Notification notification)

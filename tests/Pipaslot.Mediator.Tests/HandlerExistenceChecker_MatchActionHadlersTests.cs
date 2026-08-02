@@ -50,7 +50,7 @@ public class HandlerExistenceChecker_MatchActionHadlersTests
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
-        CompareExceptions(MediatorExecutionException.CreateForNoHandler(subject), exception);
+        CompareExceptions(MediatorNoHandlerFoundException.Create(subject), exception);
     }
 
     [Theory]

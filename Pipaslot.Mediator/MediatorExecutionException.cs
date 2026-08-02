@@ -30,31 +30,21 @@ public class MediatorExecutionException : MediatorException
     {
         Response = response;
     }
-
+    [Obsolete("Will be delete in the next major version")]
     public static MediatorExecutionException CreateForUnhandledError(MediatorContext context)
     {
-        return CreateForUnhandledError($"'{GetErrors(context.Results)}'", context);
+        return MediatorUnhandledErrorException.Create($"'{GetErrors(context.Results)}'", context);
     }
-
+    
+    [Obsolete("Will be delete in the next major version")]
     public static MediatorExecutionException CreateForUnhandledError(string errors, MediatorContext context)
     {
-        return new MediatorExecutionException(
+        return new MediatorUnhandledErrorException(
             $"Handler or middlewares set the ExecutionStatus to {ExecutionStatus.Failed}. To prevent this exception, user methods Mediator.Dispatch or Mediator.Execute instead. Error messages: [{errors}]",
             context);
     }
 
-    internal static MediatorExecutionException CreateForMissingResult(MediatorContext context, Type type)
-    {
-        return new MediatorExecutionException(
-            $"Expected result type '{type}' was missing in result collection. Ensure that executed action has its handler.", context);
-    }
-
-    internal static MediatorExecutionException CreateForNoHandler(Type? type, MediatorContext? context = null)
-    {
-        return new MediatorExecutionException("No handler was found for " + type, context);
-    }
-
-    private static string GetErrors(IReadOnlyCollection<object> results)
+    protected static string GetErrors(IReadOnlyCollection<object> results)
     {
         var errors = results
             .Where(r => r is Notification)

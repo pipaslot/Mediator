@@ -15,12 +15,12 @@ public class DirectCallProtectionMiddlewareTests
     }
 
     [Fact]
-    public async Task DirectCall_ShouldFail()
+    public async Task DirectCall_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
         var sut = CreateMediator();
         var res = await sut.Dispatch(new ProtectedAction());
         Assert.False(res.Success);
-        Assert.Equal(MediatorException.CreateForForbidenDirectCall().Message, res.GetErrorMessage());
+        Assert.Equal(Mediator.GenericErrorMessage, res.GetErrorMessage());
     }
 
     private IMediator CreateMediator()

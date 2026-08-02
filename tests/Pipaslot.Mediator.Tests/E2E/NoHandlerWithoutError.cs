@@ -25,12 +25,12 @@ public class NoHandlerWithoutError
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
         var action = new BlockedRequest();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             {
                 await sut.ExecuteUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError(context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
     }
 
     [Fact]
@@ -50,12 +50,12 @@ public class NoHandlerWithoutError
         var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMilldeware>());
         var action = new BlockedRequest();
         var ex =
-            await Assert.ThrowsAsync<MediatorExecutionException>(async () =>
+            await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             {
                 await sut.DispatchUnhandled(action);
             });
         var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorExecutionException.CreateForUnhandledError(context).Message, ex.Message);
+        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
     }
 
     public class BlockedRequest : IRequest<BlockedRequest.ResultDto>

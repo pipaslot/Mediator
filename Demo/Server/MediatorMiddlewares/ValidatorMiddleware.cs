@@ -1,7 +1,5 @@
-﻿using Demo.Shared;
+using Demo.Shared;
 using Pipaslot.Mediator.Middlewares;
-using System.Net;
-using Pipaslot.Mediator.Http;
 
 namespace Demo.Server.MediatorMiddlewares;
 
@@ -12,11 +10,9 @@ public class ValidatorMiddleware : IMediatorMiddleware
         if (context.Action is IValidable validable)
         {
             var errors = validable.Validate();
-            if (errors != null && errors.Any())
+            if (errors.Any())
             {
-                context.AddErrors(errors);
-                context.SetResponseStatusCodeHint((int)HttpStatusCode.BadRequest);
-               
+                context.AddException(new ValidationException(errors));
                 return;
             }
         }
