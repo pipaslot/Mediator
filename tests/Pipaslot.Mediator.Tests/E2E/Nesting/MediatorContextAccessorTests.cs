@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.E2E.Nesting;
 
 public class MediatorContextAccessorTests
 {

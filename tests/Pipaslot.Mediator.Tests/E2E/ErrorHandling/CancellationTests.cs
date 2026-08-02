@@ -4,9 +4,9 @@ using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
-public class Mediator_CancellationTests
+public class CancellationTests
 {
     #region Execute single handler
 

@@ -3,7 +3,7 @@ using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using Pipaslot.Mediator.Tests.InvalidActions;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 public class ResultWasTakenFromTheContextTests
 {

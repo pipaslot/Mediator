@@ -3,7 +3,7 @@ using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.Configuration;
 
 public class MediatorConfiguratorTests
 {

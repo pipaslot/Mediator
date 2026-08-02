@@ -1,7 +1,7 @@
 ﻿using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// No result is returned and Context status is set to Failed. No error message was added so no error should be produced

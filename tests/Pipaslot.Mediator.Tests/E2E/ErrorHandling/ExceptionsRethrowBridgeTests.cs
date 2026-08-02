@@ -7,19 +7,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// Covers the DispatchUnhandled/ExecuteUnhandled re-throw bridge built on top of <c>context.AddException</c>:
 /// a single recorded exception is rethrown with its original type and stack trace instead of being
 /// wrapped in <see cref="MediatorUnhandledErrorException"/>; multiple recorded exceptions are aggregated; the
 /// recorded collection never auto-propagates to a parent context. The legacy AddError-only fallback (no
-/// AddException call anywhere) is unchanged and already covered by <c>E2E.NoHandlerWithoutErrorTests</c>/
-/// <c>E2E.NoHandlerAndErrorReturnedTests</c> - not duplicated here. <c>context.AddException</c>/<c>Exceptions</c>
+/// AddException call anywhere) is unchanged and already covered by <c>E2E.ErrorHandling.NoHandlerWithoutErrorTests</c>/
+/// <c>E2E.ErrorHandling.NoHandlerAndErrorReturnedTests</c> - not duplicated here. <c>context.AddException</c>/<c>Exceptions</c>
 /// themselves (status flip, no Notification, no Results entry) are covered directly on the context in
 /// <c>Middlewares/MediatorContextTests.cs</c>.
 /// </summary>
-public class Mediator_ExceptionsRethrowBridgeTests
+public class ExceptionsRethrowBridgeTests
 {
     [Fact]
     public async Task ExecuteUnhandled_SingleAddException_RethrowsOriginalTypeWithPreservedStackTrace()

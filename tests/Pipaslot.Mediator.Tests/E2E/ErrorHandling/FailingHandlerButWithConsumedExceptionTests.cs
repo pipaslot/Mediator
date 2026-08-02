@@ -2,7 +2,7 @@
 using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// Ensure that failure is returned event if there is some middleware consuming all exception produced by handler

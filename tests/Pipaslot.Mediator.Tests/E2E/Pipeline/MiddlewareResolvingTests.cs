@@ -1,9 +1,9 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.E2E.Pipeline;
 
-public class Mediator_MediatorResolvingTests
+public class MiddlewareResolvingTests
 {
     /// <summary>
     /// Check that middleware will be resolved only when should be executed.

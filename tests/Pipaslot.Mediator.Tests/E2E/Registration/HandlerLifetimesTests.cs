@@ -2,7 +2,7 @@
 using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.Registration;
 
 public class HandlerLifetimesTests
 {

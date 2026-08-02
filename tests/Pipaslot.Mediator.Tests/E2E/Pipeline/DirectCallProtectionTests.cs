@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.Middlewares;
+namespace Pipaslot.Mediator.Tests.E2E.Pipeline;
 
-public class DirectCallProtectionMiddlewareTests
+public class DirectCallProtectionTests
 {
     [Fact]
     public async Task IndirectCall_ShouldPass()

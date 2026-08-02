@@ -4,7 +4,7 @@ using Pipaslot.Mediator.Tests.ValidActions;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// MediatorExecutionException splits into three subtypes depending on the failure trigger (no handler found,
@@ -12,11 +12,11 @@ namespace Pipaslot.Mediator.Tests;
 /// that apply across all three at once - existing <c>catch (MediatorExecutionException)</c> code still works, and
 /// <c>Response</c> is populated the same way regardless of subtype - so they don't belong to any single trigger's
 /// own test file. Each trigger's own "throws the correct subtype" assertion lives with that trigger's test
-/// (no-handler in E2E.NoHandlerTests, status-Failed-without-throw in E2E.NoHandlerWithoutErrorTests, missing-result in
-/// E2E.ResultWasTakenFromTheContextTests) - don't duplicate that here. Shared middleware fixtures live in
-/// E2E.Fixtures.
+/// (no-handler in E2E.ErrorHandling.NoHandlerTests, status-Failed-without-throw in E2E.ErrorHandling.NoHandlerWithoutErrorTests,
+/// missing-result in E2E.ErrorHandling.ResultWasTakenFromTheContextTests) - don't duplicate that here. Shared middleware
+/// fixtures live in E2E.Fixtures.
 /// </summary>
-public class Mediator_ExecutionExceptionSubtypeTests
+public class ExecutionExceptionSubtypeTests
 {
     [Theory]
     [InlineData(SubtypeTrigger.NoHandler)]

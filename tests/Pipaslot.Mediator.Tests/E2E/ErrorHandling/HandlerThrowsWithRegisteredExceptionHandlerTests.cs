@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// Covers the typed-handler branch of the Execute/Dispatch boundary: an exception reaching the boundary for which

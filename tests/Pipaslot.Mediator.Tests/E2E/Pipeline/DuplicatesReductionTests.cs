@@ -3,10 +3,10 @@ using Pipaslot.Mediator.Middlewares;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.Middlewares;
+namespace Pipaslot.Mediator.Tests.E2E.Pipeline;
 
 #pragma warning disable CS0618 // Coverage for the obsolete ReduceDuplicateProcessingMiddleware must be kept until it is actually removed.
-public class ReduceDuplicateProcessingMiddlewareTests
+public class DuplicatesReductionTests
 {
     [Fact]
     public async Task RunSingleAction_ShouldRunOnce()

@@ -2,7 +2,7 @@
 using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Tests.E2E;
+namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
 
 /// <summary>
 /// This case simulates validator intercepting the processing and returning error message. The handler is not executed on purpose.
