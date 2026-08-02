@@ -50,6 +50,7 @@ services.AddMediatorServer(o =>
     .AddHandlersFromAssemblyOf<WeatherForecastRequestHandler>()
     .AddExceptionHandler<OperationCanceledExceptionHandler>()
     .AddExceptionHandler<AuthorizationExceptionHandler>()
+    .AddExceptionHandler<LegacyExceptionMessageHandler>()
     // Log all unhandled exceptions via ILogger.
     .UseExceptionLogging()
     .UseWhenAction<CustomInternalRequest>(s=>s.UseDirectHttpCallProtection())

@@ -152,4 +152,16 @@ public class MediatorExceptionContextTests
 
         contextMock.Verify(c => c.SetHandled(OperationCanceledExceptionHandler.Message), Times.Once);
     }
+
+    [Fact]
+    public async Task LegacyExceptionMessageHandler_Handle_CallsSetHandledWithExceptionMessageOnMockedContext()
+    {
+        var sut = new LegacyExceptionMessageHandler();
+        var exception = new InvalidOperationException("boom");
+        var contextMock = new Mock<IMediatorExceptionContext>();
+
+        await sut.Handle(exception, contextMock.Object);
+
+        contextMock.Verify(c => c.SetHandled(exception.Message), Times.Once);
+    }
 }
