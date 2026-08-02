@@ -32,6 +32,32 @@ a, .btn-link {
     color: red;
 }
 
+/* Fatal, framework-level error banner (see wwwroot/index.html / _Host.cshtml). Hidden by
+   default; Blazor sets display:block on it when an unrecoverable error occurs. */
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    margin: 0;
+    border-radius: 0;
+    padding: 0.75rem 3rem 0.75rem 1rem;
+}
+
+#blazor-error-ui .reload {
+    color: inherit;
+    text-decoration: underline;
+    margin-left: 0.5rem;
+}
+
+#blazor-error-ui .btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 0.75rem;
+}
+
 /* Spinner */
 @media screen {
     .spinner {
