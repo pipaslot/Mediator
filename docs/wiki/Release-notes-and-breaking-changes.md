@@ -9,7 +9,7 @@
 * Fix: `IHandlerExistenceChecker.Verify` with `CheckExistingPolicies` no longer flags an action as missing authorization when it implements `IActionAuthorization` directly (without also carrying a policy attribute).
 
 ### Breaking changes
-* `Dispatch`/`Execute` no longer copy a caught exception's `Message` into the response; an exception without a registered handler produces a generic message and an `Error`-level log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#safe-by-default).
+* `Dispatch`/`Execute` no longer copy a caught exception's `Message` into the response; an exception without a registered handler produces a generic message and an `Error`-level log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#safe-by-default). To restore the old behavior, register the opt-in `LegacyExceptionMessageHandler` — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#restore-the-pre-safe-by-default-message-behavior-temporarily).
 * A middleware catching exceptions to convert them into error messages should be replaced by typed exception handlers — see [Migrating from a catch-all ErrorHandlingMiddleware](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
 * Adding an error-typed `Notification` via `MediatorContext.AddResult`/`INotificationProvider.Add` (and the `AddError`/`AddWarning`/etc. helpers built on it) no longer sets `MediatorContext.Status` to `Failed` by itself — only `MediatorContext.AddError()`/`AddErrors()` do that now. See [Notifications in server response](9.4.-Cookbook-and-integrations.md#notifications-in-server-response).
 
