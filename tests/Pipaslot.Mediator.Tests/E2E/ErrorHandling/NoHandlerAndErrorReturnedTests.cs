@@ -58,6 +58,6 @@ public class NoHandlerAndErrorReturnedTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c => c.Use<AddErrorAndEndMiddleware>());
+        return Factory.CreateMediator(c => c.Use<AddErrorAndEndMiddleware>());
     }
 }

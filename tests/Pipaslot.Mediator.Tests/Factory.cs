@@ -27,11 +27,11 @@ internal static class Factory
     public static Mediator GetConcreteMediator(this IServiceProvider sp) => (Mediator)sp.GetRequiredService<IMediator>();
 
     /// <summary>
-    /// Same fixture wiring as <see cref="CreateCustomMediator"/>, plus a <see cref="TestLogger{T}"/> registered as
+    /// Same fixture wiring as <see cref="CreateMediator"/>, plus a <see cref="TestLogger{T}"/> registered as
     /// <c>ILogger&lt;Mediator&gt;</c> so Execute/Dispatch boundary logging (level, exception, message) can be
     /// asserted directly instead of only inferred from Results.
     /// </summary>
-    public static (IMediator Mediator, TestLogger<Mediator> Logger) CreateConfiguredMediatorWithLogger(Action<IMediatorConfigurator>? setup = null)
+    public static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger(Action<IMediatorConfigurator>? setup = null)
     {
         var logger = new TestLogger<Mediator>();
         var services = CreateServiceProvider((c, sc) =>
@@ -43,12 +43,9 @@ internal static class Factory
         return (services.GetRequiredService<IMediator>(), logger);
     }
 
-    public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
+    public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
     {
-        var services = CreateServiceProvider(c =>
-        {
-            setup(c);
-        });
+        var services = CreateServiceProvider(setup);
         return services.GetRequiredService<IMediator>();
     }
     

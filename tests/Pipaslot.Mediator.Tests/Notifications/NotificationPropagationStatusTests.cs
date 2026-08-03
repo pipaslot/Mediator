@@ -89,7 +89,7 @@ public class NotificationPropagationStatusTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c => c.AddHandlers([
+        return Factory.CreateMediator(c => c.AddHandlers([
             typeof(AddErrorActionHandler), typeof(ErrorNotifyingActionHandler),
             typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler)
         ]));

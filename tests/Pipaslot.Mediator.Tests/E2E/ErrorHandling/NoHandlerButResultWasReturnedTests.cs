@@ -28,6 +28,6 @@ public class NoHandlerButResultWasReturnedTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
+        return Factory.CreateMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
     }
 }

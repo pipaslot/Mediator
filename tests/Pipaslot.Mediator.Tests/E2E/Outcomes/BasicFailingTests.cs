@@ -99,7 +99,7 @@ public class BasicFailingTests
 
     (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger()
     {
-        return Factory.CreateConfiguredMediatorWithLogger(c => 
+        return Factory.CreateMediatorWithLogger(c => 
             c.AddHandlers([typeof(SingleHandler.RequestHandler), typeof(SingleHandler.MessageHandler)]));
     }
 }

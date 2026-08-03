@@ -76,7 +76,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_EarlierRecordedExceptionNeverLeaksIntoResults()
     {
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddHandlers([typeof(SingleHandler.RequestHandler)])
             .UseWhenAction<SingleHandler.Request, RecordThenContinueMiddleware>());
 
@@ -194,7 +194,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_HandlerDeclinesOneSubtypeButTranslatesAnother_DeclinedGetsGenericTranslatedGetsItsMessage()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c =>
+        var (sut, logger) = Factory.CreateMediatorWithLogger(c =>
         {
             c.AddExceptionHandler<BaseExceptionHandler>();
             c.UseWhenAction<SingleHandler.Request, ThrowBaseOrDerivedExceptionMiddleware>();
@@ -251,7 +251,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     public async Task Execute_MostSpecificHandlerDeclines_DoesNotFallBackToLessSpecificHandler()
     {
         BaseCountingExceptionHandler.InvocationCount = 0;
-        var sut = Factory.CreateCustomMediator(c =>
+        var sut = Factory.CreateMediator(c =>
         {
             c.AddExceptionHandler<BaseCountingExceptionHandler>();
             c.AddExceptionHandler<DerivedDecliningExceptionHandler>();
@@ -267,14 +267,14 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
 
     private static IMediator CreateMediator<TExceptionHandler>() where TExceptionHandler : class
     {
-        return Factory.CreateCustomMediator(c => c
+        return Factory.CreateMediator(c => c
             .AddHandlers([typeof(SingleHandler.RequestHandler)])
             .AddExceptionHandler<TExceptionHandler>());
     }
 
     private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger<TExceptionHandler>() where TExceptionHandler : class
     {
-        return Factory.CreateConfiguredMediatorWithLogger(c => c
+        return Factory.CreateMediatorWithLogger(c => c
             .AddHandlers([typeof(SingleHandler.RequestHandler)])
             .AddExceptionHandler<TExceptionHandler>());
     }

@@ -51,6 +51,6 @@ public class ResultWasTakenFromTheContextTests
 
     private (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger()
     {
-        return Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMiddleware>());
+        return Factory.CreateMediatorWithLogger(c => c.Use<RemoveResultFromContextMiddleware>());
     }
 }

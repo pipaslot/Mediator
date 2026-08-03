@@ -69,7 +69,7 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedExecuteUnhandledRecordsAndRethrowsOriginalType_OuterResolvesHandlerForOriginalType()
     {
-        var sut = Factory.CreateCustomMediator(c =>
+        var sut = Factory.CreateMediator(c =>
         {
             c.AddHandlers([typeof(RecordingOuterActionHandler)]);
             // Scoped to the inner action only - a global Use<> would also intercept the outer action's own dispatch.
@@ -93,7 +93,7 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedExecuteUnhandledHandlerThrowsMappedBusinessException_ExactlyOneTranslatedMessageNoErrorLog()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c =>
+        var (sut, logger) = Factory.CreateMediatorWithLogger(c =>
         {
             c.AddHandlers([typeof(ThrowingOuterActionHandler), typeof(ThrowingInnerActionHandler)]);
             c.AddExceptionHandler<BusinessExceptionHandler>();
@@ -115,7 +115,7 @@ public class NestedUnhandledCollapseTests
 
     private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateOuterInnerMediatorWithLogger()
     {
-        return Factory.CreateConfiguredMediatorWithLogger(c => c.AddHandlers([typeof(OuterActionHandler), typeof(InnerActionHandler)]));
+        return Factory.CreateMediatorWithLogger(c => c.AddHandlers([typeof(OuterActionHandler), typeof(InnerActionHandler)]));
     }
 
     private record OuterAction : IMediatorAction;

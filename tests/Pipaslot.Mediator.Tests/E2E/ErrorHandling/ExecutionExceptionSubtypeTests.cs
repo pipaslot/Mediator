@@ -26,9 +26,9 @@ public class ExecutionExceptionSubtypeTests
     {
         var sut = trigger switch
         {
-            SubtypeTrigger.MissingResult => Factory.CreateCustomMediator(c => c.Use<E2E.Fixtures.RemoveResultFromContextMiddleware>()),
-            SubtypeTrigger.UnhandledError => Factory.CreateCustomMediator(c => c.Use<E2E.Fixtures.BlockRequestMiddleware>()),
-            _ => Factory.CreateCustomMediator(_ => { }),
+            SubtypeTrigger.MissingResult => Factory.CreateMediator(c => c.Use<E2E.Fixtures.RemoveResultFromContextMiddleware>()),
+            SubtypeTrigger.UnhandledError => Factory.CreateMediator(c => c.Use<E2E.Fixtures.BlockRequestMiddleware>()),
+            _ => Factory.CreateMediator(_ => { }),
         };
 
         var caught = false;
@@ -73,7 +73,7 @@ public class ExecutionExceptionSubtypeTests
         // proves that reading Response off the now-thrown MediatorUnhandledErrorException still reflects the real
         // pipeline results exactly as it did off the base type before this change (no regression in what a caught
         // exception exposes). Reuses the shared AddErrorAndEndMiddleware fixture rather than a local copy.
-        var sut = Factory.CreateCustomMediator(c => c.Use<E2E.Fixtures.AddErrorAndEndMiddleware>());
+        var sut = Factory.CreateMediator(c => c.Use<E2E.Fixtures.AddErrorAndEndMiddleware>());
         var action = new SingleHandler.Request(true);
 
         var ex = await Assert.ThrowsAsync<MediatorUnhandledErrorException>(() => sut.ExecuteUnhandled(action));

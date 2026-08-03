@@ -60,6 +60,6 @@ public class NoHandlerWithoutErrorTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c => c.Use<BlockRequestMiddleware>());
+        return Factory.CreateMediator(c => c.Use<BlockRequestMiddleware>());
     }
 }

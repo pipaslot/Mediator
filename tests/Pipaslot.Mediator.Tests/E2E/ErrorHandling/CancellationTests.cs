@@ -173,7 +173,7 @@ public class CancellationTests
     private static IMediator CreateMediator<TCancellationMiddleware>(Type handlerType)
         where TCancellationMiddleware : IMediatorMiddleware
     {
-        return Factory.CreateCustomMediator(c => c
+        return Factory.CreateMediator(c => c
             .AddHandlers([handlerType])
             .Use<TCancellationMiddleware>());
     }
@@ -181,7 +181,7 @@ public class CancellationTests
     private static IMediator CreateMediatorWithExceptionHandler<TCancellationMiddleware>(Type handlerType)
         where TCancellationMiddleware : IMediatorMiddleware
     {
-        return Factory.CreateCustomMediator(c =>
+        return Factory.CreateMediator(c =>
         {
             c.AddHandlers([handlerType]);
             c.Use<TCancellationMiddleware>();
@@ -192,7 +192,7 @@ public class CancellationTests
     private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger<TCancellationMiddleware>(Type handlerType)
         where TCancellationMiddleware : IMediatorMiddleware
     {
-        return Factory.CreateConfiguredMediatorWithLogger(c =>
+        return Factory.CreateMediatorWithLogger(c =>
         {
             c.AddHandlers([handlerType]);
             c.Use<TCancellationMiddleware>();

@@ -50,7 +50,7 @@ public class FailingHandlerButWithConsumedExceptionTests
 
     private static IMediator CreateMediator(Type handlerType)
     {
-        return Factory.CreateCustomMediator(c => c
+        return Factory.CreateMediator(c => c
             .AddHandlers([handlerType])
             .Use<ExceptionConsumingMiddleware>());
     }

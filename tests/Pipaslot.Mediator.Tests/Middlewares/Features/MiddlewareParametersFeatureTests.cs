@@ -12,7 +12,7 @@ public class MiddlewareParametersFeatureTests
     [Fact]
     public async Task ParametricMiddleware_PropagateParameter()
     {
-        var sut = Factory.CreateCustomMediator(s =>
+        var sut = Factory.CreateMediator(s =>
         {
             s.UseWithParameters<AssertStringMiddleware>(AssertStringMiddleware.Value);
         });
@@ -22,7 +22,7 @@ public class MiddlewareParametersFeatureTests
     [Fact]
     public async Task ParametricMiddleware_FailBecauseMissingExpectedParameter()
     {
-        var sut = Factory.CreateCustomMediator(s =>
+        var sut = Factory.CreateMediator(s =>
         {
             s.Use<AssertNoParameterMiddleware>();
         });
@@ -32,7 +32,7 @@ public class MiddlewareParametersFeatureTests
     [Fact]
     public async Task ParametersAreAlwaysReset()
     {
-        var sut = Factory.CreateCustomMediator(s =>
+        var sut = Factory.CreateMediator(s =>
         {
             s.UseWithParameters<AssertAndChangeMiddleware>(new MutableParameter());
             s.UseWithParameters<AssertAndChangeMiddleware>(new MutableParameter());

@@ -84,7 +84,7 @@ public class DuplicatesReductionTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(s =>
+        return Factory.CreateMediator(s =>
         {
             s.AddHandlers([typeof(FakeActionHandler), typeof(FakeAction2Handler)]);
             s.Use<ReduceDuplicateProcessingMiddleware>();

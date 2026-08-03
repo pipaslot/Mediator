@@ -12,7 +12,7 @@ public class MiddlewareResolvingTests
     [Fact]
     public async Task PreviousMiddlewareEndsProcessing_TestedMiddlewareWontBeConstructed()
     {
-        var sut = Factory.CreateCustomMediator(m =>
+        var sut = Factory.CreateMediator(m =>
         {
             m
                 .Use<BlockingMiddleware>()

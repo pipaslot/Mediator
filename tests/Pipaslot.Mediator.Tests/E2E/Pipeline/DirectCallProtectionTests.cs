@@ -25,7 +25,7 @@ public class DirectCallProtectionTests
 
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c =>
+        return Factory.CreateMediator(c =>
         {
             c.AddActions([typeof(RootAction), typeof(ProtectedAction)]);
             c.AddHandlers([typeof(RootActionHandler), typeof(ProtectedActionHandler)]);

@@ -62,7 +62,7 @@ public class BasicPassingTests
     
     private IMediator CreateMediator()
     {
-        return Factory.CreateCustomMediator(c => 
+        return Factory.CreateMediator(c => 
             c.AddHandlers([typeof(SingleHandler.RequestHandler), typeof(SingleHandler.MessageHandler)]));
     }
 }

@@ -64,7 +64,7 @@ public class NotificationPropagationTests
     public async Task TestPropagation(ServiceType serviceType, int depth, bool cancelPropagationByMiddleware, bool stopPropagation,
         bool shouldHaveNotification, NotificationType type = NotificationType.Success)
     {
-        var sut = Factory.CreateCustomMediator(c => c.AddHandlers([typeof(NotifyingActionHandler)]).Use<StopPropagationMiddleware>());
+        var sut = Factory.CreateMediator(c => c.AddHandlers([typeof(NotifyingActionHandler)]).Use<StopPropagationMiddleware>());
         var res = await sut.Dispatch(new NotifyingAction(depth, stopPropagation, serviceType, cancelPropagationByMiddleware, type));
         var notifications = res.Results.Where(r => r is Notification).Cast<Notification>().ToList();
         if (shouldHaveNotification)

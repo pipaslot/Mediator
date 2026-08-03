@@ -96,7 +96,7 @@ public class ExceptionsRethrowBridgeTests
     public async Task Dispatch_NestedInnerDispatchRecordsExceptionAndOuterRecovers_OuterOwnExceptionsStayEmpty()
     {
         OuterRecoveringActionHandler.CapturedOuterExceptionsAfterRecovery = null;
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddHandlers([typeof(OuterRecoveringActionHandler)])
             .UseWhenAction<InnerFailingAction, RecordExceptionAndFailMiddleware>());
 
@@ -117,7 +117,7 @@ public class ExceptionsRethrowBridgeTests
     public async Task Dispatch_NestedExecuteUnhandledException_CaughtByOrdinaryOuterTryCatchAsOriginalType()
     {
         OuterCatchingActionHandler.Caught = null;
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddHandlers([typeof(OuterCatchingActionHandler)])
             .UseWhenAction<SingleHandler.Request, RecordSingleExceptionMiddleware>());
 
@@ -129,9 +129,9 @@ public class ExceptionsRethrowBridgeTests
     }
 
     // RecordSingleExceptionMiddleware/RecordTwoExceptionsMiddleware never call next(), so no handler is ever reached - none registered.
-    private static IMediator CreateSingleExceptionMediator() => Factory.CreateCustomMediator(c => c.Use<RecordSingleExceptionMiddleware>());
+    private static IMediator CreateSingleExceptionMediator() => Factory.CreateMediator(c => c.Use<RecordSingleExceptionMiddleware>());
 
-    private static IMediator CreateTwoExceptionsMediator() => Factory.CreateCustomMediator(c => c.Use<RecordTwoExceptionsMiddleware>());
+    private static IMediator CreateTwoExceptionsMediator() => Factory.CreateMediator(c => c.Use<RecordTwoExceptionsMiddleware>());
 
     private class ValidationException(string message) : Exception(message);
 

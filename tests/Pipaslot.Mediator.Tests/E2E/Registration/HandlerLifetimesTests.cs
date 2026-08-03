@@ -21,7 +21,7 @@ public class HandlerLifetimesTests
     [InlineData(1, ServiceLifetime.Singleton)]
     public async Task NoInterface_Registration_ShareTheSameHandlerInstance(int expectedInstanceCount, ServiceLifetime lifetime)
     {
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddActions([typeof(InstanceCounterMessage)])
             .AddHandlers([typeof(InstanceCounterMessageHandler)], lifetime)
         );
@@ -34,7 +34,7 @@ public class HandlerLifetimesTests
     public void MixedReRegistration_Pass()
     {
         var handlerType = typeof(SingletonMessageHandler);
-        Factory.CreateCustomMediator(c => c
+        Factory.CreateMediator(c => c
             .AddHandlers([handlerType])
             .AddHandlersFromAssemblyOf<SingletonMessageHandler>() //There is als othe scoped
             .AddHandlers([handlerType])
@@ -50,7 +50,7 @@ public class HandlerLifetimesTests
         var handlerType = typeof(NopMesageHandler);
         var ex = Assert.Throws<MediatorException>(() =>
         {
-            Factory.CreateCustomMediator(c => c
+            Factory.CreateMediator(c => c
                 .AddHandlers([handlerType], initial)
                 .AddHandlers([handlerType], update)
             );
@@ -65,7 +65,7 @@ public class HandlerLifetimesTests
     [Fact]
     public async Task ISingletonInterface_AutomaticRegistration_ShareTheSameHandlerInstance()
     {
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddActionsFromAssemblyOf<SingletonMessage>()
             .AddHandlersFromAssemblyOf<SingletonMessageHandler>()
         );
@@ -82,7 +82,7 @@ public class HandlerLifetimesTests
         var handlerType = typeof(SingletonMessageHandler);
         var ex = Assert.Throws<MediatorException>(() =>
         {
-            Factory.CreateCustomMediator(c => c
+            Factory.CreateMediator(c => c
                 .AddHandlers([handlerType], lifetime)
             );
         });
@@ -94,7 +94,7 @@ public class HandlerLifetimesTests
     public void ISingletonInterface_ReRegistration_Pass()
     {
         var handlerType = typeof(SingletonMessageHandler);
-        Factory.CreateCustomMediator(c => c
+        Factory.CreateMediator(c => c
             .AddHandlers([handlerType])
             .AddHandlers([handlerType])
         );
@@ -103,7 +103,7 @@ public class HandlerLifetimesTests
     [Fact]
     public async Task IScopedInterface_AutomaticRegistration_ShareTheSameHandlerInstance()
     {
-        var sut = Factory.CreateCustomMediator(c => c
+        var sut = Factory.CreateMediator(c => c
             .AddActionsFromAssemblyOf<ScopedMessage>()
             .AddHandlersFromAssemblyOf<ScopedMessageHandler>()
         );
@@ -120,7 +120,7 @@ public class HandlerLifetimesTests
         var handlerType = typeof(ScopedMessageHandler);
         var ex = Assert.Throws<MediatorException>(() =>
         {
-            Factory.CreateCustomMediator(c => c
+            Factory.CreateMediator(c => c
                 .AddHandlers([handlerType], lifetime)
             );
         });
@@ -132,7 +132,7 @@ public class HandlerLifetimesTests
     public void IScopedInterface_ReRegistration_Pass()
     {
         var handlerType = typeof(ScopedMessageHandler);
-        Factory.CreateCustomMediator(c => c
+        Factory.CreateMediator(c => c
             .AddHandlers([handlerType])
             .AddHandlers([handlerType])
         );
