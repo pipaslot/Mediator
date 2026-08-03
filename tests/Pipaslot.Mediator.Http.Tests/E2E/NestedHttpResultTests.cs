@@ -6,17 +6,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Tests.E2E;
 
 /// <summary>
 /// End-to-end regression coverage for the structural claim behind <see cref="IMediatorHttpResult"/>:
 /// a nested mediator call's result never leaks into the root HTTP response unless the calling handler
 /// explicitly forwards it as its own result. No <c>IsNested</c> check is required anywhere.
 /// </summary>
-public class MediatorMiddleware_NestedHttpResultTests
+public class NestedHttpResultTests
 {
     private const string _parentRequest =
-        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.NestedResultParentAction, Pipaslot.Mediator.Http.Tests\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.E2E.NestedResultParentAction, Pipaslot.Mediator.Http.Tests\"}";
 
     [Fact]
     public async Task WillApplyHttpResult_WhenForwardedByParentHandler()

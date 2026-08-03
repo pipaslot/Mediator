@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Tests.E2E;
 
 /// <summary>
 /// End-to-end regression coverage for the structural claim behind
@@ -16,10 +16,10 @@ namespace Pipaslot.Mediator.Http.Tests;
 /// HTTP response - it is dropped at the point it would be set, mirroring the "root vs. nested" safety
 /// <see cref="IMediatorHttpResult"/> already gives for full response bodies.
 /// </summary>
-public class MediatorMiddleware_NestedStatusCodeHintTests
+public class NestedStatusCodeHintTests
 {
     private const string _parentRequest =
-        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.StatusHintParentAction, Pipaslot.Mediator.Http.Tests\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.E2E.StatusHintParentAction, Pipaslot.Mediator.Http.Tests\"}";
 
     [Fact]
     public async Task WillApplyRootHint_AndIgnoreHintSetByNestedCall()

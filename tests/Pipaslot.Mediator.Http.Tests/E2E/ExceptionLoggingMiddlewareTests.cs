@@ -1,7 +1,7 @@
 ﻿using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Tests.E2E;
 
 public class ExceptionLoggingMiddlewareTests
 {

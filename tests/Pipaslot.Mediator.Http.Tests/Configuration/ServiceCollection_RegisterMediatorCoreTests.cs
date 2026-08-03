@@ -2,7 +2,7 @@
 using Pipaslot.Mediator.Http.Middlewares;
 using System;
 
-namespace Pipaslot.Mediator.Http.Tests;
+namespace Pipaslot.Mediator.Http.Tests.Configuration;
 
 public class ServiceCollection_RegisterMediatorCoreTests
 {
