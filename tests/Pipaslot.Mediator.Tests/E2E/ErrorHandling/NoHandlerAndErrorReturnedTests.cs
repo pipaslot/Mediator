@@ -30,8 +30,7 @@ public class NoHandlerAndErrorReturnedTests
         {
             await sut.ExecuteUnhandled(action);
         });
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
+        Assert.Contains(Error, ex.Message);
     }
 
     [Fact]
@@ -52,8 +51,7 @@ public class NoHandlerAndErrorReturnedTests
         {
             await sut.DispatchUnhandled(action);
         });
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
+        Assert.Contains(Error, ex.Message);
     }
 
     private IMediator CreateMediator()

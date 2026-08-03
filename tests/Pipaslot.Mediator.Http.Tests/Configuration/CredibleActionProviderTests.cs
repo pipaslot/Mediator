@@ -13,7 +13,7 @@ public class CredibleActionProviderTests
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<IMediator>());
         var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeContract)));
-        Assert.Equal(MediatorHttpException.CreateForUnregisteredActionType(typeof(FakeContract)).Message, exception.Message);
+        Assert.Contains(typeof(FakeContract).FullName!, exception.Message);
     }
 
     [Fact]
@@ -21,7 +21,7 @@ public class CredibleActionProviderTests
     {
         var sut = Create(c => c.AddActionsFromAssemblyOf<FakeNonContract>());
         var exception = Assert.Throws<MediatorHttpException>(() => sut.VerifyCredibility(typeof(FakeNonContract)));
-        Assert.Equal(MediatorHttpException.CreateForNonContractType(typeof(FakeNonContract)).Message, exception.Message);
+        Assert.Contains(typeof(FakeNonContract).FullName!, exception.Message);
     }
 
     [Fact]

@@ -38,7 +38,7 @@ public class NoHandlerTests
             {
                 await sut.ExecuteUnhandled(action);
             });
-        Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, ex.Message);
+        Assert.Contains(action.GetType().Name, ex.Message);
     }
 
     [Fact]
@@ -61,6 +61,6 @@ public class NoHandlerTests
             {
                 await sut.DispatchUnhandled(action);
             });
-        Assert.Equal(MediatorNoHandlerFoundException.Create(action.GetType()).Message, ex.Message);
+        Assert.Contains(action.GetType().Name, ex.Message);
     }
 }

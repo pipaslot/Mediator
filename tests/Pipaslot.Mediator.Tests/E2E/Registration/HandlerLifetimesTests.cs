@@ -55,7 +55,9 @@ public class HandlerLifetimesTests
                 .AddHandlers([handlerType], update)
             );
         });
-        Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, initial, update).Message, ex.Message);
+        Assert.Contains(handlerType.Name, ex.Message);
+        Assert.Contains(initial.ToString(), ex.Message);
+        Assert.Contains(update.ToString(), ex.Message);
     }
 
     #endregion
@@ -87,7 +89,9 @@ public class HandlerLifetimesTests
             );
         });
 
-        Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, ServiceLifetime.Singleton, lifetime).Message, ex.Message);
+        Assert.Contains(handlerType.Name, ex.Message);
+        Assert.Contains(nameof(ServiceLifetime.Singleton), ex.Message);
+        Assert.Contains(lifetime.ToString(), ex.Message);
     }
 
     [Fact]
@@ -125,7 +129,9 @@ public class HandlerLifetimesTests
             );
         });
 
-        Assert.Equal(MediatorException.CreateForWrongHandlerServiceLifetime(handlerType, ServiceLifetime.Scoped, lifetime).Message, ex.Message);
+        Assert.Contains(handlerType.Name, ex.Message);
+        Assert.Contains(nameof(ServiceLifetime.Scoped), ex.Message);
+        Assert.Contains(lifetime.ToString(), ex.Message);
     }
 
     [Fact]

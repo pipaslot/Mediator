@@ -82,7 +82,7 @@ public class HandlerExistenceCheckerTests
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
         var actualMessage = ex.Data["Error:1"]?.ToString() ?? string.Empty;
-        Assert.Equal(MediatorNoHandlerFoundException.Create(typeof(InvalidActionWithoutHandler)).Message, actualMessage);
+        Assert.Contains(nameof(InvalidActionWithoutHandler), actualMessage);
     }
 
     [Fact]

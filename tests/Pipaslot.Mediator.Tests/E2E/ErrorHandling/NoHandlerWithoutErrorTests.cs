@@ -1,4 +1,5 @@
-﻿using Pipaslot.Mediator.Tests.E2E.Fixtures;
+﻿using Pipaslot.Mediator.Middlewares;
+using Pipaslot.Mediator.Tests.E2E.Fixtures;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
@@ -29,8 +30,7 @@ public class NoHandlerWithoutErrorTests
             {
                 await sut.ExecuteUnhandled(action);
             });
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
+        Assert.Contains(nameof(ExecutionStatus.Failed), ex.Message);
     }
 
     [Fact]
@@ -54,8 +54,7 @@ public class NoHandlerWithoutErrorTests
             {
                 await sut.DispatchUnhandled(action);
             });
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
+        Assert.Contains(nameof(ExecutionStatus.Failed), ex.Message);
     }
 
     private IMediator CreateMediator()

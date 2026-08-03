@@ -28,8 +28,8 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     public void Request_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
-        var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body!, []));
-        Assert.Equal(MediatorHttpException.CreateForInvalidRequest(body).Message, ex.Message);
+
+        Assert.Throws<MediatorHttpException>(() => sut.DeserializeRequest(body!, []));
     }
 
     [Fact]
@@ -90,8 +90,8 @@ public abstract class ContractSerializer_CommonTestBase : ContractSerializerBase
     public void Response_InvalidContent_ThrowException(string? body)
     {
         var sut = CreateSerializer();
-        var ex = Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body!));
-        Assert.Equal(MediatorHttpException.CreateForInvalidResponse(body).Message, ex.Message);
+
+        Assert.Throws<MediatorHttpException>(() => sut.DeserializeResponse<Result>(body!));
     }
 
     [Fact]

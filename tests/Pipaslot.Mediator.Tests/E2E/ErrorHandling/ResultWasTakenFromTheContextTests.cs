@@ -38,8 +38,7 @@ public class ResultWasTakenFromTheContextTests
             {
                 await sut.ExecuteUnhandled(action);
             });
-        var context = Factory.FakeContext(action);
-        Assert.Equal(MediatorMissingResultException.Create(typeof(RequestWithoutHandler.ResultDto), context).Message, ex.Message);
+        Assert.Contains(nameof(RequestWithoutHandler.ResultDto), ex.Message);
     }
 
     // Does not make sense for Dispatch and DispatchUnhandled

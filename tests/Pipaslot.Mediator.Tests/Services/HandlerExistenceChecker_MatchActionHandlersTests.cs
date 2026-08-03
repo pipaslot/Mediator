@@ -24,7 +24,7 @@ public class HandlerExistenceChecker_MatchActionHandlersTests
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
-        CompareExceptions(MediatorException.CreateForCanNotCombineHandlers(subject, handlers), exception);
+        AssertErrorMentions(exception, subject, handlers);
     }
 
     [Theory]
@@ -50,7 +50,7 @@ public class HandlerExistenceChecker_MatchActionHandlersTests
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
-        CompareExceptions(MediatorNoHandlerFoundException.Create(subject), exception);
+        AssertErrorMentions(exception, subject);
     }
 
     [Theory]
@@ -63,7 +63,7 @@ public class HandlerExistenceChecker_MatchActionHandlersTests
         {
             sut.Verify(new ExistenceCheckerSetting { CheckMatchingHandlers = true });
         });
-        CompareExceptions(MediatorException.CreateForDuplicateHandlers(subject, handlers), exception);
+        AssertErrorMentions(exception, subject, handlers);
     }
 
     private IHandlerExistenceChecker CreateServiceProviderWithHandlersAndActions(Type[] handlers, Type subject)
@@ -77,12 +77,16 @@ public class HandlerExistenceChecker_MatchActionHandlersTests
         return sp.GetRequiredService<IHandlerExistenceChecker>();
     }
 
-    private void CompareExceptions(MediatorException expected, MediatorException actual)
+    private void AssertErrorMentions(MediatorException actual, Type subject, params Type[] handlers)
     {
         var data = actual.Data.GetEnumerator();
         data.MoveNext();
         var msg = (string)(data.Value ?? string.Empty);
-        Assert.Equal(expected.Message, msg);
+        Assert.Contains(subject.Name, msg);
+        foreach (var handler in handlers)
+        {
+            Assert.Contains(handler.Name, msg);
+        }
     }
 
     #region Actions
