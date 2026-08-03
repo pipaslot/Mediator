@@ -43,6 +43,7 @@ Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated arti
 
 - **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
 - **Check for existing coverage before adding a test.** Test classes are organized by scenario/trigger condition, not by which unit of work introduced the assertion — a class whose doc comment says "new API only" or "not covered elsewhere" is a claim about the state *when that comment was written*, not a guarantee. Before adding a new test for behavior that might already be exercised, search for an existing test with the same setup/trigger and extend it instead of adding a parallel one elsewhere; two tests asserting the same trigger condition from two different files is a sign the search was skipped.
+- **`Pipaslot.Mediator.Http.Tests` reuses `Pipaslot.Mediator.Tests`'s `Factory` for setup that isn't Http-specific** (currently just `Factory.CreateServiceProvider`), via a `ProjectReference` plus `InternalsVisibleTo` on `Pipaslot.Mediator.Tests.csproj`, rather than a separate `Tests.Common` project. Add new shared test setup helpers to `Pipaslot.Mediator.Tests`'s `Factory` and call them from Http's `Factory` (see `CreateMediator`) instead of duplicating them — reserve a `Tests.Common` project for if the shared surface grows enough that a one-way dependency between the two test projects stops making sense.
 
 ### Where a test belongs
 
@@ -107,6 +108,8 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 ### Multi-targeting
 
 `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` multi-target `net6.0` through `net10.0` (see their `.csproj`) because they're published to NuGet for consumers on older TFMs; test/benchmark/demo projects target `net10.0` only. When editing the core libraries, keep API usage compatible across that whole range (per-TFM `PackageReference` blocks already pin `Microsoft.Extensions.DependencyInjection.Abstractions` to the matching version).
+
+Because tests only run on `net10.0`, a `#if <TFM>` conditional compilation block (e.g. `MediatorContext.CreateGuid`'s `#if NET9_0_OR_GREATER`) only gets test coverage for whichever branch `net10.0` selects — the other branch compiles but is never exercised by `dotnet test`. This is a deliberate CI-time tradeoff (multi-targeting the test projects would multiply CI duration ~5x), not an oversight. When adding a new `#if TFM` block, prefer branches that only swap the underlying API call for an equivalent result (as `CreateGuid` does) over branches with diverging behavior — diverging behavior in an untested branch is a correctness risk this setup can't catch.
 
 ## Code comments
 

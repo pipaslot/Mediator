@@ -1,5 +1,7 @@
 ﻿using Pipaslot.Mediator.Tests.ValidActions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Tests;
 
 namespace Pipaslot.Mediator.Http.Tests.E2E;
 
@@ -59,6 +61,15 @@ public class ExceptionLoggingMiddlewareTests
 
     private static IMediator CreateMediator()
     {
-        return Factory.CreateMediator(c => c.UseExceptionLogging());
+        var services = Factory.CreateServiceProvider(c =>
+            {
+                c.AddActionsFromAssemblyOf<ExceptionLoggingMiddlewareTests>()
+                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
+                    .AddHandlersFromAssemblyOf<ExceptionLoggingMiddlewareTests>()
+                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>()
+                    .UseExceptionLogging();
+            }
+        );
+        return services.GetRequiredService<IMediator>();
     }
 }
