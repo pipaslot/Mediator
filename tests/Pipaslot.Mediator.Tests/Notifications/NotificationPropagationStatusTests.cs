@@ -25,7 +25,7 @@ public class NotificationPropagationStatusTests
     [InlineData(2)]
     public async Task ErrorNotification_ViaProvider_NeverFailsStatus(int depth)
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var res = await sut.Dispatch(new ErrorNotifyingAction(depth, StopPropagation: false));
 
         Assert.True(res.Success);
@@ -35,7 +35,7 @@ public class NotificationPropagationStatusTests
     [Fact]
     public async Task LocalAddError_AtRoot_FailsStatus()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var res = await sut.Dispatch(new AddErrorAction());
 
         Assert.False(res.Success);
@@ -46,7 +46,7 @@ public class NotificationPropagationStatusTests
     [InlineData(2)]
     public async Task StopPropagation_KeepsRootSucceededAndHidesNotification(int depth)
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var res = await sut.Dispatch(new ErrorNotifyingAction(depth, StopPropagation: true));
 
         Assert.True(res.Success);
@@ -56,7 +56,7 @@ public class NotificationPropagationStatusTests
     [Fact]
     public async Task ParentExplicitlyReactingToNestedFailure_CanStillFailItself()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var res = await sut.Dispatch(new ReactingParentAction());
 
         Assert.False(res.Success);
@@ -66,7 +66,7 @@ public class NotificationPropagationStatusTests
     [Fact]
     public async Task DispatchUnhandled_StillThrowsForItsOwnLocalAddError()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
 
         await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
             await sut.DispatchUnhandled(new AddErrorAction()));
@@ -81,10 +81,18 @@ public class NotificationPropagationStatusTests
     [InlineData(NotificationType.Warning, 1)]
     public async Task NonErrorNotificationTypes_NeverFailStatus(NotificationType type, int depth)
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var res = await sut.Dispatch(new TypedNotifyingAction(depth, type));
 
         Assert.True(res.Success);
+    }
+
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(c => c.AddHandlers([
+            typeof(AddErrorActionHandler), typeof(ErrorNotifyingActionHandler),
+            typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler)
+        ]));
     }
 
     /// <summary>

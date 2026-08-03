@@ -9,7 +9,7 @@ public class NoHandlerTests
     [Fact]
     public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = Factory.CreateCustomMediator(_ => { });
         var action = new RequestWithoutHandler();
         var result = await sut.Execute(action);
         
@@ -31,7 +31,7 @@ public class NoHandlerTests
     [Fact]
     public async Task ExecuteUnhandled_ThrowMissingResultException()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = Factory.CreateCustomMediator(_ => { });
         var action = new RequestWithoutHandler();
         var ex =
             await Assert.ThrowsAsync<MediatorNoHandlerFoundException>(async () =>
@@ -44,7 +44,7 @@ public class NoHandlerTests
     [Fact]
     public async Task Dispatch_ReturnFailureBecauseNotHandlerWasExecuted()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = Factory.CreateCustomMediator(_ => { });
         var action = new MessageWithoutHandler();
         var result = await sut.Dispatch(action);
         Assert.False(result.Success);
@@ -54,7 +54,7 @@ public class NoHandlerTests
     [Fact]
     public async Task DispatchUnhandled_ThrowNoHandlerException()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = Factory.CreateCustomMediator(_ => { });
         var action = new RequestWithoutHandler();
         var ex =
             await Assert.ThrowsAsync<MediatorNoHandlerFoundException>(async () =>

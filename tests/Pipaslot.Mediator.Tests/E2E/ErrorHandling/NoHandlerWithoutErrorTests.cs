@@ -11,7 +11,7 @@ public class NoHandlerWithoutErrorTests
     [Fact]
     public async Task Execute_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
+        var sut = CreateMediator();
         var action = new BlockedRequest();
         var result = await sut.Execute(action);
         Assert.False(result.Success);
@@ -22,7 +22,7 @@ public class NoHandlerWithoutErrorTests
     [Fact]
     public async Task ExecuteUnhandled_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
+        var sut = CreateMediator();
         var action = new BlockedRequest();
         var ex =
             await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
@@ -36,7 +36,7 @@ public class NoHandlerWithoutErrorTests
     [Fact]
     public async Task Dispatch_FailedWithoutError()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
+        var sut = CreateMediator();
         var action = new BlockedRequest();
         var result = await sut.Dispatch(action);
         Assert.False(result.Success);
@@ -47,7 +47,7 @@ public class NoHandlerWithoutErrorTests
     [Fact]
     public async Task DispatchUnhandled_Exception()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<BlockRequestMiddleware>());
+        var sut = CreateMediator();
         var action = new BlockedRequest();
         var ex =
             await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
@@ -56,5 +56,10 @@ public class NoHandlerWithoutErrorTests
             });
         var context = Factory.FakeContext(action);
         Assert.Equal(MediatorUnhandledErrorException.Create(context).Message, ex.Message);
+    }
+
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(c => c.Use<BlockRequestMiddleware>());
     }
 }

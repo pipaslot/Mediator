@@ -18,7 +18,6 @@ public class MediatorContextAccessorTests
         var collection = new ServiceCollection();
         collection.AddLogging();
         collection.AddMediator()
-            .AddActionsFromAssembly(Factory.Assembly)
             .UseActionEvents();
         collection.AddScoped<FakeService>();
         collection.AddTransient<IMediatorHandler<Level1Action>, Level1ActionHandler>();

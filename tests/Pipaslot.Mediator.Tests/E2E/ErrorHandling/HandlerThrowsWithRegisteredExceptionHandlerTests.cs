@@ -23,7 +23,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerMatchesThrownType_ResultsContainTranslatedMessageOnly()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<RequestExceptionHandler>());
+        var sut = CreateMediator<RequestExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -34,7 +34,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerMatchesThrownType_LogsWarningNotError()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<RequestExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<RequestExceptionHandler>();
 
         await sut.Execute(new SingleHandler.Request(false));
 
@@ -54,7 +54,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerItselfThrows_DegradesToGenericMessageAndErrorLog()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<ThrowingRequestExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<ThrowingRequestExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -76,7 +76,9 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_EarlierRecordedExceptionNeverLeaksIntoResults()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.UseWhenAction<SingleHandler.Request, RecordThenContinueMiddleware>());
+        var sut = Factory.CreateCustomMediator(c => c
+            .AddHandlers([typeof(SingleHandler.RequestHandler)])
+            .UseWhenAction<SingleHandler.Request, RecordThenContinueMiddleware>());
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -92,7 +94,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerReadsActionIdentifierFromContext_ResultContainsIt()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<ActionIdentifierReportingExceptionHandler>());
+        var sut = CreateMediator<ActionIdentifierReportingExceptionHandler>();
         var action = new SingleHandler.Request(false);
 
         var result = await sut.Execute(action);
@@ -108,7 +110,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerCallsSetHandledWithoutMessage_FailsWithEmptyResultsAndWarningLog()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<HandledWithoutMessageExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<HandledWithoutMessageExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -124,7 +126,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerAddsOwnErrorThenCallsSetHandledWithoutMessage_ResultsContainOnlyItsOwnNotification()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<HandledWithoutMessageButOwnErrorExceptionHandler>());
+        var sut = CreateMediator<HandledWithoutMessageButOwnErrorExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -139,7 +141,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerSetsLogLevelToError_LogsSingleErrorEntryNoWarning()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<ErrorLogLevelExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<ErrorLogLevelExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -156,7 +158,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerSetsLogLevelToNone_SuppressesLogEntryButKeepsTranslatedMessage()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<SuppressedLogExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<SuppressedLogExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -173,7 +175,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerSetsLogLevelButDoesNotCallSetHandled_FallsBackToGenericMessageAndErrorLog()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<LogLevelSetButNotHandledExceptionHandler>());
+        var (sut, logger) = CreateMediatorWithLogger<LogLevelSetButNotHandledExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -218,7 +220,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     [Fact]
     public async Task Execute_RegisteredHandlerCallsSetHandledThenSetNotHandled_FallsBackToGenericMessageWithoutReversedMessage()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.AddExceptionHandler<HandledThenReversedExceptionHandler>());
+        var sut = CreateMediator<HandledThenReversedExceptionHandler>();
 
         var result = await sut.Execute(new SingleHandler.Request(false));
 
@@ -249,7 +251,7 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
     public async Task Execute_MostSpecificHandlerDeclines_DoesNotFallBackToLessSpecificHandler()
     {
         BaseCountingExceptionHandler.InvocationCount = 0;
-        var sut = Factory.CreateConfiguredMediator(c =>
+        var sut = Factory.CreateCustomMediator(c =>
         {
             c.AddExceptionHandler<BaseCountingExceptionHandler>();
             c.AddExceptionHandler<DerivedDecliningExceptionHandler>();
@@ -261,6 +263,20 @@ public class HandlerThrowsWithRegisteredExceptionHandlerTests
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
         Assert.Equal(0, BaseCountingExceptionHandler.InvocationCount);
+    }
+
+    private static IMediator CreateMediator<TExceptionHandler>() where TExceptionHandler : class
+    {
+        return Factory.CreateCustomMediator(c => c
+            .AddHandlers([typeof(SingleHandler.RequestHandler)])
+            .AddExceptionHandler<TExceptionHandler>());
+    }
+
+    private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger<TExceptionHandler>() where TExceptionHandler : class
+    {
+        return Factory.CreateConfiguredMediatorWithLogger(c => c
+            .AddHandlers([typeof(SingleHandler.RequestHandler)])
+            .AddExceptionHandler<TExceptionHandler>());
     }
 
     private class RequestExceptionHandler : IMediatorExceptionHandler<SingleHandler.RequestException>

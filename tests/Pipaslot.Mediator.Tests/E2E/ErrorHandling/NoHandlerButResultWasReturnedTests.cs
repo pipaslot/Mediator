@@ -9,7 +9,7 @@ public class NoHandlerButResultWasReturnedTests
     [Fact]
     public async Task Execute_Success()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
+        var sut = CreateMediator();
         var result = await sut.Execute(new RequestWithoutHandler());
         Assert.True(result.Success);
         Assert.Equal(typeof(RequestWithoutHandler.ResultDto), result.Result.GetType());
@@ -18,11 +18,16 @@ public class NoHandlerButResultWasReturnedTests
     [Fact]
     public async Task ExecuteUnhandled_Success()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
+        var sut = CreateMediator();
         var action = new RequestWithoutHandler();
         var dto = await sut.ExecuteUnhandled(action);
         Assert.Equal(typeof(RequestWithoutHandler.ResultDto), dto.GetType());
     }
 
     // Not relevant for Dispatch and DispatchUnhandled
+
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(c => c.Use<RequestWithoutHandlerAttacheResultMiddleware>());
+    }
 }

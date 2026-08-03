@@ -33,7 +33,7 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedDispatchUnhandledFailsWithoutThrow_ParentGetsExactlyThePropagatedNotification()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateOuterInnerMediator();
 
         var result = await sut.Dispatch(new OuterAction());
 
@@ -52,7 +52,7 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedDispatchUnhandledFailsWithoutThrow_LogsWarningNotError()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+        var (sut, logger) = CreateOuterInnerMediatorWithLogger();
 
         await sut.Dispatch(new OuterAction());
 
@@ -69,8 +69,9 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedExecuteUnhandledRecordsAndRethrowsOriginalType_OuterResolvesHandlerForOriginalType()
     {
-        var sut = Factory.CreateConfiguredMediator(c =>
+        var sut = Factory.CreateCustomMediator(c =>
         {
+            c.AddHandlers([typeof(RecordingOuterActionHandler)]);
             // Scoped to the inner action only - a global Use<> would also intercept the outer action's own dispatch.
             c.UseWhenAction<RecordingInnerAction, RecordBusinessExceptionMiddleware>();
             c.AddExceptionHandler<BusinessExceptionHandler>();
@@ -92,7 +93,11 @@ public class NestedUnhandledCollapseTests
     [Fact]
     public async Task Dispatch_NestedExecuteUnhandledHandlerThrowsMappedBusinessException_ExactlyOneTranslatedMessageNoErrorLog()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.AddExceptionHandler<BusinessExceptionHandler>());
+        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c =>
+        {
+            c.AddHandlers([typeof(ThrowingOuterActionHandler), typeof(ThrowingInnerActionHandler)]);
+            c.AddExceptionHandler<BusinessExceptionHandler>();
+        });
 
         var result = await sut.Dispatch(new ThrowingOuterAction());
 
@@ -101,6 +106,16 @@ public class NestedUnhandledCollapseTests
         Assert.Equal(BusinessExceptionHandler.TranslatedMessage, notification.Content);
         Assert.DoesNotContain(BusinessException.OriginalMessage, notification.Content);
         Assert.DoesNotContain(logger.Entries, e => e.Level == LogLevel.Error);
+    }
+
+    private static IMediator CreateOuterInnerMediator()
+    {
+        return CreateOuterInnerMediatorWithLogger().Mediator;
+    }
+
+    private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateOuterInnerMediatorWithLogger()
+    {
+        return Factory.CreateConfiguredMediatorWithLogger(c => c.AddHandlers([typeof(OuterActionHandler), typeof(InnerActionHandler)]));
     }
 
     private record OuterAction : IMediatorAction;

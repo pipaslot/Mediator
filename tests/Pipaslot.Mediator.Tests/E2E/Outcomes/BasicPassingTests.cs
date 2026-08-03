@@ -8,7 +8,7 @@ public class BasicPassingTests
     [Fact]
     public async Task Execute_SuccessAsTrue()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.True(result.Success);
     }
@@ -16,7 +16,7 @@ public class BasicPassingTests
     [Fact]
     public async Task Execute_EmptyErrorMessage()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
@@ -24,7 +24,7 @@ public class BasicPassingTests
     [Fact]
     public async Task Execute_ResultReturnsDataFromHandler()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.Equal(SingleHandler.Response.Instance, result.Result);
     }
@@ -32,7 +32,7 @@ public class BasicPassingTests
     [Fact]
     public async Task ExecuteUnhandled_ReturnsResult()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.ExecuteUnhandled(new SingleHandler.Request(true));
         Assert.Equal(SingleHandler.Response.Instance, result);
     }
@@ -40,7 +40,7 @@ public class BasicPassingTests
     [Fact]
     public async Task Dispatch_SuccessAsTrue()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.True(result.Success);
     }
@@ -48,7 +48,7 @@ public class BasicPassingTests
     [Fact]
     public async Task Dispatch_EmptyErrorMessage()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.Equal(string.Empty, result.GetErrorMessage());
     }
@@ -56,7 +56,13 @@ public class BasicPassingTests
     [Fact]
     public async Task DispatchUnhandled_NoAction()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         await sut.DispatchUnhandled(new SingleHandler.Message(true));
+    }
+    
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(c => 
+            c.AddHandlers([typeof(SingleHandler.RequestHandler), typeof(SingleHandler.MessageHandler)]));
     }
 }

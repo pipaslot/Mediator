@@ -113,8 +113,7 @@ public class ActionEventsMiddlewareTests
     {
         var services = Factory.CreateServiceProvider((mediator, services) =>
         {
-            mediator.AddActionsFromAssembly(Factory.Assembly)
-                .UseActionEvents();
+            mediator.UseActionEvents();
             services.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
         });
 

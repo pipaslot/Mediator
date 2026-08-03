@@ -24,7 +24,7 @@ public class ExceptionsRethrowBridgeTests
     [Fact]
     public async Task ExecuteUnhandled_SingleAddException_RethrowsOriginalTypeWithPreservedStackTrace()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RecordSingleExceptionMiddleware>());
+        var sut = CreateSingleExceptionMediator();
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() => sut.ExecuteUnhandled(new SingleHandler.Request(true)));
 
@@ -35,7 +35,7 @@ public class ExceptionsRethrowBridgeTests
     [Fact]
     public async Task DispatchUnhandled_SingleAddException_RethrowsOriginalTypeWithPreservedStackTrace()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RecordSingleExceptionMiddleware>());
+        var sut = CreateSingleExceptionMediator();
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() => sut.DispatchUnhandled(new SingleHandler.Message(true)));
 
@@ -46,7 +46,7 @@ public class ExceptionsRethrowBridgeTests
     [Fact]
     public async Task ExecuteUnhandled_TwoAddExceptionCalls_ThrowsAggregateExceptionWithBothInOrder()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RecordTwoExceptionsMiddleware>());
+        var sut = CreateTwoExceptionsMediator();
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => sut.ExecuteUnhandled(new SingleHandler.Request(true)));
 
@@ -56,7 +56,7 @@ public class ExceptionsRethrowBridgeTests
     [Fact]
     public async Task DispatchUnhandled_TwoAddExceptionCalls_ThrowsAggregateExceptionWithBothInOrder()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RecordTwoExceptionsMiddleware>());
+        var sut = CreateTwoExceptionsMediator();
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => sut.DispatchUnhandled(new SingleHandler.Message(true)));
 
@@ -74,10 +74,7 @@ public class ExceptionsRethrowBridgeTests
     {
         var services = Factory.CreateServiceProvider((c, sc) =>
         {
-            c.AddActionsFromAssembly(Factory.Assembly)
-                .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                .AddHandlersFromAssembly(Factory.Assembly)
-                .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>()
+            c.AddHandlers([typeof(SingleHandler.RequestHandler)])
                 .Use<RecordThenLetHandlerThrowMiddleware>(s => s.AddSingleton<RecordThenLetHandlerThrowMiddleware>(),
                     ServiceLifetime.Singleton);
         });
@@ -99,7 +96,9 @@ public class ExceptionsRethrowBridgeTests
     public async Task Dispatch_NestedInnerDispatchRecordsExceptionAndOuterRecovers_OuterOwnExceptionsStayEmpty()
     {
         OuterRecoveringActionHandler.CapturedOuterExceptionsAfterRecovery = null;
-        var sut = Factory.CreateConfiguredMediator(c => c.UseWhenAction<InnerFailingAction, RecordExceptionAndFailMiddleware>());
+        var sut = Factory.CreateCustomMediator(c => c
+            .AddHandlers([typeof(OuterRecoveringActionHandler)])
+            .UseWhenAction<InnerFailingAction, RecordExceptionAndFailMiddleware>());
 
         var result = await sut.Dispatch(new OuterRecoveringAction());
 
@@ -118,7 +117,9 @@ public class ExceptionsRethrowBridgeTests
     public async Task Dispatch_NestedExecuteUnhandledException_CaughtByOrdinaryOuterTryCatchAsOriginalType()
     {
         OuterCatchingActionHandler.Caught = null;
-        var sut = Factory.CreateConfiguredMediator(c => c.UseWhenAction<SingleHandler.Request, RecordSingleExceptionMiddleware>());
+        var sut = Factory.CreateCustomMediator(c => c
+            .AddHandlers([typeof(OuterCatchingActionHandler)])
+            .UseWhenAction<SingleHandler.Request, RecordSingleExceptionMiddleware>());
 
         var result = await sut.Dispatch(new OuterCatchingAction());
 
@@ -126,6 +127,11 @@ public class ExceptionsRethrowBridgeTests
         var caught = Assert.IsType<ValidationException>(OuterCatchingActionHandler.Caught);
         Assert.Equal(RecordSingleExceptionMiddleware.Message, caught.Message);
     }
+
+    // RecordSingleExceptionMiddleware/RecordTwoExceptionsMiddleware never call next(), so no handler is ever reached - none registered.
+    private static IMediator CreateSingleExceptionMediator() => Factory.CreateCustomMediator(c => c.Use<RecordSingleExceptionMiddleware>());
+
+    private static IMediator CreateTwoExceptionsMediator() => Factory.CreateCustomMediator(c => c.Use<RecordTwoExceptionsMiddleware>());
 
     private class ValidationException(string message) : Exception(message);
 

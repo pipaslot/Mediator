@@ -13,7 +13,7 @@ public class CancellationTests
     [Fact]
     public async Task Execute_TaskCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
+        var sut = CreateMediator<TaskCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
@@ -22,7 +22,7 @@ public class CancellationTests
     [Fact]
     public async Task Execute_OperationCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
+        var sut = CreateMediator<OperationCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
@@ -35,7 +35,7 @@ public class CancellationTests
     [Fact]
     public async Task ExecuteUnhandled_TaskCancelled_ReturnsResult()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
+        var sut = CreateMediator<TaskCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
         await Assert.ThrowsAsync<TaskCanceledException>(async () =>
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(true));
@@ -45,7 +45,7 @@ public class CancellationTests
     [Fact]
     public async Task ExecuteUnhandled_OperationCancelled_ReturnsResult()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
+        var sut = CreateMediator<OperationCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(true));
@@ -59,7 +59,7 @@ public class CancellationTests
     [Fact]
     public async Task Dispatch_TaskCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
+        var sut = CreateMediator<TaskCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
@@ -68,7 +68,7 @@ public class CancellationTests
     [Fact]
     public async Task Dispatch_OperationCancelled_FailureWithGenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
+        var sut = CreateMediator<OperationCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.False(result.Success);
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
@@ -81,7 +81,7 @@ public class CancellationTests
     [Fact]
     public async Task DispatchUnhandled_TaskCancelled_ReturnsResult()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<TaskCancelledMediatorException>());
+        var sut = CreateMediator<TaskCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
         await Assert.ThrowsAsync<TaskCanceledException>(async () =>
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(true));
@@ -91,7 +91,7 @@ public class CancellationTests
     [Fact]
     public async Task DispatchUnhandled_OperationCancelled_ReturnsResult()
     {
-        var sut = Factory.CreateConfiguredMediator(s => s.Use<OperationCancelledMediatorException>());
+        var sut = CreateMediator<OperationCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(true));
@@ -110,11 +110,7 @@ public class CancellationTests
     [Fact]
     public async Task Execute_TaskCancelledWithRegisteredHandler_ReturnsHandlerMessageAndLogsWarning()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c =>
-        {
-            c.Use<TaskCancelledMediatorException>();
-            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
-        });
+        var (sut, logger) = CreateMediatorWithLogger<TaskCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
 
         var result = await sut.Execute(new SingleHandler.Request(true));
 
@@ -127,11 +123,7 @@ public class CancellationTests
     [Fact]
     public async Task Execute_OperationCancelledWithRegisteredHandler_ReturnsHandlerMessage()
     {
-        var sut = Factory.CreateConfiguredMediator(c =>
-        {
-            c.Use<OperationCancelledMediatorException>();
-            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
-        });
+        var sut = CreateMediatorWithExceptionHandler<OperationCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
 
         var result = await sut.Execute(new SingleHandler.Request(true));
 
@@ -142,11 +134,7 @@ public class CancellationTests
     [Fact]
     public async Task Dispatch_TaskCancelledWithRegisteredHandler_ReturnsHandlerMessage()
     {
-        var sut = Factory.CreateConfiguredMediator(c =>
-        {
-            c.Use<TaskCancelledMediatorException>();
-            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
-        });
+        var sut = CreateMediatorWithExceptionHandler<TaskCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
 
         var result = await sut.Dispatch(new SingleHandler.Message(true));
 
@@ -161,11 +149,7 @@ public class CancellationTests
     [Fact]
     public async Task ExecuteUnhandled_TaskCancelledWithRegisteredHandler_StillThrowsOriginalException()
     {
-        var sut = Factory.CreateConfiguredMediator(c =>
-        {
-            c.Use<TaskCancelledMediatorException>();
-            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
-        });
+        var sut = CreateMediatorWithExceptionHandler<TaskCancelledMediatorException>(typeof(SingleHandler.RequestHandler));
 
         await Assert.ThrowsAsync<TaskCanceledException>(async () =>
         {
@@ -176,11 +160,7 @@ public class CancellationTests
     [Fact]
     public async Task DispatchUnhandled_OperationCancelledWithRegisteredHandler_StillThrowsOriginalException()
     {
-        var sut = Factory.CreateConfiguredMediator(c =>
-        {
-            c.Use<OperationCancelledMediatorException>();
-            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
-        });
+        var sut = CreateMediatorWithExceptionHandler<OperationCancelledMediatorException>(typeof(SingleHandler.MessageHandler));
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
         {
@@ -189,6 +169,36 @@ public class CancellationTests
     }
 
     #endregion
+
+    private static IMediator CreateMediator<TCancellationMiddleware>(Type handlerType)
+        where TCancellationMiddleware : IMediatorMiddleware
+    {
+        return Factory.CreateCustomMediator(c => c
+            .AddHandlers([handlerType])
+            .Use<TCancellationMiddleware>());
+    }
+
+    private static IMediator CreateMediatorWithExceptionHandler<TCancellationMiddleware>(Type handlerType)
+        where TCancellationMiddleware : IMediatorMiddleware
+    {
+        return Factory.CreateCustomMediator(c =>
+        {
+            c.AddHandlers([handlerType]);
+            c.Use<TCancellationMiddleware>();
+            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
+        });
+    }
+
+    private static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger<TCancellationMiddleware>(Type handlerType)
+        where TCancellationMiddleware : IMediatorMiddleware
+    {
+        return Factory.CreateConfiguredMediatorWithLogger(c =>
+        {
+            c.AddHandlers([handlerType]);
+            c.Use<TCancellationMiddleware>();
+            c.AddExceptionHandler<OperationCanceledExceptionHandler>();
+        });
+    }
 
     public class TaskCancelledMediatorException : IMediatorMiddleware
     {

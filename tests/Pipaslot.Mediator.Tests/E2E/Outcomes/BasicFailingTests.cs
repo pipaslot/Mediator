@@ -9,7 +9,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Execute_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
         Assert.False(result.Success);
     }
@@ -17,7 +17,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Execute_GenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
@@ -25,7 +25,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Execute_NullResult()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(false));
         Assert.Null(result.Result);
     }
@@ -33,7 +33,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+        var (sut, logger) = CreateMediatorWithLogger();
 
         await sut.Execute(new SingleHandler.Request(false));
 
@@ -45,7 +45,7 @@ public class BasicFailingTests
     [Fact]
     public async Task ExecuteUnhandled_ThrowOriginalException()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var ex = await Assert.ThrowsAsync<SingleHandler.RequestException>(async () =>
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(false));
@@ -56,7 +56,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Dispatch_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
         Assert.False(result.Success);
     }
@@ -64,7 +64,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Dispatch_GenericErrorDueToMissingExceptionHandler()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(false));
         Assert.Equal(Mediator.GenericErrorMessage, result.GetErrorMessage());
     }
@@ -72,7 +72,7 @@ public class BasicFailingTests
     [Fact]
     public async Task Dispatch_LogsOriginalExceptionDetailAtErrorLevel()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger();
+        var (sut, logger) = CreateMediatorWithLogger();
 
         await sut.Dispatch(new SingleHandler.Message(false));
 
@@ -84,11 +84,22 @@ public class BasicFailingTests
     [Fact]
     public async Task DispatchUnhandled_ThrowOriginalException()
     {
-        var sut = Factory.CreateConfiguredMediator();
+        var sut = CreateMediator();
         var ex = await Assert.ThrowsAsync<SingleHandler.MessageException>(async () =>
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(false));
         });
         Assert.Equal(SingleHandler.MessageException.DefaultMessage, ex.Message);
+    }
+
+    private IMediator CreateMediator()
+    {
+        return CreateMediatorWithLogger().Mediator;
+    }
+
+    (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger()
+    {
+        return Factory.CreateConfiguredMediatorWithLogger(c => 
+            c.AddHandlers([typeof(SingleHandler.RequestHandler), typeof(SingleHandler.MessageHandler)]));
     }
 }

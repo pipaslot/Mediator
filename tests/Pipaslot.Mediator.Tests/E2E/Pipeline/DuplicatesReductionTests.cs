@@ -11,10 +11,7 @@ public class DuplicatesReductionTests
     [Fact]
     public async Task RunSingleAction_ShouldRunOnce()
     {
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var res = await mediator.Execute(new FakeAction { Value = 1 });
 
         Assert.True(res.Result.Number > 0);
@@ -23,10 +20,7 @@ public class DuplicatesReductionTests
     [Fact]
     public async Task RunTheSameInstanceActionTwice_ShouldRunOnce()
     {
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var res1 = await mediator.Execute(new FakeAction { Value = 1 });
         var res2 = await mediator.Execute(new FakeAction { Value = 1 });
 
@@ -37,10 +31,7 @@ public class DuplicatesReductionTests
     public async Task RunDuplicateTheSameTypeAction_ShouldRunTwice()
     {
         var action = new FakeAction { Value = 1 };
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var res1 = await mediator.Execute(action);
         var res2 = await mediator.Execute(action);
 
@@ -50,10 +41,7 @@ public class DuplicatesReductionTests
     [Fact]
     public async Task RunTwoTheSameTypeActionsWithTheSameHashCode_ShouldRunOnce()
     {
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var task1 = mediator.Execute(new FakeAction { Value = 1 });
         var task2 = mediator.Execute(new FakeAction { Value = 1 });
 
@@ -67,10 +55,7 @@ public class DuplicatesReductionTests
     [Fact]
     public async Task RunTwoDifferentActionsWithTheSameHashCode_ShouldRunTwice()
     {
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var task1 = mediator.Execute(new FakeAction { Value = 1 });
         var task2 = mediator.Execute(new FakeAction2 { Value = 1 });
 
@@ -84,10 +69,7 @@ public class DuplicatesReductionTests
     [Fact]
     public async Task RunTwoDifferentActionsWithDifferentHashCode_ShouldRunTwice()
     {
-        var mediator = Factory.CreateConfiguredMediator(s =>
-        {
-            s.Use<ReduceDuplicateProcessingMiddleware>();
-        });
+        var mediator = CreateMediator();
         var task1 = mediator.Execute(new FakeAction { Value = 1 });
         var task2 = mediator.Execute(new FakeAction2 { Value = 2 });
 
@@ -99,6 +81,15 @@ public class DuplicatesReductionTests
     }
 
     #region Setup
+
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(s =>
+        {
+            s.AddHandlers([typeof(FakeActionHandler), typeof(FakeAction2Handler)]);
+            s.Use<ReduceDuplicateProcessingMiddleware>();
+        });
+    }
 
     public class FakeAction : IMediatorAction<FakeActionResult>
     {

@@ -14,7 +14,7 @@ public class NoHandlerAndErrorReturnedTests
     [Fact]
     public async Task Execute_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
+        var sut = CreateMediator();
         var result = await sut.Execute(new SingleHandler.Request(true));
         Assert.False(result.Success);
         Assert.Equal(Error, result.GetErrorMessage());
@@ -24,7 +24,7 @@ public class NoHandlerAndErrorReturnedTests
     [Fact]
     public async Task ExecuteUnhandled_ThrowException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
+        var sut = CreateMediator();
         var action = new SingleHandler.Request(true);
         var ex = await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
@@ -37,7 +37,7 @@ public class NoHandlerAndErrorReturnedTests
     [Fact]
     public async Task Dispatch_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
+        var sut = CreateMediator();
         var result = await sut.Dispatch(new SingleHandler.Message(true));
         Assert.False(result.Success);
         Assert.Equal(Error, result.GetErrorMessage());
@@ -46,7 +46,7 @@ public class NoHandlerAndErrorReturnedTests
     [Fact]
     public async Task DispatchUnhandled_ThrowException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<AddErrorAndEndMiddleware>());
+        var sut = CreateMediator();
         var action = new SingleHandler.Message(true);
         var ex = await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
@@ -54,5 +54,10 @@ public class NoHandlerAndErrorReturnedTests
         });
         var context = Factory.FakeContext(action);
         Assert.Equal(MediatorUnhandledErrorException.Create($"'{Error}'", context).Message, ex.Message);
+    }
+
+    private IMediator CreateMediator()
+    {
+        return Factory.CreateCustomMediator(c => c.Use<AddErrorAndEndMiddleware>());
     }
 }

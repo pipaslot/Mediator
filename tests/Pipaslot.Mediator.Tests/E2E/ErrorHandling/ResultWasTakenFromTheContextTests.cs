@@ -10,7 +10,7 @@ public class ResultWasTakenFromTheContextTests
     [Fact]
     public async Task Execute_FailWithGenericErrorBecauseNoHandlerIsConfigured()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMiddleware>());
+        var sut = CreateMediator();
         var action = new RequestWithoutHandler();
         var result = await sut.Execute(action);
         Assert.False(result.Success);
@@ -20,7 +20,7 @@ public class ResultWasTakenFromTheContextTests
     [Fact]
     public async Task Execute_LogsOriginalExceptionDetailAtErrorLevel()
     {
-        var (sut, logger) = Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMiddleware>());
+        var (sut, logger) = CreateMediatorWithLogger();
 
         await sut.Execute(new RequestWithoutHandler());
 
@@ -31,7 +31,7 @@ public class ResultWasTakenFromTheContextTests
     [Fact]
     public async Task ExecuteUnhandled_ThrowMissingResultException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<RemoveResultFromContextMiddleware>());
+        var sut = CreateMediator();
         var action = new RequestWithoutHandler();
         var ex =
             await Assert.ThrowsAsync<MediatorMissingResultException>(async () =>
@@ -43,4 +43,14 @@ public class ResultWasTakenFromTheContextTests
     }
 
     // Does not make sense for Dispatch and DispatchUnhandled
+
+    private IMediator CreateMediator()
+    {
+        return CreateMediatorWithLogger().Mediator;
+    }
+
+    private (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger()
+    {
+        return Factory.CreateConfiguredMediatorWithLogger(c => c.Use<RemoveResultFromContextMiddleware>());
+    }
 }

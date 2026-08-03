@@ -1,5 +1,6 @@
 ﻿using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Tests.ValidActions;
+using System;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.E2E.ErrorHandling;
@@ -12,7 +13,7 @@ public class FailingHandlerButWithConsumedExceptionTests
     [Fact]
     public async Task Execute_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
+        var sut = CreateMediator(typeof(SingleHandler.RequestHandler));
         var result = await sut.Execute(new SingleHandler.Request(false));
         Assert.False(result.Success);
     }
@@ -20,7 +21,7 @@ public class FailingHandlerButWithConsumedExceptionTests
     [Fact]
     public async Task ExecuteUnhandled_ThrowMediatorException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
+        var sut = CreateMediator(typeof(SingleHandler.RequestHandler));
         await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.ExecuteUnhandled(new SingleHandler.Request(false));
@@ -31,7 +32,7 @@ public class FailingHandlerButWithConsumedExceptionTests
     [Fact]
     public async Task Dispatch_SuccessAsFalse()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
+        var sut = CreateMediator(typeof(SingleHandler.MessageHandler));
         var result = await sut.Dispatch(new SingleHandler.Message(false));
         Assert.False(result.Success);
     }
@@ -39,12 +40,19 @@ public class FailingHandlerButWithConsumedExceptionTests
     [Fact]
     public async Task DispatchUnhandled_ThrowMediatorException()
     {
-        var sut = Factory.CreateConfiguredMediator(c => c.Use<ExceptionConsumingMiddleware>());
+        var sut = CreateMediator(typeof(SingleHandler.MessageHandler));
         await Assert.ThrowsAsync<MediatorUnhandledErrorException>(async () =>
         {
             await sut.DispatchUnhandled(new SingleHandler.Message(false));
         });
         // We do not care about the message here
+    }
+
+    private static IMediator CreateMediator(Type handlerType)
+    {
+        return Factory.CreateCustomMediator(c => c
+            .AddHandlers([handlerType])
+            .Use<ExceptionConsumingMiddleware>());
     }
 
     public class ExceptionConsumingMiddleware : IMediatorMiddleware
