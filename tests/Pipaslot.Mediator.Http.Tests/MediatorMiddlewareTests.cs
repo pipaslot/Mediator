@@ -16,10 +16,10 @@ namespace Pipaslot.Mediator.Http.Tests;
 public class MediatorMiddlewareTests
 {
     private const string _request =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests.ValidActions\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests\"}";
 
     private const string _message =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests\"}";
 
     [Fact]
     public async Task PostMessageWillBePropagatedToMediator()

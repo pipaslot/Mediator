@@ -22,7 +22,7 @@ namespace Pipaslot.Mediator.Http.Tests;
 public class MediatorMiddleware_ResponseStatusCodeHintTests
 {
     private const string _message =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests.ValidActions\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests\"}";
 
     [Fact]
     public async Task WillApplyStatusCodeHint_WhenPresent()
