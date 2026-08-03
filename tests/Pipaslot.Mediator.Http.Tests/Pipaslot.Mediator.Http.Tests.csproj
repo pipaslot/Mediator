@@ -18,7 +18,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
-        <ProjectReference Include="..\Pipaslot.Mediator.Tests\Pipaslot.Mediator.Tests.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

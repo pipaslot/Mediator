@@ -4,7 +4,6 @@ using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
-using Pipaslot.Mediator.Tests.ValidActions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ namespace Pipaslot.Mediator.Http.Tests;
 public class MediatorMiddleware_ResponseStatusCodeHintTests
 {
     private const string _message =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.MediatorMiddleware_ResponseStatusCodeHintTests+NopMessage, Pipaslot.Mediator.Http.Tests\"}";
 
     [Fact]
     public async Task WillApplyStatusCodeHint_WhenPresent()
@@ -143,7 +142,7 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
         var collection = new ServiceCollection();
         collection.AddLogging();
         collection.AddMediatorServer()
-            .AddActions([typeof(NopRequest), typeof(NopMessage)]);
+            .AddActions([typeof(NopMessage)]);
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
         collection.AddSingleton<IMediator>(mediatorMock.Object);
@@ -153,4 +152,6 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
         }
         return collection.BuildServiceProvider();
     }
+    
+    public class NopMessage : IMessage;
 }

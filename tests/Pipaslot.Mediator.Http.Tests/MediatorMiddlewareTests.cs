@@ -4,7 +4,6 @@ using Moq;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
-using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.IO;
 using System.Net;
@@ -16,10 +15,10 @@ namespace Pipaslot.Mediator.Http.Tests;
 public class MediatorMiddlewareTests
 {
     private const string _request =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopRequest, Pipaslot.Mediator.Tests\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.MediatorMiddlewareTests+NopRequest, Pipaslot.Mediator.Http.Tests\"}";
 
     private const string _message =
-        "{\"$type\":\"Pipaslot.Mediator.Tests.ValidActions.NopMessage, Pipaslot.Mediator.Tests\"}";
+        "{\"$type\":\"Pipaslot.Mediator.Http.Tests.MediatorMiddlewareTests+NopMessage, Pipaslot.Mediator.Http.Tests\"}";
 
     [Fact]
     public async Task PostMessageWillBePropagatedToMediator()
@@ -236,4 +235,7 @@ public class MediatorMiddlewareTests
         collection.AddSingleton<IMediator>(mediatorMock.Object);
         return collection.BuildServiceProvider();
     }
+    public class NopMessage : IMessage;
+    
+    public class NopRequest : IRequest<string>;
 }

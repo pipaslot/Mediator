@@ -1,7 +1,7 @@
-﻿using Pipaslot.Mediator.Tests.ValidActions;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Tests;
 
 namespace Pipaslot.Mediator.Http.Tests.E2E;
 
@@ -61,15 +61,43 @@ public class ExceptionLoggingMiddlewareTests
 
     private static IMediator CreateMediator()
     {
-        var services = Factory.CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssemblyOf<ExceptionLoggingMiddlewareTests>()
-                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                    .AddHandlersFromAssemblyOf<ExceptionLoggingMiddlewareTests>()
-                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>()
-                    .UseExceptionLogging();
-            }
-        );
+        var collection = new ServiceCollection();
+        collection.AddLogging();
+        collection.AddMediator()
+            .AddActionsFromAssemblyOf<SingleHandler.Message>()
+            .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>()
+            .UseExceptionLogging();
+        var services = collection.BuildServiceProvider();
         return services.GetRequiredService<IMediator>();
+    }
+    
+    
+    public static class SingleHandler
+    {
+        public record Request(bool Pass) : IRequest<Response>;
+
+        public class Response;
+
+        public record Message(bool Pass) : IMessage;
+
+        public class RequestException() : Exception("Requesthandler failed");
+
+        public class MessageException() : Exception("Message handler failed");
+
+        public class RequestHandler : IRequestHandler<Request, Response>
+        {
+            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
+            {
+                return !request.Pass ? throw new RequestException() : Task.FromResult(new Response());
+            }
+        }
+
+        public class MessageHandler : IMessageHandler<Message>
+        {
+            public Task Handle(Message request, CancellationToken cancellationToken)
+            {
+                return !request.Pass ? throw new MessageException() : Task.CompletedTask;
+            }
+        }
     }
 }
