@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Moq;
 using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Middlewares;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Internal;
 

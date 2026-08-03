@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Tests.Fakes;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
 

@@ -3,9 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <LangVersion>9</LangVersion>
-        <IsPackable>false</IsPackable>
         <LangVersion>latest</LangVersion>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,6 +26,10 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
         <ProjectReference Include="..\Pipaslot.Mediator.Tests.ValidActions\Pipaslot.Mediator.Tests.ValidActions.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit"/>
     </ItemGroup>
 
 </Project>

@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;

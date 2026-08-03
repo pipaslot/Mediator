@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Http.Middlewares;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
 

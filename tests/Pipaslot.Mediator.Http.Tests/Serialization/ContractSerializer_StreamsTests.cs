@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Serialization.V3;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 

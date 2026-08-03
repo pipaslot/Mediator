@@ -3,7 +3,6 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 

@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 

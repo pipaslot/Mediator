@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
 

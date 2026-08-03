@@ -7,7 +7,6 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3.Converters;
 
