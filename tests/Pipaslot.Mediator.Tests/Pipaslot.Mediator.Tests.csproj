@@ -26,9 +26,4 @@
         <Using Include="Moq"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <!-- Lets Pipaslot.Mediator.Http.Tests reuse this project's internal Factory instead of duplicating it -->
-        <InternalsVisibleTo Include="Pipaslot.Mediator.Http.Tests"/>
-    </ItemGroup>
-
 </Project>
