@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Moq;
+using NSubstitute;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ internal class FakeResponse(bool hasStarted = false) : HttpResponse
 
     public override IHeaderDictionary Headers => throw new NotImplementedException();
 
-    public override Stream Body { get; set; } = new Mock<Stream>().Object;
+    public override Stream Body { get; set; } = Substitute.For<Stream>();
     public override long? ContentLength { get; set; }
     public override string ContentType { get; set; } = string.Empty;
 

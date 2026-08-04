@@ -1,7 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Moq.Protected;
 using Pipaslot.Mediator.Benchmarks.Actions;
 using Pipaslot.Mediator.Http;
 using System.Net;
@@ -32,27 +30,16 @@ public class MediatorClient
         var services = new ServiceCollection();
         services.AddLogging();
 
-        // Setup mock HttpClient
-        var handlerMock = new Mock<HttpMessageHandler>();
-        handlerMock
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri!.LocalPath.StartsWith(MediatorConstants.Endpoint)),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(() => new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_mediatorResponse) });
+        // Setup fake HttpClient
+        var handler = new FakeHttpMessageHandler((request, _) =>
+        {
+            var response = request.RequestUri!.LocalPath.StartsWith(MediatorConstants.Endpoint)
+                ? new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_mediatorResponse) }
+                : new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_apiResponse) };
+            return Task.FromResult(response);
+        });
 
-        handlerMock
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(m => m.RequestUri!.LocalPath.StartsWith(_apiEndpoint)),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(() => new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(_apiResponse) });
-
-        _httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost/") };
+        _httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
 
         services.AddMediatorClient(o => o.AddContextAccessor = false);
         services.AddSingleton(_ => _httpClient);
@@ -81,5 +68,15 @@ public class MediatorClient
         {
             throw new Exception("Unexpected response:" + response.Result);
         }
+    }
+
+    /// <summary>
+    /// <see cref="HttpMessageHandler.SendAsync"/> is protected, so it cannot be reached through an interface-based
+    /// substitute - overriding it directly on a throwaway subclass is simpler than reflecting into a protected member.
+    /// </summary>
+    private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            => handler(request, cancellationToken);
     }
 }

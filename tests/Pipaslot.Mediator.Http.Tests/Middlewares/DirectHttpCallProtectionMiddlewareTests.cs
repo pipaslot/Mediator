@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Internal;
 using System.Threading;
@@ -63,12 +63,12 @@ public class DirectHttpCallProtectionMiddlewareTests
             features.Set(MediatorHttpContextFeature.Instance);
         }
 
-        var context = new Mock<HttpContext>();
-        context.SetupGet(c => c.Features).Returns(features);
+        var context = Substitute.For<HttpContext>();
+        context.Features.Returns(features);
 
-        var accessor = new Mock<IHttpContextAccessor>();
-        accessor.SetupGet(a => a.HttpContext).Returns(context.Object);
-        return accessor.Object;
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns(context);
+        return accessor;
     }
 
     public interface IProtectedAction;

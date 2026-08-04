@@ -47,10 +47,10 @@ public class NotificationReceiverMiddlewareTests
         {
             received = true;
         };
-        var mediator = new Mock<IMediator>();
+        var mediator = Substitute.For<IMediator>();
         var sut = services.GetRequiredService<NotificationReceiverMiddleware>();
-        var mcaMock = new Mock<IMediatorContextAccessor>();
-        var context = new MediatorContext(mediator.Object, mcaMock.Object, services, new ReflectionCache(), new NopMessage(), CancellationToken.None, null, null);
+        var mca = Substitute.For<IMediatorContextAccessor>();
+        var context = new MediatorContext(mediator, mca, services, new ReflectionCache(), new NopMessage(), CancellationToken.None, null, null);
         setup(context);
         await sut.Invoke(context, c => Task.CompletedTask);
         Assert.Equal(expected, received);

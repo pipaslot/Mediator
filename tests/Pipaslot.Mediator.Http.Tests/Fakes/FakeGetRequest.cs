@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Moq;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +12,7 @@ internal class FakeGetRequest : FakePostRequest
 {
     public override string Method { get; set; } = "GET";
     public override IQueryCollection Query { get; set; }
-    public override Stream Body { get; set; } = new Mock<Stream>().Object;
+    public override Stream Body { get; set; } = Substitute.For<Stream>();
 
     public FakeGetRequest(string action) : base("")
     {

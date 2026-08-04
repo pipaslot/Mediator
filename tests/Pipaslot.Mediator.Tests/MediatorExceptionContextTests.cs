@@ -146,11 +146,11 @@ public class MediatorExceptionContextTests
     {
         var sut = new OperationCanceledExceptionHandler();
         var exception = new OperationCanceledException("cancelled");
-        var contextMock = new Mock<IMediatorExceptionContext>();
+        var context = Substitute.For<IMediatorExceptionContext>();
 
-        await sut.Handle(exception, contextMock.Object);
+        await sut.Handle(exception, context);
 
-        contextMock.Verify(c => c.SetHandled(OperationCanceledExceptionHandler.Message), Times.Once);
+        context.Received(1).SetHandled(OperationCanceledExceptionHandler.Message);
     }
 
     [Fact]
@@ -158,10 +158,10 @@ public class MediatorExceptionContextTests
     {
         var sut = new LegacyExceptionMessageHandler();
         var exception = new InvalidOperationException("boom");
-        var contextMock = new Mock<IMediatorExceptionContext>();
+        var context = Substitute.For<IMediatorExceptionContext>();
 
-        await sut.Handle(exception, contextMock.Object);
+        await sut.Handle(exception, context);
 
-        contextMock.Verify(c => c.SetHandled(exception.Message), Times.Once);
+        context.Received(1).SetHandled(exception.Message);
     }
 }

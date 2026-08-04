@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using Moq;
+using NSubstitute;
 using System.Security.Claims;
 
 namespace Pipaslot.Mediator.Http.Tests;
@@ -14,11 +14,11 @@ public class ClaimPrincipalAccessorTests
     public void Principal_HttpContextHasUser_ReturnsUserFromHttpContext()
     {
         var principal = new ClaimsPrincipal(new ClaimsIdentity());
-        var httpContext = new Mock<HttpContext>();
-        httpContext.Setup(c => c.User).Returns(principal);
-        var accessor = new Mock<IHttpContextAccessor>();
-        accessor.Setup(a => a.HttpContext).Returns(httpContext.Object);
-        var sut = new ClaimPrincipalAccessor(accessor.Object);
+        var httpContext = Substitute.For<HttpContext>();
+        httpContext.User.Returns(principal);
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns(httpContext);
+        var sut = new ClaimPrincipalAccessor(accessor);
 
         var result = sut.Principal;
 
@@ -28,9 +28,9 @@ public class ClaimPrincipalAccessorTests
     [Fact]
     public void Principal_HttpContextIsNull_ReturnsNull()
     {
-        var accessor = new Mock<IHttpContextAccessor>();
-        accessor.Setup(a => a.HttpContext).Returns((HttpContext)null!);
-        var sut = new ClaimPrincipalAccessor(accessor.Object);
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns((HttpContext)null!);
+        var sut = new ClaimPrincipalAccessor(accessor);
 
         var result = sut.Principal;
 

@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
@@ -13,8 +13,8 @@ public class JsonContractSerializer_InterfaceTests : ContractSerializer_Interfac
 {
     protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
     {
-        var optionsMock = new Mock<IMediatorOptions>();
-        return new JsonContractSerializer(provider, optionsMock.Object);
+        var options = Substitute.For<IMediatorOptions>();
+        return new JsonContractSerializer(provider, options);
     }
 
     [Fact]

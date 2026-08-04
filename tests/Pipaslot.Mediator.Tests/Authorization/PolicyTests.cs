@@ -75,8 +75,8 @@ public class PolicyTests
 
     private async Task AssertPolicy(IPolicy policy, bool expected)
     {
-        var services = new Mock<IServiceProvider>();
-        var set = await policy.Resolve(services.Object, CancellationToken.None);
+        var services = Substitute.For<IServiceProvider>();
+        var set = await policy.Resolve(services, CancellationToken.None);
         var evaluated = set.Reduce();
         Assert.Equal(expected, evaluated.Outcome == RuleOutcome.Allow);
     }

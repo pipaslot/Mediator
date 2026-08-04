@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
@@ -48,9 +48,9 @@ public class MediatorMiddlewareTests
     public async Task WillNotWriteResponse_WhenResponseAlreadyHasStarted()
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse(hasStarted: true);
@@ -65,9 +65,9 @@ public class MediatorMiddlewareTests
     public async Task WillSetErrorStatusCode_WhenMediatorResponseFailed()
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, Array.Empty<object>()));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -81,9 +81,9 @@ public class MediatorMiddlewareTests
     public async Task WillPreserveStatusCode_WhenAlreadyChangedByMiddleware()
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, Array.Empty<object>()));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -98,9 +98,9 @@ public class MediatorMiddlewareTests
     {
         var httpResult = new FakeHttpResult();
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [httpResult]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -116,9 +116,9 @@ public class MediatorMiddlewareTests
     {
         var httpResult = new FakeHttpResult();
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, [httpResult]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -135,9 +135,9 @@ public class MediatorMiddlewareTests
         var first = new FakeHttpResult();
         var second = new FakeHttpResult();
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [first, second]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakePostRequest(_message), services);
@@ -198,33 +198,33 @@ public class MediatorMiddlewareTests
     private async Task ExecuteRequest(HttpRequest request)
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse<string>)new MediatorResponse<string>(true, Array.Empty<object>()));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Execute<string>(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Execute<string>(Arg.Any<NopRequest>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(request, services);
         await sut.Invoke(context);
 
-        mediatorMock.Verify(m => m.Execute(It.IsAny<NopRequest>(), It.IsAny<CancellationToken>()));
+        await mediator.Received().Execute(Arg.Any<NopRequest>(), Arg.Any<CancellationToken>());
     }
 
     private async Task ExecuteMessage(HttpRequest request)
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
 
-        var services = CreateServiceProvider(mediatorMock);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(request, services);
         await sut.Invoke(context);
 
-        mediatorMock.Verify(m => m.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>()));
+        await mediator.Received().Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>());
     }
 
-    private ServiceProvider CreateServiceProvider(Mock<IMediator> mediatorMock)
+    private ServiceProvider CreateServiceProvider(IMediator mediator)
     {
         var collection = new ServiceCollection();
         collection.AddLogging();
@@ -232,10 +232,10 @@ public class MediatorMiddlewareTests
             .AddActions([typeof(NopRequest), typeof(NopMessage)]);
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
-        collection.AddSingleton<IMediator>(mediatorMock.Object);
+        collection.AddSingleton(mediator);
         return collection.BuildServiceProvider();
     }
     public class NopMessage : IMessage;
-    
+
     public class NopRequest : IRequest<string>;
 }

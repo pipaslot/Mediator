@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
@@ -33,8 +33,8 @@ public class CredibleActionProviderTests
 
     private CredibleActionProvider Create(Action<MediatorConfigurator> setup, params Type[] customTypes)
     {
-        var serviceCollectionMock = new Mock<IServiceCollection>();
-        var configurator = new MediatorConfigurator(serviceCollectionMock.Object);
+        var serviceCollection = Substitute.For<IServiceCollection>();
+        var configurator = new MediatorConfigurator(serviceCollection);
         setup(configurator);
         return new CredibleActionProvider(configurator, customTypes, []);
     }

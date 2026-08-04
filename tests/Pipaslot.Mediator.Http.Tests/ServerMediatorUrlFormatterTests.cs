@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
@@ -22,17 +22,17 @@ public class ServerMediatorUrlFormatterTests
             Endpoint = expectedEndpoint
         };
 
-        var actionMock = new Mock<IMediatorAction>();
+        var action = Substitute.For<IMediatorAction>();
 
-        var serializerMock = new Mock<IContractSerializer>();
-        serializerMock
-            .Setup(s => s.SerializeRequest(It.IsAny<IMediatorAction>()))
+        var serializer = Substitute.For<IContractSerializer>();
+        serializer
+            .SerializeRequest(Arg.Any<IMediatorAction>())
             .Returns(new SerializedRequest(expectedJson, []));
 
-        var formatter = new ServerMediatorUrlFormatter(options, serializerMock.Object);
+        var formatter = new ServerMediatorUrlFormatter(options, serializer);
 
         // Act
-        var result = formatter.FormatHttpGet(actionMock.Object);
+        var result = formatter.FormatHttpGet(action);
 
         // Assert
         var expectedUrl = $"{expectedEndpoint}?{expectedParamName}={decodedJson}";

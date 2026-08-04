@@ -49,8 +49,8 @@ public class ExceptionHandlerResolutionTests
     [Fact]
     public void AddExceptionHandler_TypeImplementingNoExceptionHandlerInterface_ThrowsAtStartup()
     {
-        var sc = new Mock<IServiceCollection>();
-        var sut = new MediatorConfigurator(sc.Object);
+        var sc = Substitute.For<IServiceCollection>();
+        var sut = new MediatorConfigurator(sc);
 
         Assert.Throws<MediatorException>(() => sut.AddExceptionHandler<NotAnExceptionHandler>());
     }
@@ -91,8 +91,8 @@ public class ExceptionHandlerResolutionTests
     [Fact]
     public void AddExceptionHandlers_OneOfManyTypesIsInvalid_ThrowsAtStartup()
     {
-        var sc = new Mock<IServiceCollection>();
-        var sut = new MediatorConfigurator(sc.Object);
+        var sc = Substitute.For<IServiceCollection>();
+        var sut = new MediatorConfigurator(sc);
 
         Assert.Throws<MediatorException>(() =>
             sut.AddExceptionHandlers([typeof(ValidationExceptionHandler), typeof(NotAnExceptionHandler)]));

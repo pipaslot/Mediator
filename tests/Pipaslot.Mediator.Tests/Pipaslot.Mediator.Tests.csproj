@@ -4,7 +4,11 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkVersion)" />
-        <PackageReference Include="Moq" Version="$(MoqVersion)"/>
+        <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)"/>
+        <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="$(NSubstituteAnalyzersCSharpVersion)">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,7 +27,7 @@
 
     <ItemGroup>
         <Using Include="Xunit"/>
-        <Using Include="Moq"/>
+        <Using Include="NSubstitute"/>
     </ItemGroup>
 
 </Project>

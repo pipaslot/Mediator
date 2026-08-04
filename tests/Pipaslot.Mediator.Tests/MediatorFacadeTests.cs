@@ -17,17 +17,17 @@ namespace Pipaslot.Mediator.Tests;
 /// </summary>
 public class MediatorFacadeTests
 {
-    private readonly Mock<IMediator> _mediator = new();
-    private readonly Mock<IMediatorContextAccessor> _contextAccessor = new();
-    private readonly Mock<INotificationProvider> _notificationProvider = new();
+    private readonly IMediator _mediator = Substitute.For<IMediator>();
+    private readonly IMediatorContextAccessor _contextAccessor = Substitute.For<IMediatorContextAccessor>();
+    private readonly INotificationProvider _notificationProvider = Substitute.For<INotificationProvider>();
 
-    private MediatorFacade CreateSut() => new(_mediator.Object, _contextAccessor.Object, _notificationProvider.Object);
+    private MediatorFacade CreateSut() => new(_mediator, _contextAccessor, _notificationProvider);
 
     [Fact]
     public void Context_ReturnsContextFromContextAccessor()
     {
         var context = CreateContext();
-        _contextAccessor.Setup(a => a.Context).Returns(context);
+        _contextAccessor.Context.Returns(context);
 
         var result = CreateSut().Context;
 
@@ -38,7 +38,7 @@ public class MediatorFacadeTests
     public void ContextStack_ReturnsContextStackFromContextAccessor()
     {
         var stack = new List<MediatorContext> { CreateContext() };
-        _contextAccessor.Setup(a => a.ContextStack).Returns(stack);
+        _contextAccessor.ContextStack.Returns(stack);
 
         var result = CreateSut().ContextStack;
 
@@ -52,16 +52,16 @@ public class MediatorFacadeTests
 
         CreateSut().AddNotification(notification);
 
-        _notificationProvider.Verify(p => p.Add(notification), Times.Once);
+        _notificationProvider.Received(1).Add(notification);
     }
 
     [Fact]
     public async Task Dispatch_Message_DelegatesToMediatorAndReturnsItsResponse()
     {
-        var message = new Mock<IMediatorAction>().Object;
+        var message = Substitute.For<IMediatorAction>();
         using var cts = new CancellationTokenSource();
-        var response = new Mock<IMediatorResponse>().Object;
-        _mediator.Setup(m => m.Dispatch(message, cts.Token)).ReturnsAsync(response);
+        var response = Substitute.For<IMediatorResponse>();
+        _mediator.Dispatch(message, cts.Token).Returns(response);
 
         var result = await CreateSut().Dispatch(message, cts.Token);
 
@@ -71,21 +71,21 @@ public class MediatorFacadeTests
     [Fact]
     public async Task DispatchUnhandled_Message_DelegatesToMediator()
     {
-        var message = new Mock<IMediatorAction>().Object;
+        var message = Substitute.For<IMediatorAction>();
         using var cts = new CancellationTokenSource();
 
         await CreateSut().DispatchUnhandled(message, cts.Token);
 
-        _mediator.Verify(m => m.DispatchUnhandled(message, cts.Token), Times.Once);
+        await _mediator.Received(1).DispatchUnhandled(message, cts.Token);
     }
 
     [Fact]
     public async Task Execute_Request_DelegatesToMediatorAndReturnsItsResponse()
     {
-        var request = new Mock<IMediatorAction<string>>().Object;
+        var request = Substitute.For<IMediatorAction<string>>();
         using var cts = new CancellationTokenSource();
-        var response = new Mock<IMediatorResponse<string>>().Object;
-        _mediator.Setup(m => m.Execute(request, cts.Token)).ReturnsAsync(response);
+        var response = Substitute.For<IMediatorResponse<string>>();
+        _mediator.Execute(request, cts.Token).Returns(response);
 
         var result = await CreateSut().Execute(request, cts.Token);
 
@@ -95,9 +95,9 @@ public class MediatorFacadeTests
     [Fact]
     public async Task ExecuteUnhandled_Request_DelegatesToMediatorAndReturnsItsResult()
     {
-        var request = new Mock<IMediatorAction<string>>().Object;
+        var request = Substitute.For<IMediatorAction<string>>();
         using var cts = new CancellationTokenSource();
-        _mediator.Setup(m => m.ExecuteUnhandled(request, cts.Token)).ReturnsAsync("data");
+        _mediator.ExecuteUnhandled(request, cts.Token).Returns("data");
 
         var result = await CreateSut().ExecuteUnhandled(request, cts.Token);
 
@@ -107,11 +107,11 @@ public class MediatorFacadeTests
     private static MediatorContext CreateContext()
     {
         return new MediatorContext(
-            new Mock<IMediator>().Object,
-            new Mock<IMediatorContextAccessor>().Object,
-            new Mock<IServiceProvider>().Object,
+            Substitute.For<IMediator>(),
+            Substitute.For<IMediatorContextAccessor>(),
+            Substitute.For<IServiceProvider>(),
             new ReflectionCache(),
-            new Mock<IMediatorAction>().Object,
+            Substitute.For<IMediatorAction>(),
             CancellationToken.None,
             null,
             null);

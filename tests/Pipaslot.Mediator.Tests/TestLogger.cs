@@ -6,7 +6,7 @@ namespace Pipaslot.Mediator.Tests;
 
 /// <summary>
 /// Minimal in-memory <see cref="ILogger{T}"/> recording every call verbatim (level, exception, formatted message),
-/// so boundary-logging assertions don't need a real logging provider or Moq's clunky extension-method mocking.
+/// so boundary-logging assertions don't need a real logging provider or NSubstitute's clunky extension-method mocking.
 /// </summary>
 internal class TestLogger<T> : ILogger<T>
 {

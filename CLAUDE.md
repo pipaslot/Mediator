@@ -14,7 +14,7 @@ NuGet packages published from this repo:
 
 ```bash
 dotnet build Pipaslot.Mediator.slnx             # build everything (multi-targets net6.0–net10.0 for the core/Http libs)
-dotnet test tests/Pipaslot.Mediator.Tests                       # core library tests (xUnit + Moq)
+dotnet test tests/Pipaslot.Mediator.Tests                       # core library tests (xUnit + NSubstitute)
 dotnet test tests/Pipaslot.Mediator.Http.Tests                   # HTTP transport / serialization tests
 dotnet test --filter "FullyQualifiedName~RuleSet_OperatorTests"  # run a single test class
 dotnet test --filter "DisplayName~SomeTestMethodName"            # run a single test method

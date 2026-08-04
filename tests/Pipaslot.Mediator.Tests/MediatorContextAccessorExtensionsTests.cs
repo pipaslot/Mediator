@@ -20,19 +20,21 @@ public class MediatorContextAccessorExtensionsTests
             mediatorContext is not null ? [mediatorContext] : Array.Empty<MediatorContext>();
     }
 
-    private record FakeFeature;
+    // Public (not private) because NSubstitute must generate a Castle proxy for this type as the auto-value
+    // for the unstubbed `Get<FakeFeature>()` call recorded while `.Returns(...)` is being configured.
+    public record FakeFeature;
 
-    private MediatorContext CreateContext(Mock<IFeatureCollection> features)
+    private MediatorContext CreateContext(IFeatureCollection features)
     {
         return new MediatorContext(
-            new Mock<IMediator>().Object
-            , new Mock<IMediatorContextAccessor>().Object
-            , new Mock<IServiceProvider>().Object
+            Substitute.For<IMediator>()
+            , Substitute.For<IMediatorContextAccessor>()
+            , Substitute.For<IServiceProvider>()
             , new ReflectionCache()
-            , new Mock<IMediatorAction>().Object
+            , Substitute.For<IMediatorAction>()
             , CancellationToken.None
             , null
-            ,features.Object
+            , features
         );
     }
 
@@ -50,9 +52,9 @@ public class MediatorContextAccessorExtensionsTests
     public void GetRootContextFeature_ShouldReturnFeature_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();
-        var featureCollectionMock = new Mock<IFeatureCollection>();
-        featureCollectionMock.Setup(x => x.Get<FakeFeature>()).Returns(featureValue);
-        var context = CreateContext(featureCollectionMock);
+        var features = Substitute.For<IFeatureCollection>();
+        features.Get<FakeFeature>().Returns(featureValue);
+        var context = CreateContext(features);
         var accessor = new MockMediatorContextAccessor(context);
 
         accessor.SetRootContextFeature(featureValue);
@@ -77,14 +79,13 @@ public class MediatorContextAccessorExtensionsTests
     public void SetRootContextFeature_ShouldReturnTrue_WhenRootContextIsNotNull()
     {
         var featureValue = new FakeFeature();
-        var featureCollectionMock = new Mock<IFeatureCollection>();
-        featureCollectionMock.Setup(x => x.Set(featureValue));
-        var context = CreateContext(featureCollectionMock);
+        var features = Substitute.For<IFeatureCollection>();
+        var context = CreateContext(features);
         var accessor = new MockMediatorContextAccessor(context);
 
         var result = accessor.SetRootContextFeature(featureValue);
 
         Assert.True(result);
-        featureCollectionMock.VerifyAll();
+        features.Received(1).Set(featureValue);
     }
 }

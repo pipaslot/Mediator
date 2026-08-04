@@ -175,11 +175,11 @@ public class ContextFlowTests
 
     private MediatorContext CreateContext(int depth)
     {
-        var mediatorMock = new Mock<IMediator>();
-        var mediatorContextAccessorMock = new Mock<IMediatorContextAccessor>();
-        var serviceProviderMock = new Mock<IServiceProvider>();
+        var mediator = Substitute.For<IMediator>();
+        var mediatorContextAccessor = Substitute.For<IMediatorContextAccessor>();
+        var serviceProvider = Substitute.For<IServiceProvider>();
         var action = new FakeAction(depth);
-        return new MediatorContext(mediatorMock.Object, mediatorContextAccessorMock.Object, serviceProviderMock.Object, new ReflectionCache(), action,
+        return new MediatorContext(mediator, mediatorContextAccessor, serviceProvider, new ReflectionCache(), action,
             CancellationToken.None, null, null);
     }
 
