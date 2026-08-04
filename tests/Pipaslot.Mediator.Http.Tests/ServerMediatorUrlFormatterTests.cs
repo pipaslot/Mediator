@@ -3,7 +3,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using System.Net;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
 

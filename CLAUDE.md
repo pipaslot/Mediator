@@ -20,7 +20,8 @@ dotnet test --filter "FullyQualifiedName~RuleSet_OperatorTests"  # run a single 
 dotnet test --filter "DisplayName~SomeTestMethodName"            # run a single test method
 ```
 
-- `tests/Pipaslot.Mediator.Tests` references two helper projects that only exist to be scanned by reflection: `Pipaslot.Mediator.Tests.ValidActions` (well-formed actions/handlers) and `Pipaslot.Mediator.Tests.InvalidActions` (actions intentionally missing a handler). Don't "fix" the invalid-actions project — its lack of handlers is the test fixture.
+- `tests/Pipaslot.Mediator.Tests/ValidActions/` holds well-formed action/handler fixtures shared by both test projects (`Pipaslot.Mediator.Http.Tests` reaches it via its `ProjectReference` to `Pipaslot.Mediator.Tests`). It's a folder, not a separate assembly, so `AddActionsFromAssemblyOf<T>()`/`AddHandlersFromAssemblyOf<T>()` on any type in it now scans the **whole** `Pipaslot.Mediator.Tests` assembly, not just this folder — a test that needs exactly (and only) these fixtures registered must use explicit `AddActions([...])`/`AddHandlers([...])` instead (see `HandlerExistenceCheckerTests.Verify_RegisteredAssemblyWithValidActions_DoesNotThrowExceptions`), or it'll incidentally pick up unrelated handler fixtures from elsewhere in the project that aren't constructible outside their own test's manual DI wiring.
+- `tests/Pipaslot.Mediator.Tests.InvalidActions` stays a **separate project**, this one's value depends on being a real, physically separate assembly that is guaranteed to contain zero handlers (see `HandlerExistenceCheckerTests`, which does a real `AddHandlersFromAssemblyOf<T>()` scan against it to verify "no handler found" detection). Don't "fix" it by adding a handler.
 - Both xUnit test projects need `xunit.runner.visualstudio` to be discoverable by `dotnet test` (plain VSTest CLI, unlike Rider's own test runner, needs this adapter explicitly — it's not pulled in transitively by `Microsoft.NET.Test.Sdk`/`xunit`). If `dotnet test` ever reports "A total of 1 test files matched the specified pattern." followed by zero tests run instead of a pass/fail summary, this package reference is what's missing from the `.csproj`.
 - `Demo/` (Server + Client Blazor WASM + Shared) is a runnable example app, not a test suite. Use it as a reference for real usage patterns (auth, file upload, notifications, custom middlewares) rather than editing it to satisfy internal library changes.
 - `Pipaslot.Mediator.Benchmarks` uses BenchmarkDotNet; results are checked into `Report/results/*.md`. Only re-run/regenerate these when explicitly asked.
@@ -43,6 +44,35 @@ Open `TestResults/CoverageReport/index.html`. `TestResults/` is a generated arti
 
 - **Pair every one-directional wire-format test with a round-trip test.** A test that only serializes and asserts an exact JSON string (or only deserializes a hand-written JSON string) verifies just that one direction — it gives no signal about whether the other direction (`Read` vs `Write`) still works for that same payload shape. Keep exact-string assertions where the wire format itself is the contract under test, but add a companion round-trip test for the same shape whenever one doesn't already exist.
 - **Check for existing coverage before adding a test.** Test classes are organized by scenario/trigger condition, not by which unit of work introduced the assertion — a class whose doc comment says "new API only" or "not covered elsewhere" is a claim about the state *when that comment was written*, not a guarantee. Before adding a new test for behavior that might already be exercised, search for an existing test with the same setup/trigger and extend it instead of adding a parallel one elsewhere; two tests asserting the same trigger condition from two different files is a sign the search was skipped.
+- **`Pipaslot.Mediator.Http.Tests` reuses `Pipaslot.Mediator.Tests`'s `Factory` for setup that isn't Http-specific** (currently just `Factory.CreateServiceProvider`), via a `ProjectReference` plus `InternalsVisibleTo` on `Pipaslot.Mediator.Tests.csproj`, rather than a separate `Tests.Common` project. Add new shared test setup helpers to `Pipaslot.Mediator.Tests`'s `Factory` and call them from Http's `Factory` (see `CreateMediator`) instead of duplicating them — reserve a `Tests.Common` project for if the shared surface grows enough that a one-way dependency between the two test projects stops making sense.
+- **`Factory` never registers actions/handlers by assembly-wide scan** (no `AddActionsFromAssembly(Assembly)`/`AddHandlersFromAssembly(Assembly)` self-scan). Every test passes `Factory.CreateCustomMediator`/`CreateConfiguredMediatorWithLogger` a `setup` that explicitly lists exactly the handler types (and, for HTTP/`ReflectionCache`-relevant tests, action types) it dispatches to — nothing more. Before registering a handler for an action, check whether the middleware in front of it actually calls `next(context)` — a middleware that doesn't (a terminal validator/blocker fixture) means the handler is never reached, and it should not be registered at all.
+- **One assertion per test where a failure has a distinct meaning; multiple assertions where they form one indivisible contract.** E.g. three separate tests each asserting one property of a success result are fine if any one of them could fail for an unrelated reason; asserting `Success` and `GetErrorMessage()` together is fine when they're two facets of the same failure outcome being verified at once.
+- **Separate Arrange/Act/Assert with a blank line** in new or edited tests. Don't do a dedicated pass over old tests just to add the blank lines — unify incrementally, whenever you're already editing a test for another reason.
+
+### Where a test belongs
+
+Three levels, one mechanical rule. Grep the test for `Dispatch(` / `Execute(`:
+
+| Level | Rule | Folder | Class name |
+|---|---|---|---|
+| Unit | SUT is one production type; no DI container | mirrors the production namespace | `<Type>Tests` / `<Type>_<Aspect>Tests` |
+| Wiring | Builds a container but never dispatches; SUT is the configuration result (pipeline shape, registration errors) | mirrors the production namespace of the wiring type (`Configuration/`, `Services/`) | `<Type>_<Aspect>Tests` |
+| E2E | Calls `IMediator.Dispatch`/`Execute`/`*Unhandled` on a real container | `E2E/<theme>/` | `<Scenario>Tests` |
+
+- **Every test class ends with `Tests`.** The file name and the class name must match exactly.
+- **Test methods are named `Method_Condition_ExpectedOutcome`.**
+- **Nested fixtures inside a test class are `private`.** The moment a second class needs one, move it to
+  `E2E/Fixtures/` — never widen the visibility of a nested class to share it. A test that reaches into another
+  test class's nested type couples two files that look independent.
+- **`Tests.InvalidActions` holds only actions without handlers.** Middlewares and helpers belong to the test
+  project that uses them.
+- **Assert the exception type plus its key data, not the whole formatted message.** Comparing against
+  `SomeException.Create(...).Message` makes the test reimplement the production code it is checking.
+- **A test class doc comment states the trigger condition and how it differs from neighbouring test classes.**
+  It must not narrate history ("before unit 4…", "introduced in version X") — that belongs in
+  `docs/wiki/Release-notes-and-breaking-changes.md`.
+- **Static state in `Tests.ValidActions` fixtures is reset in the test class constructor**, never inline inside a
+  test method. Classes sharing the same static fixture must share an xUnit `[Collection]`.
 
 ## Architecture
 
@@ -82,6 +112,8 @@ A pub/sub side channel layered on the same pipeline: handlers can raise `Notific
 ### Multi-targeting
 
 `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` multi-target `net6.0` through `net10.0` (see their `.csproj`) because they're published to NuGet for consumers on older TFMs; test/benchmark/demo projects target `net10.0` only. When editing the core libraries, keep API usage compatible across that whole range (per-TFM `PackageReference` blocks already pin `Microsoft.Extensions.DependencyInjection.Abstractions` to the matching version).
+
+Because tests only run on `net10.0`, a `#if <TFM>` conditional compilation block (e.g. `MediatorContext.CreateGuid`'s `#if NET9_0_OR_GREATER`) only gets test coverage for whichever branch `net10.0` selects — the other branch compiles but is never exercised by `dotnet test`. This is a deliberate CI-time tradeoff (multi-targeting the test projects would multiply CI duration ~5x), not an oversight. When adding a new `#if TFM` block, prefer branches that only swap the underlying API call for an equivalent result (as `CreateGuid` does) over branches with diverging behavior — diverging behavior in an untested branch is a correctness risk this setup can't catch.
 
 ## Code comments
 

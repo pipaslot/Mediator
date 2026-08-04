@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 

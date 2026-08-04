@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Serialization.V3.Converters;
 using System;
 using System.Linq;
 using System.Text.Json;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3.Converters;
 

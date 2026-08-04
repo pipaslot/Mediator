@@ -6,7 +6,6 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Internal;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Middlewares;
 

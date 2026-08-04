@@ -3,14 +3,12 @@ using Moq;
 using Moq.Protected;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Serialization;
-using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Middlewares;
 
@@ -222,4 +220,6 @@ public class HttpClientExecutionMiddlewareTests
             .ThrowsAsync(exception);
         return handlerMock;
     }
+    
+    public class NopRequest : IRequest<string>;
 }

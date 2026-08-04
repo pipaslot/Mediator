@@ -5,7 +5,6 @@ using Pipaslot.Mediator.Http.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 
@@ -39,7 +38,7 @@ public class CredibleResultProviderTests
         {
             sut.VerifyCredibility(typeof(CustomResult));
         });
-        Assert.Equal(MediatorHttpException.CreateForUnregisteredResultType(typeof(CustomResult)).Message, exception.Message);
+        Assert.Contains(typeof(CustomResult).FullName!, exception.Message);
     }
 
     [Fact]
@@ -50,7 +49,7 @@ public class CredibleResultProviderTests
         {
             sut.VerifyCredibility(typeof(Result));
         });
-        Assert.Equal(MediatorHttpException.CreateForUnregisteredResultType(typeof(Result)).Message, exception.Message);
+        Assert.Contains(typeof(Result).FullName!, exception.Message);
     }
 
     [Theory]

@@ -15,7 +15,6 @@
     <Project Path="Pipaslot.Mediator.Benchmarks/Pipaslot.Mediator.Benchmarks.csproj" />
     <Project Path="tests/Pipaslot.Mediator.Http.Tests/Pipaslot.Mediator.Http.Tests.csproj" />
     <Project Path="tests/Pipaslot.Mediator.Tests.InvalidActions/Pipaslot.Mediator.Tests.InvalidActions.csproj" />
-    <Project Path="tests/Pipaslot.Mediator.Tests.ValidActions/Pipaslot.Mediator.Tests.ValidActions.csproj" />
     <Project Path="tests/Pipaslot.Mediator.Tests/Pipaslot.Mediator.Tests.csproj" />
   </Folder>
   <Project Path="Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj" />

@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager NavigationManager
 
 <Notifications/>
 <div class="page">
@@ -13,7 +15,45 @@
         </div>
 
         <div class="content px-4">
-            @Body
+            <ErrorBoundary @ref="_errorBoundary">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent Context="exception">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">An unexpected error occurred</h4>
+                        <p class="mb-2">@exception.Message</p>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="Recover">Try again</button>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
         </div>
     </div>
 </div>
+
+@code {
+    private ErrorBoundary? _errorBoundary;
+
+    protected override void OnInitialized()
+    {
+        // Reset the boundary on navigation, otherwise the error content would
+        // stay visible even after the user navigates away to a working page.
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs args)
+    {
+        Recover();
+    }
+
+    private void Recover()
+    {
+        _errorBoundary?.Recover();
+    }
+
+}

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 

@@ -4,7 +4,6 @@ using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests;
 

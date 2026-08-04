@@ -3,10 +3,8 @@ using Microsoft.Extensions.Logging;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
-using Pipaslot.Mediator.Tests.ValidActions;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,12 +12,8 @@ namespace Pipaslot.Mediator.Tests;
 
 internal static class Factory
 {
-    internal static Assembly Assembly { get; } = typeof(Factory).Assembly;
-    
     #region Mediator
     
-    public static IMediator CreateConfiguredMediator() => CreateConfiguredMediator(c => { });
-
     public static IMediator CreateMediatorWithHandlers<THandler>()
     {
         var services = CreateServiceProvider(c =>
@@ -30,36 +24,18 @@ internal static class Factory
         return services.GetRequiredService<IMediator>();
     }
 
-    public static IMediator CreateConfiguredMediator(Action<IMediatorConfigurator> setup)
-    {
-        var services = CreateServiceProvider(c =>
-            {
-                c.AddActionsFromAssembly(Assembly)
-                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                    .AddHandlersFromAssembly(Assembly)
-                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
-                setup(c);
-            }
-        );
-        return services.GetRequiredService<IMediator>();
-    }
-
     public static Mediator GetConcreteMediator(this IServiceProvider sp) => (Mediator)sp.GetRequiredService<IMediator>();
 
     /// <summary>
-    /// Same fixture wiring as <see cref="CreateConfiguredMediator(Action{IMediatorConfigurator})"/>, plus a
-    /// <see cref="TestLogger{T}"/> registered as <c>ILogger&lt;Mediator&gt;</c> so Execute/Dispatch boundary logging
-    /// (level, exception, message) can be asserted directly instead of only inferred from Results.
+    /// Same fixture wiring as <see cref="CreateMediator"/>, plus a <see cref="TestLogger{T}"/> registered as
+    /// <c>ILogger&lt;Mediator&gt;</c> so Execute/Dispatch boundary logging (level, exception, message) can be
+    /// asserted directly instead of only inferred from Results.
     /// </summary>
-    public static (IMediator Mediator, TestLogger<Mediator> Logger) CreateConfiguredMediatorWithLogger(Action<IMediatorConfigurator>? setup = null)
+    public static (IMediator Mediator, TestLogger<Mediator> Logger) CreateMediatorWithLogger(Action<IMediatorConfigurator>? setup = null)
     {
         var logger = new TestLogger<Mediator>();
         var services = CreateServiceProvider((c, sc) =>
             {
-                c.AddActionsFromAssembly(Assembly)
-                    .AddActionsFromAssemblyOf<SingleHandler.Message>()
-                    .AddHandlersFromAssembly(Assembly)
-                    .AddHandlersFromAssemblyOf<SingleHandler.MessageHandler>();
                 setup?.Invoke(c);
                 sc.AddSingleton<ILogger<Mediator>>(logger);
             }
@@ -67,12 +43,9 @@ internal static class Factory
         return (services.GetRequiredService<IMediator>(), logger);
     }
 
-    public static IMediator CreateCustomMediator(Action<IMediatorConfigurator> setup)
+    public static IMediator CreateMediator(Action<IMediatorConfigurator> setup)
     {
-        var services = CreateServiceProvider(c =>
-        {
-            setup(c);
-        });
+        var services = CreateServiceProvider(setup);
         return services.GetRequiredService<IMediator>();
     }
     

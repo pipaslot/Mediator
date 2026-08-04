@@ -1,5 +1,4 @@
 ﻿using Pipaslot.Mediator.Http.Serialization;
-using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 

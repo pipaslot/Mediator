@@ -16,21 +16,21 @@ public class ActionEventsMiddlewareTests
     #region Basic flow
 
     [Fact]
-    public void NewMediatorDoesNotFireAnsyActionStartedEvent()
+    public void NewMediatorDoesNotFireAnyActionStartedEvent()
     {
         Create();
         Assert.Empty(_started);
     }
 
     [Fact]
-    public void NewMediatorDoesNotFireAnsyActionCompletedEvent()
+    public void NewMediatorDoesNotFireAnyActionCompletedEvent()
     {
         Create();
         Assert.Empty(_completed);
     }
 
     [Fact]
-    public async Task SemaphoreActionIsExcetutable()
+    public async Task SemaphoreActionIsExecutable()
     {
         var sut = Create();
         var task = sut.Dispatch(new SemaphoreAction());
@@ -113,8 +113,7 @@ public class ActionEventsMiddlewareTests
     {
         var services = Factory.CreateServiceProvider((mediator, services) =>
         {
-            mediator.AddActionsFromAssembly(Factory.Assembly)
-                .UseActionEvents();
+            mediator.UseActionEvents();
             services.AddTransient<IMediatorHandler<SemaphoreAction>>(s => new SemaphoreHandler(_handlerSemaphore));
         });
 
