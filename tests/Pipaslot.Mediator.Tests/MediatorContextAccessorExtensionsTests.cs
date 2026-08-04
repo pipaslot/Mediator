@@ -24,6 +24,9 @@ public class MediatorContextAccessorExtensionsTests
     // for the unstubbed `Get<FakeFeature>()` call recorded while `.Returns(...)` is being configured.
     public record FakeFeature;
 
+    // Built through the internal constructor rather than MediatorContext.Create, because these tests substitute the
+    // whole IFeatureCollection to assert that the extension delegates to it. Create deliberately owns the collection
+    // instead of accepting one, so that a context always carries the built-in feature defaults.
     private MediatorContext CreateContext(IFeatureCollection features)
     {
         return new MediatorContext(

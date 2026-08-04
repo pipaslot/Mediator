@@ -7,8 +7,8 @@ using System.Collections.Generic;
 namespace Pipaslot.Mediator.Tests.Configuration;
 
 /// <summary>
-/// <see cref="ReflectionCache"/> is constructed in several other test files (e.g. <c>Factory.FakeContext</c>), but
-/// always as an incidental dependency of <see cref="MediatorContext"/> — none of them exercise it as the SUT or
+/// <see cref="ReflectionCache"/> is constructed by every context built through <see cref="MediatorContext.Create"/>,
+/// but always as an incidental dependency of <see cref="MediatorContext"/> — none of those tests exercise it as the SUT or
 /// call <see cref="ReflectionCache.AddActions"/> first, so the startup-time lookup path
 /// (<c>_startupTimeActions</c>) and the lazy runtime-resolution path (<c>_runtimeActions</c>) it falls back to for
 /// an action never registered up front were both unverified.

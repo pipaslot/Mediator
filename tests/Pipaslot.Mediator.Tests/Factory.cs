@@ -90,19 +90,19 @@ internal static class Factory
 
     #region Context
     
+    /// <summary>
+    /// Context detached from any execution, built through the same public seam a consumer has
+    /// (<see cref="MediatorContext.Create"/>). Resolving a service through it throws - use
+    /// <see cref="CreateMediatorContext"/> when the code under test needs handlers.
+    /// </summary>
     public static MediatorContext FakeContext(IMediatorAction action)
     {
-        var services = CreateServiceProvider();
-        var mediator = Substitute.For<IMediator>();
-        var mca = Substitute.For<IMediatorContextAccessor>();
-        return new MediatorContext(mediator, mca, services, new ReflectionCache(), action, CancellationToken.None, null, null);
+        return MediatorContext.Create(action);
     }
 
     public static MediatorContext CreateMediatorContext(this IServiceProvider services, IMediatorAction action)
     {
-        var mediator = services.GetRequiredService<IMediator>();
-        var ca = services.GetRequiredService<IMediatorContextAccessor>();
-        return new MediatorContext(mediator, ca, services, new ReflectionCache(),action, CancellationToken.None, null, null);
+        return MediatorContext.Create(action, services);
     }
     
     #endregion

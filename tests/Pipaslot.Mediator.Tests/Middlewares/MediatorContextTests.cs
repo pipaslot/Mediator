@@ -1,10 +1,8 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Threading;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
@@ -132,9 +130,6 @@ public class MediatorContextTests
 
     private MediatorContext CreateContext(IMediatorAction action)
     {
-        var mediator = Substitute.For<IMediator>();
-        var sp = Substitute.For<IServiceProvider>();
-        var mca = Substitute.For<IMediatorContextAccessor>();
-        return new MediatorContext(mediator, mca, sp, new ReflectionCache(), action, CancellationToken.None, null, null);
+        return MediatorContext.Create(action);
     }
 }
