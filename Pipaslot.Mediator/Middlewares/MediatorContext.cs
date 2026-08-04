@@ -121,6 +121,44 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
         _features = defaultFeatures;
     }
 
+    /// <summary>
+    /// Creates a context outside a mediator execution, so that a custom middleware or exception handler can be
+    /// invoked directly - against a real context rather than a mock - without building a service container and
+    /// dispatching an action. Also usable for hosting middlewares outside the mediator.
+    /// <see cref="Features"/> is arranged after creation, the same way a middleware would do it.
+    /// </summary>
+    /// <param name="action">Action the context is created for.</param>
+    /// <param name="services">
+    /// Services used to resolve handlers. When omitted, resolving any service throws <see cref="MediatorException"/>
+    /// naming this method, instead of failing later with a less obvious error.
+    /// </param>
+    /// <param name="mediator">
+    /// Value of <see cref="Mediator"/>. Defaults to the <see cref="IMediator"/> registered in <paramref name="services"/>,
+    /// and when there is none, to a stub throwing on every call - so a nested call made without a test double reports itself.
+    /// </param>
+    /// <param name="cancellationToken">Value of <see cref="CancellationToken"/>.</param>
+    /// <param name="depth">
+    /// Nesting level. 1 = root execution; a greater value makes <see cref="IsNested"/> true without an actual nested
+    /// call. <see cref="ParentContexts"/> stays empty either way - a synthesized context has no parent chain.
+    /// </param>
+    public static MediatorContext Create(IMediatorAction action, IServiceProvider? services = null, IMediator? mediator = null,
+        CancellationToken cancellationToken = default, int depth = 1)
+    {
+        if (depth < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(depth), depth, "Root execution starts at 1.");
+        }
+
+        var resolvedMediator = mediator
+                               ?? services?.GetService(typeof(IMediator)) as IMediator
+                               ?? DetachedMediator.Instance;
+        var context = new MediatorContext(resolvedMediator, null, services ?? DetachedServiceProvider.Instance, new ReflectionCache(), action,
+            cancellationToken, null, null);
+        context.SetDepth(depth);
+
+        return context;
+    }
+
     public IEnumerable<string> ErrorMessages => _results
         .GetNotifications()
         .GetErrorMessages();

@@ -8,6 +8,12 @@ using System.Threading;
 
 namespace Pipaslot.Mediator.Tests.Middlewares;
 
+/// <summary>
+/// Behavior every <see cref="MediatorContext"/> has once it exists, regardless of how it was built - result and
+/// exception recording, depth, and what the action type implies. How a context created by
+/// <see cref="MediatorContext.Create"/> fills the dependencies the pipeline would otherwise supply belongs to
+/// <see cref="MediatorContext_CreateTests"/>.
+/// </summary>
 public class MediatorContextTests
 {
     [Fact]

@@ -7,8 +7,9 @@ namespace Pipaslot.Mediator;
 
 /// <summary>
 /// Default <see cref="IMediatorExceptionContext"/> implementation. The boundary (<see cref="Mediator"/>) is its only
-/// production caller; the public constructor exists so a handler can also be exercised as an integration-style test
-/// against a real <see cref="MediatorContext"/> instead of only through a mock of the interface.
+/// production caller; the public constructor exists so a handler reading or writing <see cref="Context"/> can be
+/// exercised against a real <see cref="MediatorContext"/> - see <see cref="MediatorContext.Create"/> - instead of
+/// only through a mock of the interface.
 /// </summary>
 public sealed class MediatorExceptionContext(Exception exception, MediatorContext context) : IMediatorExceptionContext
 {
