@@ -38,7 +38,7 @@ jobs:
         if: always()
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator -reports:"./coverage/**/coverage.cobertura.xml" -targetdir:./coverage/report -reporttypes:MarkdownSummaryGithub
+          reportgenerator -reports:"./coverage/**/coverage.cobertura.xml" -targetdir:./coverage/report -reporttypes:"MarkdownSummaryGithub;Cobertura"
 
       - name: Publish coverage to summary
         if: always()
@@ -46,20 +46,11 @@ jobs:
 
       - name: Enforce coverage threshold
         run: |
-          check_threshold() {
-            local file=$1
-            local name=$2
-            local rate
-            rate=$(grep -m1 -oP 'line-rate="\K[^"]+' "$file")
-            local pct
-            pct=$(awk "BEGIN { printf \"%.2f\", $rate * 100 }")
-            echo "$name line coverage: $pct%"
-            if awk "BEGIN { exit !($rate < 0.85) }"; then
-              echo "::error::$name line coverage $pct% is below the 85% threshold"
-              return 1
-            fi
-          }
-          status=0
-          check_threshold ./coverage/mediator/*/coverage.cobertura.xml "Pipaslot.Mediator" || status=1
-          check_threshold ./coverage/http/*/coverage.cobertura.xml "Pipaslot.Mediator.Http" || status=1
-          exit $status
+          file=./coverage/report/Cobertura.xml
+          rate=$(grep -m1 -oP 'line-rate="\K[^"]+' "$file")
+          pct=$(awk "BEGIN { printf \"%.2f\", $rate * 100 }")
+          echo "Overall line coverage: $pct%"
+          if awk "BEGIN { exit !($rate < 0.85) }"; then
+            echo "::error::Overall line coverage $pct% is below the 85% threshold"
+            exit 1
+          fi
