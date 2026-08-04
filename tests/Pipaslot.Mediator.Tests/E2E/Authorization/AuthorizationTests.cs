@@ -11,8 +11,9 @@ namespace Pipaslot.Mediator.Tests.E2E.Authorization;
 /// Exercises <see cref="AuthorizationMiddleware"/> through a real <see cref="IMediator"/> call.
 /// <see cref="Pipaslot.Mediator.Tests.Authorization.PolicyResolverTests"/> covers <see cref="PolicyResolver"/> in
 /// isolation with handlers that are never actually resolved from a container or invoked by a pipeline; this class
-/// verifies the middleware wires that resolver into the real Dispatch/Execute path and that a denied policy
-/// prevents the handler from running.
+/// verifies the middleware wires that resolver into the real Dispatch/Execute path - that a denied policy prevents
+/// the handler from running, and that a handler declaring no policy at all is denied by default rather than
+/// implicitly allowed.
 /// </summary>
 public class AuthorizationTests
 {
@@ -49,6 +50,38 @@ public class AuthorizationTests
         Assert.Equal(AuthorizationExceptionTypes.RuleNotMet, ex.Type);
     }
 
+    [Fact]
+    public async Task Dispatch_NeitherActionNorHandlerDeclaresAuthorizationPolicy_ReturnsFailureWithoutRunningHandler()
+    {
+        // AuthorizationMiddleware denies by default: a policy can come from either the action (IActionAuthorization,
+        // a policy attribute on the action type) or the handler (IHandlerAuthorization/Async, a policy attribute on
+        // the handler type). Only when NEITHER side declares one at all is the call implicitly denied.
+        var sut = CreateMediatorForUnsecuredMessage();
+
+        var result = await sut.Dispatch(new UnsecuredMessage());
+
+        Assert.False(result.Success);
+    }
+
+    [Fact]
+    public async Task DispatchUnhandled_NeitherActionNorHandlerDeclaresAuthorizationPolicy_ThrowsNoAuthorizationException()
+    {
+        var sut = CreateMediatorForUnsecuredMessage();
+
+        var ex = await Assert.ThrowsAsync<AuthorizationException>(() => sut.DispatchUnhandled(new UnsecuredMessage()));
+
+        Assert.Equal(AuthorizationExceptionTypes.NoAuthorization, ex.Type);
+    }
+
+    private static IMediator CreateMediatorForUnsecuredMessage()
+    {
+        var services = Factory.CreateServiceProvider(c => c
+            .AddActions([typeof(UnsecuredMessage)])
+            .AddHandlers([typeof(UnsecuredMessageHandler)])
+            .UseAuthorization());
+        return services.GetRequiredService<IMediator>();
+    }
+
     private static (IMediator Mediator, StubClaimPrincipalAccessor Accessor) CreateMediator()
     {
         var accessor = new StubClaimPrincipalAccessor();
@@ -83,5 +116,15 @@ public class AuthorizationTests
     private class StubClaimPrincipalAccessor : IClaimPrincipalAccessor
     {
         public ClaimsPrincipal? Principal { get; set; }
+    }
+
+    public class UnsecuredMessage : IMessage;
+
+    public class UnsecuredMessageHandler : IMediatorHandler<UnsecuredMessage>
+    {
+        public Task Handle(UnsecuredMessage action, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }
