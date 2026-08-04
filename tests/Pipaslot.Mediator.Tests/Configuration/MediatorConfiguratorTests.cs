@@ -46,8 +46,8 @@ public class MediatorConfiguratorTests
 
     private MediatorConfigurator Create()
     {
-        var sc = new Mock<IServiceCollection>();
-        return new MediatorConfigurator(sc.Object);
+        var sc = Substitute.For<IServiceCollection>();
+        return new MediatorConfigurator(sc);
     }
 
     private class NonActionType;

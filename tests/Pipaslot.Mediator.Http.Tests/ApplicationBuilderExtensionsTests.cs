@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Services;
 using System;
@@ -30,18 +29,16 @@ public class ApplicationBuilderExtensionsTests
 
     private IApplicationBuilder CreateApplicationBuilder()
     {
-        var servicesMock = new Mock<IServiceCollection>();
+        var services = Substitute.For<IServiceCollection>();
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IHandlerExistenceChecker>(_ => new FakeChecker())
-            .AddSingleton(_ => new MediatorConfigurator(servicesMock.Object))
+            .AddSingleton(_ => new MediatorConfigurator(services))
             .BuildServiceProvider();
 
-        var ApplicationBuilderMock = new Mock<IApplicationBuilder>();
-        ApplicationBuilderMock
-            .Setup(x => x.ApplicationServices)
-            .Returns(serviceProvider);
+        var applicationBuilder = Substitute.For<IApplicationBuilder>();
+        applicationBuilder.ApplicationServices.Returns(serviceProvider);
 
-        return ApplicationBuilderMock.Object;
+        return applicationBuilder;
     }
 
     private class FakeChecker : IHandlerExistenceChecker

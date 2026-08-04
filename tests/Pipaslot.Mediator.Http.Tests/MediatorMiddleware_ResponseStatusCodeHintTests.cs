@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
@@ -27,9 +27,9 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
     public async Task WillApplyStatusCodeHint_WhenPresent()
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [new ResponseStatusCodeHint(400)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -44,9 +44,9 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
     {
         // A hint always wins over whatever a legacy middleware already wrote directly to HttpContext.Response.
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(false, [new ResponseStatusCodeHint(409)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -62,9 +62,9 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
         // A later hint overrides an earlier one, mirroring what MediatorContext.Features.Set() would do.
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true,
             [new ResponseStatusCodeHint(400), new ResponseStatusCodeHint(409)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -78,9 +78,9 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
     public async Task WillNotApplyStatusCodeHint_WhenResponseAlreadyStarted()
     {
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [new ResponseStatusCodeHint(400)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse(hasStarted: true);
@@ -98,9 +98,9 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
         // IMediatorHttpResult owns the whole response and takes precedence over a mere status-code annotation.
         var httpResult = new FakeHttpResult();
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [httpResult, new ResponseStatusCodeHint(400)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -116,16 +116,14 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
     {
         const string otherResult = "actual-result";
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, [otherResult, new ResponseStatusCodeHint(400)]));
-        var mediatorMock = new Mock<IMediator>();
-        mediatorMock.Setup(x => x.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
 
         IMediatorResponse? serialized = null;
-        var serializerMock = new Mock<IContractSerializer>();
-        serializerMock.Setup(x => x.SerializeResponse(It.IsAny<IMediatorResponse>()))
-            .Callback<IMediatorResponse>(r => serialized = r)
-            .Returns("{}");
+        var serializer = Substitute.For<IContractSerializer>();
+        serializer.SerializeResponse(Arg.Do<IMediatorResponse>(r => serialized = r)).Returns("{}");
 
-        var services = CreateServiceProvider(mediatorMock, serializerMock);
+        var services = CreateServiceProvider(mediator, serializer);
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -137,7 +135,7 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
         Assert.Contains(otherResult, serialized.Results);
     }
 
-    private ServiceProvider CreateServiceProvider(Mock<IMediator> mediatorMock, Mock<IContractSerializer>? serializerMock = null)
+    private ServiceProvider CreateServiceProvider(IMediator mediator, IContractSerializer? serializer = null)
     {
         var collection = new ServiceCollection();
         collection.AddLogging();
@@ -145,13 +143,13 @@ public class MediatorMiddleware_ResponseStatusCodeHintTests
             .AddActions([typeof(NopMessage)]);
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
-        collection.AddSingleton<IMediator>(mediatorMock.Object);
-        if (serializerMock is not null)
+        collection.AddSingleton(mediator);
+        if (serializer is not null)
         {
-            collection.AddSingleton(serializerMock.Object);
+            collection.AddSingleton(serializer);
         }
         return collection.BuildServiceProvider();
     }
-    
+
     public class NopMessage : IMessage;
 }

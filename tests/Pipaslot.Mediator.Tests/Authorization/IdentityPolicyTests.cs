@@ -83,13 +83,11 @@ public class IdentityPolicyTests
     private static IServiceProvider CreateServiceProvider(bool isAuthenticated, params Claim[] claims)
     {
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, isAuthenticated ? "JWT" : null));
-        var cpMock = new Mock<IClaimPrincipalAccessor>();
-        cpMock
-            .Setup(m => m.Principal)
-            .Returns(principal);
+        var cp = Substitute.For<IClaimPrincipalAccessor>();
+        cp.Principal.Returns(principal);
 
         var collection = new ServiceCollection();
-        collection.AddScoped<IClaimPrincipalAccessor>(s => cpMock.Object);
+        collection.AddScoped<IClaimPrincipalAccessor>(s => cp);
         return collection.BuildServiceProvider();
     }
 }

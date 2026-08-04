@@ -1,4 +1,4 @@
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3.Converters;
@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3.Converters;
 
 public class InterfaceConverterTests
 {
-    private readonly Mock<ICredibleProvider> _credibleProviderMock = new();
+    private readonly ICredibleProvider _credibleProvider = Substitute.For<ICredibleProvider>();
 
     // InterfaceConverterFactory.CanConvert excludes collection interfaces, so InterfaceConverter<T>
     // is never created by the factory for an enumerable T. Registering it directly here lets us reach
@@ -20,8 +20,8 @@ public class InterfaceConverterTests
     private JsonSerializerOptions CreateOptions<T>()
     {
         var options = new JsonSerializerOptions();
-        options.Converters.Add(new InterfaceConverter<T>(_credibleProviderMock.Object));
-        options.Converters.Add(new InterfaceConverterFactory(_credibleProviderMock.Object));
+        options.Converters.Add(new InterfaceConverter<T>(_credibleProvider));
+        options.Converters.Add(new InterfaceConverterFactory(_credibleProvider));
         return options;
     }
 
@@ -50,7 +50,7 @@ public class InterfaceConverterTests
         var json = JsonSerializer.Serialize(value, options);
         var deserialized = (Contract[])JsonSerializer.Deserialize<IEnumerable>(json, options)!;
 
-        _credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(Contract[])), Times.Once);
+        _credibleProvider.Received(1).VerifyCredibility(typeof(Contract[]));
         Assert.Equal("A", deserialized[0].Name);
     }
 
@@ -63,7 +63,7 @@ public class InterfaceConverterTests
         var json = JsonSerializer.Serialize(value, options);
         var deserialized = (IContract[])JsonSerializer.Deserialize<IEnumerable>(json, options)!;
 
-        _credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(IContract[])), Times.Never);
+        _credibleProvider.Received(0).VerifyCredibility(typeof(IContract[]));
         Assert.Equal("A", ((Contract)deserialized[0]).Name);
     }
 
@@ -106,7 +106,7 @@ public class InterfaceConverterTests
         var json = JsonSerializer.Serialize(value, options);
         var deserialized = JsonSerializer.Deserialize<IContract>(json, options)!;
 
-        _credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(Contract)), Times.Once);
+        _credibleProvider.Received(1).VerifyCredibility(typeof(Contract));
         Assert.Equal("A", ((Contract)deserialized).Name);
     }
 
@@ -135,7 +135,7 @@ public class InterfaceConverterTests
     {
         // System.Text.Json intercepts null before invoking the converter for reference types (HandleNull defaults to false),
         // so this branch is otherwise unreachable through JsonSerializer.Serialize and must be called directly.
-        var converter = new InterfaceConverter<IContract>(_credibleProviderMock.Object);
+        var converter = new InterfaceConverter<IContract>(_credibleProvider);
         using var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream))
         {

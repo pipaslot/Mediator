@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Moq;
+using NSubstitute;
 using System;
 using System.IO;
 using System.Text;
@@ -13,7 +13,7 @@ internal class FakePostRequest : HttpRequest
     public FakePostRequest(string action)
     {
         Body = new MemoryStream(Encoding.UTF8.GetBytes(action));
-        Query = new Mock<IQueryCollection>().Object;
+        Query = Substitute.For<IQueryCollection>();
     }
 
     public override HttpContext HttpContext => throw new NotImplementedException();

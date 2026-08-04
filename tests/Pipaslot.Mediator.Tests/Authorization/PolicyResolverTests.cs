@@ -14,7 +14,7 @@ namespace Pipaslot.Mediator.Tests.Authorization;
 /// </summary>
 public class PolicyResolverTests
 {
-    private readonly Mock<IServiceProvider> _services = new();
+    private readonly IServiceProvider _services = Substitute.For<IServiceProvider>();
 
     [Fact]
     public async Task CheckPolicies_NoAuthorization_ThrowException()
@@ -122,7 +122,7 @@ public class PolicyResolverTests
     public async Task CheckPolicies_AllowedPolicy_DoesNotThrow()
     {
         var exception = await Record.ExceptionAsync(() =>
-            PolicyResolver.CheckPolicies(_services.Object, new ActionAuthorizedByAttr(), Array.Empty<object>(), CancellationToken.None));
+            PolicyResolver.CheckPolicies(_services, new ActionAuthorizedByAttr(), Array.Empty<object>(), CancellationToken.None));
 
         Assert.Null(exception);
     }
@@ -131,11 +131,11 @@ public class PolicyResolverTests
     public async Task CheckPolicies_DeniedPolicy_ThrowsRuleNotMetException()
     {
         _services
-            .Setup(s => s.GetService(typeof(INodeFormatter)))
+            .GetService(typeof(INodeFormatter))
             .Returns(new DefaultNodeFormatter());
 
         var ex = await Assert.ThrowsAsync<AuthorizationRuleNotMetException>(() =>
-            PolicyResolver.CheckPolicies(_services.Object, new ActionRequiringRole(), Array.Empty<object>(), CancellationToken.None));
+            PolicyResolver.CheckPolicies(_services, new ActionRequiringRole(), Array.Empty<object>(), CancellationToken.None));
 
         Assert.Equal(AuthorizationExceptionTypes.RuleNotMet, ex.Type);
         Assert.Contains("Role 'Admin' is required.", ex.Message);
@@ -144,7 +144,7 @@ public class PolicyResolverTests
     [Fact]
     public async Task GetPolicyRules_ResolvesPolicyIntoRuleSet()
     {
-        var ruleSet = await PolicyResolver.GetPolicyRules(_services.Object, new ActionAuthorizedByAttr(), Array.Empty<object>(), CancellationToken.None);
+        var ruleSet = await PolicyResolver.GetPolicyRules(_services, new ActionAuthorizedByAttr(), Array.Empty<object>(), CancellationToken.None);
 
         var rule = Assert.Single(ruleSet.RulesRecursive);
         Assert.Equal(IdentityPolicy.AuthenticationPolicyName, rule.Name);
@@ -295,11 +295,11 @@ public class PolicyResolverTests
     private async Task RunCheckPolicies(IMediatorAction action, AuthorizationExceptionTypes expectedCode, params object[] handlers)
     {
         _services
-            .Setup(s => s.GetService(typeof(INodeFormatter)))
+            .GetService(typeof(INodeFormatter))
             .Returns(new DefaultNodeFormatter());
         var ex = await Assert.ThrowsAsync<AuthorizationException>(async () =>
         {
-            await PolicyResolver.CheckPolicies(_services.Object, action, handlers, CancellationToken.None);
+            await PolicyResolver.CheckPolicies(_services, action, handlers, CancellationToken.None);
         });
         Assert.Equal(expectedCode, ex.Type);
     }

@@ -93,9 +93,9 @@ internal static class Factory
     public static MediatorContext FakeContext(IMediatorAction action)
     {
         var services = CreateServiceProvider();
-        var mediator = new Mock<IMediator>();
-        var mcaMock = new Mock<IMediatorContextAccessor>();
-        return new MediatorContext(mediator.Object, mcaMock.Object, services, new ReflectionCache(), action, CancellationToken.None, null, null);
+        var mediator = Substitute.For<IMediator>();
+        var mca = Substitute.For<IMediatorContextAccessor>();
+        return new MediatorContext(mediator, mca, services, new ReflectionCache(), action, CancellationToken.None, null, null);
     }
 
     public static MediatorContext CreateMediatorContext(this IServiceProvider services, IMediatorAction action)

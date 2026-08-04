@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Middlewares;
@@ -25,23 +25,23 @@ public class MiddlewareRegistratorExtensionsTests
     [Fact]
     public void UseHttpClient_RegistersHttpClientExecutionMiddleware()
     {
-        var registrator = new Mock<IMiddlewareRegistrator>();
-        registrator.Setup(x => x.Use<HttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null)).Returns(registrator.Object);
+        var registrator = Substitute.For<IMiddlewareRegistrator>();
+        registrator.Use<HttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null).Returns(registrator);
 
-        registrator.Object.UseHttpClient();
+        registrator.UseHttpClient();
 
-        registrator.Verify(x => x.Use<HttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null), Times.Once);
+        registrator.Received(1).Use<HttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null);
     }
 
     [Fact]
     public void UseHttpClientGeneric_RegistersProvidedMiddlewareType_NotBaseType()
     {
-        var registrator = new Mock<IMiddlewareRegistrator>();
-        registrator.Setup(x => x.Use<CustomHttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null)).Returns(registrator.Object);
+        var registrator = Substitute.For<IMiddlewareRegistrator>();
+        registrator.Use<CustomHttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null).Returns(registrator);
 
-        registrator.Object.UseHttpClient<CustomHttpClientExecutionMiddleware>();
+        registrator.UseHttpClient<CustomHttpClientExecutionMiddleware>();
 
-        registrator.Verify(x => x.Use<CustomHttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null), Times.Once);
+        registrator.Received(1).Use<CustomHttpClientExecutionMiddleware>(ServiceLifetime.Scoped, null);
     }
 
     private class CustomHttpClientExecutionMiddleware(

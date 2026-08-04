@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Middlewares;
 
@@ -31,11 +31,11 @@ public class HttpContextAccessorExtensionsTests
     [Fact]
     public void RootCall_WithoutHttpContext_IsNotExecutedFromPublicApi()
     {
-        var accessor = new Mock<IHttpContextAccessor>();
-        accessor.SetupGet(a => a.HttpContext).Returns((HttpContext)null!);
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns((HttpContext)null!);
         var mca = CreateMediatorContextAccessor(contextStackCount: 1);
 
-        Assert.False(HttpContextAccessorExtensions.IsExecutedFromPublicApi(accessor.Object, mca));
+        Assert.False(HttpContextAccessorExtensions.IsExecutedFromPublicApi(accessor, mca));
     }
 
     [Fact]
@@ -55,20 +55,20 @@ public class HttpContextAccessorExtensionsTests
             features.Set(MediatorHttpContextFeature.Instance);
         }
 
-        var context = new Mock<HttpContext>();
-        context.SetupGet(c => c.Features).Returns(features);
+        var context = Substitute.For<HttpContext>();
+        context.Features.Returns(features);
 
-        var accessor = new Mock<IHttpContextAccessor>();
-        accessor.SetupGet(a => a.HttpContext).Returns(context.Object);
-        return accessor.Object;
+        var accessor = Substitute.For<IHttpContextAccessor>();
+        accessor.HttpContext.Returns(context);
+        return accessor;
     }
 
     private static IMediatorContextAccessor CreateMediatorContextAccessor(int contextStackCount)
     {
         // Only the count matters to IsFirstAction(); the actual MediatorContext instances are irrelevant here
         // and cannot be constructed from this assembly (internal constructor).
-        var accessor = new Mock<IMediatorContextAccessor>();
-        accessor.SetupGet(a => a.ContextStack).Returns(new MediatorContext[contextStackCount]!);
-        return accessor.Object;
+        var accessor = Substitute.For<IMediatorContextAccessor>();
+        accessor.ContextStack.Returns(new MediatorContext[contextStackCount]!);
+        return accessor;
     }
 }

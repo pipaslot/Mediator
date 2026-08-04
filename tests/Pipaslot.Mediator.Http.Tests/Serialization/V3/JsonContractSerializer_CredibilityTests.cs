@@ -1,7 +1,8 @@
-﻿using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
+using System.Linq;
 using static Pipaslot.Mediator.Http.Tests.Serialization.V3.JsonContractSerializer_CommonTests;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization.V3;
@@ -10,8 +11,8 @@ public class JsonContractSerializer_CredibilityTests : ContractSerializer_Credib
 {
     protected override IContractSerializer CreateSerializer(ICredibleProvider provider)
     {
-        var optionsMock = new Mock<IMediatorOptions>();
-        return new JsonContractSerializer(provider, optionsMock.Object);
+        var options = Substitute.For<IMediatorOptions>();
+        return new JsonContractSerializer(provider, options);
     }
 
     [Fact]
@@ -43,16 +44,14 @@ public class JsonContractSerializer_CredibilityTests : ContractSerializer_Credib
     {
         var contract = new Contract();
         var action = new MessageWithInterfaceArrayProperty { Contracts = [contract] };
-        CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-        CredibleProviderMock
-            .Setup(p => p.VerifyCredibility(action.GetType()));
-        CredibleProviderMock
-            .Setup(p => p.VerifyCredibility(contract.GetType()));
+        CredibleProvider = Substitute.For<ICredibleProvider>();
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
         sut.DeserializeRequest(serialized.Json, serialized.Streams);
 
-        CredibleProviderMock.VerifyAll();
+        CredibleProvider.Received(1).VerifyCredibility(action.GetType());
+        CredibleProvider.Received(1).VerifyCredibility(contract.GetType());
+        Assert.Equal(2, CredibleProvider.ReceivedCalls().Count());
     }
 }

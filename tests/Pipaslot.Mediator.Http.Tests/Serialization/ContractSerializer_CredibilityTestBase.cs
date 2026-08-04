@@ -1,7 +1,8 @@
-﻿using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using System;
+using System.Linq;
 
 namespace Pipaslot.Mediator.Http.Tests.Serialization;
 
@@ -16,18 +17,17 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
 
     protected void VerifyRequestCredibility(IMediatorAction action, params Type[] toBeVerified)
     {
-        CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-        foreach (var type in toBeVerified)
-        {
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(type));
-        }
+        CredibleProvider = Substitute.For<ICredibleProvider>();
 
         var sut = CreateSerializer();
         var serialized = sut.SerializeRequest(action);
         sut.DeserializeRequest(serialized.Json, serialized.Streams);
 
-        CredibleProviderMock.VerifyAll();
+        foreach (var type in toBeVerified)
+        {
+            CredibleProvider.Received(1).VerifyCredibility(type);
+        }
+        Assert.Equal(toBeVerified.Length, CredibleProvider.ReceivedCalls().Count());
     }
 
     [Fact]
@@ -46,18 +46,17 @@ public abstract class ContractSerializer_CredibilityTestBase : ContractSerialize
 
     protected void VerifyResponseCredibility(object result, params Type[] toBeVerified)
     {
-        CredibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-        foreach (var type in toBeVerified)
-        {
-            CredibleProviderMock
-                .Setup(p => p.VerifyCredibility(type));
-        }
+        CredibleProvider = Substitute.For<ICredibleProvider>();
 
         var sut = CreateSerializer();
         var responseString = sut.SerializeResponse(new MediatorResponse(true, [result]));
         sut.DeserializeResponse<Result>(responseString);
 
-        CredibleProviderMock.VerifyAll();
+        foreach (var type in toBeVerified)
+        {
+            CredibleProvider.Received(1).VerifyCredibility(type);
+        }
+        Assert.Equal(toBeVerified.Length, CredibleProvider.ReceivedCalls().Count());
     }
 
     public class Result

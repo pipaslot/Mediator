@@ -1,4 +1,4 @@
-using Moq;
+using NSubstitute;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3.Converters;
@@ -14,11 +14,11 @@ namespace Pipaslot.Mediator.Http.Tests.Serialization.V3.Converters;
 /// </summary>
 public class MediatorResponseConverterTests
 {
-    private readonly Mock<ICredibleProvider> _credibleProviderMock = new();
+    private readonly ICredibleProvider _credibleProvider = Substitute.For<ICredibleProvider>();
 
     private JsonSerializerOptions CreateOptions(ICredibleProvider? credibleProvider = null)
     {
-        var provider = credibleProvider ?? _credibleProviderMock.Object;
+        var provider = credibleProvider ?? _credibleProvider;
         var options = new JsonSerializerOptions();
         options.Converters.Add(new MediatorResponseConverter(provider));
         options.Converters.Add(new InterfaceConverterFactory(provider));
@@ -199,16 +199,16 @@ public class MediatorResponseConverterTests
     [Fact]
     public void Read_CollectionOfNonInterfaceItems_VerifiesCredibilityOfArrayType()
     {
-        var credibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-        credibleProviderMock.Setup(p => p.VerifyCredibility(typeof(Contract[])));
-        var options = CreateOptions(credibleProviderMock.Object);
+        var credibleProvider = Substitute.For<ICredibleProvider>();
+        var options = CreateOptions(credibleProvider);
         var collection = new[] { new Contract { Name = "A" } };
         var response = new MediatorResponse(true, [collection]);
         var json = JsonSerializer.Serialize<IMediatorResponse>(response, options);
 
         JsonSerializer.Deserialize<IMediatorResponse>(json, options);
 
-        credibleProviderMock.VerifyAll();
+        credibleProvider.Received(1).VerifyCredibility(typeof(Contract[]));
+        Assert.Single(credibleProvider.ReceivedCalls());
     }
 
     [Fact]
@@ -216,17 +216,16 @@ public class MediatorResponseConverterTests
     {
         // Ignored for the array type itself because an interface array has $type specified per member,
         // and per-item credibility is verified by the nested InterfaceConverter instead.
-        var credibleProviderMock = new Mock<ICredibleProvider>(MockBehavior.Strict);
-        credibleProviderMock.Setup(p => p.VerifyCredibility(typeof(Contract)));
-        var options = CreateOptions(credibleProviderMock.Object);
+        var credibleProvider = Substitute.For<ICredibleProvider>();
+        var options = CreateOptions(credibleProvider);
         IContract[] collection = [new Contract { Name = "A" }];
         var response = new MediatorResponse(true, [collection]);
         var json = JsonSerializer.Serialize<IMediatorResponse>(response, options);
 
         var deserialized = JsonSerializer.Deserialize<IMediatorResponse>(json, options)!;
 
-        credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(IContract[])), Times.Never);
-        credibleProviderMock.Verify(p => p.VerifyCredibility(typeof(Contract)), Times.Once);
+        credibleProvider.Received(0).VerifyCredibility(typeof(IContract[]));
+        credibleProvider.Received(1).VerifyCredibility(typeof(Contract));
         Assert.Equal("A", ((Contract)((IContract[])deserialized.Results[0])[0]).Name);
     }
 

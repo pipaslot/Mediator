@@ -10,12 +10,12 @@ namespace Pipaslot.Mediator.Tests;
 /// </summary>
 public class MediatorFacadeExtensionsTests
 {
-    private readonly Mock<IMediatorFacade> _facade = new();
+    private readonly IMediatorFacade _facade = Substitute.For<IMediatorFacade>();
 
     [Fact]
     public void AddNotification_ContentSourceAndType_BuildsNotificationWithGivenValues()
     {
-        _facade.Object.AddNotification("Content", "Source", NotificationType.Warning, stopPropagation: true);
+        _facade.AddNotification("Content", "Source", NotificationType.Warning, stopPropagation: true);
 
         VerifyAdded("Content", "Source", NotificationType.Warning, true);
     }
@@ -23,7 +23,7 @@ public class MediatorFacadeExtensionsTests
     [Fact]
     public void AddNotification_ContentAndTypeWithoutSource_DefaultsSourceToEmpty()
     {
-        _facade.Object.AddNotification("Content", NotificationType.Success);
+        _facade.AddNotification("Content", NotificationType.Success);
 
         VerifyAdded("Content", "", NotificationType.Success, false);
     }
@@ -31,7 +31,7 @@ public class MediatorFacadeExtensionsTests
     [Fact]
     public void AddErrorNotification_ContentAndSource_BuildsErrorNotification()
     {
-        _facade.Object.AddErrorNotification("Content", "Source", stopPropagation: true);
+        _facade.AddErrorNotification("Content", "Source", stopPropagation: true);
 
         VerifyAdded("Content", "Source", NotificationType.Error, true);
     }
@@ -39,7 +39,7 @@ public class MediatorFacadeExtensionsTests
     [Fact]
     public void AddWarningNotification_ContentAndSource_BuildsWarningNotification()
     {
-        _facade.Object.AddWarningNotification("Content", "Source");
+        _facade.AddWarningNotification("Content", "Source");
 
         VerifyAdded("Content", "Source", NotificationType.Warning, false);
     }
@@ -47,7 +47,7 @@ public class MediatorFacadeExtensionsTests
     [Fact]
     public void AddInformationNotification_ContentAndSource_BuildsInformationNotification()
     {
-        _facade.Object.AddInformationNotification("Content", "Source");
+        _facade.AddInformationNotification("Content", "Source");
 
         VerifyAdded("Content", "Source", NotificationType.Information, false);
     }
@@ -55,17 +55,18 @@ public class MediatorFacadeExtensionsTests
     [Fact]
     public void AddSuccessNotification_ContentAndSource_BuildsSuccessNotification()
     {
-        _facade.Object.AddSuccessNotification("Content", "Source");
+        _facade.AddSuccessNotification("Content", "Source");
 
         VerifyAdded("Content", "Source", NotificationType.Success, false);
     }
 
     private void VerifyAdded(string content, string source, NotificationType type, bool stopPropagation)
     {
-        _facade.Verify(f => f.AddNotification(It.Is<Notification>(n =>
-            n.Content == content
+        _facade.Received(1).AddNotification(Arg.Is<Notification>(n =>
+            n != null
+            && n.Content == content
             && n.Source == source
             && n.Type == type
-            && n.StopPropagation == stopPropagation)), Times.Once);
+            && n.StopPropagation == stopPropagation));
     }
 }

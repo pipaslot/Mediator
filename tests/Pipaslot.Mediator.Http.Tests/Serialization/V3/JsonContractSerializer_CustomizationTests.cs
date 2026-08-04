@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Serialization.V3;
@@ -38,10 +38,10 @@ public class JsonContractSerializer_IgnoreReadOnlyPropertiesCustomizationTests
 
     private static IContractSerializer CreateSerializer()
     {
-        var credibleProviderMock = new Mock<ICredibleProvider>();
-        var optionsMock = new Mock<IMediatorOptions>();
-        optionsMock.SetupGet(x => x.IgnoreReadOnlyProperties).Returns(true);
-        return new JsonContractSerializer(credibleProviderMock.Object, optionsMock.Object);
+        var credibleProvider = Substitute.For<ICredibleProvider>();
+        var options = Substitute.For<IMediatorOptions>();
+        options.IgnoreReadOnlyProperties.Returns(true);
+        return new JsonContractSerializer(credibleProvider, options);
     }
 
     public class ActionWithReadOnlyProperties : IMessage

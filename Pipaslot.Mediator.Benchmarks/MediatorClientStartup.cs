@@ -1,7 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Moq.Protected;
 using Pipaslot.Mediator.Benchmarks.Actions;
 using Pipaslot.Mediator.Http;
 using System.Net;
@@ -19,25 +17,17 @@ public class MediatorClientStartup
     [GlobalSetup]
     public void GlobalSetup()
     {
-        // Setup mock HttpClient
-        var handlerMock = new Mock<HttpMessageHandler>();
-        handlerMock
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(() => new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(
-                    @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Benchmarks.Actions." +
-                    nameof(RequestActionResult) +
-                    @", Pipaslot.Mediator.Benchmarks"",""Message"":""Hello World""}]}")
-            });
+        // Setup fake HttpClient
+        var handler = new FakeHttpMessageHandler((_, _) => Task.FromResult(new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                @"{""Success"":true,""Results"":[{""$type"":""Pipaslot.Mediator.Benchmarks.Actions." +
+                nameof(RequestActionResult) +
+                @", Pipaslot.Mediator.Benchmarks"",""Message"":""Hello World""}]}")
+        }));
 
-        _httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost/") };
+        _httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
     }
 
     [Benchmark(Baseline = true)]
@@ -76,5 +66,15 @@ public class MediatorClientStartup
     {
         var mediator = services.BuildServiceProvider().GetRequiredService<IMediator>();
         await mediator.ExecuteUnhandled(new RequestAction("Hello World"));
+    }
+
+    /// <summary>
+    /// <see cref="HttpMessageHandler.SendAsync"/> is protected, so it cannot be reached through an interface-based
+    /// substitute - overriding it directly on a throwaway subclass is simpler than reflecting into a protected member.
+    /// </summary>
+    private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            => handler(request, cancellationToken);
     }
 }

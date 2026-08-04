@@ -126,9 +126,9 @@ public class MediatorContextTests
 
     private MediatorContext CreateContext(IMediatorAction action)
     {
-        var mediator = new Mock<IMediator>();
-        var spMock = new Mock<IServiceProvider>();
-        var mcaMock = new Mock<IMediatorContextAccessor>();
-        return new MediatorContext(mediator.Object, mcaMock.Object, spMock.Object, new ReflectionCache(), action, CancellationToken.None, null, null);
+        var mediator = Substitute.For<IMediator>();
+        var sp = Substitute.For<IServiceProvider>();
+        var mca = Substitute.For<IMediatorContextAccessor>();
+        return new MediatorContext(mediator, mca, sp, new ReflectionCache(), action, CancellationToken.None, null, null);
     }
 }
