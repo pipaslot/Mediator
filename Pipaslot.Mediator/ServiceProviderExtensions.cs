@@ -38,23 +38,6 @@ public static class ServiceProviderExtensions
 
         return (ExceptionHandlerExecutor)services.GetRequiredService(entry.ExecutorType);
     }
-    
-    /// <summary>
-    /// Resolve all action handlers
-    /// </summary>
-    /// TODO: Remove in next major version
-    public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
-    {
-        var actionType = action.GetType();
-        if (action is IMediatorActionProvidingData)
-        {
-            var configurator = serviceProvider.GetRequiredService<MediatorConfigurator>();
-            var resultType = configurator.ReflectionCache.GetRequestResultType(actionType);
-            return serviceProvider.GetRequestHandlers(actionType, resultType);
-        }
-
-        return serviceProvider.GetMessageHandlers(actionType);
-    }
 
     /// <summary>
     /// Get all registered handlers from service provider
@@ -84,7 +67,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var mediatorHandlerType = typeof(IMediatorHandler<,>);// TODO get rid of
+        var mediatorHandlerType = typeof(IMediatorHandler<,>);
         var handlerType = mediatorHandlerType.MakeGenericType(requestType, responseType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)

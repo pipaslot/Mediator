@@ -7,8 +7,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration;
 
-// TODO make as abstract in next major version
-public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
+public abstract class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
 {
     public string Endpoint
     {
