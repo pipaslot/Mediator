@@ -1,9 +1,7 @@
 ﻿using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests;
@@ -175,12 +173,7 @@ public class ContextFlowTests
 
     private MediatorContext CreateContext(int depth)
     {
-        var mediator = Substitute.For<IMediator>();
-        var mediatorContextAccessor = Substitute.For<IMediatorContextAccessor>();
-        var serviceProvider = Substitute.For<IServiceProvider>();
-        var action = new FakeAction(depth);
-        return new MediatorContext(mediator, mediatorContextAccessor, serviceProvider, new ReflectionCache(), action,
-            CancellationToken.None, null, null);
+        return MediatorContext.Create(new FakeAction(depth));
     }
 
     private record FakeAction(int Depth) : IMediatorAction;

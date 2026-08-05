@@ -10,17 +10,15 @@ namespace Pipaslot.Mediator.Http.Configuration;
 // TODO make as abstract in next major version
 public class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
 {
-    private string _endpoint = MediatorConstants.Endpoint;
-
     public string Endpoint
     {
-        get => _endpoint;
+        get;
         set
         {
             var notNulValue = (value ?? "").Trim();
-            _endpoint = notNulValue.StartsWith("/") ? notNulValue : $"/{notNulValue}";
+            field = notNulValue.StartsWith("/") ? notNulValue : $"/{notNulValue}";
         }
-    }
+    } = MediatorConstants.Endpoint;
 
     /// <inheritdoc/>
     public bool IgnoreReadOnlyProperties { get; set; }

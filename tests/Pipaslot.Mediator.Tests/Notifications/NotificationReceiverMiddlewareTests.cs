@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Tests.Notifications;
@@ -47,10 +45,8 @@ public class NotificationReceiverMiddlewareTests
         {
             received = true;
         };
-        var mediator = Substitute.For<IMediator>();
         var sut = services.GetRequiredService<NotificationReceiverMiddleware>();
-        var mca = Substitute.For<IMediatorContextAccessor>();
-        var context = new MediatorContext(mediator, mca, services, new ReflectionCache(), new NopMessage(), CancellationToken.None, null, null);
+        var context = MediatorContext.Create(new NopMessage(), services);
         setup(context);
         await sut.Invoke(context, c => Task.CompletedTask);
         Assert.Equal(expected, received);

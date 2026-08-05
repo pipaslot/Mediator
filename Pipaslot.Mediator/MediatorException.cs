@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Middlewares;
 using System;
 
 namespace Pipaslot.Mediator;
@@ -77,6 +78,22 @@ public class MediatorException(string message) : Exception(message)
     public static MediatorException CreateForNoExceptionHandlerType(Type type)
     {
         return new MediatorException($"Type {type} does not implement {nameof(IMediatorExceptionHandler<Exception>)} interface");
+    }
+
+    internal static MediatorException CreateForContextWithoutServices(Type serviceType)
+    {
+        return new MediatorException(
+            $"Resolving {serviceType} failed because this {nameof(MediatorContext)} was created by {nameof(MediatorContext)}.{nameof(MediatorContext.Create)} " +
+            $"without an {nameof(IServiceProvider)}. Pass one in to exercise code paths resolving services, for example {nameof(MediatorContext.GetHandlers)}().");
+    }
+
+    internal static MediatorException CreateForContextWithoutMediator(IMediatorAction action)
+    {
+        var ex = new MediatorException(
+            $"Nested call of action {action.GetType()} failed because this {nameof(MediatorContext)} was created by {nameof(MediatorContext)}.{nameof(MediatorContext.Create)} " +
+            $"without an {nameof(IMediator)}. Pass one in - typically a test double - to exercise code paths making nested calls.");
+        ex.Data["action"] = action;
+        return ex;
     }
 
     public static MediatorException CreateForDuplicateExceptionHandler(Type exceptionType)

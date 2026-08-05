@@ -1,5 +1,4 @@
 using Pipaslot.Mediator.Abstractions;
-using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares;
 using Pipaslot.Mediator.Notifications;
 using System;
@@ -106,14 +105,6 @@ public class MediatorFacadeTests
 
     private static MediatorContext CreateContext()
     {
-        return new MediatorContext(
-            Substitute.For<IMediator>(),
-            Substitute.For<IMediatorContextAccessor>(),
-            Substitute.For<IServiceProvider>(),
-            new ReflectionCache(),
-            Substitute.For<IMediatorAction>(),
-            CancellationToken.None,
-            null,
-            null);
+        return MediatorContext.Create(Substitute.For<IMediatorAction>());
     }
 }
