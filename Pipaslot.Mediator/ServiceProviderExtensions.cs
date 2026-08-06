@@ -49,7 +49,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);// TODO get rid of
+        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)
             // ReSharper disable once RedundantEnumerableCastCall

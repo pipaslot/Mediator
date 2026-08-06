@@ -55,7 +55,7 @@ public static class ServiceCollectionExtensions
             return new Mediator(s, mca, configurator, logger);
         });
         services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
-        services.AddSingleton<IActionTypeProvider>(configurator);
+        services.AddSingleton<IActionTypeProvider>(configurator.ReflectionCache);
         services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
         services.AddTransient(typeof(MessageHandlerExecutor<>));
