@@ -17,6 +17,7 @@
 * `ServiceProviderExtensions.GetActionHandlers` was removed.
 * `HandlerExistenceChecker`'s constructor no longer takes a `MediatorConfigurator` parameter; resolve it from DI rather than constructing it directly.
 * Remove `IActionTypeProvider` implementation from `MediatorConfigurator` and obsolete related methods
+* `AddMediatorClient` no longer registers `IMediatorContextAccessor`/`INotificationProvider`/`IMediatorFacade` by default; opt back in with `services.AddMediatorClient(o => o.AddContextAccessor = true)` — see [Client specific](8.-HTTP-transport-and-configuration-for-Client-Server-usage.md#client-specific).
 
 ## Version 8.5.0
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.
