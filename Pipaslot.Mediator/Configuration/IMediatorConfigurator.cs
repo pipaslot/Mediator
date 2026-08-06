@@ -12,9 +12,12 @@ namespace Pipaslot.Mediator.Configuration;
 public interface IMediatorConfigurator : IMiddlewareRegistrator
 {
     /// <summary>
-    /// Register action handler types
+    /// Register action handler types. When <paramref name="serviceLifetime"/> is omitted (null), handlers implementing
+    /// <see cref="ISingleton"/>/<see cref="IScoped"/> keep the lifetime dictated by that interface, and other handlers default
+    /// to <see cref="ServiceLifetime.Transient"/>. When explicitly passed, it must match what <see cref="ISingleton"/>/<see cref="IScoped"/>
+    /// require, or registration throws - this applies to an explicit <see cref="ServiceLifetime.Transient"/> as well.
     /// </summary>
-    IMediatorConfigurator AddHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+    IMediatorConfigurator AddHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime? serviceLifetime = null);
 
     /// <summary>
     /// Scan assemblies for action handler types
@@ -23,9 +26,10 @@ public interface IMediatorConfigurator : IMiddlewareRegistrator
 
     /// <summary>
     /// Will scan for action handlers from the assembly of type <typeparamref name="T"/> and register them.
+    /// See <see cref="AddHandlers"/> for how <paramref name="serviceLifetime"/> interacts with <see cref="ISingleton"/>/<see cref="IScoped"/>.
     /// </summary>
     /// <typeparam name="T">The type from target asssembly to be scanned</typeparam>
-    IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+    IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime? serviceLifetime = null);
 
     /// <summary>
     /// Register action types

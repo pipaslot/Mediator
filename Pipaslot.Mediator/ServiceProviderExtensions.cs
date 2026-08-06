@@ -77,11 +77,12 @@ public static class ServiceProviderExtensions
     }
 
     internal static void RegisterHandlers(this IServiceCollection services, Dictionary<Type, ServiceLifetime> registeredHandler,
-        IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        IEnumerable<Type> allTypes, ServiceLifetime? serviceLifetime = null)
     {
         var handlerTypes = new[] { typeof(IMediatorHandler<,>), typeof(IMediatorHandler<>) };
         var singletonType = typeof(ISingleton);
         var scopedType = typeof(IScoped);
+        var effectiveLifetime = serviceLifetime ?? ServiceLifetime.Transient;
         var types = allTypes
             .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
             .Select(t =>
@@ -98,19 +99,19 @@ public static class ServiceProviderExtensions
                         ? ServiceLifetime.Singleton
                         : interfaces.Contains(scopedType)
                             ? ServiceLifetime.Scoped
-                            : serviceLifetime
+                            : effectiveLifetime
                 };
             })
             .Where(t => t.Interfaces.Any());
         foreach (var pair in types)
         {
-            if (pair.Lifetime != serviceLifetime)
+            if (pair.Lifetime != effectiveLifetime)
             {
-                // Only throw when not the default one
-                // TODO We should consider to change the serviceLifetime type to nullable and do the same also on interfaces in next major version
-                if (serviceLifetime != ServiceLifetime.Transient)
+                // Only throw when the caller explicitly requested a lifetime that conflicts with what ISingleton/IScoped requires.
+                // An omitted (null) serviceLifetime lets ISingleton/IScoped dictate the lifetime without complaint.
+                if (serviceLifetime.HasValue)
                 {
-                    throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, serviceLifetime);
+                    throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, effectiveLifetime);
                 }
             }
 

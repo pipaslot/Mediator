@@ -77,7 +77,7 @@ public class HandlerLifetimesTests
     }
 
     [Theory]
-    //[InlineData(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
+    [InlineData(ServiceLifetime.Transient)]
     [InlineData(ServiceLifetime.Scoped)]
     public void ISingletonInterface_Registration_ThrowException(ServiceLifetime lifetime)
     {
@@ -117,7 +117,7 @@ public class HandlerLifetimesTests
     }
 
     [Theory]
-    //[InlineData(ServiceLifetime.Transient)] TODO: add this case in next major version. Currently the mediator is not able to distinguish if the Transient is default or not
+    [InlineData(ServiceLifetime.Transient)]
     [InlineData(ServiceLifetime.Singleton)]
     public void IScopedInterface_Registration_ThrowException(ServiceLifetime lifetime)
     {
