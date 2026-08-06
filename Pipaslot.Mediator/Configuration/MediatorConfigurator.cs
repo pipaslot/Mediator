@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;
 
-public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver //TODO: remove IActionTypeProvider in next major version
+public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IMiddlewareResolver
 {
     internal readonly HashSet<Assembly> TrustedAssemblies = [];
     internal readonly ReflectionCache ReflectionCache = new();
@@ -170,24 +170,6 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         }
 
         return this;
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetActionTypes()
-    {
-        return ReflectionCache.GetActionTypes();
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetMessageActionTypes()
-    {
-        return ReflectionCache.GetMessageActionTypes();
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetRequestActionTypes()
-    {
-        return ReflectionCache.GetRequestActionTypes();
     }
 
     void IMiddlewareResolver.CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)

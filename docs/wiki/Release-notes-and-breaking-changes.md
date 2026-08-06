@@ -16,6 +16,7 @@
 * `Pipaslot.Mediator.Http.Configuration.BaseMediatorOptions<TBuilder>` is now `abstract` and can no longer be instantiated directly.
 * `ServiceProviderExtensions.GetActionHandlers` was removed.
 * `HandlerExistenceChecker`'s constructor no longer takes a `MediatorConfigurator` parameter; resolve it from DI rather than constructing it directly.
+* Remove `IActionTypeProvider` implementation from `MediatorConfigurator` and obsolete related methods
 
 ## Version 8.5.0
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.
