@@ -17,6 +17,26 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Check llms.txt covers docs/wiki
+        run: |
+          status=0
+          for path in docs/wiki/*.md; do
+            name=$(basename "$path")
+            # _Sidebar.md is GitHub Wiki navigation chrome, not a content page
+            if [ "$name" = "_Sidebar.md" ]; then continue; fi
+            if ! grep -qF "docs/wiki/$name)" llms.txt; then
+              echo "::error file=llms.txt::missing a link for docs/wiki/$name"
+              status=1
+            fi
+          done
+          for name in $(grep -o 'docs/wiki/[^)]*\.md' llms.txt | sed 's|docs/wiki/||' | sort -u); do
+            if [ ! -f "docs/wiki/$name" ]; then
+              echo "::error file=llms.txt::links docs/wiki/$name, which does not exist"
+              status=1
+            fi
+          done
+          exit $status
+
       - name: Build
         run: dotnet build Pipaslot.Mediator.slnx
 
