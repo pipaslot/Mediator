@@ -351,3 +351,7 @@ MigrationBackup/
 .ionide/
 
 .idea/
+
+# Claude Code: .claude/skills and .claude/agents are shared, local state is not
+.claude/settings.local.json
+.claude/worktrees/

@@ -9,6 +9,31 @@ namespace Pipaslot.Mediator;
 /// What a handler is allowed to do with a caught exception. Mock or fake this in handler unit tests;
 /// the boundary always passes the <see cref="MediatorExceptionContext"/> implementation.
 /// </summary>
+/// <remarks>
+/// Passed to <see cref="IMediatorExceptionHandler{TException}.Handle"/> as the only way to influence the outcome - a
+/// handler reports its decision by calling <see cref="SetHandled"/>/<see cref="SetHandledWithoutMessage"/>, it does not
+/// return a value and it must not rethrow. Handling an exception never turns the action into a success: it only replaces
+/// the generic client-facing message with a specific one, and optionally the log level via <see cref="SetLogLevel"/>.
+/// <para>
+/// The failing action's own pipeline state is reachable through <see cref="Context"/>, so a handler can branch on
+/// <see cref="MediatorContext.Action"/> or <see cref="MediatorContext.IsNested"/> instead of registering separate handler
+/// types. Writing to <see cref="MediatorContext.Results"/> directly is not the intended route - use
+/// <see cref="SetHandled"/> so that the boundary keeps ownership of the client-facing message.
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// public Task Handle(DbUpdateException exception, IMediatorExceptionContext context)
+/// {
+///     if (exception.IsUniqueConstraintViolation())
+///     {
+///         context.SetHandled("This record already exists.");
+///     }
+///     // Returning without calling SetHandled declines - the generic message and the Error log entry apply.
+///     return Task.CompletedTask;
+/// }
+/// </code>
+/// </example>
 public interface IMediatorExceptionContext
 {
     /// <summary>

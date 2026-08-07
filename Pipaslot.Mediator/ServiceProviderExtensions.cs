@@ -38,23 +38,6 @@ public static class ServiceProviderExtensions
 
         return (ExceptionHandlerExecutor)services.GetRequiredService(entry.ExecutorType);
     }
-    
-    /// <summary>
-    /// Resolve all action handlers
-    /// </summary>
-    /// TODO: Remove in next major version
-    public static object[] GetActionHandlers(this IServiceProvider serviceProvider, IMediatorAction action)
-    {
-        var actionType = action.GetType();
-        if (action is IMediatorActionProvidingData)
-        {
-            var configurator = serviceProvider.GetRequiredService<MediatorConfigurator>();
-            var resultType = configurator.ReflectionCache.GetRequestResultType(actionType);
-            return serviceProvider.GetRequestHandlers(actionType, resultType);
-        }
-
-        return serviceProvider.GetMessageHandlers(actionType);
-    }
 
     /// <summary>
     /// Get all registered handlers from service provider
@@ -66,7 +49,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);// TODO get rid of
+        var handlerType = typeof(IMediatorHandler<>).MakeGenericType(messageType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)
             // ReSharper disable once RedundantEnumerableCastCall
@@ -84,7 +67,7 @@ public static class ServiceProviderExtensions
             return [];
         }
 
-        var mediatorHandlerType = typeof(IMediatorHandler<,>);// TODO get rid of
+        var mediatorHandlerType = typeof(IMediatorHandler<,>);
         var handlerType = mediatorHandlerType.MakeGenericType(requestType, responseType);
         return serviceProvider.GetServices(handlerType)
             .Where(h => h != null)
@@ -94,11 +77,12 @@ public static class ServiceProviderExtensions
     }
 
     internal static void RegisterHandlers(this IServiceCollection services, Dictionary<Type, ServiceLifetime> registeredHandler,
-        IEnumerable<Type> allTypes, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        IEnumerable<Type> allTypes, ServiceLifetime? serviceLifetime = null)
     {
         var handlerTypes = new[] { typeof(IMediatorHandler<,>), typeof(IMediatorHandler<>) };
         var singletonType = typeof(ISingleton);
         var scopedType = typeof(IScoped);
+        var effectiveLifetime = serviceLifetime ?? ServiceLifetime.Transient;
         var types = allTypes
             .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface)
             .Select(t =>
@@ -115,19 +99,19 @@ public static class ServiceProviderExtensions
                         ? ServiceLifetime.Singleton
                         : interfaces.Contains(scopedType)
                             ? ServiceLifetime.Scoped
-                            : serviceLifetime
+                            : effectiveLifetime
                 };
             })
             .Where(t => t.Interfaces.Any());
         foreach (var pair in types)
         {
-            if (pair.Lifetime != serviceLifetime)
+            if (pair.Lifetime != effectiveLifetime)
             {
-                // Only throw when not the default one
-                // TODO We should consider to change the serviceLifetime type to nullable and do the same also on interfaces in next major version
-                if (serviceLifetime != ServiceLifetime.Transient)
+                // Only throw when the caller explicitly requested a lifetime that conflicts with what ISingleton/IScoped requires.
+                // An omitted (null) serviceLifetime lets ISingleton/IScoped dictate the lifetime without complaint.
+                if (serviceLifetime.HasValue)
                 {
-                    throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, serviceLifetime);
+                    throw MediatorException.CreateForWrongHandlerServiceLifetime(pair.Type, pair.Lifetime, effectiveLifetime);
                 }
             }
 

@@ -13,13 +13,36 @@ namespace Pipaslot.Mediator.Authorization;
 /// Define one or more rules aggregated with AND or OR operator.
 /// By wrapping two RuleSets in parent RuleSet you can define condition like: ( ( Rule1 OR Rule2 ) AND ( Rule3 OR Rule4 ) )
 /// </summary>
+/// <remarks>
+/// What a resolved <see cref="IPolicy"/> becomes - the evaluated tree, not the request to evaluate one. It is kept as a
+/// tree rather than collapsed to a boolean so the refusal can be explained: <see cref="Reduce"/> prunes it to the branch
+/// that decided the outcome, which the node formatters then render into a human-readable reason for the client.
+/// <para>
+/// The <see cref="Operator"/> decides how child outcomes combine, and the three of them differ in more than strictness:
+/// <see cref="Operator.And"/> treats an <see cref="RuleOutcome.Ignored"/> child as a denial, while
+/// <see cref="Operator.Or"/> and <see cref="Operator.Add"/> skip it. A set with no deciding child denies under
+/// <see cref="Operator.And"/> and stays <see cref="RuleOutcome.Ignored"/> otherwise - so an empty policy never grants
+/// access. Compose with the <c>+</c>/<c>&amp;</c>/<c>|</c> operators rather than filling the collections by hand.
+/// </para>
+/// </remarks>
 public class RuleSet : IPolicy
 {
     /// <inheritdoc cref="Rule.Default"/>
     public static readonly RuleSet Default = new (Rule.Default);
 
+    /// <summary>
+    /// How the outcomes of <see cref="Rules"/> and <see cref="RuleSets"/> are combined into the outcome of this set.
+    /// </summary>
     public Operator Operator { get; }
+
+    /// <summary>
+    /// Rules evaluated directly by this set.
+    /// </summary>
     public List<Rule> Rules { get; set; } = [];
+
+    /// <summary>
+    /// Nested sets, each combining its own children with its own <see cref="Operator"/>.
+    /// </summary>
     public List<RuleSet> RuleSets { get; set; } = [];
 
     /// <summary>
@@ -67,6 +90,10 @@ public class RuleSet : IPolicy
         return new RuleSet(@operator, set);
     }
 
+    /// <summary>
+    /// Collapses the tree to the branch responsible for the outcome, dropping everything that did not contribute to it.
+    /// This is what the node formatters render into the reason shown to the user.
+    /// </summary>
     public IRecursiveNode Reduce()
     {
         var children = RuleSets

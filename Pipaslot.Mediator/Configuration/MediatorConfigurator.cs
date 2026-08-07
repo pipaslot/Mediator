@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;
 
-public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IActionTypeProvider, IMiddlewareResolver //TODO: remove IActionTypeProvider in next major version
+public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IMiddlewareResolver
 {
     internal readonly HashSet<Assembly> TrustedAssemblies = [];
     internal readonly ReflectionCache ReflectionCache = new();
@@ -66,7 +66,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
-    public IMediatorConfigurator AddHandlers(IEnumerable<Type> handlers, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+    public IMediatorConfigurator AddHandlers(IEnumerable<Type> handlers, ServiceLifetime? serviceLifetime = null)
     {
         var handlerTypes = new[] { typeof(IMediatorHandler<,>), typeof(IMediatorHandler<>) };
         var handlerArray = handlers as Type[] ?? handlers.ToArray();
@@ -84,7 +84,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
-    public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+    public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime? serviceLifetime = null)
     {
         return RegisterHandlersFromAssembly([typeof(T).Assembly], serviceLifetime);
     }
@@ -94,7 +94,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return RegisterHandlersFromAssembly(assemblies);
     }
 
-    private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+    private IMediatorConfigurator RegisterHandlersFromAssembly(Assembly[] assemblies, ServiceLifetime? serviceLifetime = null)
     {
         var types = assemblies.SelectMany(a => a.GetTypes());
         services.RegisterHandlers(_registeredHandlers, types, serviceLifetime);
@@ -170,24 +170,6 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         }
 
         return this;
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetActionTypes()
-    {
-        return ReflectionCache.GetActionTypes();
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetMessageActionTypes()
-    {
-        return ReflectionCache.GetMessageActionTypes();
-    }
-
-    [Obsolete("Resolve IActionTypeProvider instead.")]
-    public ICollection<Type> GetRequestActionTypes()
-    {
-        return ReflectionCache.GetRequestActionTypes();
     }
 
     void IMiddlewareResolver.CollectMiddlewares(IMediatorAction action, IServiceProvider serviceProvider, List<Mediator.MiddlewarePair> collection)
