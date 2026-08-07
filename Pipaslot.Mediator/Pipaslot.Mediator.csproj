@@ -61,4 +61,21 @@
         <PackageReference Include="MinVer" Version="7.0.0" PrivateAssets="All" />
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Dogfoods the analyzer against this library's own code; ReferenceOutputAssembly=false keeps it out of the shipped dependency graph. -->
+        <ProjectReference Include="..\Pipaslot.Mediator.Analyzers\Pipaslot.Mediator.Analyzers.csproj"
+                           OutputItemType="Analyzer"
+                           ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <!-- Packs the analyzer assembly into analyzers/dotnet/cs so it activates for consumers via a plain `dotnet add package`, without shipping it as a regular dependency. -->
+    <Target Name="AddAnalyzerToPackage" BeforeTargets="_GetPackageFiles">
+        <ItemGroup>
+            <None Include="..\Pipaslot.Mediator.Analyzers\bin\$(Configuration)\netstandard2.0\Pipaslot.Mediator.Analyzers.dll"
+                  Pack="true"
+                  PackagePath="analyzers/dotnet/cs"
+                  Visible="false"/>
+        </ItemGroup>
+    </Target>
+
 </Project>

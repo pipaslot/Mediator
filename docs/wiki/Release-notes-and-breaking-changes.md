@@ -9,6 +9,10 @@
 * `MediatorExecutionException.CreateForUnhandledError` was marked obsolete; use `MediatorUnhandledErrorException.Create` instead.
 * Fix: `IHandlerExistenceChecker.Verify` with `CheckExistingPolicies` no longer flags an action as missing authorization when it implements `IActionAuthorization` directly (without also carrying a policy attribute).
 * XML documentation shipped in the NuGet packages now covers when to use the core API and how it differs from MediatR — actions, handlers, `IMediator` methods, exception handlers, middlewares, `MediatorContext`, pipeline registration, credible types, authorization policies and exception types.
+* Added `Pipaslot.Mediator.Analyzers`, a Roslyn analyzer bundled with `Pipaslot.Mediator`
+
+### Roslyn analyzer changes
+* `PIPMED001` - flagging a `catch (Exception)` guarding `next` inside `IMediatorMiddleware` that neither rethrows nor calls `context.AddException` as build warning — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
 
 ### Breaking changes
 * `Dispatch`/`Execute` no longer copy a caught exception's `Message` into the response; an exception without a registered handler produces a generic message and an `Error`-level log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#safe-by-default). To restore the old behavior, register the opt-in `LegacyExceptionMessageHandler` — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#restore-the-pre-safe-by-default-message-behavior-temporarily).
