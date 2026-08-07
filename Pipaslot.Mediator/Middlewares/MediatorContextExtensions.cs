@@ -44,6 +44,12 @@ public static class MediatorContextExtensions
     /// Register processing error and fail the action (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>).
     /// Ignores duplicate entries.
     /// </summary>
+    /// <remarks>
+    /// For a message written for a user. <see cref="IMediator.DispatchUnhandled"/>/<see cref="IMediator.ExecuteUnhandled{TResult}"/>
+    /// callers do get an exception out of this - but a <see cref="MediatorUnhandledErrorException"/> carrying just the
+    /// message text, with no type to branch on. Use <see cref="MediatorContext.AddException"/> instead (or as well) when
+    /// calling code has to react to the specific cause.
+    /// </remarks>
     /// <param name="context"></param>
     /// <param name="message">The content</param>
     /// <param name="stopPropagation"><inheritdoc cref="Notification.StopPropagation" path="/summary"/></param>

@@ -9,8 +9,22 @@ namespace Pipaslot.Mediator.Authorization;
 /// <summary>
 /// Helper class to combine multiple policies via logical operators
 /// </summary>
+/// <remarks>
+/// The composite of the authorization model: it groups other <see cref="IPolicy"/> values - rules, identity policies or
+/// nested policies - under a single AND/OR <see cref="Operator"/>, and resolves them concurrently into one
+/// <see cref="RuleSet"/>. Build it with <see cref="And"/>/<see cref="Or"/> or with the <c>&amp;</c>/<c>|</c> operators;
+/// nest instances to express mixed conditions such as <c>(a | b) &amp; c</c>.
+/// <para>
+/// Composition only; the pass/fail outcome lives in the resolved <see cref="RuleSet"/>. A single condition needs no
+/// <see cref="Policy"/> at all - return the <see cref="Rule"/> or <see cref="IdentityPolicy"/> directly from
+/// <see cref="IHandlerAuthorization{TAction}.Authorize"/>.
+/// </para>
+/// </remarks>
 public sealed class Policy : List<IPolicy>, IPolicy
 {
+    /// <summary>
+    /// How the contained policies are combined. Only <see cref="Operator.And"/> and <see cref="Operator.Or"/> are valid here.
+    /// </summary>
     public Operator Operator { get; }
 
     public Policy(Operator @operator)

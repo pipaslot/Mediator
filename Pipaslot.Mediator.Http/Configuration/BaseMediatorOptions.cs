@@ -23,9 +23,15 @@ public abstract class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBu
     public bool IgnoreReadOnlyProperties { get; set; }
 
     /// <summary>
-    /// Protect deserialization process by check whether the target type is credible. 
+    /// Protect deserialization process by check whether the target type is credible.
     /// Prevents against exploiting this feature by attackers. Disabled by default.
     /// </summary>
+    /// <remarks>
+    /// Turns on the <see cref="ICredibleProvider"/> allowlist for result types, on top of the one always applied to
+    /// incoming actions. Result types of registered actions pass automatically; anything else has to be added through
+    /// <see cref="AddCredibleResultType{T}"/>/<see cref="AddCredibleResultAssemblyOf{T}"/>, each of which turns this flag
+    /// on as a side effect. Leaving it disabled means the client will deserialize whatever type name the response names.
+    /// </remarks>
     public bool DeserializeOnlyCredibleResultTypes { get; set; }
     
     /// <summary>

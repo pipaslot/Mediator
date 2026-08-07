@@ -9,6 +9,22 @@ using System.Threading;
 
 namespace Pipaslot.Mediator.Middlewares;
 
+/// <summary>
+/// State of a single action execution, passed through every middleware of the pipeline down to the handler - the
+/// mediator's equivalent of ASP.NET Core's <c>HttpContext</c>.
+/// </summary>
+/// <remarks>
+/// One instance per <see cref="IMediator"/> call. It carries the dispatched <see cref="Action"/>, the
+/// <see cref="Results"/> collected so far, the <see cref="Status"/> deciding success or failure, and an
+/// <see cref="Features"/> bag for passing data between middlewares without changing any signature. Middlewares mutate it
+/// in place; there is no need (and no way) to return a modified copy from <see cref="IMediatorMiddleware.Invoke"/>.
+/// <para>
+/// Outside a middleware or handler, reach the current instance through <see cref="IMediatorContextAccessor"/> rather than
+/// injecting this type. Inside a nested call the context is a new one whose <see cref="Depth"/> is greater than 1 and
+/// whose <see cref="ParentContexts"/> lead to the root - results and notifications propagate up to the parent
+/// automatically. In unit tests, build one with <see cref="Create"/> instead of mocking it.
+/// </para>
+/// </remarks>
 public class MediatorContext
 {
     private Guid? _guid;
@@ -27,7 +43,15 @@ public class MediatorContext
         #endif
     }
 
-public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
+    /// <summary>
+    /// Outcome of the execution, deciding <see cref="IMediatorResponse.Success"/> for the caller.
+    /// <see cref="ExecutionStatus.Succeeded"/> until a middleware or handler says otherwise - setting it to
+    /// <see cref="ExecutionStatus.Failed"/> fails the action without reporting anything, leaving an
+    /// <see cref="IMediator.ExecuteUnhandled{TResult}"/> caller with an empty <see cref="MediatorUnhandledErrorException"/>.
+    /// Prefer <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>, which also adds a
+    /// client-facing message, or <see cref="AddException"/>, which preserves an exception to rethrow.
+    /// </summary>
+    public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
 
     private readonly List<object> _results = new(1);
 
@@ -82,6 +106,9 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
     
     internal bool FeaturesAreInitialized => _features is not null;
 
+    /// <summary>
+    /// Mediator that started this execution. Use it for nested calls from a middleware.
+    /// </summary>
     public IMediator Mediator { get; }
 
     /// <summary>
@@ -159,6 +186,9 @@ public ExecutionStatus Status { get; set; } = ExecutionStatus.Succeeded;
         return context;
     }
 
+    /// <summary>
+    /// Error messages collected in <see cref="Results"/> so far, as reported by middlewares and handlers.
+    /// </summary>
     public IEnumerable<string> ErrorMessages => _results
         .GetNotifications()
         .GetErrorMessages();
