@@ -1,0 +1,34 @@
+# Pipaslot.Mediator
+
+> A .NET Mediator implementation with an ASP.NET Core-style middleware pipeline, whose distinguishing feature is that the same action and handler code runs either in-process or over HTTP. A client-side `IMediator` sends an action, `Pipaslot.Mediator.Http` serializes and transports it, and the server executes the real handler — designed for Blazor WASM client/server applications. Ships as two NuGet packages: `Pipaslot.Mediator` (core pipeline, authorization, notifications) and `Pipaslot.Mediator.Http` (HTTP transport and JSON contract serialization).
+
+Note for tools: the public API also carries detailed XML documentation inside the NuGet packages themselves (`Pipaslot.Mediator.xml`), covering when to use each type and how the contracts differ from MediatR. The links below point at the maintained Markdown sources on `main`, which are mirrored to the GitHub Wiki at https://github.com/pipaslot/Mediator/wiki.
+
+## Where to start
+
+- [Why Pipaslot.Mediator](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/1.-Why-Pipaslot.Mediator.md): What the library is for, when to choose it, and how the two packages relate.
+- [Core concepts and glossary](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/2.-Core-concepts-and-glossary.md): How a call flows through the mediator in-process and over HTTP, plus the glossary of terms (Action, Handler, Pipeline, Middleware, Context, Response, Result) used by every other page.
+- [Quickstart: In-process usage](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/3.-Quickstart-In-process-usage.md): Minimal working setup — define an action and handler, register them, dispatch.
+- [Quickstart: Client-Server (Blazor WASM) usage](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/4.-Quickstart-Client-Server-Blazor-WASM-usage.md): The same action and handler wired across a Blazor WASM client and its server via HTTP.
+
+## Reference
+
+- [Mediator API](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/5.-Mediator-API.md): The `IMediator` interface in depth — `Execute`/`Dispatch` versus `ExecuteUnhandled`/`DispatchUnhandled`, the `IMediatorResponse` wrapper, and what survives a network hop.
+- [Pipelines and Middlewares](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/6.-Pipelines-and-Middlewares.md): Registering actions and handlers, writing middlewares, and composing pipelines with `Use`, `UseWhen` and `AddPipeline`.
+- [Ready-to-use middlewares](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/6.1.-Ready-to-use-middlewares.md): The middlewares shipped with the packages and their registration shortcuts.
+- [Exception handling](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/6.2.-Exception-handling.md): Which entry point throws, what the client is allowed to see, and how to translate business exceptions with `IMediatorExceptionHandler`.
+- [Authorization](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/7.-Authorization.md): The declarative policy and rule engine evaluated before a handler runs, and how a refusal is explained back to the user.
+- [HTTP transport and configuration for Client-Server usage](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/8.-HTTP-transport-and-configuration-for-Client-Server-usage.md): Configuring both sides, the credible-type allowlist protecting deserialization, status codes and server-side logging.
+
+## Advanced usage
+
+- [Advanced usage](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/9.-Advanced-usage.md): Index of the opt-in customizations below.
+- [Custom action and handler types](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/9.1.-Custom-action-and-handler-types.md): Defining your own vocabulary (for example CQRS `ICommand`/`IQuery`) instead of the built-in Request/Message naming.
+- [Multi-handler execution](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/9.2.-Multi-handler-execution.md): Running more than one handler per action, in sequence or concurrently.
+- [Custom HTTP responses and file download](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/9.3.-Custom-HTTP-responses-and-file-download.md): Returning something other than the default aggregated JSON response.
+- [Cookbook and integrations](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/9.4.-Cookbook-and-integrations.md): Recipes combining middleware with the UI code consuming it — notifications, UI events, telemetry.
+
+## Optional
+
+- [Home](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/Home.md): Landing page and table of contents of the wiki.
+- [Release notes and breaking changes](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/Release-notes-and-breaking-changes.md): Changelog, including every breaking change and its migration note.

@@ -14,6 +14,14 @@ This file documents maintainer workflows for this repo. It is not part of the pu
 - `.github/workflows/ci.yml` builds and runs both test suites (Core + Http) on every PR targeting `main` and on every push to `main`.
 - This only blocks merging if branch protection on `main` requires it: Settings → Branches → branch protection rule for `main` → "Require status checks to pass before merging" → select the `build & test` check. Without that setting, a failing CI run shows as a red X on the PR but does not stop the merge button.
 
+## `llms.txt`
+
+`llms.txt` in the repo root indexes the wiki for fetch-capable AI tools, following the [llms.txt](https://llmstxt.org/) convention. It is a supplement, never the primary channel — anything a consumer must know belongs in the packaged XML docs or the wiki itself, since a tool behind a corporate firewall may never fetch this file.
+
+- **Links point at `docs/wiki/*.md` on `main` via `raw.githubusercontent.com`, deliberately not at a release tag.** `docs/wiki/` is mirrored by `wiki-sync.yml` to the GitHub Wiki, which has exactly one live version — pinning to a tag would advertise a snapshot that diverges from the wiki every reader is actually looking at, and would buy per-release maintenance for nothing. Raw Markdown rather than the `blob/` view keeps the fetched content free of HTML chrome.
+- **Because the links carry no version, the release runbook needs no `llms.txt` step.** Do not add one without also changing the link scheme above.
+- **CI enforces that `llms.txt` and `docs/wiki/` agree** (`Check llms.txt covers docs/wiki` in `ci.yml`): a page with no line, or a line pointing at a missing page, fails the build. `_Sidebar.md` is excluded as GitHub Wiki navigation chrome. Adding a wiki page therefore means adding its line here in the same change.
+
 ## Versioning
 
 - `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` always share the same version number. One git tag releases both packages together.

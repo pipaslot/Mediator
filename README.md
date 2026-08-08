@@ -43,6 +43,7 @@ Register it with `services.AddMediator()` for in-process use, or `AddMediatorCli
 - Building a Blazor WASM client/server app? Go to [Quickstart: Client-Server (Blazor WASM) usage](https://github.com/pipaslot/Mediator/wiki/4.-Quickstart-Client-Server-Blazor-WASM-usage), or check the runnable [Demo](Demo/) in this repo.
 - Full documentation: [Wiki](https://github.com/pipaslot/Mediator/wiki)
 - Upgrading? See [Release notes and breaking changes](https://github.com/pipaslot/Mediator/wiki/Release-notes-and-breaking-changes)
+- Using an AI coding assistant? The packages ship XML documentation covering when to use each type, and [llms.txt](llms.txt) indexes the wiki for tools that can fetch it.
 
 ## NuGet packages
 
