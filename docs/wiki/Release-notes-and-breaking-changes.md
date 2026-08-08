@@ -13,6 +13,7 @@
 
 ### Roslyn analyzer changes
 * `PIPMED001` - flagging a `catch (Exception)` guarding `next` inside `IMediatorMiddleware` that neither rethrows nor calls `context.AddException` as build warning — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
+* `PIPMED003` - flagging a handler whose `IHandlerAuthorization<T>`/`IHandlerAuthorizationAsync<T>` type parameter doesn't match (or a base of) any action the handler handles — see [7.-Authorization.md](7.-Authorization.md#keeping-the-authorized-action-in-sync-with-the-handled-action-pipmed003).
 
 ### Breaking changes
 * `Dispatch`/`Execute` no longer copy a caught exception's `Message` into the response; an exception without a registered handler produces a generic message and an `Error`-level log entry — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#safe-by-default). To restore the old behavior, register the opt-in `LegacyExceptionMessageHandler` — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#restore-the-pre-safe-by-default-message-behavior-temporarily).
