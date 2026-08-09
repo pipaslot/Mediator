@@ -53,6 +53,11 @@ jobs:
           cd ./tests/Pipaslot.Mediator.Http.Tests/
           dotnet test
 
+      - name: Run tests for Analyzers
+        run: |
+          cd ./tests/Pipaslot.Mediator.Analyzers.Tests/
+          dotnet test
+
       # Publish
 
       - name: Pack Core
