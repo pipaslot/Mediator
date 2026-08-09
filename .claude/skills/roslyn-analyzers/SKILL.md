@@ -208,9 +208,39 @@ Every rule needs its explanation to live in `docs/wiki/`, not only in the `Diagn
 string - the `HelpLinkUri` must point at a real, existing anchor. Prefer extending an existing page's
 relevant section over creating a new "analyzer rules" page per rule: `PIPMED001`'s explanation lives in
 the exception-handling wiki page's existing migration section, with one added paragraph naming the rule
-ID and its `AddException` exemption, rather than a duplicate explanation on a separate page. Use the
-[wiki-page](../wiki-page/SKILL.md) skill for the mechanics of editing `docs/wiki/` (anchor conventions,
-`## See also` footers, avoiding duplication).
+ID and its `AddException` exemption, rather than a duplicate explanation on a separate page.
+
+**Placement within the page: don't interrupt the conceptual narrative.** A reader working through the page
+top to bottom to learn how a feature works is a different reader from one who just clicked a `HelpLinkUri`
+out of a build warning, and the paragraph shouldn't make the first reader pay for the second one's need.
+Put it in an `## Diagnostics` section near the end of the page, right before `## See also` (one `###`
+subsection per rule) - not inline immediately after the feature explanation it's about. `PIPMED002`/`5.-Mediator-API.md`
+and `PIPMED003`+`PIPMED005`/`7.-Authorization.md` follow this shape. The one exception is a rule whose
+pitfall already *is* the subject of an existing how-to/troubleshooting subsection - `PIPMED001` stays inline
+inside "Migrating from a catch-all `ErrorHandlingMiddleware`" in `6.2.-Exception-handling.md`, because that
+subsection's whole point is the mistake the rule flags, not a feature walkthrough the rule interrupts.
+Same-page anchors still work identically wherever the section physically sits in the file, so this is a
+placement choice, not a linking one - `HelpLinkUri` and cross-references in the paragraph don't change.
+
+**Scope the added paragraph to what only the analyzer can tell the reader - not what the section already
+says.** A reader lands on this anchor from a build warning, already holding the concrete diagnostic message
+(`'{0}' handles ...`); they don't need the general concept re-explained, they need to know why *their*
+code tripped the rule. Cover exactly three things, and nothing the surrounding prose already states:
+- the rule's precise trigger condition - the narrow shape it matches, since the general behavior it's
+  embedded in is almost always broader than what actually gets flagged;
+- its exemption/false-positive boundary - what looks similar but is deliberately *not* flagged, plus any
+  "out of scope in this version" gap the current implementation leaves open;
+- the concrete fix option(s) named in `messageFormat`.
+
+Don't open the paragraph by restating a fact the section already gives a sentence or two above it - if the
+concept is already explained, point back to it (`(see [above](#anchor))`) instead of repeating it. A reader
+who just read "policies combine with AND" one paragraph up gets nothing new from reading it again in the
+analyzer paragraph; they do get something new from "declaring it in two places is still safe, but only the
+analyzer can tell you it's now unmaintainable." `PIPMED005`'s wiki paragraph is the reference example of
+this scoping.
+
+Use the [wiki-page](../wiki-page/SKILL.md) skill for the mechanics of editing `docs/wiki/` (anchor
+conventions, `## See also` footers, avoiding duplication).
 
 Add a changelog bullet under `## Unreleased` in `Release-notes-and-breaking-changes.md`, in the
 `### Roslyn analyzer changes` subsection (create it if it doesn't exist yet) rather than mixed in with
