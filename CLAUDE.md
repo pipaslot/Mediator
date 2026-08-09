@@ -33,6 +33,7 @@ Both test projects already reference `coverlet.collector` (in-box, no install ne
 ```bash
 dotnet test tests/Pipaslot.Mediator.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Mediator
 dotnet test tests/Pipaslot.Mediator.Http.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Http
+dotnet test tests/Pipaslot.Mediator.Analyzers.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Analyzers
 
 dotnet tool install -g dotnet-reportgenerator-globaltool   # one-time, skip if already installed
 reportgenerator -reports:"TestResults/Mediator/**/coverage.cobertura.xml;TestResults/Http/**/coverage.cobertura.xml" -targetdir:TestResults/CoverageReport -reporttypes:Html
