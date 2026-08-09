@@ -30,19 +30,6 @@ public class MediatorExecutionException : MediatorException
     {
         Response = response;
     }
-    [Obsolete("Will be delete in the next major version")]
-    public static MediatorExecutionException CreateForUnhandledError(MediatorContext context)
-    {
-        return MediatorUnhandledErrorException.Create($"'{GetErrors(context.Results)}'", context);
-    }
-    
-    [Obsolete("Will be delete in the next major version")]
-    public static MediatorExecutionException CreateForUnhandledError(string errors, MediatorContext context)
-    {
-        return new MediatorUnhandledErrorException(
-            $"Handler or middlewares set the ExecutionStatus to {ExecutionStatus.Failed}. To prevent this exception, user methods Mediator.Dispatch or Mediator.Execute instead. Error messages: [{errors}]",
-            context);
-    }
 
     protected static string GetErrors(IReadOnlyCollection<object> results)
     {

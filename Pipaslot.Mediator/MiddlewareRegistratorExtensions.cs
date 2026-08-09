@@ -135,13 +135,6 @@ public static class MiddlewareRegistratorExtensions
         return config.Use<HandlerExecutionMiddleware>();
     }
 
-    /// <inheritdoc cref="ReduceDuplicateProcessingMiddleware"/>
-    [Obsolete("Hash-based deduplication risks collisions and is a consumer-specific business decision. Implement your own middleware with an explicit dedup key instead.")]
-    public static IMiddlewareRegistrator UseReduceDuplicateProcessing(this IMiddlewareRegistrator config)
-    {
-        return config.Use<ReduceDuplicateProcessingMiddleware>();
-    }
-
     /// <summary>
     /// Track actions processed by middleware through exposed events <see cref="ActionEventsMiddleware.ActionStarted"/> <see cref="ActionEventsMiddleware.ProcessingStarted"/>, <see cref="ActionEventsMiddleware.ProcessingCompleted"/> and  <see cref="ActionEventsMiddleware.ActionCompleted"/>
     /// </summary>
