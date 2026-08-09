@@ -6,4 +6,5 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 PIPMED001 | Usage | Warning | CatchAllMiddlewareAnalyzer, see https://github.com/pipaslot/Mediator/wiki/6.2.-Exception-handling#migrating-from-a-catch-all-errorhandlingmiddleware
+PIPMED002 | Usage | Warning | IgnoredMediatorResponseAnalyzer, see https://github.com/pipaslot/Mediator/wiki/5.-Mediator-API#discarding-the-response-pipmed002
 PIPMED003 | Usage | Warning | HandlerAuthorizationTypeMismatchAnalyzer, see https://github.com/pipaslot/Mediator/wiki/7.-Authorization#keeping-the-authorized-action-in-sync-with-the-handled-action-pipmed003

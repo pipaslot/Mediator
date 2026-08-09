@@ -8,7 +8,7 @@ public class CallingNestedNotificationMessageHandler(IMediatorFacade mediator) :
     public async Task Handle(CallingNestedNotificationMessage action, CancellationToken cancellationToken)
     {
         mediator.AddInformationNotification("Greetings from root action");
-        await mediator.Dispatch(new NestedNotificationMessage(), cancellationToken);
+        _ = await mediator.Dispatch(new NestedNotificationMessage(), cancellationToken);
         mediator.AddSuccessNotification("Root handler was executed");
     }
 }

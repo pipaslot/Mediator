@@ -16,6 +16,18 @@ internal static class DiagnosticDescriptors
         description: "Since safe-by-default exception handling, an IMediatorMiddleware catching a broad exception and converting it into a message hides that exception from the mediator boundary - and therefore from ExecuteUnhandled callers and from the boundary's own logging. Replace the catch block with a typed IMediatorExceptionHandler<TException> registration, or with context.AddException(e) if the middleware needs to keep running its own logic around next() afterwards.",
         helpLinkUri: "https://github.com/pipaslot/Mediator/wiki/6.2.-Exception-handling#migrating-from-a-catch-all-errorhandlingmiddleware");
 
+    public const string IgnoredMediatorResponseId = "PIPMED002";
+
+    public static readonly DiagnosticDescriptor IgnoredMediatorResponse = new(
+        IgnoredMediatorResponseId,
+        title: "Mediator response is discarded",
+        messageFormat: "The IMediatorResponse returned by '{0}' is discarded; check .Success/.Failure before continuing, or call {0}Unhandled instead so a failure throws rather than being silently dropped",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Dispatch and Execute never throw on failure - they report it only through the returned IMediatorResponse/IMediatorResponse<TResult>. A statement-level call whose result is never assigned anywhere silently drops that failure. Either check IMediatorResponse.Success (or .Failure) before continuing, or call DispatchUnhandled/ExecuteUnhandled instead, which throw on failure so it cannot be dropped silently.",
+        helpLinkUri: "https://github.com/pipaslot/Mediator/wiki/5.-Mediator-API#discarding-the-response-pipmed002");
+
     public const string HandlerAuthorizationTypeMismatchId = "PIPMED003";
 
     public static readonly DiagnosticDescriptor HandlerAuthorizationTypeMismatch = new(

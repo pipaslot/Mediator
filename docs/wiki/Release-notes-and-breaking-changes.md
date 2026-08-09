@@ -13,6 +13,7 @@
 
 ### Roslyn analyzer changes
 * `PIPMED001` - flagging a `catch (Exception)` guarding `next` inside `IMediatorMiddleware` that neither rethrows nor calls `context.AddException` as build warning — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
+* `PIPMED002` - flagging a statement-level `Dispatch`/`Execute` call whose response is discarded, with a code fix to add a `Success` check or switch to `DispatchUnhandled`/`ExecuteUnhandled` — see [5.-Mediator-API.md](5.-Mediator-API.md#discarding-the-response-pipmed002).
 * `PIPMED003` - flagging a handler whose `IHandlerAuthorization<T>`/`IHandlerAuthorizationAsync<T>` type parameter doesn't match (or a base of) any action the handler handles — see [7.-Authorization.md](7.-Authorization.md#keeping-the-authorized-action-in-sync-with-the-handled-action-pipmed003).
 
 ### Breaking changes
