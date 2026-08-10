@@ -40,6 +40,18 @@ internal static class DiagnosticDescriptors
         description: "PolicyResolver resolves a handler's Authorize/AuthorizeAsync method by reflection and invokes it with the dispatched action instance, without ever checking that the method's declared type parameter matches an action the handler actually handles. A mismatch is invisible at build and startup time and only surfaces as an ArgumentException from MethodBase.Invoke when the unmatched action is dispatched. Authorizing a shared base type of the handler's actions (including IMediatorAction itself) is a supported pattern and is not flagged.",
         helpLinkUri: "https://github.com/pipaslot/Mediator/wiki/7.-Authorization#keeping-the-authorized-action-in-sync-with-the-handled-action-pipmed003");
 
+    public const string OrphanedAuthorizeMethodId = "PIPMED004";
+
+    public static readonly DiagnosticDescriptor OrphanedAuthorizeMethod = new(
+        OrphanedAuthorizeMethodId,
+        title: "Authorize method is not wired to an authorization interface",
+        messageFormat: "'{0}' declares a public '{1}' method matching '{2}', but does not implement {3}<{2}>, so PolicyResolver never calls it; add {3}<{2}> to '{0}''s base list, or rename the method if it is unrelated to authorization",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "PolicyResolver only ever calls a handler's Authorize/AuthorizeAsync method after checking that the handler implements IHandlerAuthorizationMarker (i.e. IHandlerAuthorization<TAction>/IHandlerAuthorizationAsync<TAction>). A method matching the interface's name, parameter type, and return type but missing from the class's base list compiles fine and looks correct, but is never invoked - the handler runs completely unauthorized. A method with any reference from elsewhere inside the type is treated as a deliberate, manually-invoked helper instead and is not flagged.",
+        helpLinkUri: "https://github.com/pipaslot/Mediator/wiki/7.-Authorization#authorize-methods-need-to-implement-an-authorization-interface-pipmed004");
+
     public const string MixedAuthorizationMechanismId = "PIPMED005";
 
     public static readonly DiagnosticDescriptor MixedAuthorizationMechanism = new(

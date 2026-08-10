@@ -15,6 +15,7 @@
 * `PIPMED001` - flagging a `catch (Exception)` guarding `next` inside `IMediatorMiddleware` that neither rethrows nor calls `context.AddException` as build warning — see [6.2.-Exception-handling.md](6.2.-Exception-handling.md#migrating-from-a-catch-all-errorhandlingmiddleware).
 * `PIPMED002` - flagging a statement-level `Dispatch`/`Execute` call whose response is discarded, with a code fix to add a `Success` check or switch to `DispatchUnhandled`/`ExecuteUnhandled` — see [5.-Mediator-API.md](5.-Mediator-API.md#discarding-the-response-pipmed002).
 * `PIPMED003` - flagging a handler whose `IHandlerAuthorization<T>`/`IHandlerAuthorizationAsync<T>` type parameter doesn't match (or a base of) any action the handler handles — see [7.-Authorization.md](7.-Authorization.md#keeping-the-authorized-action-in-sync-with-the-handled-action-pipmed003).
+* `PIPMED004` - flagging a handler's `Authorize`/`AuthorizeAsync` method that matches an authorization interface's shape but isn't declared on the class, with a code fix to add the interface — see [7.-Authorization.md](7.-Authorization.md#authorize-methods-need-to-implement-an-authorization-interface-pipmed004).
 * `PIPMED005` - flagging a handler/action pair whose authorization is declared in more than one place — split across the pair regardless of mechanism, or an interface mixed with a policy attribute on one class — see [7.-Authorization.md](7.-Authorization.md#keep-authorization-for-an-actionhandler-pair-in-one-place-pipmed005).
 
 ### Breaking changes
