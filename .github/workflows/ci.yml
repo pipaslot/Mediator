@@ -54,6 +54,13 @@ jobs:
           --settings tests/Pipaslot.Mediator.Http.Tests/coverage.runsettings
           --results-directory ./coverage/http
 
+      - name: Test Analyzers with coverage
+        run: >
+          dotnet test tests/Pipaslot.Mediator.Analyzers.Tests
+          --collect:"XPlat Code Coverage"
+          --settings tests/Pipaslot.Mediator.Analyzers.Tests/coverage.runsettings
+          --results-directory ./coverage/analyzers
+
       - name: Generate coverage report
         if: always()
         run: |

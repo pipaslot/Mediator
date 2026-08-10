@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
         <ProjectReference Include="..\..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
+        <ProjectReference Include="..\..\Pipaslot.Mediator.Analyzers\Pipaslot.Mediator.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>

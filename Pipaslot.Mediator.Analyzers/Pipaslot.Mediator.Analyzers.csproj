@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsPackable>false</IsPackable>
+        <!-- NU5128 ("no dependencies in a package with no lib assets"): this project isn't packed on its own -
+             Pipaslot.Mediator.csproj copies the built DLL into its own package under analyzers/dotnet/cs; see
+             that project's packaging target.
+
+             RS1038 ("compiler extension assemblies should only reference compiler-provided assemblies"): this
+             project references Microsoft.CodeAnalysis.CSharp.Workspaces below, which the rule warns about
+             because that assembly is not guaranteed to be present when a plain `csc`/`dotnet build` loads an
+             analyzer - only an IDE host (Visual Studio, Rider, VS Code) is guaranteed to have it. That's exactly
+             why the reference is safe here: it exists solely for IgnoredMediatorResponseCodeFixProvider, and a
+             CodeFixProvider is a design-time/IDE-only type - `csc`/`dotnet build` only ever instantiates
+             DiagnosticAnalyzer types (CatchAllMiddlewareAnalyzer, HandlerAuthorizationTypeMismatchAnalyzer,
+             IgnoredMediatorResponseAnalyzer), none of which reference anything in Workspaces. Since the CLR only
+             loads a referenced assembly when a type from it is actually touched, a plain command-line build
+             never loads Microsoft.CodeAnalysis.Workspaces.dll at all - only an IDE, which already has it, does.
+             This is the same shape every NuGet package that ships analyzers with code fixes uses (there is no
+             separate "codefixes only" folder in the NuGet analyzer convention - see
+             https://github.com/dotnet/roslyn-sdk/blob/main/samples/CSharp/SourceGeneratorsAndCodeFixes and the
+             RS1038 docs at https://github.com/dotnet/roslyn/blob/main/docs/roslyn-analyzers/rules/RS1038.md for
+             the rule's own reasoning). -->
+        <NoWarn>NU5128;RS1038</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="all" />
+        <!-- Used only by IgnoredMediatorResponseCodeFixProvider (CodeAction/Formatter APIs) - see the RS1038 note
+             above for why referencing it is safe despite the assembly also containing plain DiagnosticAnalyzers. -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Pipaslot.Mediator.Analyzers.Tests"/>
+    </ItemGroup>
+
+</Project>

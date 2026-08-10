@@ -33,6 +33,7 @@ Both test projects already reference `coverlet.collector` (in-box, no install ne
 ```bash
 dotnet test tests/Pipaslot.Mediator.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Mediator
 dotnet test tests/Pipaslot.Mediator.Http.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Http
+dotnet test tests/Pipaslot.Mediator.Analyzers.Tests --collect:"XPlat Code Coverage" --results-directory TestResults/Analyzers
 
 dotnet tool install -g dotnet-reportgenerator-globaltool   # one-time, skip if already installed
 reportgenerator -reports:"TestResults/Mediator/**/coverage.cobertura.xml;TestResults/Http/**/coverage.cobertura.xml" -targetdir:TestResults/CoverageReport -reporttypes:Html
@@ -117,7 +118,7 @@ Because tests only run on `net10.0`, a `#if <TFM>` conditional compilation block
 
 ## Code comments
 
-- **Never cite a planning/analysis document (e.g. anything under `docs/todos/`) in a code comment, XML doc, or commit-adjacent annotation.** Those documents are working artifacts for a single change; once the change ships they stop being maintained and often get deleted, leaving a comment that points at a file which no longer exists or no longer reflects reality. `docs/wiki/` is the only doc tree that's a maintained, permanent source of truth — linking to a wiki page (e.g. `see docs/wiki/6.2.-Exception-handling.md`) is fine.
+- **Never cite a planning/analysis document (see the `docs/todos/` rule under [Documentation](#documentation)) in a code comment, XML doc, or commit-adjacent annotation.**
 - Instead, write the comment so it stands on its own: state the business rule, invariant, or constraint the code enforces, not which document or unit of work introduced it. E.g. prefer "does not create a `Notification` — recorded exceptions must not leak into client-facing `Results`" over "see 1.3 Unit 3 — per the design doc, `AddException` must not touch `Results`".
 
 ## XML documentation on the public API
@@ -131,6 +132,7 @@ The `<summary>`/`<remarks>`/`<example>` blocks on the core public types are a **
 
 ## Documentation
 
+- **Never reference or link to anything under `docs/todos/`** from outside that folder — not in code comments, XML docs, commit messages, PR descriptions, wiki pages, or this file. Everything there is a temporary planning artifact for a single unit of work; it gets deleted once that work ships, so a reference to it from anywhere else will eventually point at a file that no longer exists. `docs/wiki/` is the only permanent, maintained doc tree — link there instead (e.g. `docs/wiki/6.2.-Exception-handling.md`).
 - `docs/wiki/` is the source of truth for the GitHub Wiki. **Whenever a code change affects public API surface, configuration, setup steps, middleware behavior, or any other user-facing behavior described there, update the relevant page(s) under `docs/wiki/` in the same change** — don't leave it for a follow-up. Purely internal refactors with no observable behavior change don't need a wiki update.
 - **Use the `wiki-page` skill whenever you read or edit a page under `docs/wiki/`.** It holds the page-structure conventions and how to read a page without pulling the whole file into context.
 - **Do the wiki edit as the last step of the task**, after the code and tests are done. The pages are 3-25 KB each; pulling them into context mid-implementation costs you room you still need for the code.
