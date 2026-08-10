@@ -82,24 +82,6 @@ public sealed class OrphanedAuthorizeMethodCodeFixProvider : CodeFixProvider
         var newTypeDeclaration = typeDeclaration.WithBaseList(newBaseList.WithAdditionalAnnotations(Formatter.Annotation));
         var newRoot = root.ReplaceNode(typeDeclaration, newTypeDeclaration);
 
-        return await FormatMatchingDocumentNewLineAsync(document, newRoot, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Runs <see cref="Formatter.Format(SyntaxNode, SyntaxAnnotation, Workspace, OptionSet, CancellationToken)"/>
-    /// against <see cref="Formatter.Annotation"/>-marked nodes, forcing the <see cref="FormattingOptions.NewLine"/>
-    /// option to match the original document's own line-ending convention - the formatter otherwise defaults new
-    /// trivia to <see cref="System.Environment.NewLine"/>, which would leave the file with mixed CRLF/LF line
-    /// endings on Windows whenever the original document used bare LF.
-    /// </summary>
-    private static async Task<Document> FormatMatchingDocumentNewLineAsync(Document document, SyntaxNode newRoot, CancellationToken cancellationToken)
-    {
-        var sourceText = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
-        var newLine = sourceText.ToString().Contains("\r\n") ? "\r\n" : "\n";
-        var options = document.Project.Solution.Workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, newLine);
-
-        var formattedRoot = Formatter.Format(newRoot, Formatter.Annotation, document.Project.Solution.Workspace, options, cancellationToken);
-
-        return document.WithSyntaxRoot(formattedRoot);
+        return await CodeFixFormatting.FormatMatchingDocumentNewLineAsync(document, newRoot, cancellationToken).ConfigureAwait(false);
     }
 }
