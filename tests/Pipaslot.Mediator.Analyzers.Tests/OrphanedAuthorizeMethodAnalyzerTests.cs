@@ -1,4 +1,7 @@
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
 
 namespace Pipaslot.Mediator.Analyzers.Tests;
 
@@ -10,8 +13,8 @@ using VerifyCS = CSharpAnalyzerVerifier<OrphanedAuthorizeMethodAnalyzer>;
 /// <c>IPolicy</c>/<c>Task&lt;IPolicy&gt;</c>, but whose declaring type does not implement
 /// <c>IHandlerAuthorization&lt;T&gt;</c>/<c>IHandlerAuthorizationAsync&lt;T&gt;</c>. It must not report when the type
 /// already implements an authorization interface (PIPMED003's territory instead), when the method is referenced from
-/// elsewhere inside the type, when the parameter/return type doesn't match the interface shape exactly, or when the
-/// type isn't a handler at all.
+/// elsewhere inside the type, when the parameter/return type doesn't match the interface shape exactly, when the
+/// type isn't a handler at all, or when the compilation doesn't reference Pipaslot.Mediator at all.
 /// </summary>
 public class OrphanedAuthorizeMethodAnalyzerTests
 {
@@ -306,5 +309,65 @@ public class OrphanedAuthorizeMethodAnalyzerTests
             """;
 
         await VerifyCS.VerifyAnalyzerAsync(source);
+    }
+
+    [Fact]
+    public async Task AuthorizeMethod_IsCalledFromPartialDeclarationInAnotherFile_DoesNotReport()
+    {
+        var file1 = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using Pipaslot.Mediator;
+            using Pipaslot.Mediator.Authorization;
+
+            public class CreateOrder : IMessage { }
+
+            public partial class CreateOrderHandler : IMessageHandler<CreateOrder>
+            {
+                public IPolicy Authorize(CreateOrder action) => IdentityPolicy.Authenticated();
+
+                public Task Handle(CreateOrder action, CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """;
+        var file2 = """
+            using Pipaslot.Mediator.Authorization;
+
+            public partial class CreateOrderHandler
+            {
+                public IPolicy CheckAccess(CreateOrder action) => Authorize(action);
+            }
+            """;
+
+        // The reference to Authorize lives in a different syntax tree than the one that declares it, exercising the
+        // multi-file partial-type walk in HasInternalReference (and its GetSemanticModel fallback for that tree).
+        await VerifyCS.VerifyAnalyzerAsync([file1, file2]);
+    }
+
+    [Fact]
+    public async Task Compilation_DoesNotReferencePipaslotMediator_DoesNotReport()
+    {
+        var source = """
+            public interface IPolicy { }
+
+            public class CreateOrder { }
+
+            public class CreateOrderHandler
+            {
+                public IPolicy Authorize(CreateOrder action) => null!;
+            }
+            """;
+
+        var test = new CSharpAnalyzerTest<OrphanedAuthorizeMethodAnalyzer, DefaultVerifier>
+        {
+            TestState =
+            {
+                Sources = { source },
+                ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
+            },
+        };
+
+        // No AdditionalReferences to Pipaslot.Mediator - the well-known types the analyzer needs never resolve, so
+        // it must bail out at RegisterCompilationStartAction instead of registering the syntax node action.
+        await test.RunAsync(CancellationToken.None);
     }
 }
