@@ -29,8 +29,14 @@ This file documents maintainer workflows for this repo. It is not part of the pu
 
 ## Release runbook
 
-1. On `main`, rename `## Unreleased` to `## Version X.Y.Z` in `docs/wiki/Release-notes-and-breaking-changes.md`, and add a fresh empty `## Unreleased` section above it in the same commit (so the next PR has somewhere to add a bullet without having to remember this step).
-2. Commit/PR that rename to `main`.
+1. On `main`, run:
+   ```bash
+   pwsh ./scripts/release.ps1 -Version X.Y.Z
+   ```
+   It only edits files, never commits/tags/pushes:
+   - renames `## Unreleased` to `## Version X.Y.Z` in `docs/wiki/Release-notes-and-breaking-changes.md`, and adds a fresh empty `## Unreleased` section above it (so the next PR has somewhere to add a bullet without having to remember this step);
+   - if `Pipaslot.Mediator.Analyzers/AnalyzerReleases.Unshipped.md` has any rule entries (new/changed/removed since the last release), moves them into `AnalyzerReleases.Shipped.md` under a matching `## Release X.Y.Z` section — the analyzer ships bundled inside `Pipaslot.Mediator`, so it doesn't get its own version number. Skipped automatically (not an error) when `Unshipped.md` is empty — not every release touches the analyzer.
+2. Review the diff, then commit/PR it to `main`.
 3. Tag and push:
    ```bash
    git tag vX.Y.Z
@@ -38,7 +44,7 @@ This file documents maintainer workflows for this repo. It is not part of the pu
    ```
 4. Watch the `publish to nuget` GitHub Actions run. It will, in order:
    - fail fast if `## Version X.Y.Z` isn't found in the changelog (the previous step was skipped or the version doesn't match the tag),
-   - run the Core and Http test suites,
+   - run the Core, Http and Analyzers test suites,
    - pack both projects (version comes from the tag via MinVer),
    - log in to NuGet.org via OIDC Trusted Publishing and push both packages,
    - create a GitHub Release for the tag using the extracted changelog section as its notes.
