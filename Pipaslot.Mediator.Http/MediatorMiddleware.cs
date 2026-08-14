@@ -2,7 +2,6 @@
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Http.Configuration;
-using Pipaslot.Mediator.Http.Internal;
 using Pipaslot.Mediator.Http.Serialization;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
 {
     public async Task Invoke(HttpContext context)
     {
-        context.Features.Set(MediatorHttpContextFeature.Instance);
+        context.MarkAsMediatorPublicApiRequest();
 
         var method = context.Request.Method;
         var isPost = HttpMethods.IsPost(method);

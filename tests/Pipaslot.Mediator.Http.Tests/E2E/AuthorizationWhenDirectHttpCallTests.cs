@@ -17,6 +17,13 @@ namespace Pipaslot.Mediator.Http.Tests.E2E;
 /// call and is bypassed for a nested one, via genuine <see cref="IMediator.Dispatch"/> success/failure. The
 /// direct-vs-nested condition itself is not re-verified here (see <c>Internal.HttpContextAccessorExtensionsTests</c>
 /// and <see cref="DirectHttpCallGatingExtensionsTests"/>).
+/// <para>
+/// Most tests here fake the direct-call condition via the <c>InternalsVisibleTo</c>-only
+/// <see cref="MediatorHttpContextFeature"/>, mirroring how a real HTTP request looks from inside this assembly.
+/// <see cref="SimulatedPublicApiCallViaTestingExtension_WithoutRequiredRole_ExecuteUnhandledThrows"/> instead uses
+/// only <see cref="MediatorHttpContextTestingExtensions.MarkAsMediatorPublicApiRequest"/>, the public surface a
+/// consumer project (without internal access) would use for the same simulation in its own tests.
+/// </para>
 /// </summary>
 public class AuthorizationWhenDirectHttpCallTests
 {
@@ -42,6 +49,32 @@ public class AuthorizationWhenDirectHttpCallTests
         var result = await mediator.Dispatch(new RootDelegatingToSecuredAction());
 
         Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task SimulatedPublicApiCallViaTestingExtension_WithoutRequiredRole_ExecuteUnhandledThrows()
+    {
+        // Reproduces a host that never runs a real HTTP request (e.g. a unit test calling ExecuteUnhandled
+        // directly): MarkAsMediatorPublicApiRequest is the supported public replacement for the InternalsVisibleTo
+        // trick used by CreateHttpContextAccessor above, so a consumer project without internal access can still
+        // make UseAuthorizationWhenDirectHttpCall trigger in its own tests.
+        var accessor = new StubClaimPrincipalAccessor { Principal = CreatePrincipal("Guest") };
+        var services = new ServiceCollection();
+        services.AddLogging();
+        var httpContext = Substitute.For<HttpContext>();
+        httpContext.Features.Returns(new FeatureCollection());
+        httpContext.MarkAsMediatorPublicApiRequest();
+        var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        httpContextAccessor.HttpContext.Returns(httpContext);
+        services.AddSingleton(httpContextAccessor);
+        services.AddMediator()
+            .AddActions([typeof(SecuredRequest)])
+            .AddHandlers([typeof(SecuredRequestHandler)])
+            .UseAuthorizationWhenDirectHttpCall();
+        services.AddSingleton<IClaimPrincipalAccessor>(accessor);
+        var mediator = services.BuildServiceProvider().GetRequiredService<IMediator>();
+
+        await Assert.ThrowsAsync<AuthorizationRuleNotMetException>(() => mediator.ExecuteUnhandled(new SecuredRequest()));
     }
 
     private static (IMediator Mediator, StubClaimPrincipalAccessor Accessor) CreateAuthorizedMediator()
@@ -101,6 +134,18 @@ public class AuthorizationWhenDirectHttpCallTests
         public Task Handle(RootDelegatingToSecuredAction action, CancellationToken cancellationToken)
         {
             return mediator.DispatchUnhandled(new SecuredAction(), cancellationToken);
+        }
+    }
+
+    public class SecuredRequest : IRequest<string>;
+
+    public class SecuredRequestHandler : IMediatorHandler<SecuredRequest, string>, IHandlerAuthorization<SecuredRequest>
+    {
+        public IPolicy Authorize(SecuredRequest action) => IdentityPolicy.Role("Admin");
+
+        public Task<string> Handle(SecuredRequest action, CancellationToken cancellationToken)
+        {
+            return Task.FromResult("ok");
         }
     }
 
