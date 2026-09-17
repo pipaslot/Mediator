@@ -1,55 +1,64 @@
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Tests.ValidActions;
-using System.Linq;
 using Xunit;
 
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 
 /// <summary>
-/// Verifies the HTTP GET allowlist members of <see cref="ServerMediatorOptions"/>: the default is permissive
-/// (unchanged pre-existing behavior), and each Add* registration method both records the entry and flips
-/// <see cref="ServerMediatorOptions.RestrictHttpGetToAllowedActionTypes"/> on as a side effect.
+/// Verifies the HTTP GET allowlist members of <see cref="ServerMediatorOptions"/>: predicate-based registration via
+/// <see cref="ServerMediatorOptions.AllowHttpGetWhen"/>/<see cref="ServerMediatorOptions.AllowHttpGetWhenAction{TAction}"/>,
+/// and the computed <see cref="ServerMediatorOptions.RestrictHttpGetToAllowedActions"/> flag derived from whether any
+/// filter was registered - there is no independent state to set it directly.
+/// <para>
+/// The previous type/assembly allowlist (AddAllowedHttpGetActionType/AssemblyOf/Assembly,
+/// AllowedHttpGetActionTypes/Assemblies) no longer exists on <see cref="ServerMediatorOptions"/>; that is enforced by
+/// this file compiling without them rather than by a runtime assertion (S8).
+/// </para>
 /// </summary>
 public class ServerMediatorOptionsTests
 {
     [Fact]
-    public void RestrictHttpGetToAllowedActionTypes_DefaultValue_IsFalse()
+    public void RestrictHttpGetToAllowedActions_DefaultValue_IsFalse()
     {
+        // With no filter ever registered, RestrictHttpGetToAllowedActions can never independently become true (it is
+        // computed from the filter collection, not settable) - GET stays unrestricted rather than denying every
+        // action, even though the flag conceptually reads as "on". (S5)
         var options = new ServerMediatorOptions();
 
-        Assert.False(options.RestrictHttpGetToAllowedActionTypes);
+        Assert.False(options.RestrictHttpGetToAllowedActions);
     }
 
     [Fact]
-    public void AddAllowedHttpGetActionType_RegistersTypeAndEnablesRestriction()
+    public void AllowHttpGetWhen_RegistersFilterAndEnablesRestriction()
     {
+        // (S6)
         var options = new ServerMediatorOptions();
 
-        options.AddAllowedHttpGetActionType<NopMessage>();
+        options.AllowHttpGetWhen(a => a is NopMessage);
 
-        Assert.True(options.RestrictHttpGetToAllowedActionTypes);
-        Assert.Contains(typeof(NopMessage), options.AllowedHttpGetActionTypes);
+        Assert.True(options.RestrictHttpGetToAllowedActions);
     }
 
     [Fact]
-    public void AddAllowedHttpGetActionAssemblyOf_RegistersAssemblyAndEnablesRestriction()
+    public void AllowHttpGetWhenAction_AllowsMatchingTypeButNotOtherTypes()
     {
         var options = new ServerMediatorOptions();
 
-        options.AddAllowedHttpGetActionAssemblyOf<NopMessage>();
+        options.AllowHttpGetWhenAction<NopMessage>();
 
-        Assert.True(options.RestrictHttpGetToAllowedActionTypes);
-        Assert.Contains(typeof(NopMessage).Assembly, options.AllowedHttpGetActionAssemblies);
+        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
+        Assert.False(options.IsAllowedOverHttpGet(new NopRequest()));
     }
 
     [Fact]
-    public void AddAllowedHttpGetActionAssembly_RegistersAssemblyAndEnablesRestriction()
+    public void IsAllowedOverHttpGet_WhenMultipleConditionsRegistered_AllowsActionIfAnyReturnsTrue()
     {
+        // (S1/RE2 - OR-combination across conditions, not AND)
         var options = new ServerMediatorOptions();
 
-        options.AddAllowedHttpGetActionAssembly(typeof(NopMessage).Assembly);
+        options.AllowHttpGetWhen(a => a is NopRequest);
+        options.AllowHttpGetWhenAction<NopMessage>();
 
-        Assert.True(options.RestrictHttpGetToAllowedActionTypes);
-        Assert.Contains(typeof(NopMessage).Assembly, options.AllowedHttpGetActionAssemblies);
+        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
     }
 }

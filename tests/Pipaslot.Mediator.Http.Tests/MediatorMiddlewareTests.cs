@@ -5,8 +5,10 @@ using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
+using Pipaslot.Mediator.Notifications;
 using Pipaslot.Mediator.Tests.ValidActions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -38,22 +40,25 @@ public class MediatorMiddlewareTests
     [Fact]
     public async Task GetMessageWillBePropagatedToMediator()
     {
+        // No filter ever registered - GET stays unrestricted, unchanged from previous versions. (S2)
         await ExecuteMessage(new FakeGetRequest(_message));
     }
 
     [Fact]
     public async Task GetRequestWillBePropagatedToMediator()
     {
+        // (S2)
         await ExecuteRequest(new FakeGetRequest(_request));
     }
 
     [Fact]
-    public async Task GetMessageWillBePropagatedToMediator_WhenRestrictionEnabled_AndActionTypeAllowed()
+    public async Task GetMessageWillBePropagatedToMediator_WhenFilterAllowsIt()
     {
+        // (S1)
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.AddAllowedHttpGetActionType<NopMessage>());
+        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhenAction<NopMessage>());
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakeGetRequest(_message), services);
@@ -63,10 +68,21 @@ public class MediatorMiddlewareTests
     }
 
     [Fact]
-    public async Task GetMessageWillNotBePropagatedToMediator_WhenRestrictionEnabled_AndActionTypeNotAllowed()
+    public async Task GetMessageWillNotBePropagatedToMediator_WhenNoFilterAllowsIt()
     {
+        // (S3) The rejection error text must also reference the current predicate-based API rather than the
+        // removed type-based method names. (S7)
         var mediatorMock = new Mock<IMediator>();
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.RestrictHttpGetToAllowedActionTypes = true);
+
+        IMediatorResponse? serialized = null;
+        var serializerMock = new Mock<IContractSerializer>();
+        serializerMock.Setup(x => x.DeserializeRequest(It.IsAny<string>(), It.IsAny<ICollection<StreamContract>>()))
+            .Returns(new NopMessage());
+        serializerMock.Setup(x => x.SerializeResponse(It.IsAny<IMediatorResponse>()))
+            .Callback<IMediatorResponse>(r => serialized = r)
+            .Returns("{}");
+
+        var services = CreateServiceProvider(mediatorMock, serializerMock, configure: o => o.AllowHttpGetWhen(_ => false));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -75,16 +91,20 @@ public class MediatorMiddlewareTests
 
         mediatorMock.Verify(m => m.Dispatch(It.IsAny<IMediatorAction>(), It.IsAny<CancellationToken>()), Times.Never);
         Assert.Equal(MediatorConstants.ErrorHttpStatusCode, response.StatusCode);
+
+        var errorMessage = Assert.Single(serialized!.Results.Cast<Notification>()).Content;
+        Assert.Contains(nameof(ServerMediatorOptions.AllowHttpGetWhen), errorMessage);
+        Assert.DoesNotContain("AddAllowedHttpGetActionType", errorMessage);
     }
 
     [Fact]
-    public async Task PostMessageWillBePropagatedToMediator_WhenRestrictionEnabled_AndActionTypeNotAllowed()
+    public async Task PostMessageWillBePropagatedToMediator_WhenNoFilterWouldAllowItOverGet()
     {
-        // Restriction only applies to HTTP GET, POST must remain unaffected regardless of the allowlist.
+        // The allowlist only applies to HTTP GET, POST must remain unaffected regardless of it. (S4)
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.RestrictHttpGetToAllowedActionTypes = true);
+        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhen(_ => false));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakePostRequest(_message), services);
