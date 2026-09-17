@@ -55,4 +55,13 @@ public class MediatorHttpException(string message, Exception? innerException = n
             $"Root action Results contain {count} objects implementing {nameof(IMediatorHttpResult)}, but at most one is allowed. " +
             $"Only one handler in the call chain may forward a {nameof(IMediatorHttpResult)} as its own result.");
     }
+
+    internal static MediatorHttpException CreateForActionNotAllowedOverHttpGet(Type actionType)
+    {
+        return new MediatorHttpException(
+            $"Action {actionType.FullName} is not allowed to be invoked over HTTP GET. Register it via " +
+            $"{nameof(Configuration.ServerMediatorOptions.AddAllowedHttpGetActionType)} or " +
+            $"{nameof(Configuration.ServerMediatorOptions.AddAllowedHttpGetActionAssemblyOf)} only if it is safe to trigger " +
+            "from a plain hyperlink or embedded resource (GET requests can be triggered cross-site without the caller's consent).");
+    }
 }

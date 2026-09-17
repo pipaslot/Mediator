@@ -1,4 +1,5 @@
 ## Unreleased
+* Added `ServerMediatorOptions.RestrictHttpGetToAllowedActionTypes` (with `AddAllowedHttpGetActionType<T>`/`AddAllowedHttpGetActionAssemblyOf<T>`/`AddAllowedHttpGetActionAssembly`), an opt-in allowlist protecting state-changing actions from being triggered over HTTP GET (CSRF) — see [HTTP GET action allowlist (CSRF protection)](8.-HTTP-transport-and-configuration-for-Client-Server-usage.md#http-get-action-allowlist-csrf-protection). Disabled by default, non-breaking.
 
 ## Version 8.5.0
 * Added `Pipaslot.Mediator.Http.IMediatorHttpResult`, letting a handler return a result applied directly to the HTTP response — see [9.3.-Custom-HTTP-responses-and-file-download.md](9.3.-Custom-HTTP-responses-and-file-download.md). Additive, non-breaking.

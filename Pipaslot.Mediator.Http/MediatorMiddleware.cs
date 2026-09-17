@@ -106,6 +106,11 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 action = serializer.DeserializeRequest(jsonPart, streams);
             }
 
+            if (!isPost && option.RestrictHttpGetToAllowedActionTypes && !IsAllowedForHttpGet(action.GetType()))
+            {
+                throw MediatorHttpException.CreateForActionNotAllowedOverHttpGet(action.GetType());
+            }
+
             var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
                 : await mediator.Dispatch(action, context.RequestAborted).ConfigureAwait(false);
@@ -115,6 +120,12 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
         {
             return new MediatorResponse(ex.Message);
         }
+    }
+
+    private bool IsAllowedForHttpGet(Type actionType)
+    {
+        return option.AllowedHttpGetActionTypes.Contains(actionType)
+               || option.AllowedHttpGetActionAssemblies.Contains(actionType.Assembly);
     }
 
     private static IMediator CreateMediator(HttpContext context)
