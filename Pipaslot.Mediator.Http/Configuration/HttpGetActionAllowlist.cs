@@ -15,15 +15,27 @@ internal class HttpGetActionAllowlist
 {
     private readonly List<Func<IMediatorAction, bool>> _conditions = [];
 
-    public bool IsRestricted => _conditions.Count > 0;
+    /// <summary>
+    /// The currently registered conditions, in registration order.
+    /// </summary>
+    public IEnumerable<Func<IMediatorAction, bool>> Conditions => _conditions;
 
     public void Allow(Func<IMediatorAction, bool> condition)
     {
         _conditions.Add(condition);
     }
 
+    /// <summary>
+    /// Removes all registered conditions, restoring the unrestricted default (every action allowed over HTTP GET).
+    /// </summary>
+    public void Clear()
+    {
+        _conditions.Clear();
+    }
+
     public bool IsAllowed(IMediatorAction action)
     {
-        return !IsRestricted || _conditions.Any(condition => condition(action));
+        var isRestricted = _conditions.Count > 0;// TODO in version 10: restrict the filtering by default. The GET method won't be allowed by default
+        return !isRestricted || _conditions.Any(condition => condition(action));
     }
 }
