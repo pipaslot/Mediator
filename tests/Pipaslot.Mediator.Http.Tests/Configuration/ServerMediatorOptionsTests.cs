@@ -5,10 +5,10 @@ using Xunit;
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 
 /// <summary>
-/// Verifies the HTTP GET allowlist members of <see cref="ServerMediatorOptions"/>: predicate-based registration via
-/// <see cref="ServerMediatorOptions.AllowHttpGetWhen"/>/<see cref="ServerMediatorOptions.AllowHttpGetWhenImplements{TAction}"/>,
-/// and the computed <see cref="ServerMediatorOptions.RestrictHttpGetToAllowedActions"/> flag derived from whether any
-/// filter was registered - there is no independent state to set it directly.
+/// Verifies the HTTP GET allowlist behavior of <see cref="ServerMediatorOptions"/>: predicate-based registration via
+/// <see cref="ServerMediatorOptions.AllowHttpGetWhen"/>, and the resulting (internal) allow/deny decision exposed
+/// through <see cref="ServerMediatorOptions.IsAllowedOverHttpGet"/> - there is no public flag to inspect or set
+/// directly; whether GET is restricted at all follows purely from whether any condition was ever registered.
 /// <para>
 /// The previous type/assembly allowlist (AddAllowedHttpGetActionType/AssemblyOf/Assembly,
 /// AllowedHttpGetActionTypes/Assemblies) no longer exists on <see cref="ServerMediatorOptions"/>; that is enforced by
@@ -18,11 +18,10 @@ namespace Pipaslot.Mediator.Http.Tests.Configuration;
 public class ServerMediatorOptionsTests
 {
     [Fact]
-    public void RestrictHttpGetToAllowedActions_DefaultValue_IsFalse()
+    public void IsAllowedOverHttpGet_WithNoConditionRegistered_AllowsAnyAction()
     {
-        // With no filter ever registered, RestrictHttpGetToAllowedActions can never independently become true (it is
-        // computed from the filter collection, not settable) - GET stays unrestricted rather than denying every
-        // action, even though the flag conceptually reads as "on". (S5)
+        // With no condition ever registered, GET stays unrestricted for every action - unchanged from previous
+        // versions. (S5)
         var options = new ServerMediatorOptions();
 
         Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
@@ -30,7 +29,7 @@ public class ServerMediatorOptionsTests
     }
 
     [Fact]
-    public void AllowHttpGetWhenAction_AllowsMatchingTypeButNotOtherTypes()
+    public void IsAllowedOverHttpGet_WhenConditionRegistered_AllowsOnlyMatchingAction()
     {
         var options = new ServerMediatorOptions();
 
