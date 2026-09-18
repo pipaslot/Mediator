@@ -58,7 +58,7 @@ public class MediatorMiddlewareTests
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhen(a => a is NopMessage));
+        var services = CreateServiceProvider(mediatorMock, configure: o => o.HttpGetConditions.Allow(a => a is NopMessage));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakeGetRequest(_message), services);
@@ -82,7 +82,7 @@ public class MediatorMiddlewareTests
             .Callback<IMediatorResponse>(r => serialized = r)
             .Returns("{}");
 
-        var services = CreateServiceProvider(mediatorMock, serializerMock, configure: o => o.AllowHttpGetWhen(_ => false));
+        var services = CreateServiceProvider(mediatorMock, serializerMock, configure: o => o.HttpGetConditions.Allow(_ => false));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var response = new FakeResponse();
@@ -93,7 +93,8 @@ public class MediatorMiddlewareTests
         Assert.Equal(MediatorConstants.ErrorHttpStatusCode, response.StatusCode);
 
         var errorMessage = Assert.Single(serialized!.Results.Cast<Notification>()).Content;
-        Assert.Contains(nameof(ServerMediatorOptions.AllowHttpGetWhen), errorMessage);
+        Assert.Contains(nameof(ServerMediatorOptions.HttpGetConditions), errorMessage);
+        Assert.Contains(nameof(HttpGetActionAllowlist.Allow), errorMessage);
         Assert.DoesNotContain("AddAllowedHttpGetActionType", errorMessage);
     }
 
@@ -104,7 +105,7 @@ public class MediatorMiddlewareTests
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhen(_ => false));
+        var services = CreateServiceProvider(mediatorMock, configure: o => o.HttpGetConditions.Allow(_ => false));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakePostRequest(_message), services);

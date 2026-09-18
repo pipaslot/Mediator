@@ -106,7 +106,7 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 action = serializer.DeserializeRequest(jsonPart, streams);
             }
 
-            if (!isPost && !option.IsAllowedOverHttpGet(action))
+            if (!isPost && !option.HttpGetConditions.IsAllowed(action))
             {
                 throw MediatorHttpException.CreateForActionNotAllowedOverHttpGet(action.GetType());
             }

@@ -7,84 +7,80 @@ using Xunit;
 namespace Pipaslot.Mediator.Http.Tests.Configuration;
 
 /// <summary>
-/// Verifies the HTTP GET allowlist behavior of <see cref="ServerMediatorOptions"/>: predicate-based registration via
-/// <see cref="ServerMediatorOptions.AllowHttpGetWhen"/> and <see cref="ServerMediatorOptions.HttpGetConditions"/>,
-/// and the resulting (internal) allow/deny decision exposed through
-/// <see cref="ServerMediatorOptions.IsAllowedOverHttpGet"/>. Whether GET is restricted at all follows purely from
-/// whether any condition was ever registered; there is no separate settable flag for it.
-/// <para>
-/// The previous type/assembly allowlist (AddAllowedHttpGetActionType/AssemblyOf/Assembly,
-/// AllowedHttpGetActionTypes/Assemblies) no longer exists on <see cref="ServerMediatorOptions"/>; that is enforced by
-/// this file compiling without them rather than by a runtime assertion (S8).
-/// </para>
+/// Verifies the HTTP GET allowlist behavior exposed through <see cref="ServerMediatorOptions.HttpGetConditions"/>:
+/// predicate-based registration via <see cref="HttpGetActionAllowlist.Allow"/>, clearing via
+/// <see cref="HttpGetActionAllowlist.Clear"/>, and the resulting allow/deny decision from
+/// <see cref="HttpGetActionAllowlist.IsAllowed"/>. Whether GET is restricted at all follows purely from whether any
+/// condition was ever registered; there is no separate settable flag for it.
 /// </summary>
 public class ServerMediatorOptionsTests
 {
     [Fact]
-    public void IsAllowedOverHttpGet_WithNoConditionRegistered_AllowsAnyAction()
+    public void IsAllowed_WithNoConditionRegistered_AllowsAnyAction()
     {
         // With no condition ever registered, GET stays unrestricted for every action - unchanged from previous
         // versions. (S5)
         var options = new ServerMediatorOptions();
 
-        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
-        Assert.True(options.IsAllowedOverHttpGet(new NopRequest()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopMessage()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopRequest()));
     }
 
     [Fact]
-    public void IsAllowedOverHttpGet_WhenConditionRegistered_AllowsOnlyMatchingAction()
+    public void IsAllowed_WhenConditionRegistered_AllowsOnlyMatchingAction()
     {
         var options = new ServerMediatorOptions();
 
-        options.AllowHttpGetWhen(a => a is NopMessage);
+        options.HttpGetConditions.Allow(a => a is NopMessage);
 
-        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
-        Assert.False(options.IsAllowedOverHttpGet(new NopRequest()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopMessage()));
+        Assert.False(options.HttpGetConditions.IsAllowed(new NopRequest()));
     }
 
     [Fact]
-    public void IsAllowedOverHttpGet_WhenMultipleConditionsRegistered_AllowsActionIfAnyReturnsTrue()
+    public void IsAllowed_WhenMultipleConditionsRegistered_AllowsActionIfAnyReturnsTrue()
     {
         var options = new ServerMediatorOptions();
 
-        options.AllowHttpGetWhen(a => a is NopRequest);
-        options.AllowHttpGetWhen(a => a is NopMessage);
+        options.HttpGetConditions.Allow(a => a is NopRequest);
+        options.HttpGetConditions.Allow(a => a is NopMessage);
 
-        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopMessage()));
     }
 
     [Fact]
-    public void HttpGetConditions_SetAfterAllowHttpGetWhen_ReplacesEarlierConditionsWholesale()
+    public void Clear_AfterConditionRegistered_RestoresUnrestrictedDefault()
     {
         var options = new ServerMediatorOptions();
-        options.AllowHttpGetWhen(a => a is NopMessage);
+        options.HttpGetConditions.Allow(a => a is NopMessage);
 
-        options.HttpGetConditions = [a => a is NopRequest];
+        options.HttpGetConditions.Clear();
 
-        Assert.False(options.IsAllowedOverHttpGet(new NopMessage()));
-        Assert.True(options.IsAllowedOverHttpGet(new NopRequest()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopMessage()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopRequest()));
     }
 
     [Fact]
-    public void HttpGetConditions_SetToEmpty_RestoresUnrestrictedDefault()
+    public void Clear_ThenAllow_LetsALaterConfigurationStepReplaceAnEarlierOnesConditions()
     {
         var options = new ServerMediatorOptions();
-        options.AllowHttpGetWhen(a => a is NopMessage);
+        options.HttpGetConditions.Allow(a => a is NopMessage); // registered by an earlier configuration step
 
-        options.HttpGetConditions = [];
+        options.HttpGetConditions.Clear(); // a later step overrides it entirely
+        options.HttpGetConditions.Allow(a => a is NopRequest);
 
-        Assert.True(options.IsAllowedOverHttpGet(new NopMessage()));
-        Assert.True(options.IsAllowedOverHttpGet(new NopRequest()));
+        Assert.False(options.HttpGetConditions.IsAllowed(new NopMessage()));
+        Assert.True(options.HttpGetConditions.IsAllowed(new NopRequest()));
     }
 
     [Fact]
-    public void HttpGetConditions_AfterAllowHttpGetWhen_RoundTripsRegisteredCondition()
+    public void Conditions_AfterAllow_RoundTripsRegisteredCondition()
     {
         var options = new ServerMediatorOptions();
         Func<IMediatorAction, bool> condition = a => a is NopMessage;
 
-        options.AllowHttpGetWhen(condition);
+        options.HttpGetConditions.Allow(condition);
 
-        Assert.Same(condition, Assert.Single(options.HttpGetConditions));
+        Assert.Same(condition, Assert.Single(options.HttpGetConditions.Conditions));
     }
 }
