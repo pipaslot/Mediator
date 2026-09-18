@@ -45,6 +45,7 @@ services.AddMediatorServer(o =>
     {
         o.Endpoint = Constants.CustomMediatorUrl;
         o.IgnoreReadOnlyProperties = true;
+        o.AllowHttpGetWhen(action => action is IHttpGetAllowed);
     })
     .AddActionsFromAssemblyOf<WeatherForecast.Request>()
     .AddHandlersFromAssemblyOf<WeatherForecastRequestHandler>()

@@ -58,7 +58,7 @@ public class MediatorMiddlewareTests
         var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Dispatch(It.IsAny<NopMessage>(), It.IsAny<CancellationToken>())).Returns(mediatorResponse);
-        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhenAction<NopMessage>());
+        var services = CreateServiceProvider(mediatorMock, configure: o => o.AllowHttpGetWhen(a => a is NopMessage));
         var sut = services.GetRequiredService<MediatorMiddleware>();
 
         var context = new FakeContext(new FakeGetRequest(_message), services);

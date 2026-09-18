@@ -60,8 +60,7 @@ public class MediatorHttpException(string message, Exception? innerException = n
     {
         return new MediatorHttpException(
             $"Action {actionType.FullName} is not allowed to be invoked over HTTP GET. Allow it via " +
-            $"{nameof(Configuration.ServerMediatorOptions.AllowHttpGetWhen)} or " +
-            $"{nameof(Configuration.ServerMediatorOptions.AllowHttpGetWhenAction)} only if it is safe to trigger " +
+            $"{nameof(Configuration.ServerMediatorOptions.AllowHttpGetWhen)} only if it is safe to trigger " +
             "from a plain hyperlink or embedded resource (GET requests can be triggered cross-site without the caller's consent).");
     }
 }
