@@ -15,9 +15,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Pipaslot.Mediator.Http\Pipaslot.Mediator.Http.csproj"/>
         <ProjectReference Include="..\Pipaslot.Mediator\Pipaslot.Mediator.csproj"/>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.13" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.13" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
     </ItemGroup>
 
 </Project>

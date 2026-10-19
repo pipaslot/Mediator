@@ -1,0 +1,24 @@
+<Project>
+
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Pin to the same Microsoft.CodeAnalysis version the analyzer project builds against - the testing package
+             otherwise pulls in an old floor version, see the "Resolve version conflicts" note in
+             https://github.com/dotnet/roslyn-sdk/tree/main/src/Microsoft.CodeAnalysis.Testing#readme -->
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.4" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.4" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+        <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.13" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+        <PackageVersion Include="NSubstitute" Version="6.2.0" />
+        <PackageVersion Include="NSubstitute.Analyzers.CSharp" Version="1.0.17" />
+        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+        <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    </ItemGroup>
+
+</Project>

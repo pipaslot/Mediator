@@ -1,4 +1,5 @@
 ## Unreleased
+* Dependency updates
 
 ## Version 9.0.0
 * Added `MediatorHttpContextTestingExtensions.MarkAsMediatorPublicApiRequest`, letting a test simulate a direct HTTP call (for `UseWhenDirectHttpCall`/`UseAuthorizationWhenDirectHttpCall`) without a real ASP.NET Core request — see [6.1.-Ready-to-use-middlewares.md](6.1.-Ready-to-use-middlewares.md#gating-middlewares-by-direct-http-call).

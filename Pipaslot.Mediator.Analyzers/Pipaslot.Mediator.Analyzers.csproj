@@ -30,10 +30,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
         <!-- Used only by IgnoredMediatorResponseCodeFixProvider (CodeAction/Formatter APIs) - see the RS1038 note
              above for why referencing it is safe despite the assembly also containing plain DiagnosticAnalyzers. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
