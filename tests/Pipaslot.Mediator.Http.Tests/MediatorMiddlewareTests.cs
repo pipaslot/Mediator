@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Pipaslot.Mediator.Abstractions;
+using Pipaslot.Mediator.Http.Configuration;
 using Pipaslot.Mediator.Http.Serialization;
 using Pipaslot.Mediator.Http.Tests.Fakes;
+using Pipaslot.Mediator.Notifications;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,13 +39,77 @@ public class MediatorMiddlewareTests
     [Fact]
     public async Task GetMessageWillBePropagatedToMediator()
     {
+        // No filter ever registered - GET stays unrestricted, unchanged from previous versions. (S2)
         await ExecuteMessage(new FakeGetRequest(_message));
     }
 
     [Fact]
     public async Task GetRequestWillBePropagatedToMediator()
     {
+        // (S2)
         await ExecuteRequest(new FakeGetRequest(_request));
+    }
+
+    [Fact]
+    public async Task GetMessageWillBePropagatedToMediator_WhenFilterAllowsIt()
+    {
+        // (S1)
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator, configure: o => o.HttpGetConditions.Allow(a => a is NopMessage));
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var context = new FakeContext(new FakeGetRequest(_message), services);
+        await sut.Invoke(context);
+
+        await mediator.Received().Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetMessageWillNotBePropagatedToMediator_WhenNoFilterAllowsIt()
+    {
+        // (S3) The rejection error text must also reference the current predicate-based API rather than the
+        // removed type-based method names. (S7)
+        var mediator = Substitute.For<IMediator>();
+
+        IMediatorResponse? serialized = null;
+        var serializer = Substitute.For<IContractSerializer>();
+        serializer.DeserializeRequest(Arg.Any<string>(), Arg.Any<ICollection<StreamContract>>())
+            .Returns(new NopMessage());
+        serializer.SerializeResponse(Arg.Do<IMediatorResponse>(r => serialized = r))
+            .Returns("{}");
+
+        var services = CreateServiceProvider(mediator, serializer, configure: o => o.HttpGetConditions.Allow(_ => false));
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var response = new FakeResponse();
+        var context = new FakeContext(new FakeGetRequest(_message), services, response);
+        await sut.Invoke(context);
+
+        await mediator.DidNotReceive().Dispatch(Arg.Any<IMediatorAction>(), Arg.Any<CancellationToken>());
+        Assert.Equal(MediatorConstants.ErrorHttpStatusCode, response.StatusCode);
+
+        var errorMessage = Assert.Single(serialized!.Results.Cast<Notification>()).Content;
+        Assert.Contains(nameof(ServerMediatorOptions.HttpGetConditions), errorMessage);
+        Assert.Contains(nameof(HttpGetActionAllowlist.Allow), errorMessage);
+        Assert.DoesNotContain("AddAllowedHttpGetActionType", errorMessage);
+    }
+
+    [Fact]
+    public async Task PostMessageWillBePropagatedToMediator_WhenNoFilterWouldAllowItOverGet()
+    {
+        // The allowlist only applies to HTTP GET, POST must remain unaffected regardless of it. (S4)
+        var mediatorResponse = Task.FromResult((IMediatorResponse)new MediatorResponse(true, Array.Empty<object>()));
+        var mediator = Substitute.For<IMediator>();
+        mediator.Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>()).Returns(mediatorResponse);
+        var services = CreateServiceProvider(mediator, configure: o => o.HttpGetConditions.Allow(_ => false));
+        var sut = services.GetRequiredService<MediatorMiddleware>();
+
+        var context = new FakeContext(new FakePostRequest(_message), services);
+        await sut.Invoke(context);
+
+        await mediator.Received().Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -224,15 +292,20 @@ public class MediatorMiddlewareTests
         await mediator.Received().Dispatch(Arg.Any<NopMessage>(), Arg.Any<CancellationToken>());
     }
 
-    private ServiceProvider CreateServiceProvider(IMediator mediator)
+    private ServiceProvider CreateServiceProvider(IMediator mediator, IContractSerializer? serializer = null,
+        Action<ServerMediatorOptions>? configure = null)
     {
         var collection = new ServiceCollection();
         collection.AddLogging();
-        collection.AddMediatorServer()
+        collection.AddMediatorServer(configure ?? (_ => { }))
             .AddActions([typeof(NopRequest), typeof(NopMessage)]);
         collection.AddScoped<MediatorMiddleware>();
         collection.AddScoped<RequestDelegate>(s => (c) => Task.CompletedTask);
         collection.AddSingleton(mediator);
+        if (serializer is not null)
+        {
+            collection.AddSingleton(serializer);
+        }
         return collection.BuildServiceProvider();
     }
     public class NopMessage : IMessage;

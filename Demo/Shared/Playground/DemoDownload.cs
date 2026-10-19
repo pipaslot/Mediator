@@ -4,7 +4,7 @@ using Pipaslot.Mediator.Http;
 namespace Demo.Shared.Playground;
 
 [AnonymousPolicy]
-public record DemoDownload(string FileName) : IRequest<DemoDownloadResult>;
+public record DemoDownload(string FileName) : IRequest<DemoDownloadResult>, IHttpGetAllowed;
 
 public record DemoDownloadResult(string FileName, string Content) : IMediatorHttpResult
 {
