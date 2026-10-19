@@ -105,6 +105,11 @@ public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions opti
                 action = serializer.DeserializeRequest(jsonPart, streams);
             }
 
+            if (!isPost && !option.HttpGetConditions.IsAllowed(action))
+            {
+                throw MediatorHttpException.CreateForActionNotAllowedOverHttpGet(action.GetType());
+            }
+
             var mediatorResponse = action is IMediatorActionProvidingData req
                 ? await ExecuteRequest(mediator, req, context.RequestAborted).ConfigureAwait(false)
                 : await mediator.Dispatch(action, context.RequestAborted).ConfigureAwait(false);

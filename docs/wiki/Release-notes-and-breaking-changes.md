@@ -1,5 +1,6 @@
 ## Unreleased
 * Dependency updates
+* Added `ServerMediatorOptions.HttpGetConditions` (`HttpGetActionAllowlist`), an opt-in condition-based allowlist protecting state-changing actions from being triggered over HTTP GET (CSRF), with `Allow`/`Clear` letting a later configuration step add to or replace the conditions registered by an earlier one — see [HTTP GET action allowlist (CSRF protection)](8.-HTTP-transport-and-configuration-for-Client-Server-usage.md#http-get-action-allowlist-csrf-protection). Empty by default, non-breaking.
 
 ## Version 9.0.0
 * Added `MediatorHttpContextTestingExtensions.MarkAsMediatorPublicApiRequest`, letting a test simulate a direct HTTP call (for `UseWhenDirectHttpCall`/`UseAuthorizationWhenDirectHttpCall`) without a real ASP.NET Core request — see [6.1.-Ready-to-use-middlewares.md](6.1.-Ready-to-use-middlewares.md#gating-middlewares-by-direct-http-call).
