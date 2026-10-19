@@ -1,0 +1,39 @@
+name: PR title
+on:
+  # pull_request_target runs with the base repository's token, so PRs from forks
+  # can be checked too. Never check out or run the PR's code in this workflow -
+  # it only reads the PR title through the API.
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+    branches: [main]
+permissions:
+  pull-requests: read
+jobs:
+  title:
+    name: conventional title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # The types release-please knows: feat/fix/perf/revert end up in the
+          # changelog, the rest are hidden from it.
+          types: |
+            feat
+            fix
+            perf
+            revert
+            docs
+            style
+            chore
+            refactor
+            test
+            build
+            ci
+          requireScope: false
+          subjectPattern: ^\S.*$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}" is empty or starts with whitespace.
+            Use the format `type(scope)!: description`, e.g. `feat: add HTTP GET allowlist`.
+            See https://github.com/pipaslot/Mediator/blob/main/CONTRIBUTING.md#pull-request-titles

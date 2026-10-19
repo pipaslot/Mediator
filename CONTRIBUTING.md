@@ -9,6 +9,38 @@ This file documents maintainer workflows for this repo. It is not part of the pu
 - Any PR that changes user-observable behavior adds a bullet under the `## Unreleased` section at the top of the file. Do not invent a version number for it — that happens later, at release time.
 - `## Unreleased` stays empty between releases; it's fine for it to have no bullets for a while.
 
+## Pull request titles
+
+PRs are squash-merged, so the PR title becomes the subject of the single commit on `main`, which becomes the changelog entry once releases are generated from commit history. The title must follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope)!: description` — one short English sentence in the imperative ("add", not "added"); `(scope)` and `!` are optional. The `conventional title` check (`.github/workflows/pr-title.yml`) rejects any other format.
+
+| Type | Effect on the next release | Changelog section |
+|---|---|---|
+| `feat` | minor version bump | Features |
+| `fix` | patch version bump | Bug Fixes |
+| `perf` | patch version bump | Performance Improvements |
+| `revert` | patch version bump | Reverts |
+| `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `style` | none — on their own they don't propose a release | not listed |
+| `!` after the type (`feat!:`, `fix(http)!:`) | major version bump | ⚠ BREAKING CHANGES |
+
+Mark breaking changes with `!` in the title. A `BREAKING CHANGE:` footer only counts if it ends up in the squash commit message; with the settings below the commit carries the title only, so a footer written in the PR description has no effect.
+
+Dependency updates:
+
+- dependencies of the published packages (`Pipaslot.Mediator`, `Pipaslot.Mediator.Http`) → `fix(deps): …` — consumers get them, so they are listed and propose a patch release;
+- dependencies of tests, the demo or benchmarks (e.g. `tests/Directory.Packages.props`) → `chore(deps): …` — not listed and no release on their own.
+
+Examples:
+
+- valid: `feat: add HTTP GET allowlist`, `fix(http): keep context in nested calls`, `feat!: remove IFoo`, `fix(deps): update Microsoft.Extensions.DependencyInjection.Abstractions`, `chore(deps): update xunit`
+- invalid: `Added HTTP GET allowlist` (no type), `feature: add X` (unknown type), `feat:` (no description)
+
+### Repository settings
+
+The title convention only holds if every merge produces exactly one commit titled after the PR:
+
+- Settings → General → Pull Requests: enable only **Allow squash merging**, with **Default commit message** = "Pull request title"; disable **Allow merge commits** and **Allow rebase merging**.
+- Settings → Branches → branch protection rule for `main` → "Require status checks to pass before merging": select both `build & test` and `conventional title`.
+
 ## CI quality gate
 
 - `.github/workflows/ci.yml` builds and runs both test suites (Core + Http) on every PR targeting `main` and on every push to `main`.
