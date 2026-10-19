@@ -1,4 +1,6 @@
 ## Unreleased
+
+## Version 9.1.0
 * Dependency updates
 * Added `ServerMediatorOptions.HttpGetConditions` (`HttpGetActionAllowlist`), an opt-in condition-based allowlist protecting state-changing actions from being triggered over HTTP GET (CSRF), with `Allow`/`Clear` letting a later configuration step add to or replace the conditions registered by an earlier one — see [HTTP GET action allowlist (CSRF protection)](8.-HTTP-transport-and-configuration-for-Client-Server-usage.md#http-get-action-allowlist-csrf-protection). Empty by default, non-breaking.
 
