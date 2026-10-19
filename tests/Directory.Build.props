@@ -7,13 +7,4 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <MicrosoftNETTestSdkVersion>18.0.1</MicrosoftNETTestSdkVersion>
-        <NSubstituteVersion>6.0.0</NSubstituteVersion>
-        <NSubstituteAnalyzersCSharpVersion>1.0.17</NSubstituteAnalyzersCSharpVersion>
-        <XunitVersion>2.9.3</XunitVersion>
-        <XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
-        <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
-    </PropertyGroup>
-
 </Project>
