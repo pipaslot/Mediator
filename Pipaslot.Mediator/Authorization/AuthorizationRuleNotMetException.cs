@@ -11,12 +11,20 @@
 public class AuthorizationRuleNotMetException(RuleSet ruleSet, AuthorizationExceptionTypes type, string message) : AuthorizationException(type,
     ProvideDefaultMessage(message))
 {
+    /// <summary>
+    /// Creates the exception with <see cref="AuthorizationExceptionTypes.RuleNotMet"/>.
+    /// An empty or whitespace <paramref name="message"/> is replaced with a generic one.
+    /// </summary>
     public AuthorizationRuleNotMetException(RuleSet ruleSet, string message) : this(ruleSet, AuthorizationExceptionTypes.RuleNotMet,
         ProvideDefaultMessage(message))
     {
         RuleSet = ruleSet;
     }
 
+    /// <summary>
+    /// The whole evaluated tree, not reduced. Call <see cref="Authorization.RuleSet.Reduce"/> to get only the branch that
+    /// decided the outcome, which is what the message renders.
+    /// </summary>
     public RuleSet RuleSet { get; } = ruleSet;
 
     private static string ProvideDefaultMessage(string message)

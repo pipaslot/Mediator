@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Pipaslot.Mediator.Middlewares;
 
+/// <summary>
+/// Helpers for middlewares and handlers to report results and errors into a <see cref="MediatorContext"/>.
+/// </summary>
 public static class MediatorContextExtensions
 {
     /// <summary>

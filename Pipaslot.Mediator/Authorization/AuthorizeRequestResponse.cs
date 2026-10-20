@@ -2,8 +2,15 @@
 
 namespace Pipaslot.Mediator.Authorization;
 
+/// <summary>
+/// Result of <see cref="AuthorizeRequest"/>, returned by <see cref="MediatorExtensions.Authorize"/>.
+/// </summary>
 public class AuthorizeRequestResponse
 {
+    /// <summary>
+    /// <see cref="AccessType.Unavailable"/> until evaluated; <see cref="MediatorExtensions.Authorize"/> also returns it when
+    /// the request itself fails.
+    /// </summary>
     public AccessType Access { get; set; } = AccessType.Unavailable;
 
     /// <summary>
@@ -23,6 +30,9 @@ public class AuthorizeRequestResponse
     [JsonIgnore]
     public bool IsAvailable => Access is AccessType.Allow or AccessType.Deny;
 
+    /// <summary>
+    /// True only for <see cref="AccessType.Allow"/> - the same answer as <see cref="MediatorExtensions.IsAuthorized"/>.
+    /// </summary>
     [JsonIgnore]
     public bool IsAllowed => Access == AccessType.Allow;
 

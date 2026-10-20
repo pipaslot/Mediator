@@ -8,9 +8,16 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization;
 
+/// <summary>
+/// Handles <see cref="AuthorizeRequest"/>; registered automatically by <c>AddMediator</c>.
+/// </summary>
 public class AuthorizeRequestHandler(IServiceProvider services, INodeFormatter formatter, MediatorConfigurator configurator)
     : IMediatorHandler<AuthorizeRequest, AuthorizeRequestResponse>
 {
+    /// <summary>
+    /// Evaluates the same policies as <see cref="AuthorizationMiddleware"/>, but returns the outcome with a formatted reason
+    /// instead of throwing. An action without any policy is reported as <see cref="AccessType.Deny"/>.
+    /// </summary>
     public async Task<AuthorizeRequestResponse> Handle(AuthorizeRequest action, CancellationToken cancellationToken)
     {
         var actionType = action.Action.GetType();

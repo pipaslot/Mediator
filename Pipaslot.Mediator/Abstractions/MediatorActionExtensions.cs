@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace Pipaslot.Mediator.Abstractions;
 
+/// <summary>
+/// Turns an action type name into a human-readable label, e.g. for a spinner text, a log line or an error message shown to a user.
+/// </summary>
 public static class MediatorActionExtensions
 {
     internal static string GetActionName(this IMediatorAction? action)
@@ -20,6 +23,16 @@ public static class MediatorActionExtensions
         return GetActionFriendlyName(name, ignoreLastWords);
     }
 
+    /// <summary>
+    /// Formats a full type name the same way as <see cref="GetActionFriendlyName(IMediatorAction, int)"/>, for code that
+    /// has only the name (e.g. received over the wire) and not the action instance.
+    /// </summary>
+    /// <remarks>
+    /// The namespace is dropped, PascalCase words are split and lower-cased after the first one, and the nested-type separator
+    /// <c>+</c> or an underscore also starts a new word. Returns an empty string for a null or whitespace name.
+    /// </remarks>
+    /// <param name="actionName">Full type name, e.g. <c>MyApp.GetUserListAction</c>.</param>
+    /// <param name="ignoreLastWords">How many trailing words to drop - by default one, the <c>Action</c>/<c>Query</c>-style suffix.</param>
     public static string GetActionFriendlyName(this string? actionName, int ignoreLastWords = 1)
     {
         if (actionName is null || string.IsNullOrWhiteSpace(actionName))

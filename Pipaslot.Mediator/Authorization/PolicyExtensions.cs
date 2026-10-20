@@ -1,5 +1,8 @@
 ﻿namespace Pipaslot.Mediator.Authorization;
 
+/// <summary>
+/// Method form of the <c>&amp;</c>/<c>|</c> operators on any <see cref="IPolicy"/>, accepting several policies at once.
+/// </summary>
 public static class PolicyExtensions
 {
     /// <summary>

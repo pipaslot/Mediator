@@ -50,41 +50,65 @@ public class RuleSet : IPolicy
     /// </summary>
     public IEnumerable<Rule> RulesRecursive => Rules.Concat(RuleSets.SelectMany(s => s.RulesRecursive));
 
+    /// <summary>
+    /// Creates an empty set with <see cref="Operator.Add"/>.
+    /// </summary>
     public RuleSet() : this(Operator.Add)
     {
     }
 
+    /// <summary>
+    /// Creates an empty set.
+    /// </summary>
     [JsonConstructor]
     public RuleSet(Operator @operator)
     {
         Operator = @operator;
     }
 
+    /// <summary>
+    /// Nests <paramref name="sets"/> under a new set with <see cref="Operator.Add"/>.
+    /// </summary>
     public RuleSet(params RuleSet[] sets) : this(Operator.Add, sets)
     {
     }
 
+    /// <summary>
+    /// Nests <paramref name="sets"/> under a new set with <paramref name="operator"/>.
+    /// </summary>
     public RuleSet(Operator @operator, ICollection<RuleSet> sets)
     {
         Operator = @operator;
         RuleSets.AddRange(sets);
     }
 
+    /// <summary>
+    /// Creates a set of <paramref name="rules"/> with <see cref="Operator.Add"/>.
+    /// </summary>
     public RuleSet(params Rule[] rules) : this(Operator.Add, rules)
     {
     }
 
+    /// <summary>
+    /// Creates a set of <paramref name="rules"/> with <paramref name="operator"/>.
+    /// </summary>
     public RuleSet(Operator @operator, ICollection<Rule> rules)
     {
         Operator = @operator;
         Rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Creates a set of rules with <paramref name="operator"/>; the <c>params</c> form of the matching constructor.
+    /// </summary>
     public static RuleSet Create(Operator @operator, params Rule[] set)
     {
         return new RuleSet(@operator, set);
     }
 
+    /// <summary>
+    /// Nests sets under a new set with <paramref name="operator"/>; the <c>params</c> form of the matching constructor.
+    /// </summary>
     public static RuleSet Create(Operator @operator, params RuleSet[] set)
     {
         return new RuleSet(@operator, set);
@@ -260,11 +284,17 @@ public class RuleSet : IPolicy
         return new RuleSetNode(this, Array.Empty<IRecursiveNode>(), RuleOutcome.Ignored);
     }
 
+    /// <summary>
+    /// Returns this set; it is already resolved.
+    /// </summary>
     public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
     {
         return Task.FromResult(this);
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Add"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator +(RuleSet set, Rule rule)
     {
         var res = new RuleSet(Operator.Add);
@@ -273,6 +303,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Add"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator +(Rule rule, RuleSet set)
     {
         var res = new RuleSet(Operator.Add);
@@ -281,6 +314,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Add"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator +(RuleSet set1, RuleSet set2)
     {
         var res = new RuleSet(Operator.Add);
@@ -289,6 +325,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.And"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator &(RuleSet set, Rule rule)
     {
         var res = new RuleSet(Operator.And);
@@ -297,6 +336,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.And"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator &(Rule rule, RuleSet set)
     {
         var res = new RuleSet(Operator.And);
@@ -305,6 +347,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.And"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator &(RuleSet set1, RuleSet set2)
     {
         var res = new RuleSet(Operator.And);
@@ -313,6 +358,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Or"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator |(RuleSet set, Rule rule)
     {
         var res = new RuleSet(Operator.Or);
@@ -321,6 +369,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Or"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator |(Rule rule, RuleSet set)
     {
         var res = new RuleSet(Operator.Or);
@@ -329,6 +380,9 @@ public class RuleSet : IPolicy
         return res;
     }
 
+    /// <summary>
+    /// Nests both operands under a new set with <see cref="Operator.Or"/>; the operands are not flattened.
+    /// </summary>
     public static RuleSet operator |(RuleSet set1, RuleSet set2)
     {
         var res = new RuleSet(Operator.Or);
