@@ -1,0 +1,30 @@
+# Temporary suppression of CS1591 (missing XML comment) for folders whose public API is not documented yet.
+# Each section covers exactly one folder (a single '*' does not cross '/'), so a new subfolder is never suppressed.
+# Delete a folder's section as soon as that folder is documented.
+
+[Pipaslot.Mediator/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator/Authorization/Formatting/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator/Configuration/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator/Notifications/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator/Services/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator.Http/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator.Http/Configuration/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator.Http/Middlewares/*.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+[Pipaslot.Mediator.Http/Serialization/*.cs]
+dotnet_diagnostic.CS1591.severity = none

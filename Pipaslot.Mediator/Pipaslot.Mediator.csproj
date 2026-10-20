@@ -12,7 +12,6 @@
         <Description>
             Mediator pattern with action handler execution wrapped in middlewares (Similar to ASP.NET Core Middlewares).
         </Description>
-        <NoWarn>1591</NoWarn>
         <RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
