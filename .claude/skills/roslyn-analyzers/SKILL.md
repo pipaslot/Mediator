@@ -242,10 +242,12 @@ this scoping.
 Use the [wiki-page](../wiki-page/SKILL.md) skill for the mechanics of editing `docs/wiki/` (anchor
 conventions, `## See also` footers, avoiding duplication).
 
-Add a changelog bullet under `## Unreleased` in `Release-notes-and-breaking-changes.md`, in the
-`### Roslyn analyzer changes` subsection (create it if it doesn't exist yet) rather than mixed in with
-unrelated API changes - one line, rule ID, what it flags, link to the wiki anchor. Follow the same
-"one terse sentence, no rationale" style as the rest of that file.
+There is no changelog file to edit - release notes are GitHub Releases, generated from PR titles at release
+time. Title the PR with the rule ID and what it flags, one terse sentence, no rationale
+(`Add PIPMEDxxx flagging <what it flags>`). The rule's row in `AnalyzerReleases.Unshipped.md` (see "Release
+tracking files" above) is still required in the same PR; moving it to `AnalyzerReleases.Shipped.md` is a
+release step (`scripts/ship-analyzer-rules.ps1`, see the Releasing section of `CONTRIBUTING.md`), not part
+of the PR.
 
 ## See also
 

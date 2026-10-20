@@ -2,44 +2,17 @@
 
 This file documents maintainer workflows for this repo. It is not part of the published wiki (`docs/wiki/`), which is user-facing package documentation.
 
-## Changelog entries ("Unreleased" convention)
+## Release notes
 
-`docs/wiki/Release-notes-and-breaking-changes.md` follows a [Keep a Changelog](https://keepachangelog.com/)-style convention:
+Release notes live in [GitHub Releases](https://github.com/pipaslot/Mediator/releases), one per version — there is no changelog file to keep up to date in each PR. They are written when the release is created (see [Releasing](#releasing)), starting from the list of merged PRs that GitHub generates.
 
-- Any PR that changes user-observable behavior adds a bullet under the `## Unreleased` section at the top of the file. Do not invent a version number for it — that happens later, at release time.
-- `## Unreleased` stays empty between releases; it's fine for it to have no bullets for a while.
-
-## Pull request titles
-
-PRs are squash-merged, so the PR title becomes the subject of the single commit on `main`, which becomes the changelog entry once releases are generated from commit history. The title must follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope)!: description` — one short English sentence in the imperative ("add", not "added"); `(scope)` and `!` are optional. The `conventional title` check (`.github/workflows/pr-title.yml`) rejects any other format.
-
-| Type | Effect on the next release | Changelog section |
-|---|---|---|
-| `feat` | minor version bump | Features |
-| `fix` | patch version bump | Bug Fixes |
-| `perf` | patch version bump | Performance Improvements |
-| `revert` | patch version bump | Reverts |
-| `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `style` | none — on their own they don't propose a release | not listed |
-| `!` after the type (`feat!:`, `fix(http)!:`) | major version bump | ⚠ BREAKING CHANGES |
-
-Mark breaking changes with `!` in the title. A `BREAKING CHANGE:` footer only counts if it ends up in the squash commit message; with the settings below the commit carries the title only, so a footer written in the PR description has no effect.
-
-Dependency updates:
-
-- dependencies of the published packages (`Pipaslot.Mediator`, `Pipaslot.Mediator.Http`) → `fix(deps): …` — consumers get them, so they are listed and propose a patch release;
-- dependencies of tests, the demo or benchmarks (e.g. `tests/Directory.Packages.props`) → `chore(deps): …` — not listed and no release on their own.
-
-Examples:
-
-- valid: `feat: add HTTP GET allowlist`, `fix(http): keep context in nested calls`, `feat!: remove IFoo`, `fix(deps): update Microsoft.Extensions.DependencyInjection.Abstractions`, `chore(deps): update xunit`
-- invalid: `Added HTTP GET allowlist` (no type), `feature: add X` (unknown type), `feat:` (no description)
+- **The PR title is that list's entry**, so write it for a package consumer: one short English sentence in the imperative saying what changed ("Add HTTP GET allowlist", not "Added…" or "WIP"). No prefix convention is enforced.
+- **A breaking change also updates the [Migration guide](docs/wiki/Migration-guide.md) in the same PR** — add the step to the section of the upcoming major version (create it if it doesn't exist yet). The release notes of that version then link there instead of repeating the migration.
+- The history up to 9.1.0 is archived in [docs/archive/Release-notes-and-breaking-changes.md](docs/archive/Release-notes-and-breaking-changes.md) and is no longer extended.
 
 ### Repository settings
 
-The title convention only holds if every merge produces exactly one commit titled after the PR:
-
-- Settings → General → Pull Requests: enable only **Allow squash merging**, with **Default commit message** = "Pull request title"; disable **Allow merge commits** and **Allow rebase merging**.
-- Settings → Branches → branch protection rule for `main` → "Require status checks to pass before merging": select both `build & test` and `conventional title`.
+- Settings → Branches → branch protection rule for `main` → "Require status checks to pass before merging": select `build & test`.
 
 ## CI quality gate
 
@@ -51,33 +24,32 @@ The title convention only holds if every merge produces exactly one commit title
 `llms.txt` in the repo root indexes the wiki for fetch-capable AI tools, following the [llms.txt](https://llmstxt.org/) convention. It is a supplement, never the primary channel — anything a consumer must know belongs in the packaged XML docs or the wiki itself, since a tool behind a corporate firewall may never fetch this file.
 
 - **Links point at `docs/wiki/*.md` on `main` via `raw.githubusercontent.com`, deliberately not at a release tag.** `docs/wiki/` is mirrored by `wiki-sync.yml` to the GitHub Wiki, which has exactly one live version — pinning to a tag would advertise a snapshot that diverges from the wiki every reader is actually looking at, and would buy per-release maintenance for nothing. Raw Markdown rather than the `blob/` view keeps the fetched content free of HTML chrome.
-- **Because the links carry no version, the release runbook needs no `llms.txt` step.** Do not add one without also changing the link scheme above.
+- **Because the links carry no version, releasing needs no `llms.txt` step.** Do not add one without also changing the link scheme above.
 - **CI enforces that `llms.txt` and `docs/wiki/` agree** (`Check llms.txt covers docs/wiki` in `ci.yml`): a page with no line, or a line pointing at a missing page, fails the build. `_Sidebar.md` is excluded as GitHub Wiki navigation chrome. Adding a wiki page therefore means adding its line here in the same change.
 
 ## Versioning
 
 - `Pipaslot.Mediator` and `Pipaslot.Mediator.Http` always share the same version number. One git tag releases both packages together.
-- The version is derived entirely from the git tag via [MinVer](https://github.com/adamralph/minver) — do not add a `<Version>` back to either `.csproj`.
+- The version is derived entirely from the git tag `vX.Y.Z` via [MinVer](https://github.com/adamralph/minver) — do not add a `<Version>` back to either `.csproj`. The tag is created together with the GitHub Release.
 
-## Release runbook
+## Releasing
 
-1. On `main`, run:
+1. **Analyzer rules (only if `Pipaslot.Mediator.Analyzers/AnalyzerReleases.Unshipped.md` has rule entries)** — move them to `AnalyzerReleases.Shipped.md` under `## Release X.Y.Z` and merge that to `main` first:
    ```bash
-   pwsh ./scripts/release.ps1 -Version X.Y.Z
+   pwsh ./scripts/ship-analyzer-rules.ps1 -Version X.Y.Z
    ```
-   It only edits files, never commits/tags/pushes:
-   - renames `## Unreleased` to `## Version X.Y.Z` in `docs/wiki/Release-notes-and-breaking-changes.md`, and adds a fresh empty `## Unreleased` section above it (so the next PR has somewhere to add a bullet without having to remember this step);
-   - if `Pipaslot.Mediator.Analyzers/AnalyzerReleases.Unshipped.md` has any rule entries (new/changed/removed since the last release), moves them into `AnalyzerReleases.Shipped.md` under a matching `## Release X.Y.Z` section — the analyzer ships bundled inside `Pipaslot.Mediator`, so it doesn't get its own version number. Skipped automatically (not an error) when `Unshipped.md` is empty — not every release touches the analyzer.
-2. Review the diff, then commit/PR it to `main`.
-3. Tag and push:
-   ```bash
-   git tag vX.Y.Z
-   git push origin vX.Y.Z
-   ```
-4. Watch the `publish to nuget` GitHub Actions run. It will, in order:
-   - fail fast if `## Version X.Y.Z` isn't found in the changelog (the previous step was skipped or the version doesn't match the tag),
-   - run the Core, Http and Analyzers test suites,
-   - pack both projects (version comes from the tag via MinVer),
-   - log in to NuGet.org via OIDC Trusted Publishing and push both packages,
-   - create a GitHub Release for the tag using the extracted changelog section as its notes.
-5. Verify both packages show up on nuget.org and the GitHub Release was created with the expected notes.
+   The analyzer ships bundled inside `Pipaslot.Mediator` (`dotnet pack` adds it), so this is only its release tracking, not packaging. Not every release touches the analyzer; the script does nothing when there is nothing to ship.
+2. **GitHub → Releases → Draft a new release.**
+   - *Choose a tag* → type `vX.Y.Z` → *Create new tag on publish*; *Target* `main` (or a `release/*` branch for a fix of an older version line).
+   - *Generate release notes* fills in the PRs merged since the previous release. Edit them into the notes for consumers: drop internal-only entries, call out breaking changes and link the [Migration guide](https://github.com/pipaslot/Mediator/wiki/Migration-guide) for a major version.
+   - Choose the version by [SemVer](https://semver.org/): breaking change → major, new API → minor, fixes only → patch. *Set as a pre-release* for a `vX.Y.Z-suffix` tag.
+3. **Publish release.** The `publish to nuget` workflow (`.github/workflows/publish.yml`) then, for the tagged commit:
+   - fails if the tag isn't `vX.Y.Z[-suffix]` or the commit isn't on `main` or a `release/*` branch,
+   - warns if analyzer rules were left in `AnalyzerReleases.Unshipped.md` (step 1 then goes into a follow-up PR with the released version),
+   - runs the Core, Http and Analyzers test suites,
+   - packs both projects (MinVer reads the version from the tag) and fails if the package version differs from the tag,
+   - logs in to NuGet.org via OIDC Trusted Publishing and pushes both packages.
+
+If the run fails (e.g. a flaky test), re-run it from the Actions tab. If the fix needs a code change, merge it, delete the GitHub Release together with its tag, and create the release again — the failed version never reached NuGet.
+
+The NuGet Trusted Publishing policy for both packages is bound to `pipaslot/Mediator` and the workflow file `publish.yml` without a GitHub environment — keep that file name and do not add an `environment:` to the workflow.

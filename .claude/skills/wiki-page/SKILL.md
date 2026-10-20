@@ -28,7 +28,8 @@ renamed, removed, or altered. A page nobody expected often documents the old beh
 you thought of first are the ones already fresh in your head — not the ones most likely to be stale.
 
 Where a change removes or replaces behavior, delete the old description rather than adding a note
-beside it; the changelog is where the history lives.
+beside it; the GitHub Release notes are where the history lives. A breaking change also gets its
+migration step in `Migration-guide.md`.
 
 Never document behavior you are unsure about. A confidently wrong page is worse than a missing one —
 say what you couldn't resolve instead of guessing.
@@ -38,7 +39,7 @@ say what you couldn't resolve instead of guessing.
 Apply this to every new or edited page under `docs/wiki/`:
 
 - **Footer**: end every page (except `Home.md`, which is itself the nav index, and
-  `Release-notes-and-breaking-changes.md`, a plain changelog) with a `## See also` section listing 1-3
+  `Migration-guide.md`, a plain list per version) with a `## See also` section listing 1-3
   related pages and a short reason each is relevant. Use `## See also` as the only heading name for
   this — don't reintroduce `## Next steps` or other variants; the wiki previously had both, which is
   the inconsistency this rule replaces.
@@ -64,11 +65,10 @@ Apply this to every new or edited page under `docs/wiki/`:
   Explanation into a Reference "Library structure" section, or `2.-Core-concepts-and-glossary.md`
   moving from Explanation into the Reference glossary), add an explicit one-line signpost sentence
   marking the transition — a heading alone is not enough for the reader to notice the category shift.
-- **Historical context belongs in the changelog**: don't narrate past/removed behavior (e.g. "in
+- **Historical context belongs in the release notes**: don't narrate past/removed behavior (e.g. "in
   version X this was done differently") inline in a Reference or How-to chapter. Keep the chapter
-  describing only current behavior, and link to the relevant entry in
-  `Release-notes-and-breaking-changes.md` for readers who want the history (a short "Historical note"
-  subsection with a link is enough if it's worth flagging at all).
+  describing only current behavior; what a reader must change when upgrading goes to
+  `Migration-guide.md`, and the rest of the history to the GitHub Release notes.
 - **Explain non-obvious structural choices**: if a Tutorial/How-to page makes a structural choice that
   isn't self-evident (e.g. splitting a quickstart's code into "Shared" vs "Executable" projects), add
   a short "why" sentence or paragraph before the steps rather than letting the reader infer it — this
@@ -82,5 +82,5 @@ Apply this to every new or edited page under `docs/wiki/`:
   `6.-Pipelines-and-Middlewares.md`, and
   `8.-HTTP-transport-and-configuration-for-Client-Server-usage.md`. Update the relevant diagram there
   if you change pipeline ordering or the client/server call flow.
-- `docs/archive/version4/` and `docs/archive/version5/` are old wiki snapshots kept for historical
-  reference only. Never treat them as current API documentation and never edit them to match a change.
+- `docs/archive/version4/`, `docs/archive/version5/` and `docs/archive/Release-notes-and-breaking-changes.md`
+  (the changelog up to 9.1.0) are kept for historical reference only. Never treat them as current API documentation and never edit them to match a change.

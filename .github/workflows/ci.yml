@@ -61,6 +61,9 @@ jobs:
           --settings tests/Pipaslot.Mediator.Analyzers.Tests/coverage.runsettings
           --results-directory ./coverage/analyzers
 
+      - name: Test release scripts
+        run: pwsh -NoProfile -File scripts/ship-analyzer-rules.Tests.ps1
+
       - name: Generate coverage report
         if: always()
         run: |

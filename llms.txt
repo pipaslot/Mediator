@@ -31,4 +31,4 @@ Note for tools: the public API also carries detailed XML documentation inside th
 ## Optional
 
 - [Home](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/Home.md): Landing page and table of contents of the wiki.
-- [Release notes and breaking changes](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/Release-notes-and-breaking-changes.md): Changelog, including every breaking change and its migration note.
+- [Migration guide](https://raw.githubusercontent.com/pipaslot/Mediator/main/docs/wiki/Migration-guide.md): What to change in your code when upgrading across a major version. Release notes of every version are in GitHub Releases: https://github.com/pipaslot/Mediator/releases

@@ -18,4 +18,5 @@
    - [9.4. Cookbook and integrations](9.4.-Cookbook-and-integrations)
 
 **Release notes**
-- [Release notes and breaking changes](Release-notes-and-breaking-changes)
+- [Migration guide](Migration-guide)
+- [GitHub Releases](https://github.com/pipaslot/Mediator/releases)
