@@ -15,9 +15,14 @@ public class AuthorizeRequestHandler(IServiceProvider services, INodeFormatter f
     : IMediatorHandler<AuthorizeRequest, AuthorizeRequestResponse>
 {
     /// <summary>
-    /// Evaluates the same policies as <see cref="AuthorizationMiddleware"/>, but returns the outcome with a formatted reason
-    /// instead of throwing. An action without any policy is reported as <see cref="AccessType.Deny"/>.
+    /// Evaluates the same policies as <see cref="AuthorizationMiddleware"/>, but returns an unmet policy as the outcome with a
+    /// formatted reason instead of throwing. An action without any policy is reported as <see cref="AccessType.Deny"/>.
     /// </summary>
+    /// <remarks>
+    /// Inconsistent policies still throw, as in the middleware: <see cref="AuthorizationException"/>
+    /// (<see cref="AuthorizationExceptionTypes.UnauthorizedHandler"/>) when only some handlers declare a policy, and
+    /// <see cref="MediatorException"/> when a handler's authorization returns null.
+    /// </remarks>
     public async Task<AuthorizeRequestResponse> Handle(AuthorizeRequest action, CancellationToken cancellationToken)
     {
         var actionType = action.Action.GetType();
