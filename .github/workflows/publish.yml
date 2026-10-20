@@ -1,43 +1,51 @@
 name: publish to nuget
+# Keep this file name and do not add an `environment:` - the NuGet Trusted Publishing
+# policy on nuget.org is bound to this repository and to `publish.yml`.
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  # Publishing a GitHub Release (Releases -> Draft a new release -> Publish) releases
+  # the version of its tag `vX.Y.Z` to NuGet, see CONTRIBUTING.md#releasing.
+  release:
+    types: [published]
+concurrency:
+  group: publish-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 jobs:
   publish:
     name: build, pack & publish
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       id-token: write # required to request the OIDC token for NuGet Trusted Publishing
-      contents: write # required to create the GitHub Release
     steps:
+      - name: Resolve version
+        id: resolve
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Release tag '$TAG' is not in the form vX.Y.Z (or vX.Y.Z-suffix for a pre-release)."
+            exit 1
+          fi
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v7
         with:
+          ref: refs/tags/${{ github.event.release.tag_name }}
           fetch-depth: 0 # MinVer needs full tag history to compute the version
 
       - name: Verify tag is on main or a release branch
         run: |
           git fetch origin main '+refs/heads/release/*:refs/remotes/origin/release/*' --quiet
           git branch -r --contains HEAD | grep -qE '(^|/)(main|release/)' \
-            || { echo "::error::Tag ${{ github.ref_name }} (commit $GITHUB_SHA) is not reachable from main or any release/* branch. Tag a commit that has been merged first."; exit 1; }
+            || { echo "::error::Tag ${{ github.event.release.tag_name }} (commit $(git rev-parse HEAD)) is not reachable from main or any release/* branch. Create the release from a commit that has been merged first."; exit 1; }
 
-      - name: Extract release notes
+      # The rule rows only matter for the analyzer's own release tracking (RS2xxx) and are not part
+      # of the package, so a forgotten move doesn't block the release - it is fixed in a follow-up PR.
+      - name: Check analyzer rules were shipped
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          CHANGELOG="docs/wiki/Release-notes-and-breaking-changes.md"
-          ESCAPED_VERSION=$(printf '%s' "$VERSION" | sed 's/[.[\*^$]/\\&/g')
-          if ! grep -qE "^## Version ${ESCAPED_VERSION}([^0-9.]|\$)" "$CHANGELOG"; then
-            echo "::error::Changelog entry for v$VERSION missing in $CHANGELOG — rename '## Unreleased' to '## Version $VERSION' first."
-            exit 1
+          if grep -qE '^[A-Za-z]+[0-9]+ *\|' Pipaslot.Mediator.Analyzers/AnalyzerReleases.Unshipped.md; then
+            echo "::warning::AnalyzerReleases.Unshipped.md still has rule entries. Run 'pwsh ./scripts/ship-analyzer-rules.ps1 -Version ${{ steps.resolve.outputs.version }}' and merge the result to main."
           fi
-          awk -v ver="$ESCAPED_VERSION" '
-            /^## Version / {
-              if (printing) exit
-              if ($0 ~ "^## Version " ver "([^0-9.]|$)") { printing = 1; next }
-            }
-            printing { print }
-          ' "$CHANGELOG" > release-notes.md
-          sed -i -E 's/\(([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/(https:\/\/github.com\/pipaslot\/Mediator\/wiki\/\1\2)/g' release-notes.md
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -66,6 +74,15 @@ jobs:
       - name: Pack Http
         run: dotnet pack Pipaslot.Mediator.Http/Pipaslot.Mediator.Http.csproj -c Release -o ./packed/
 
+      - name: Verify package version
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |
+          for package in Pipaslot.Mediator Pipaslot.Mediator.Http; do
+            test -f "packed/${package}.${VERSION}.nupkg" \
+              || { echo "::error::Expected packed/${package}.${VERSION}.nupkg, MinVer produced: $(ls packed)"; exit 1; }
+          done
+
       - name: NuGet login (OIDC)
         uses: NuGet/login@v1
         id: nuget-login
@@ -74,8 +91,3 @@ jobs:
 
       - name: Publish
         run: dotnet nuget push ./packed/*.nupkg --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" --title "${{ github.ref_name }}" --notes-file release-notes.md

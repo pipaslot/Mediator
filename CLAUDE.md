@@ -70,8 +70,8 @@ Three levels, one mechanical rule. Grep the test for `Dispatch(` / `Execute(`:
 - **Assert the exception type plus its key data, not the whole formatted message.** Comparing against
   `SomeException.Create(...).Message` makes the test reimplement the production code it is checking.
 - **A test class doc comment states the trigger condition and how it differs from neighbouring test classes.**
-  It must not narrate history ("before unit 4…", "introduced in version X") — that belongs in
-  `docs/wiki/Release-notes-and-breaking-changes.md`.
+  It must not narrate history ("before unit 4…", "introduced in version X") — that belongs in the PR, whose
+  title ends up in the GitHub Release notes.
 - **Static state in `Tests.ValidActions` fixtures is reset in the test class constructor**, never inline inside a
   test method. Classes sharing the same static fixture must share an xUnit `[Collection]`.
 
@@ -136,6 +136,6 @@ The `<summary>`/`<remarks>`/`<example>` blocks on the core public types are a **
 - `docs/wiki/` is the source of truth for the GitHub Wiki. **Whenever a code change affects public API surface, configuration, setup steps, middleware behavior, or any other user-facing behavior described there, update the relevant page(s) under `docs/wiki/` in the same change** — don't leave it for a follow-up. Purely internal refactors with no observable behavior change don't need a wiki update.
 - **Use the `wiki-page` skill whenever you read or edit a page under `docs/wiki/`.** It holds the page-structure conventions and how to read a page without pulling the whole file into context.
 - **Do the wiki edit as the last step of the task**, after the code and tests are done. The pages are 3-25 KB each; pulling them into context mid-implementation costs you room you still need for the code.
-- **Pull request titles must follow Conventional Commits** (`type(scope)!: description`), see [CONTRIBUTING.md](CONTRIBUTING.md#pull-request-titles).
-- **Every change with user-observable behavior also gets a changelog bullet.** Add it under `## Unreleased` at the top of `docs/wiki/Release-notes-and-breaking-changes.md`, in the same change — don't leave it for a follow-up, and don't invent a version number (that's assigned later, at release time; see `CONTRIBUTING.md`). Purely internal refactors with no observable behavior change don't need an entry.
-- **Changelog bullets are one terse sentence each** — what changed, not why or how. No rationale, no design justification, no enumeration of edge cases/exceptions/behavioral nuances. If a reader needs more than the one-liner, link to the relevant `docs/wiki/` page (`[Page](page.md#anchor)`) rather than explaining inline — the wiki page is where that detail belongs and stays current.
+- **Release notes are GitHub Releases, written at release time — there is no changelog file to update in a change.** The PR title is the entry GitHub lists in the generated notes, so make it one terse English sentence a package consumer understands: what changed, not why or how. Anything a reader needs beyond the one-liner belongs on the relevant `docs/wiki/` page, updated in the same change. See [CONTRIBUTING.md](CONTRIBUTING.md#release-notes).
+- **A breaking change also adds its migration step to `docs/wiki/Migration-guide.md`** in the same change, under the section of the upcoming major version (create it if missing). Don't invent the version from scratch — it is the next major after the latest release tag.
+- `docs/archive/Release-notes-and-breaking-changes.md` is the frozen changelog up to 9.1.0. Don't extend it.
