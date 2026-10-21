@@ -266,6 +266,27 @@ public class DefaultNodeFormatterTests
         AssertEqual(reason, root);
     }
 
+    [Fact]
+    public void Format_SubclassOverridesConvertRuleNode_UsesOverriddenReason()
+    {
+        var sut = new UppercaseRuleFormatter { NegativeOutcomeMessagePrefix = string.Empty };
+        var root = RuleSet.Create(Operator.And, Rule.Deny("first"), Rule.Deny("second"));
+
+        var node = root.Reduce();
+        var reason = sut.Format(node);
+
+        Assert.IsType<RuleSetNode>(node);
+        Assert.Equal("FIRST AND SECOND", reason);
+    }
+
+    private class UppercaseRuleFormatter : DefaultNodeFormatter
+    {
+        protected override FormatedNode ConvertRuleNode(RuleNode ruleNode)
+        {
+            return new FormatedNode(ruleNode.Rule.Value.ToUpperInvariant());
+        }
+    }
+
     private void AssertEqual(string expected, Operator @operator, params Rule[] rules)
     {
         var set = RuleSet.Create(@operator, rules);

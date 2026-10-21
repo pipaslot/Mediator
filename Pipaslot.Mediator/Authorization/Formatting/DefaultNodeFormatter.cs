@@ -6,18 +6,50 @@ namespace Pipaslot.Mediator.Authorization.Formatting;
 /// <summary>
 /// Provide default semantics for reason message formating
 /// </summary>
+/// <remarks>
+/// The <see cref="INodeFormatter"/> registered by <c>AddMediator</c>. It walks the reduced tree from the leaves up,
+/// renders every <see cref="RuleNode"/> to a sentence, drops empty sentences, joins siblings with
+/// <see cref="FormatOperator"/> and prepends <see cref="NegativeOutcomeMessagePrefix"/> or
+/// <see cref="PositiveOutcomeMessagePrefix"/>.
+/// <para>
+/// To change wording, prefixes or bracketing, derive from this class, override the relevant <c>protected virtual</c>
+/// member (typically <see cref="ConvertRuleNode"/> or one of the <c>Format*Rule</c> methods) and register the subclass
+/// with <c>ReplaceNodeFormatter</c>. Implement <see cref="INodeFormatter"/> directly only when the output is not a
+/// sentence built from the tree, e.g. a structured or localized message.
+/// </para>
+/// </remarks>
 public class DefaultNodeFormatter : INodeFormatter
 {
+    /// <summary>
+    /// Prepended to the reason for every outcome other than <see cref="RuleOutcome.Allow"/>, including
+    /// <see cref="RuleOutcome.Unavailable"/> and <see cref="RuleOutcome.Ignored"/>.
+    /// </summary>
     public virtual string NegativeOutcomeMessagePrefix { get; set; } = "Policy rules not matched for the current user: ";
+    /// <summary>
+    /// Prepended to the reason when the outcome is <see cref="RuleOutcome.Allow"/>. Empty by default. Only visible through
+    /// <see cref="AuthorizeRequest"/>, because the authorization middleware formats a reason only when access is not allowed.
+    /// </summary>
     public virtual string PositiveOutcomeMessagePrefix { get; set; } = "";
+    /// <summary>
+    /// When a combination of several reasons is put in parentheses; applied by <see cref="FormatJoin"/>.
+    /// </summary>
     public virtual MultipleRuleWrapType MultipleRuleWrapType { get; set; } = MultipleRuleWrapType.Always;
 
+    /// <summary>
+    /// Renders <paramref name="node"/> and its descendants to one message: the prefix chosen by
+    /// <see cref="FormatMessagePrefix"/> followed by the trimmed reason.
+    /// </summary>
     public virtual string Format(IRecursiveNode node)
     {
         var formated = ConvertRecursive(node);
         return FormatMessagePrefix(node.Outcome) + formated.Reason.Trim();
     }
 
+    /// <summary>
+    /// Chooses the message prefix for the root outcome: <see cref="PositiveOutcomeMessagePrefix"/> for
+    /// <see cref="RuleOutcome.Allow"/>, otherwise <see cref="NegativeOutcomeMessagePrefix"/>.
+    /// Override to vary the prefix per outcome, e.g. a different text for <see cref="RuleOutcome.Unavailable"/>.
+    /// </summary>
     protected virtual string FormatMessagePrefix(RuleOutcome outcome)
     {
         return outcome == RuleOutcome.Allow
@@ -55,6 +87,14 @@ public class DefaultNodeFormatter : INodeFormatter
         return ConvertJoin(current.Operator, children, currentNodeWillBeCombined, parent?.Operator);
     }
 
+    /// <summary>
+    /// Joins the already formatted reasons of two or more sibling nodes with <see cref="FormatOperator"/>.
+    /// </summary>
+    /// <param name="operator">Operator of the node whose children are joined.</param>
+    /// <param name="nodes">Formatted children; children with an empty reason are already removed.</param>
+    /// <param name="wrapStatement">The joined text will itself be combined with a sibling, so it is passed to
+    /// <see cref="FormatJoin"/> for optional parentheses. False for a combination that stands alone, e.g. at the root.</param>
+    /// <param name="parentOperator">Operator of the parent node, <c>null</c> at the root.</param>
     protected virtual FormatedNode ConvertJoin(Operator @operator, FormatedNode[] nodes, bool wrapStatement, Operator? parentOperator)
     {
         var operation = FormatOperator(@operator);
