@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Tests.Notifications;
 /// (directly on <see cref="MediatorContext.AddResult"/>) never flips <see cref="ExecutionStatus"/> by itself - neither when it is
 /// forwarded from a nested context nor when it is added locally on the root context. Only
 /// <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>/<see cref="MediatorContextExtensions.AddErrors"/>
-/// fail the action (see Todos/1.5.2-analysis-open-design-questions.md, "narrow the coupling").
+/// fail the action - the failure state is driven only by an explicit error, notifications are an informational channel.
 /// </summary>
 public class NotificationPropagationStatusTests
 {
