@@ -21,7 +21,7 @@ public interface IRequest<out TResponse> : IRequest, IMediatorAction<TResponse>;
 
 /// <summary>
 /// Marker interface for IRequest action type.
-/// Use only for pipeline configuration to define middlewares applicable for this action type..
+/// Use only for pipeline configuration to define middlewares applicable for this action type.
 /// </summary>
 /// <remarks>
 /// Do not implement this one directly on an action - implement <see cref="IRequest{TResponse}"/>, which carries the result

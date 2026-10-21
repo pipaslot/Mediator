@@ -16,5 +16,5 @@ namespace Pipaslot.Mediator;
 /// Use <see cref="IRequestHandler{TRequest,TResponse}"/> when the caller needs data back.
 /// </para>
 /// </remarks>
-/// <typeparam name="TMessage">The type of event being handled</typeparam>
+/// <typeparam name="TMessage">The type of message being handled</typeparam>
 public interface IMessageHandler<in TMessage> : IMediatorHandler<TMessage> where TMessage : IMessage;

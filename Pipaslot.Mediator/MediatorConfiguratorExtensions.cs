@@ -7,13 +7,22 @@ using System.Linq;
 
 namespace Pipaslot.Mediator;
 
+/// <summary>
+/// Shorthands for <see cref="IMediatorConfigurator.AddPipeline"/> with a predicate or with marker types as the condition.
+/// </summary>
+/// <remarks>
+/// Every overload registers a pipeline that replaces the default one for the matching actions, under the same rules as
+/// <see cref="IMediatorConfigurator.AddPipeline"/> - notably that an action matching more than one pipeline fails on
+/// execution with <see cref="MediatorException.TooManyPipelines"/>. To add a middleware for a subset of actions while
+/// keeping the shared pipeline, use the <c>UseWhen*</c> methods of <see cref="MiddlewareRegistratorExtensions"/> instead.
+/// </remarks>
 public static class MediatorConfiguratorExtensions
 {
     /// <summary>
     /// Register middlewares as pipeline executed independently of the default pipeline
     /// </summary>
-    /// <param name="configurator"></param>
-    /// <param name="condition"></param>
+    /// <param name="configurator">The configurator returned by <c>AddMediator</c></param>
+    /// <param name="condition">Evaluated for every dispatched action; true selects this pipeline instead of the default one</param>
     /// <param name="subMiddlewares">Middlewares applied when condition is met</param>
     /// <param name="identifier">Customized unique pipeline identifier. Pipeline with the same identifier will be replaced</param>
     public static IMediatorConfigurator AddPipeline(this IMediatorConfigurator configurator, Func<IMediatorAction, bool> condition,
@@ -27,6 +36,11 @@ public static class MediatorConfiguratorExtensions
     /// <summary>
     /// Register action-specific pipeline with separated middlewares applied only for specified action types.
     /// </summary>
+    /// <remarks>
+    /// Matches actions assignable to any of <paramref name="actionTypes"/>, so a marker interface covers every action
+    /// implementing it. The pipeline identifier is derived from the types, so calling this again with the same types in the
+    /// same order replaces the earlier pipeline instead of adding a competing one.
+    /// </remarks>
     public static IMediatorConfigurator AddPipelineForActions(this IMediatorConfigurator configurator, Action<IMiddlewareRegistrator> subMiddlewares,
         params Type[] actionTypes)
     {
@@ -66,6 +80,11 @@ public static class MediatorConfiguratorExtensions
     /// <summary>
     /// Create or override middlewares used for Authorization requests
     /// </summary>
+    /// <remarks>
+    /// <c>AddMediator</c> already registers an empty pipeline for <see cref="AuthorizeRequest"/>, the action behind
+    /// <see cref="MediatorExtensions.IsAuthorized"/> and <see cref="MediatorExtensions.Authorize"/>, so that custom
+    /// middlewares of the default pipeline do not interfere with authorization checks; this call replaces it.
+    /// </remarks>
     public static IMediatorConfigurator AddPipelineForAuthorizationRequest(this IMediatorConfigurator configurator,
         Action<IMiddlewareRegistrator> subMiddlewares)
     {
