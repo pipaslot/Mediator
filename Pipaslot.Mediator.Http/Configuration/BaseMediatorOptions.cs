@@ -7,8 +7,23 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Http.Configuration;
 
+/// <summary>
+/// Settings shared by the client (<see cref="ClientMediatorOptions"/>) and the server (<see cref="ServerMediatorOptions"/>)
+/// side of the HTTP transport.
+/// </summary>
+/// <remarks>
+/// Client and server must agree on <see cref="Endpoint"/>. The credible-type members configure the deserialization
+/// allowlist (<see cref="ICredibleProvider"/>) that protects against a payload naming an arbitrary type to instantiate;
+/// that decision is independent of the JSON shape produced by the serializer.
+/// </remarks>
+/// <typeparam name="TBuilder">The concrete options type, returned by the fluent <c>AddCredible*</c> methods.</typeparam>
 public abstract class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBuilder : BaseMediatorOptions<TBuilder>
 {
+    /// <summary>
+    /// URL path of the single endpoint through which all actions travel. The client posts to it and the server
+    /// middleware answers on it, so both sides need the same value. A missing leading slash is added.
+    /// Defaults to <see cref="MediatorConstants.Endpoint"/>.
+    /// </summary>
     public string Endpoint
     {
         get;
@@ -55,6 +70,11 @@ public abstract class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBu
     /// Define extra types returned by server as credible.
     /// For action result type refistrations use mediator methods <see cref="IMediatorConfigurator.AddActionsFromAssemblyOf"/> or <see cref="IMediatorConfigurator.AddActionsFromAssembly"/>
     /// </summary>
+    /// <remarks>
+    /// Setting the property replaces the whole list, including the built-in <see cref="Notification"/> entry; prefer
+    /// <see cref="AddCredibleResultType{T}"/>, which appends. Adding types here has an effect only while the matching
+    /// <c>DeserializeOnlyCredible*</c> flag is enabled.
+    /// </remarks>
     public IEnumerable<Type> CredibleResultTypes
     {
         get => _credibleResultTypes;
@@ -69,6 +89,11 @@ public abstract class BaseMediatorOptions<TBuilder> : IMediatorOptions where TBu
     /// Define extra types returned by server as credible.
     /// For action result type refistrations use mediator methods <see cref="IMediatorConfigurator.AddActionsFromAssemblyOf"/> or <see cref="IMediatorConfigurator.AddActionsFromAssembly"/>
     /// </summary>
+    /// <remarks>
+    /// Trusts every type of the listed assemblies, so list only assemblies that contain nothing but contracts your
+    /// application intends to receive; prefer <see cref="CredibleResultTypes"/> for individual types. Setting the
+    /// property replaces the whole list; <see cref="AddCredibleResultAssemblyOf{T}"/> appends instead.
+    /// </remarks>
     public IEnumerable<Assembly> CredibleResultAssemblies
     {
         get => _credibleResultAssemblies;

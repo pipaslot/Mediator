@@ -9,6 +9,10 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// Dependency injection registration of the HTTP transport: the client (<c>AddMediatorClient</c>) and the server
+/// (<c>AddMediatorServer</c>) side of the mediator.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>

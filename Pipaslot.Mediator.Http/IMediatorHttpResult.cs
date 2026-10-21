@@ -25,5 +25,10 @@ namespace Pipaslot.Mediator.Http;
 /// </summary>
 public interface IMediatorHttpResult
 {
+    /// <summary>
+    /// Writes this result to the HTTP response (status code, headers, body) of the root request.
+    /// </summary>
+    /// <param name="httpContext">HTTP context of the root request; the implementation owns the response from here on.</param>
+    /// <param name="cancellationToken">Signals that the HTTP request was aborted.</param>
     Task ApplyAsync(HttpContext httpContext, CancellationToken cancellationToken);
 }

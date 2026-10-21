@@ -2,6 +2,9 @@ using Pipaslot.Mediator.Middlewares;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// Extensions of <see cref="MediatorContext"/> controlling how the HTTP transport writes the response.
+/// </summary>
 public static class MediatorContextExtensions
 {
     /// <summary>

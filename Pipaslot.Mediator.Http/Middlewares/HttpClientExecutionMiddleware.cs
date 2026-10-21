@@ -15,6 +15,13 @@ namespace Pipaslot.Mediator.Http.Middlewares;
 /// <summary>
 /// Middleware sending actions over HTTP client to mediator server implementation. No further middleware will be executed after this one.
 /// </summary>
+/// <remarks>
+/// Registered by <see cref="ServiceCollectionExtensions.AddMediatorClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/>
+/// as the terminal <see cref="IExecutionMiddleware"/>, replacing the in-process handler execution: the action is posted to
+/// <see cref="ClientMediatorOptions"/> endpoint and the server's <see cref="IMediatorResponse"/> becomes the result. Transport and
+/// parsing failures are returned as failed responses instead of exceptions (cancellation is rethrown); derive from the class and
+/// override the <c>Process*</c> hooks to customize that, then register the subclass through the generic overloads.
+/// </remarks>
 public class HttpClientExecutionMiddleware(
     HttpClient httpClient,
     ClientMediatorOptions options,
@@ -22,12 +29,14 @@ public class HttpClientExecutionMiddleware(
     ILogger<HttpClientExecutionMiddleware> logger)
     : IExecutionMiddleware, IMediatorUrlFormatter
 {
+    /// <inheritdoc/>
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         var response = await SendRequest<object>(context).ConfigureAwait(false);
         context.Append(response);
     }
 
+    /// <inheritdoc/>
     public string FormatHttpGet(IMediatorAction action)
     {
         var serialized = serializer.SerializeRequest(action).Json;
@@ -35,6 +44,13 @@ public class HttpClientExecutionMiddleware(
         return $"{options.Endpoint}?{MediatorConstants.ActionQueryParamName}={decoded}";
     }
 
+    /// <summary>
+    /// Posts the serialized action to the server and deserializes the response. A streamless action is sent as JSON, an
+    /// action with streams as multipart form data.
+    /// </summary>
+    /// <param name="context">Context of the action being sent.</param>
+    /// <typeparam name="TResult">Result type expected in the response.</typeparam>
+    /// <returns>The server's response, or a failed response when the request or the parsing failed.</returns>
     protected virtual async Task<IMediatorResponse<TResult>> SendRequest<TResult>(MediatorContext context)
     {
         HttpResponseMessage response;
@@ -97,6 +113,14 @@ public class HttpClientExecutionMiddleware(
         return new StringContent(serialized.Json, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json);
     }
 
+    /// <summary>
+    /// Converts the deserialized server response into the result of the action. Returns a failed response when the
+    /// server sent no data.
+    /// </summary>
+    /// <param name="context">Context of the sent action.</param>
+    /// <param name="response">Raw HTTP response, e.g. for inspecting headers.</param>
+    /// <param name="result">Deserialized response; <c>null</c> when the body held no data.</param>
+    /// <typeparam name="TResult">Result type expected in the response.</typeparam>
     protected virtual Task<IMediatorResponse<TResult>> ProcessSuccessfullResult<TResult>(MediatorContext context, HttpResponseMessage response,
         IMediatorResponse<TResult>? result)
     {
