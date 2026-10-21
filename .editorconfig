@@ -5,9 +5,6 @@
 [Pipaslot.Mediator/Configuration/*.cs]
 dotnet_diagnostic.CS1591.severity = none
 
-[Pipaslot.Mediator/Notifications/*.cs]
-dotnet_diagnostic.CS1591.severity = none
-
 [Pipaslot.Mediator/Services/*.cs]
 dotnet_diagnostic.CS1591.severity = none
 

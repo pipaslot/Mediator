@@ -87,11 +87,24 @@ public class NotificationPropagationStatusTests
         Assert.True(res.Success);
     }
 
+    [Fact]
+    public async Task ErrorNotificationThenAddError_StatusStaysSucceededUntilAddError()
+    {
+        var sut = CreateMediator();
+
+        var res = await sut.Dispatch(new NotifyThenAddErrorAction());
+
+        Assert.False(res.Success);
+        Assert.Equal(
+            [ExecutionStatus.Succeeded, ExecutionStatus.Failed],
+            res.Results.OfType<ExecutionStatus>().ToArray());
+    }
+
     private IMediator CreateMediator()
     {
         return Factory.CreateMediator(c => c.AddHandlers([
             typeof(AddErrorActionHandler), typeof(ErrorNotifyingActionHandler),
-            typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler)
+            typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler), typeof(NotifyThenAddErrorActionHandler)
         ]));
     }
 
@@ -127,6 +140,20 @@ public class NotificationPropagationStatusTests
                     Content = "boom", Type = NotificationType.Error, StopPropagation = action.StopPropagation
                 });
             }
+        }
+    }
+
+    private record NotifyThenAddErrorAction : IMediatorAction;
+
+    private record NotifyThenAddErrorActionHandler(IMediatorFacade Facade) : IMediatorHandler<NotifyThenAddErrorAction>
+    {
+        public Task Handle(NotifyThenAddErrorAction action, CancellationToken cancellationToken)
+        {
+            Facade.AddNotification(new Notification { Content = "note", Type = NotificationType.Error });
+            Facade.Context!.AddResult(Facade.Context.Status);
+            Facade.Context.AddError("boom");
+            Facade.Context.AddResult(Facade.Context.Status);
+            return Task.CompletedTask;
         }
     }
 

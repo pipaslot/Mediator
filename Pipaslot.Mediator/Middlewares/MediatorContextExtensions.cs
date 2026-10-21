@@ -29,8 +29,9 @@ public static class MediatorContextExtensions
     }
 
     /// <summary>
-    /// Register processing errors and fail the action (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>).
-    /// Ignores duplicate entries.
+    /// Calls <see cref="AddError(MediatorContext, string, bool)"/> for every message, so each one fails the action
+    /// (sets <see cref="MediatorContext.Status"/> to <see cref="ExecutionStatus.Failed"/>). An empty collection adds nothing
+    /// and leaves <see cref="MediatorContext.Status"/> unchanged. Ignores duplicate entries.
     /// </summary>
     /// <param name="context"></param>
     /// <param name="messages">The contents</param>
