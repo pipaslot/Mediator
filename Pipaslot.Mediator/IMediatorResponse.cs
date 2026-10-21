@@ -17,7 +17,9 @@ public interface IMediatorResponse<TResult> : IMediatorResponse
 {
     /// <summary>
     /// The first entry of <see cref="IMediatorResponse.Results"/> of type <typeparamref name="TResult"/>. Meaningful only
-    /// when <see cref="IMediatorResponse.Success"/> is true; a handler that returned null yields null here.
+    /// when <see cref="IMediatorResponse.Success"/> is true; a handler that returned null yields null here. When
+    /// <see cref="IMediatorResponse.Results"/> holds no value of that type (typically after a failure) it is
+    /// <c>default(TResult)</c> - null for a reference type, for example 0 for <c>int</c> - and reading it does not throw.
     /// </summary>
     TResult Result { get; }
 }
@@ -67,7 +69,7 @@ public static class MediatorResponseExtensions
 
     internal static TResult GetResult<TResult>(this IMediatorResponse response)
     {
-        return (TResult)response.Results.FirstOrDefault(r => r is TResult)!;
+        return response.Results.FirstOrDefault(r => r is TResult) is TResult result ? result : default!;
     }
 
     internal static IEnumerable<Notification> GetNotifications(this ICollection<object> results)
