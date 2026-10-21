@@ -9,8 +9,9 @@ namespace Pipaslot.Mediator.Http;
 /// Server-side <see cref="IMediatorUrlFormatter"/> building the endpoint URL with the serialized action in the query string.
 /// </summary>
 /// <remarks>
-/// Registered by <c>AddMediatorServer</c>. A URL built this way is only served when
-/// <see cref="ServerMediatorOptions.HttpGetConditions"/> allows the action over HTTP GET.
+/// Registered by <c>AddMediatorServer</c>. The server serves a GET request built this way only if
+/// <see cref="ServerMediatorOptions.HttpGetConditions"/> allows the action; while no condition is registered,
+/// every action is allowed over GET.
 /// </remarks>
 /// <param name="options">Server options providing the endpoint.</param>
 /// <param name="serializer">Serializer of the action placed into the URL.</param>
