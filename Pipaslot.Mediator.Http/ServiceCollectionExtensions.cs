@@ -116,7 +116,10 @@ public static class ServiceCollectionExtensions
         
         var config = services.AddMediator(addContextAccessor: options.AddContextAccessor);
 
-        var existingClaimPrincipalAccessors = services.Where(s => s.ImplementationType == typeof(IClaimPrincipalAccessor));
+        var existingClaimPrincipalAccessors = services
+            .Where(s => s.ServiceType == typeof(IClaimPrincipalAccessor)
+                        && s.ImplementationType == typeof(Pipaslot.Mediator.Authorization.ClaimPrincipalAccessor))
+            .ToList();
         foreach (var existingClaimPrincipalAccessor in existingClaimPrincipalAccessors)
         {
             services.Remove(existingClaimPrincipalAccessor);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pipaslot.Mediator.Authorization;
 using Pipaslot.Mediator.Http.Middlewares;
 using System;
 
@@ -40,6 +41,17 @@ public class ServiceCollection_RegisterMediatorCoreTests
     public void AddMediatorServer_WithConfiguration_RegisterMediatorCore()
     {
         TestMediatorExistence(c => c.AddMediatorServer(c => { }));
+    }
+
+    [Fact]
+    public void AddMediatorServer_CoreClaimPrincipalAccessorRegistered_KeepsOnlyHttpAccessor()
+    {
+        var collection = new ServiceCollection();
+
+        collection.AddMediatorServer();
+
+        var registration = Assert.Single(collection, s => s.ServiceType == typeof(IClaimPrincipalAccessor));
+        Assert.Equal(typeof(Pipaslot.Mediator.Http.ClaimPrincipalAccessor), registration.ImplementationType);
     }
 
     private void TestMediatorExistence(Action<ServiceCollection> setup)
