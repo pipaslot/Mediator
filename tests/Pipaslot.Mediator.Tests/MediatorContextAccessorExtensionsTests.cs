@@ -33,7 +33,9 @@ public class MediatorContextAccessorExtensionsTests
             Substitute.For<IMediator>()
             , Substitute.For<IMediatorContextAccessor>()
             , Substitute.For<IServiceProvider>()
+            #pragma warning disable CS0618 // Test fixture for an internal-only type.
             , new ReflectionCache()
+            #pragma warning restore CS0618
             , Substitute.For<IMediatorAction>()
             , CancellationToken.None
             , null

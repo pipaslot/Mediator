@@ -68,8 +68,10 @@ public static class ServiceCollectionExtensions
             var logger = s.GetService<ILogger<Mediator>>() ?? NullLogger<Mediator>.Instance;// Optional, no-op when no logging provider is configured
             return new Mediator(s, mca, configurator, logger);
         });
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
         services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
         services.AddSingleton<IActionTypeProvider>(configurator.ReflectionCache);
+#pragma warning restore CS0618
         services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
         services.AddTransient(typeof(MessageHandlerExecutor<>));

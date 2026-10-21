@@ -10,10 +10,20 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Configuration;
 
+/// <summary>
+/// Default <see cref="IMediatorConfigurator"/> returned by AddMediator. Holds the registered middlewares, pipelines,
+/// actions and exception handlers that <see cref="Mediator"/> reads when it builds the pipeline for a dispatched action.
+/// </summary>
+/// <remarks>
+/// Applications configure it through <see cref="IMediatorConfigurator"/>; the class is public because it appears in the
+/// constructors of types resolved from DI, not because it is meant to be instantiated directly.
+/// </remarks>
 public class MediatorConfigurator(IServiceCollection services) : IMediatorConfigurator, IMiddlewareResolver
 {
     internal readonly HashSet<Assembly> TrustedAssemblies = [];
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
     internal readonly ReflectionCache ReflectionCache = new();
+#pragma warning restore CS0618
     internal readonly ExceptionHandlerCache ExceptionHandlerCache = new();
     private readonly MiddlewareCollection _middlewares = new(services);
     private readonly List<(IPipelineCondition Condition, MiddlewareCollection Middlewares, string Identifier)> _pipelines = [];
@@ -23,11 +33,17 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
     /// </summary>
     private readonly Dictionary<Type, ServiceLifetime> _registeredHandlers = new();
 
+    /// <summary>
+    /// Drops the bookkeeping used to detect handler registration conflicts. Called by UseMediator in
+    /// Pipaslot.Mediator.Http once configuration is finished; without it the data merely stays in memory.
+    /// Applications have no reason to call it.
+    /// </summary>
     public void ClearTempData()
     {
         _registeredHandlers.Clear();
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddActions(IEnumerable<Type> actionTypes)
     {
         var mediatorActionType = typeof(IMediatorAction);
@@ -45,11 +61,13 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddActionsFromAssemblyOf<T>()
     {
         return AddActionsFromAssembly(typeof(T).Assembly);
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddActionsFromAssembly(params Assembly[] assemblies)
     {
         var type = typeof(IMediatorAction);
@@ -66,6 +84,7 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddHandlers(IEnumerable<Type> handlers, ServiceLifetime? serviceLifetime = null)
     {
         var handlerTypes = new[] { typeof(IMediatorHandler<,>), typeof(IMediatorHandler<>) };
@@ -84,11 +103,13 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddHandlersFromAssemblyOf<T>(ServiceLifetime? serviceLifetime = null)
     {
         return RegisterHandlersFromAssembly([typeof(T).Assembly], serviceLifetime);
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddHandlersFromAssembly(params Assembly[] assemblies)
     {
         return RegisterHandlersFromAssembly(assemblies);
@@ -101,30 +122,35 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
 
+    /// <inheritdoc />
     public IMiddlewareRegistrator Use<TMiddleware>(Action<IServiceCollection> setupDependencies, ServiceLifetime lifetime = ServiceLifetime.Scoped,
         object[]? parameters = null) where TMiddleware : IMediatorMiddleware
     {
         return _middlewares.Use<TMiddleware>(setupDependencies, lifetime, parameters);
     }
 
+    /// <inheritdoc />
     public IMiddlewareRegistrator Use<TMiddleware>(ServiceLifetime lifetime = ServiceLifetime.Scoped, object[]? parameters = null)
         where TMiddleware : IMediatorMiddleware
     {
         return _middlewares.Use<TMiddleware>(lifetime, parameters);
     }
 
+    /// <inheritdoc />
     public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
     {
         _middlewares.UseWhen(condition, subMiddlewares);
         return this;
     }
 
+    /// <inheritdoc />
     public IMiddlewareRegistrator UseWhen(Func<IMediatorAction, IServiceProvider, bool> condition, Action<IMiddlewareRegistrator> subMiddlewares)
     {
         _middlewares.UseWhen(condition, subMiddlewares);
         return this;
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddPipeline(IPipelineCondition condition, Action<IMiddlewareRegistrator> subMiddlewares,
         string? identifier = null)
     {
@@ -140,11 +166,13 @@ public class MediatorConfigurator(IServiceCollection services) : IMediatorConfig
         return this;
     }
     
+    /// <inheritdoc />
     public IMediatorConfigurator AddExceptionHandler<THandler>(ServiceLifetime lifetime = ServiceLifetime.Transient) where THandler : class
     {
         return AddExceptionHandlers([typeof(THandler)], lifetime);
     }
 
+    /// <inheritdoc />
     public IMediatorConfigurator AddExceptionHandlers(IEnumerable<Type> handlerTypes, ServiceLifetime lifetime = ServiceLifetime.Transient)
     {
         var openHandlerType = typeof(IMediatorExceptionHandler<>);

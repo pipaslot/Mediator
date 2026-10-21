@@ -30,10 +30,12 @@ public class HandlerExecutionMiddleware
         var mediator = provider.GetRequiredService<IMediator>();
         var contextAccessor = provider.GetRequiredService<IMediatorContextAccessor>();
         _executionMiddleware = (Middlewares.HandlerExecutionMiddleware)provider.GetRequiredService<IExecutionMiddleware>();
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
         _notification = new(mediator, contextAccessor, provider, new ReflectionCache(),
             new MessageAction(), CancellationToken.None, null, null);
         _request = new(mediator, contextAccessor, provider, new ReflectionCache(),
             new RequestAction("Hello world"), CancellationToken.None, null, null);
+#pragma warning restore CS0618
     }
 
     [Benchmark]

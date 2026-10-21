@@ -8,6 +8,13 @@ using System.Reflection;
 
 namespace Pipaslot.Mediator.Services;
 
+/// <summary>
+/// Default <see cref="IHandlerExistenceChecker"/>, registered in the service collection by AddMediator.
+/// </summary>
+/// <remarks>
+/// Not meant to be constructed by applications; resolve <see cref="IHandlerExistenceChecker"/> instead.
+/// </remarks>
+[Obsolete("Infrastructure type that will become internal in 10.0. Resolve IHandlerExistenceChecker from the service provider instead.")]
 public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTypeProvider actionTypeProvider) : IHandlerExistenceChecker
 
 {
@@ -18,6 +25,7 @@ public class HandlerExistenceChecker(IServiceProvider serviceProvider, IActionTy
 
     private readonly List<string> _errors = [];
 
+    /// <inheritdoc />
     public void Verify(ExistenceCheckerSetting setting)
     {
         if (setting is null)

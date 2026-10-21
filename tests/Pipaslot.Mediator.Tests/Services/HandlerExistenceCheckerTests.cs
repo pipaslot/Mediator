@@ -70,7 +70,7 @@ public class HandlerExistenceCheckerTests
     }
 
     [Fact]
-    public void Verify_ActionsWithoutHandlerThrowException()
+    public void Verify_ActionWithoutHandlerOnCheckerResolvedFromContainer_ThrowsWithActionName()
     {
         var sp = Factory.CreateServiceProvider(c =>
         {

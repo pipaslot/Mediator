@@ -132,11 +132,15 @@ public class MediatorContext
     private readonly IMediatorContextAccessor? _contextAccessor;
     internal readonly IServiceProvider Services;
 
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
     private readonly ReflectionCache _reflectionCache;
+#pragma warning restore CS0618
     private HandlerExecutor? _handlerExecutor;
 
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
     internal MediatorContext(IMediator mediator, IMediatorContextAccessor? contextAccessor, IServiceProvider serviceProvider, ReflectionCache reflectionCache, IMediatorAction action,
         CancellationToken cancellationToken, HandlerExecutor? handlerExecutor, IFeatureCollection? defaultFeatures)
+#pragma warning restore CS0618
     {
         Mediator = mediator;
         _contextAccessor = contextAccessor;
@@ -179,8 +183,10 @@ public class MediatorContext
         var resolvedMediator = mediator
                                ?? services?.GetService(typeof(IMediator)) as IMediator
                                ?? DetachedMediator.Instance;
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
         var context = new MediatorContext(resolvedMediator, null, services ?? DetachedServiceProvider.Instance, new ReflectionCache(), action,
             cancellationToken, null, null);
+#pragma warning restore CS0618
         context.SetDepth(depth);
 
         return context;

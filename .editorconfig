@@ -2,12 +2,6 @@
 # Each section covers exactly one folder (a single '*' does not cross '/'), so a new subfolder is never suppressed.
 # Delete a folder's section as soon as that folder is documented.
 
-[Pipaslot.Mediator/Configuration/*.cs]
-dotnet_diagnostic.CS1591.severity = none
-
-[Pipaslot.Mediator/Services/*.cs]
-dotnet_diagnostic.CS1591.severity = none
-
 [Pipaslot.Mediator.Http/*.cs]
 dotnet_diagnostic.CS1591.severity = none
 
