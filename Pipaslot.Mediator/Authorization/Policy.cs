@@ -33,20 +33,26 @@ public sealed class Policy : List<IPolicy>, IPolicy
     /// <exception cref="NotSupportedException"><paramref name="operator"/> is <see cref="Operator.Add"/>.</exception>
     public Policy(Operator @operator)
     {
-        if (@operator != Operator.And && @operator != Operator.Or)
-        {
-            throw new NotSupportedException($"Operator '{@operator}' can not be used for Policies.");
-        }
-
-        Operator = @operator;
+        Operator = ValidateOperator(@operator);
     }
 
     /// <summary>
     /// Creates the policy already containing <paramref name="policies"/>; <see cref="And"/>/<see cref="Or"/> are the shorter form.
     /// </summary>
+    /// <exception cref="NotSupportedException"><paramref name="operator"/> is <see cref="Operator.Add"/>.</exception>
     public Policy(Operator @operator, params IPolicy[] policies) : base(policies)
     {
-        Operator = @operator;
+        Operator = ValidateOperator(@operator);
+    }
+
+    private static Operator ValidateOperator(Operator @operator)
+    {
+        if (@operator != Operator.And && @operator != Operator.Or)
+        {
+            throw new NotSupportedException($"Operator '{@operator}' can not be used for Policies.");
+        }
+
+        return @operator;
     }
 
     /// <summary>
