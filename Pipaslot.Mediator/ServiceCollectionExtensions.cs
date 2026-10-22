@@ -12,13 +12,22 @@ using Pipaslot.Mediator.Services;
 
 namespace Pipaslot.Mediator;
 
+/// <summary>
+/// Registers the in-process mediator in an <see cref="IServiceCollection"/>.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Configures handler sources and pipeline for handler processing.
     /// Every Request/Message is configured to have exactly one handler by default.
     /// </summary>
-    /// <param name="services"></param>
+    /// <remarks>
+    /// The entry point for running actions in the same process as their handlers. For the client/server setup over HTTP,
+    /// the Pipaslot.Mediator.Http package provides <c>AddMediatorServer</c> and <c>AddMediatorClient</c>, which call this
+    /// method themselves - use them instead, not in addition. Register actions, handlers and middlewares through the
+    /// returned <see cref="IMediatorConfigurator"/>; call this once per service collection.
+    /// </remarks>
+    /// <param name="services">The service collection to register the mediator in</param>
     /// <param name="addContextAccessor">Register <see cref="IMediatorContextAccessor"/> and <see cref="INotificationProvider"/> needed for context accessing out of the mediator middlewares</param>
     public static IMediatorConfigurator AddMediator(this IServiceCollection services, bool addContextAccessor = true)
     {
@@ -29,8 +38,13 @@ public static class ServiceCollectionExtensions
     /// Configures handler sources and pipeline for handler processing.
     /// Every Request/Message is configured to have exactly one handler by default.
     /// </summary>
+    /// <remarks>
+    /// Use this overload to replace how the end of every pipeline executes an action - <c>AddMediatorClient</c> passes its
+    /// HTTP execution middleware here, so actions are sent to the server instead of to local handlers. Use
+    /// <see cref="AddMediator(IServiceCollection, bool)"/> to run the registered handlers.
+    /// </remarks>
     /// <typeparam name="TDefaultExecutionMiddleware">Default handler executive middleware used in case when no other middleware is registered</typeparam>
-    /// <param name="services"></param>
+    /// <param name="services">The service collection to register the mediator in</param>
     /// <param name="addContextAccessor">Register <see cref="IMediatorContextAccessor"/> and <see cref="INotificationProvider"/> needed for context accessing out of the mediator middlewares</param>
     public static IMediatorConfigurator AddMediator<TDefaultExecutionMiddleware>(this IServiceCollection services, bool addContextAccessor = true)
         where TDefaultExecutionMiddleware : class, IExecutionMiddleware
@@ -54,8 +68,10 @@ public static class ServiceCollectionExtensions
             var logger = s.GetService<ILogger<Mediator>>() ?? NullLogger<Mediator>.Instance;// Optional, no-op when no logging provider is configured
             return new Mediator(s, mca, configurator, logger);
         });
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
         services.AddTransient<IHandlerExistenceChecker, HandlerExistenceChecker>();
         services.AddSingleton<IActionTypeProvider>(configurator.ReflectionCache);
+#pragma warning restore CS0618
         services.AddScoped<IExecutionMiddleware, TDefaultExecutionMiddleware>();
         services.AddScoped<IClaimPrincipalAccessor, ClaimPrincipalAccessor>();
         services.AddTransient(typeof(MessageHandlerExecutor<>));

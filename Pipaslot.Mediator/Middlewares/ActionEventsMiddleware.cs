@@ -35,6 +35,11 @@ public class ActionEventsMiddleware : IMediatorMiddleware
     /// </summary>
     public event EventHandler? ProcessingCompleted;
 
+    /// <summary>
+    /// Raises <see cref="ActionStarted"/> (and <see cref="ProcessingStarted"/> for the first running action) before calling the rest of
+    /// the pipeline, and <see cref="ActionCompleted"/> (and <see cref="ProcessingCompleted"/> once no action is running) after it -
+    /// also when the rest of the pipeline throws.
+    /// </summary>
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         AddToQueue(context);

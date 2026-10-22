@@ -9,11 +9,17 @@ namespace Pipaslot.Mediator.Http.Middlewares;
 /// <summary>
 /// Register exception logging middleware writting all error into <see cref="ILogger"/>
 /// </summary>
+/// <remarks>
+/// Logs the exception and rethrows it, so it only observes failures and does not change the outcome. Cancellation is
+/// logged as a warning, other exceptions as errors; the serialized action is added at debug level, so it may contain
+/// sensitive data. Register with <see cref="MiddlewareRegistratorExtensions.UseExceptionLogging"/>.
+/// </remarks>
 public class ExceptionLoggingMiddleware(ILogger<ExceptionLoggingMiddleware> logger) : IMediatorMiddleware
 {
     private readonly ILogger _logger = logger;
     private static readonly JsonSerializerOptions _serializationOptions = new() { PropertyNamingPolicy = null };
 
+    /// <inheritdoc/>
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         try

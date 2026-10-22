@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Middlewares.Features;
 
+/// <summary>
+/// Default <see cref="IFeatureCollection"/> behind <see cref="MediatorContext.Features"/>: a feature set here overrides the
+/// feature of the same type in the optional defaults collection without modifying it.
+/// </summary>
 public class FeatureCollection : IFeatureCollection
 {
     private static readonly KeyComparer _featureKeyComparer = new();

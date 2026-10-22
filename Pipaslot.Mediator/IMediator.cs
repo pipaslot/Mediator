@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Pipaslot.Mediator;
 
 /// <summary>
-///     Request / Message dispatched
+/// Entry point for sending an action through its middleware pipeline to its handler.
 /// </summary>
 /// <remarks>
 /// Four entry points, two axes: <see cref="Execute{TResult}"/>/<see cref="ExecuteUnhandled{TResult}"/> for actions
@@ -40,7 +40,7 @@ public interface IMediator
     /// <remarks>
     /// Does not throw when the action fails - the failure is reported through the returned wrapper, so
     /// <see cref="IMediatorResponse.Success"/> (or <see cref="IMediatorResponse.Failure"/>) must be checked before
-    /// reading <see cref="IMediatorResponse{TResult}.Result"/>, which is <c>default</c> on failure. Note that the result
+    /// reading <see cref="IMediatorResponse{TResult}.Result"/>, which is meaningful only on success. Note that the result
     /// is a wrapper and not the bare <typeparamref name="TResult"/> that MediatR's <c>Send</c> returns; for the bare
     /// value use <see cref="ExecuteUnhandled{TResult}"/>. An exception raised inside the pipeline is caught here,
     /// logged, and turned into an error message - either the generic one, or the message produced by a registered
@@ -83,10 +83,16 @@ public interface IMediator
     /// <param name="request">Object managing input parameters</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Returns data from handler</returns>
-    /// <exception cref="MediatorExecutionException">
-    /// Action failed, no handler was found (<see cref="MediatorNoHandlerFoundException"/>) or the handler produced no
-    /// result of type <typeparamref name="TResult"/> (<see cref="MediatorMissingResultException"/>).
+    /// <exception cref="System.ArgumentNullException"><paramref name="request"/> is null.</exception>
+    /// <exception cref="MediatorNoHandlerFoundException">No handler was found for the action.</exception>
+    /// <exception cref="MediatorMissingResultException">
+    /// The pipeline succeeded but produced no result of type <typeparamref name="TResult"/>.
     /// </exception>
+    /// <exception cref="MediatorUnhandledErrorException">
+    /// The action failed with error messages only, without an exception recorded via
+    /// <see cref="Middlewares.MediatorContext.AddException"/>. On the HTTP client also every server-side failure.
+    /// </exception>
+    /// <exception cref="System.AggregateException">More than one exception was recorded for the failed action.</exception>
     Task<TResult> ExecuteUnhandled<TResult>(IMediatorAction<TResult> request, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -102,8 +108,12 @@ public interface IMediator
     /// <param name="message">Object managing input parameters</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Does not returns either data nor state</returns>
-    /// <exception cref="MediatorExecutionException">
-    /// Action failed, or no handler was found (<see cref="MediatorNoHandlerFoundException"/>).
+    /// <exception cref="System.ArgumentNullException"><paramref name="message"/> is null.</exception>
+    /// <exception cref="MediatorNoHandlerFoundException">No handler was found for the action.</exception>
+    /// <exception cref="MediatorUnhandledErrorException">
+    /// The action failed with error messages only, without an exception recorded via
+    /// <see cref="Middlewares.MediatorContext.AddException"/>. On the HTTP client also every server-side failure.
     /// </exception>
+    /// <exception cref="System.AggregateException">More than one exception was recorded for the failed action.</exception>
     Task DispatchUnhandled(IMediatorAction message, CancellationToken cancellationToken = default);
 }

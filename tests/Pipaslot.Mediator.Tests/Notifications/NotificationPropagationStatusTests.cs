@@ -12,7 +12,7 @@ namespace Pipaslot.Mediator.Tests.Notifications;
 /// (directly on <see cref="MediatorContext.AddResult"/>) never flips <see cref="ExecutionStatus"/> by itself - neither when it is
 /// forwarded from a nested context nor when it is added locally on the root context. Only
 /// <see cref="MediatorContextExtensions.AddError(MediatorContext, string, bool)"/>/<see cref="MediatorContextExtensions.AddErrors"/>
-/// fail the action (see Todos/1.5.2-analysis-open-design-questions.md, "narrow the coupling").
+/// fail the action - the failure state is driven only by an explicit error, notifications are an informational channel.
 /// </summary>
 public class NotificationPropagationStatusTests
 {
@@ -87,11 +87,24 @@ public class NotificationPropagationStatusTests
         Assert.True(res.Success);
     }
 
+    [Fact]
+    public async Task ErrorNotificationThenAddError_StatusStaysSucceededUntilAddError()
+    {
+        var sut = CreateMediator();
+
+        var res = await sut.Dispatch(new NotifyThenAddErrorAction());
+
+        Assert.False(res.Success);
+        Assert.Equal(
+            [ExecutionStatus.Succeeded, ExecutionStatus.Failed],
+            res.Results.OfType<ExecutionStatus>().ToArray());
+    }
+
     private IMediator CreateMediator()
     {
         return Factory.CreateMediator(c => c.AddHandlers([
             typeof(AddErrorActionHandler), typeof(ErrorNotifyingActionHandler),
-            typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler)
+            typeof(ReactingParentActionHandler), typeof(TypedNotifyingActionHandler), typeof(NotifyThenAddErrorActionHandler)
         ]));
     }
 
@@ -127,6 +140,20 @@ public class NotificationPropagationStatusTests
                     Content = "boom", Type = NotificationType.Error, StopPropagation = action.StopPropagation
                 });
             }
+        }
+    }
+
+    private record NotifyThenAddErrorAction : IMediatorAction;
+
+    private record NotifyThenAddErrorActionHandler(IMediatorFacade Facade) : IMediatorHandler<NotifyThenAddErrorAction>
+    {
+        public Task Handle(NotifyThenAddErrorAction action, CancellationToken cancellationToken)
+        {
+            Facade.AddNotification(new Notification { Content = "note", Type = NotificationType.Error });
+            Facade.Context!.AddResult(Facade.Context.Status);
+            Facade.Context.AddError("boom");
+            Facade.Context.AddResult(Facade.Context.Status);
+            return Task.CompletedTask;
         }
     }
 

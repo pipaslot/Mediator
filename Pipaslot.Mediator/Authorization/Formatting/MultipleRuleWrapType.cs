@@ -13,7 +13,7 @@ public enum MultipleRuleWrapType
     Always,
 
     /// <summary>
-    /// Rules will always be wrapped when combining multiple rule sets
+    /// A combination of several rules is put in parentheses only when its operator differs from the operator of the parent rule set it is combined into.
     /// Example: "Rule1FromRuleset1 OR Rule2FromRuleset1 OR Rule3FromRuleSet2 OR Rule4FromRuleSet3 AND Rule4FromRuleSet3" will be converted
     /// to "Rule1FromRuleset1 OR Rule2FromRuleset1 OR Rule3FromRuleSet2 OR (Rule4FromRuleSet3 AND Rule4FromRuleSet3)"
     /// </summary>

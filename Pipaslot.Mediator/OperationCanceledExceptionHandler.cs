@@ -18,6 +18,7 @@ public class OperationCanceledExceptionHandler : IMediatorExceptionHandler<Opera
     /// </summary>
     public const string Message = "The operation was cancelled.";
 
+    /// <inheritdoc/>
     public virtual Task Handle(OperationCanceledException exception, IMediatorExceptionContext context)
     {
         context.SetHandled(GetMessage(exception));

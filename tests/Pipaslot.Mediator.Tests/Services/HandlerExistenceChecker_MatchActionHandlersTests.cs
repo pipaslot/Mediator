@@ -72,7 +72,9 @@ public class HandlerExistenceChecker_MatchActionHandlersTests
         collection.AddLogging();
         collection.AddMediator();
         collection.RegisterHandlers(new Dictionary<Type, ServiceLifetime>(), handlers);
+#pragma warning disable CS0618 // Test fixture for an internal-only type.
         collection.AddSingleton<IActionTypeProvider>(new ReflectionCache().AddActions(subject));
+#pragma warning restore CS0618
         var sp = collection.BuildServiceProvider();
         return sp.GetRequiredService<IHandlerExistenceChecker>();
     }

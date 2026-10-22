@@ -8,6 +8,10 @@ namespace Pipaslot.Mediator.Authorization;
 /// </summary>
 public class AuthorizationMiddleware : IMediatorMiddleware
 {
+    /// <summary>
+    /// Resolves the policies of the action and of all its handlers and throws <see cref="AuthorizationException"/> unless
+    /// they allow access; only then calls the rest of the pipeline.
+    /// </summary>
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         await PolicyResolver.CheckPolicies(context.Services, context.Action, context.GetHandlers(), context.CancellationToken).ConfigureAwait(false);

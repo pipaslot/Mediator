@@ -8,8 +8,13 @@ using System.Linq;
 namespace Pipaslot.Mediator.Configuration;
 
 /// <summary>
-/// Cache reflection data required on the hot paths. Does not expects concurrency as the setup should happen during application startup. 
+/// Cache of reflection data for registered actions, filled during startup and read on the dispatch hot path.
 /// </summary>
+/// <remarks>
+/// Not meant to be used by applications; use <see cref="Services.IHandlerExistenceChecker"/> to verify registrations.
+/// Startup registration is not thread-safe, actions first seen at runtime are cached concurrently.
+/// </remarks>
+[Obsolete("Infrastructure type that will become internal in 10.0. Resolve IHandlerExistenceChecker from the service provider instead.")]
 public class ReflectionCache : IActionTypeProvider
 {
     /// <summary>
@@ -45,6 +50,7 @@ public class ReflectionCache : IActionTypeProvider
         return GetOrAddRuntimeAction(actionType).ExecutorType;
     }
 
+    /// <summary>Result type of the action, or null for an action without a result.</summary>
     public Type? GetRequestResultType(Type actionType)
     {
         if (_startupTimeActions.TryGetValue(actionType, out var cacheItem))
@@ -54,6 +60,7 @@ public class ReflectionCache : IActionTypeProvider
         return GetOrAddRuntimeAction(actionType).ResultType;
     }
 
+    /// <inheritdoc />
     public ICollection<Type> GetActionTypes()
     {
         return _startupTimeActions.Keys;
@@ -70,6 +77,7 @@ public class ReflectionCache : IActionTypeProvider
         });
     }
 
+    /// <inheritdoc />
     public ICollection<Type> GetMessageActionTypes()
     {
         return _startupTimeActions
@@ -78,6 +86,7 @@ public class ReflectionCache : IActionTypeProvider
             .ToArray();
     }
 
+    /// <inheritdoc />
     public ICollection<Type> GetRequestActionTypes()
     {
         return _startupTimeActions

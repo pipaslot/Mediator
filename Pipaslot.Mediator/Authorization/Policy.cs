@@ -27,19 +27,32 @@ public sealed class Policy : List<IPolicy>, IPolicy
     /// </summary>
     public Operator Operator { get; }
 
+    /// <summary>
+    /// Creates an empty policy; add the combined policies with the collection methods.
+    /// </summary>
+    /// <exception cref="NotSupportedException"><paramref name="operator"/> is <see cref="Operator.Add"/>.</exception>
     public Policy(Operator @operator)
+    {
+        Operator = ValidateOperator(@operator);
+    }
+
+    /// <summary>
+    /// Creates the policy already containing <paramref name="policies"/>; <see cref="And"/>/<see cref="Or"/> are the shorter form.
+    /// </summary>
+    /// <exception cref="NotSupportedException"><paramref name="operator"/> is <see cref="Operator.Add"/>.</exception>
+    public Policy(Operator @operator, params IPolicy[] policies) : base(policies)
+    {
+        Operator = ValidateOperator(@operator);
+    }
+
+    private static Operator ValidateOperator(Operator @operator)
     {
         if (@operator != Operator.And && @operator != Operator.Or)
         {
             throw new NotSupportedException($"Operator '{@operator}' can not be used for Policies.");
         }
 
-        Operator = @operator;
-    }
-
-    public Policy(Operator @operator, params IPolicy[] policies) : base(policies)
-    {
-        Operator = @operator;
+        return @operator;
     }
 
     /// <summary>
@@ -62,6 +75,9 @@ public sealed class Policy : List<IPolicy>, IPolicy
         return expression;
     }
 
+    /// <summary>
+    /// Resolves all contained policies concurrently and nests their rule sets under one <see cref="RuleSet"/> with <see cref="Operator"/>.
+    /// </summary>
     public async Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
     {
         var tasks = this
@@ -73,11 +89,13 @@ public sealed class Policy : List<IPolicy>, IPolicy
         return res;
     }
 
+    /// <inheritdoc cref="IPolicy.op_BitwiseAnd"/>
     public static IPolicy operator &(Policy c1, IPolicy c2)
     {
         return c1.And(c2);
     }
 
+    /// <inheritdoc cref="IPolicy.op_BitwiseOr"/>
     public static IPolicy operator |(Policy c1, IPolicy c2)
     {
         return c1.Or(c2);

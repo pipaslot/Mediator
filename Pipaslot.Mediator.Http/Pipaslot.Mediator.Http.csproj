@@ -10,7 +10,6 @@
         <Description>
             Extends Pipaslot.Mediator to communicate over HTTP
         </Description>
-        <NoWarn>1591</NoWarn>
         <RepositoryUrl>https://github.com/pipaslot/Mediator.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

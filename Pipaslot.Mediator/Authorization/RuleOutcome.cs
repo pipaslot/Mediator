@@ -26,6 +26,9 @@ public enum RuleOutcome
     Ignored = 3
 }
 
+/// <summary>
+/// Conversion of the internal <see cref="RuleOutcome"/> to the <see cref="AccessType"/> reported to callers.
+/// </summary>
 public static class RuleOutcomeExtensions
 {
     internal static bool IsAllowedOrIgnored(this RuleOutcome outcome)
@@ -38,6 +41,9 @@ public static class RuleOutcomeExtensions
         return outcome is RuleOutcome.Deny or RuleOutcome.Unavailable;
     }
 
+    /// <summary>
+    /// <see cref="RuleOutcome.Ignored"/> maps to <see cref="AccessType.Deny"/> - an outcome no rule decided never grants access.
+    /// </summary>
     public static AccessType ToAccessType(this RuleOutcome outcome)
     {
         return outcome switch

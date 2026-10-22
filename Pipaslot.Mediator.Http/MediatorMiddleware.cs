@@ -14,8 +14,30 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// ASP.NET Core middleware that serves the mediator endpoint: it deserializes the incoming action, dispatches it through
+/// <see cref="IMediator"/> and writes the serialized <see cref="IMediatorResponse"/> back.
+/// </summary>
+/// <remarks>
+/// Register it with <see cref="ApplicationBuilderExtensions.UseMediator(Microsoft.AspNetCore.Builder.IApplicationBuilder, bool, bool)"/>
+/// instead of constructing it. Only POST (and GET, restricted by <see cref="ServerMediatorOptions.HttpGetConditions"/>) requests to
+/// <see cref="BaseMediatorOptions{TBuilder}.Endpoint"/> are handled; everything else goes to the next middleware. It marks the request
+/// as a public API call, which <see cref="Middlewares.DirectHttpCallProtectionMiddleware"/> and
+/// <c>UseWhenDirectHttpCall</c> rely on. The response status follows, in order: an <see cref="IMediatorHttpResult"/> in the
+/// results (which writes the response itself), a hint set by <see cref="MediatorContextExtensions.SetResponseStatusCodeHint"/>,
+/// <see cref="ServerMediatorOptions.ErrorHttpStatusCode"/> for a failed result.
+/// </remarks>
+/// <param name="next">Next middleware of the ASP.NET Core pipeline.</param>
+/// <param name="option">Server options.</param>
+/// <param name="serializer">Serializer of the wire contract.</param>
+/// <param name="configurator">Mediator configuration, used to resolve the result type of an incoming action.</param>
 public class MediatorMiddleware(RequestDelegate next, ServerMediatorOptions option, IContractSerializer serializer, MediatorConfigurator configurator)
 {
+    /// <summary>
+    /// Handles the request when it targets the mediator endpoint, otherwise delegates to the next middleware.
+    /// </summary>
+    /// <param name="context">HTTP context of the current request.</param>
+    /// <exception cref="MediatorHttpException">The results contain more than one <see cref="IMediatorHttpResult"/>.</exception>
     public async Task Invoke(HttpContext context)
     {
         context.MarkAsMediatorPublicApiRequest();

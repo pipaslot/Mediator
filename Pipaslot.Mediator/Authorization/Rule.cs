@@ -16,8 +16,15 @@ public class Rule : IPolicy
     /// </summary>
     public static readonly Rule Default = new (RuleOutcome.Ignored, string.Empty);
     
+    /// <summary>
+    /// Whether the outcome may change during the user's session; <see cref="AuthorizeRequestResponse.IsIdentityStatic"/> is
+    /// true only when every rule has <see cref="RuleScope.Identity"/>.
+    /// </summary>
     public RuleScope Scope { get; }
 
+    /// <summary>
+    /// Outcome of this rule alone; the containing <see cref="RuleSet"/> combines it with its siblings.
+    /// </summary>
     public RuleOutcome Outcome { get; }
 
     /// <summary>
@@ -40,6 +47,10 @@ public class Rule : IPolicy
     {
     }
     
+    /// <summary>
+    /// Creates a named rule. The node formatter phrases the reason from <paramref name="name"/> and <paramref name="value"/>,
+    /// e.g. a role rule from the role name; for a free-text reason use <see cref="Allow"/>/<see cref="Deny"/>/<see cref="Unavailable"/> instead.
+    /// </summary>
     [JsonConstructor]
     public Rule(string name, string value, RuleOutcome outcome = RuleOutcome.Deny, RuleScope scope = RuleScope.State)
     {
@@ -49,6 +60,10 @@ public class Rule : IPolicy
         Outcome = outcome;
     }
 
+    /// <summary>
+    /// Creates a named rule that is <see cref="RuleOutcome.Allow"/> when <paramref name="granted"/> is true and
+    /// <see cref="RuleOutcome.Deny"/> otherwise.
+    /// </summary>
     public Rule(string name, string value, bool granted, RuleScope scope = RuleScope.State)
     {
         Name = name;
@@ -57,6 +72,9 @@ public class Rule : IPolicy
         Outcome = granted ? RuleOutcome.Allow : RuleOutcome.Deny;
     }
 
+    /// <summary>
+    /// Wraps this rule in a <see cref="RuleSet"/> with <see cref="Operator.Add"/>.
+    /// </summary>
     public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
     {
         var set = new RuleSet(this);
@@ -160,21 +178,33 @@ public class Rule : IPolicy
             condition ? denyReason : allowReason);
     }
 
+    /// <summary>
+    /// Combines both rules into a new <see cref="RuleSet"/> with <see cref="Operator.Add"/>.
+    /// </summary>
     public static RuleSet operator +(Rule rule1, Rule rule2)
     {
         return new RuleSet(Operator.Add, [rule1, rule2]);
     }
 
+    /// <summary>
+    /// Combines both rules into a new <see cref="RuleSet"/> with <see cref="Operator.And"/>.
+    /// </summary>
     public static RuleSet operator &(Rule rule1, Rule rule2)
     {
         return new RuleSet(Operator.And, [rule1, rule2]);
     }
 
+    /// <summary>
+    /// Combines both rules into a new <see cref="RuleSet"/> with <see cref="Operator.Or"/>.
+    /// </summary>
     public static RuleSet operator |(Rule rule1, Rule rule2)
     {
         return new RuleSet(Operator.Or, [rule1, rule2]);
     }
 
+    /// <summary>
+    /// Wraps the rule in a <see cref="RuleSet"/> with <see cref="Operator.Add"/>.
+    /// </summary>
     public static implicit operator RuleSet(Rule rule)
     {
         return new RuleSet(rule);

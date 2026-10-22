@@ -8,6 +8,10 @@ namespace Pipaslot.Mediator.Middlewares;
 /// </summary>
 public class DirectCallProtectionMiddleware(IMediatorContextAccessor contextAccessor) : IMediatorMiddleware
 {
+    /// <summary>
+    /// Throws a <see cref="MediatorException"/> when the action is the outermost mediator call, i.e. not dispatched from
+    /// inside another handler or middleware; nested calls continue with the rest of the pipeline.
+    /// </summary>
     public Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         // We test for count to be 1 because the actual action is already counted

@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // ReflectionCache is the subject under test; it becomes internal in 10.0.
 using Pipaslot.Mediator.Abstractions;
 using Pipaslot.Mediator.Configuration;
 using Pipaslot.Mediator.Middlewares.Handlers;

@@ -8,6 +8,9 @@ using System;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// Pipeline registration helpers (<c>Use*</c>) for the middlewares of the HTTP transport.
+/// </summary>
 public static class MiddlewareRegistratorExtensions
 {
     /// <inheritdoc cref="ExceptionLoggingMiddleware"/>

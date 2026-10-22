@@ -17,7 +17,9 @@ internal static class ServiceProviderExtensions
         return (HandlerExecutor)services.GetRequiredService(executorType);
     }
     
+#pragma warning disable CS0618 // Internal use of a type that becomes internal in 10.0.
     internal static HandlerExecutor GetHandlerExecutor(this IServiceProvider services, ReflectionCache reflectionCache, Type actionType)
+#pragma warning restore CS0618
     {
         var executorType = reflectionCache.GetHandlerExecutorType(actionType);
         return (HandlerExecutor)services.GetRequiredService(executorType);

@@ -14,6 +14,13 @@ namespace Pipaslot.Mediator.Http.Configuration;
 /// </summary>
 /// <remarks>
 /// Enumerating the allowlist yields the currently registered conditions, in registration order.
+/// <para>
+/// Protects against cross-site request forgery: a GET request can be triggered by a link, an image tag or a redirect on
+/// another site without the user's consent, so an action that changes state must not be reachable that way. Allow only
+/// actions that are safe to repeat and have no side effects (typically queries and file downloads); POST requests are
+/// not affected. Until the first condition is registered every action is allowed over GET for backward compatibility,
+/// so register at least one condition to enable the restriction.
+/// </para>
 /// </remarks>
 public class HttpGetActionAllowlist : IEnumerable<Func<IMediatorAction, bool>>
 {

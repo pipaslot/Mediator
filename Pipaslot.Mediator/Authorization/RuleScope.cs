@@ -1,5 +1,8 @@
 ﻿namespace Pipaslot.Mediator.Authorization;
 
+/// <summary>
+/// How long the outcome of a <see cref="Rule"/> stays valid, which decides whether a client may cache an authorization answer.
+/// </summary>
 public enum RuleScope
 {
     /// <summary>

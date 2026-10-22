@@ -8,10 +8,34 @@ using System.Threading.Tasks;
 
 namespace Pipaslot.Mediator.Authorization;
 
+/// <summary>
+/// Policy over the identity of the current user - authentication, roles and claims - read from <see cref="IClaimPrincipalAccessor"/>.
+/// </summary>
+/// <remarks>
+/// Start from <see cref="Authenticated"/>, <see cref="Anonymous"/>, <see cref="Claim"/> or <see cref="Role"/> and chain
+/// <see cref="HasRole"/>/<see cref="HasClaim"/> for more requirements. Its rules have <see cref="RuleScope.Identity"/>, so a
+/// client may cache the answer until the user changes. For the common cases the attributes
+/// <see cref="AnonymousPolicyAttribute"/>, <see cref="AuthenticatedPolicyAttribute"/> and <see cref="RolePolicyAttribute"/>
+/// need no code.
+/// </remarks>
+/// <param name="operator">How the required claims combine: <see cref="Operator.And"/> requires all of them,
+/// <see cref="Operator.Or"/> any of them.</param>
 public class IdentityPolicy(Operator @operator = Operator.And) : IPolicy
 {
+    /// <summary>
+    /// <see cref="Rule.Name"/> of the rule produced when no claim is required; its <see cref="Rule.Value"/> is
+    /// <see cref="AuthenticatedValue"/> or <see cref="AnonymousValue"/>. Lets a custom node formatter recognise the rule.
+    /// </summary>
     public const string AuthenticationPolicyName = "Authentication";
+
+    /// <summary>
+    /// <see cref="Rule.Value"/> of the <see cref="AuthenticationPolicyName"/> rule requiring an authenticated user.
+    /// </summary>
     public const string AuthenticatedValue = "Authenticated";
+
+    /// <summary>
+    /// <see cref="Rule.Value"/> of the <see cref="AuthenticationPolicyName"/> rule letting any caller through.
+    /// </summary>
     public const string AnonymousValue = "Anonymous";
 
     /// <summary>
@@ -53,6 +77,10 @@ public class IdentityPolicy(Operator @operator = Operator.And) : IPolicy
     private readonly List<(string Name, string Value)> _claims = [];
     private AuthStatus _authStatus = AuthStatus.AuthenticateIfNoClaim;
 
+    /// <summary>
+    /// Lets an unauthenticated caller through, as long as no claim is required. Once a claim is required, only the claim
+    /// check decides.
+    /// </summary>
     public IdentityPolicy IsAnonymous()
     {
         _authStatus = AuthStatus.AnonymousIfNoClaim;
@@ -67,12 +95,18 @@ public class IdentityPolicy(Operator @operator = Operator.And) : IPolicy
         return HasClaim(ClaimTypes.Role, value);
     }
 
+    /// <summary>
+    /// Requires a claim of type <paramref name="name"/> with <paramref name="value"/>, both compared case-insensitively.
+    /// Several required claims combine by the operator passed to the constructor. Once any claim is required, no separate
+    /// authentication check is made.
+    /// </summary>
     public IdentityPolicy HasClaim(string name, string value)
     {
         _claims.Add((name, value));
         return this;
     }
 
+    /// <inheritdoc/>
     public Task<RuleSet> Resolve(IServiceProvider services, CancellationToken cancellationToken)
     {
         var principal = services.GetService<IClaimPrincipalAccessor>()?.Principal;
@@ -104,11 +138,13 @@ public class IdentityPolicy(Operator @operator = Operator.And) : IPolicy
         return Task.FromResult(collection);
     }
 
+    /// <inheritdoc cref="IPolicy.op_BitwiseAnd"/>
     public static IPolicy operator &(IdentityPolicy c1, IPolicy c2)
     {
         return c1.And(c2);
     }
 
+    /// <inheritdoc cref="IPolicy.op_BitwiseOr"/>
     public static IPolicy operator |(IdentityPolicy c1, IPolicy c2)
     {
         return c1.Or(c2);

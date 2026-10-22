@@ -4,6 +4,17 @@ using System;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// Thrown (or reported in the mediator response) when the HTTP transport cannot process a request or response, e.g. an
+/// unreadable payload, a type rejected by <see cref="Configuration.ICredibleProvider"/>, or an action invoked over HTTP GET that
+/// <see cref="Configuration.ServerMediatorOptions.HttpGetConditions"/> does not allow.
+/// </summary>
+/// <remarks>
+/// The message names the cause and, for the rejected-type and GET-allowlist cases, the registration that fixes it.
+/// Not related to <see cref="MediatorException"/>, which covers misconfiguration of the in-process mediator.
+/// </remarks>
+/// <param name="message">Description of the transport failure.</param>
+/// <param name="innerException">Underlying exception, e.g. the JSON parsing error.</param>
 public class MediatorHttpException(string message, Exception? innerException = null) : Exception(message, innerException)
 {
     internal static MediatorHttpException CreateForInvalidRequest(string? content, Exception? innerException = null)

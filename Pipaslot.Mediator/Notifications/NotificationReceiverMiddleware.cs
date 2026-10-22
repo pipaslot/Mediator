@@ -11,8 +11,13 @@ namespace Pipaslot.Mediator.Notifications;
 /// </summary>
 public class NotificationReceiverMiddleware : IMediatorMiddleware, INotificationReceiver
 {
+    /// <inheritdoc/>
     public event EventHandler<NotificationReceivedEventArgs>? NotificationReceived;
 
+    /// <summary>
+    /// Runs the rest of the pipeline, then raises <see cref="NotificationReceived"/> with all <see cref="Notification"/>s
+    /// found in <see cref="MediatorContext.Results"/>, ordered by <see cref="Notification.Time"/>.
+    /// </summary>
     public async Task Invoke(MediatorContext context, MiddlewareDelegate next)
     {
         await next(context).ConfigureAwait(false);

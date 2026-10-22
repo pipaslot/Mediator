@@ -26,6 +26,7 @@ namespace Pipaslot.Mediator;
 /// </summary>
 public class LegacyExceptionMessageHandler : IMediatorExceptionHandler<Exception>
 {
+    /// <inheritdoc/>
     public Task Handle(Exception exception, IMediatorExceptionContext context)
     {
         context.SetHandled(exception.Message);

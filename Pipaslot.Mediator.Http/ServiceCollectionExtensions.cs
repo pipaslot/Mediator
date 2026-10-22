@@ -9,6 +9,10 @@ using System.Linq;
 
 namespace Pipaslot.Mediator.Http;
 
+/// <summary>
+/// Dependency injection registration of the HTTP transport: the client (<c>AddMediatorClient</c>) and the server
+/// (<c>AddMediatorServer</c>) side of the mediator.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
@@ -112,7 +116,10 @@ public static class ServiceCollectionExtensions
         
         var config = services.AddMediator(addContextAccessor: options.AddContextAccessor);
 
-        var existingClaimPrincipalAccessors = services.Where(s => s.ImplementationType == typeof(IClaimPrincipalAccessor));
+        var existingClaimPrincipalAccessors = services
+            .Where(s => s.ServiceType == typeof(IClaimPrincipalAccessor)
+                        && s.ImplementationType == typeof(Pipaslot.Mediator.Authorization.ClaimPrincipalAccessor))
+            .ToList();
         foreach (var existingClaimPrincipalAccessor in existingClaimPrincipalAccessors)
         {
             services.Remove(existingClaimPrincipalAccessor);
